@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Modes and Scales</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .header-container {
+            position: relative;
+            text-align: center;
+        }
+        .help-link {
+            position: absolute;
+            top: 0;
+            right: 20px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .help-link:hover {
+            text-decoration: underline;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        h1 {
+            color: #005A9C;
+        }
+        h2 {
+            color: #343a40;
+            margin-top: 40px;
+        }
+        .table-container {
+            overflow-x: auto;
+            margin: auto;
+            max-width: 95%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            white-space: nowrap;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+        th, td {
+            border: 1px solid #dee2e6;
+            padding: 12px 15px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .highlight {
+            background-color: #ffc107 !important;
+            color: black;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .row-highlight {
+            background-color: #f0f5ff !important;
+        }
+        .hover-highlight {
+            background-color: #dbeafe !important;
+            cursor: pointer;
+        }
+        .note-match-highlight {
+            border: 2px solid #2563eb !important;
+            box-sizing: border-box;
+        }
+
+        #midi-status {
+            text-align: center;
+            padding: 15px;
+            margin: 20px auto;
+            background-color: #e9ecef;
+            border-radius: 8px;
+            max-width: 80%;
+            border: 1px solid #ced4da;
+        }
+        #midi-input-selector, #scale-type-selector {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        #midi-devices {
+            padding: 5px;
+            border-radius: 4px;
+        }
+        #notes-display {
+            font-weight: bold;
+            color: #005A9C;
+            min-height: 24px;
+        }
+        code {
+            background-color: #e0e0e0;
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+
+        #floating-notes-display {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            text-align: center;
+            font-weight: bold;
+            color: #005A9C;
+            font-size: 1.1em;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        #floating-notes-display.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #melody-suggestions-overlay {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            width: 280px;
+            max-height: 70vh;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            padding: 15px;
+            z-index: 1001;
+            overflow-y: auto;
+            display: none;
+        }
+        #melody-suggestions-overlay h3 {
+            margin-top: 0;
+            color: #005A9C;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .suggestion-item {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .suggestion-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .suggestion-header {
+            font-weight: bold;
+        }
+        .suggestion-notes {
+            margin-top: 5px;
+        }
+        .suggestion-notes .played {
+            font-weight: bold;
+            color: #005A9C;
+        }
+        .suggestion-notes .not-played {
+            color: #999;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="floating-notes-display"></div>
+    <div id="melody-suggestions-overlay"></div>
+
+    <div class="header-container">
+        <h1>Music Modes and Scales Conversion Table</h1>
+        <a href="#" class="help-link" onclick="document.getElementById('help-modal').style.display = 'block'; return false;">Help</a>
+    </div>
+
+    <div id="midi-status">
+        <p><strong>MIDI Status:</strong> <span id="status-text">Initializing...</span></p>
+        <div id="midi-input-selector"></div>
+
+        <div id="scale-type-selector">
+            <strong>Detect Mode:</strong>&nbsp;&nbsp;
+            <input type="radio" id="seven-note" name="scale-type" value="7" checked>
+            <label for="seven-note">7-note Scale</label>&nbsp;&nbsp;
+            <input type="radio" id="five-note" name="scale-type" value="5">
+            <label for="five-note">5-note / Blues</label>&nbsp;&nbsp;
+            <input type="radio" id="melody" name="scale-type" value="melody">
+            <label for="melody">Melody</label>
+        </div>
+
+        <p>Play a scale or melody on your MIDI controller to identify it.</p>
+        <p><strong>Notes Detected:</strong> <span id="notes-display"></span></p>
+    </div>
+
+    <div class="table-container"><h2>Modes of the Major Scale</h2><table id="major-scale-modes"></table></div>
+    <div class="table-container"><h2>Modes of the Melodic Minor Scale</h2><table id="melodic-minor-modes"></table></div>
+    <div class="table-container"><h2>Modes of the Harmonic Minor Scale</h2><table id="harmonic-minor-modes"></table></div>
+    <div class="table-container"><h2>Modes of the Harmonic Major Scale</h2><table id="harmonic-major-modes"></table></div>
+    <div class="table-container"><h2>Modes of the Double Harmonic Major Scale</h2><table id="double-harmonic-major-modes"></table></div>
+    <div class="table-container"><h2>Major Pentatonic Scale</h2><table id="major-pentatonic-scale"></table></div>
+    <div class="table-container"><h2>Minor Pentatonic Scale</h2><table id="minor-pentatonic-scale"></table></div>
+    <div class="table-container"><h2>The Blues Scale</h2><table id="blues-scale"></table></div>
+
+    <div id="help-modal" style="display:none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
+      <div style="background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 800px; border-radius: 8px;">
+        <span onclick="document.getElementById('help-modal').style.display = 'none'" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+        <div id="help-content-container"></div>
+      </div>
+    </div>
+
+<script src="./webmidi.iife.js"></script>
+<script src="./tables.js"></script>
+<script src="./midi.js"></script>
+<script>
+    // Load the markdown help content into the modal
+    fetch('readme.md') // UPDATED to load readme.md
+        .then(response => response.text())
+        .then(text => {
+            function simpleMdToHtml(md) {
+                md = md.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+                md = md.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+                md = md.replace(/\*\*(.*)\*\*/gim, '<b>$1</b>');
+                md = md.replace(/^\* (.*$)/gim, '<li>$1</li>');
+                md = md.replace(/\n\n/g, '<br/><br/>');
+                return md;
+            }
+            document.getElementById('help-content-container').innerHTML = simpleMdToHtml(text);
+        });
+</script>
+
+</body>
+</html>
