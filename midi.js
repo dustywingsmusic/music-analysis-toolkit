@@ -13,11 +13,51 @@ window.onload = function() {
     let playedNoteNumbers = [];
     let playedPitchClasses = new Set();
     let currentInput = null;
+    let currentOutput = null;
+    let audioContext = null;
     let matchWasFound = false;
     let currentMode = '7';
 
     const allScales = window.populateAllTables();
     const NOTES = ["C", "C♯/D♭", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"];
+
+    // Convert MIDI note number to WebMidi note name format (e.g., 60 -> "C4")
+    function convertMidiNumberToNoteName(midiNumber) {
+        const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+        const octave = Math.floor(midiNumber / 12) - 1;
+        const noteIndex = midiNumber % 12;
+        return noteNames[noteIndex] + octave;
+    }
+
+    // Convert MIDI note number to frequency in Hz
+    function midiToFrequency(midiNumber) {
+        return 440 * Math.pow(2, (midiNumber - 69) / 12);
+    }
+
+    // Play a tone using Web Audio API
+    function playTone(midiNumber, duration = 500) {
+        if (!audioContext) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        const frequency = midiToFrequency(midiNumber);
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+        oscillator.type = 'sine';
+
+        // Set up envelope (attack and release)
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration / 1000);
+
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + duration / 1000);
+    }
 
     // Get references to UI elements once
     const clearButton = document.getElementById('clear-notes-btn');
@@ -56,6 +96,25 @@ window.onload = function() {
         if (!playedPitchClasses.has(pitchClass)) {
             playedNoteNumbers.push(noteNumber);
             playedPitchClasses.add(pitchClass);
+        }
+
+        // Play the note back to the user for audio feedback
+        if (currentOutput && currentOutput.channels) {
+            try {
+                // Convert MIDI note number to note name (e.g., 60 -> "C4")
+                const noteName = convertMidiNumberToNoteName(noteNumber);
+                // Play the note with a short duration for feedback
+                currentOutput.channels[1].playNote(noteName, {duration: 500});
+            } catch (error) {
+                console.log("Could not play MIDI note:", error);
+            }
+        }
+
+        // Always play audible tone via Web Audio API
+        try {
+            playTone(noteNumber, 500);
+        } catch (error) {
+            console.log("Could not play audio tone:", error);
         }
 
         updateNotesDisplay();
@@ -220,6 +279,15 @@ window.onload = function() {
                 });
                 setInputDevice(inputs[0].id);
                 select.addEventListener('change', e => setInputDevice(e.target.value));
+
+                // Set up MIDI output for audio feedback
+                const outputs = WebMidi.outputs;
+                if (outputs.length > 0) {
+                    currentOutput = outputs[0];
+                    console.log("midi.js: Using MIDI output:", currentOutput.name);
+                } else {
+                    console.log("midi.js: No MIDI output devices detected. Audio feedback will not be available.");
+                }
             })
             .catch(err => {
                 console.error("midi.js: WebMidi.enable() FAILED.", err);

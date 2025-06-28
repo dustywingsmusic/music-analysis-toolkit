@@ -3,7 +3,7 @@ window.populateAllTables = function() {
 
     // --- Data and Constants ---
     const PARENT_KEYS = {
-        0: 'C', 1: 'D♭', 2: 'D', 3: 'E♭', 4: 'E', 5: 'F', 6: 'F♯', 7: 'G', 8: 'A♭', 9: 'A', 10: 'B♭', 11: 'B'
+        0: 'C', 1: 'D♭', 2: 'D', 3: 'E♭', 4: 'E', 5: 'F', 6: 'G♭', 7: 'G', 8: 'A♭', 9: 'A', 10: 'B♭', 11: 'B'
     };
     const PARENT_KEY_INDICES = [0, 7, 2, 9, 4, 11, 5, 10, 3, 8, 1, 6];
 
@@ -58,7 +58,7 @@ window.populateAllTables = function() {
           "1, 2, ♭3, 4, ♭5, ♭6, ♭7",
           "1, ♭2, ♭3, ♭4, ♭5, ♭6, ♭7"
         ],
-        commonNames: ["Jazz Minor", "Dorian ♭2", "Lydian Augmented", "Lydian Dominant", "Mixolydian ♭6", "Locrian ♮2", "Altered Scale"],
+        commonNames: ["(Alt) Jazz Minor", "Dorian ♭2", "Lydian Augmented", "Lydian Dominant", "Mixolydian ♭6", "Locrian ♮2", "Altered"],
         modeIntervals: [
           [0,2,3,5,7,9,11],
           [0,1,3,5,7,9,10],
@@ -126,7 +126,7 @@ window.populateAllTables = function() {
         name: "Double Harmonic Major",
         tableId: "double-harmonic-major-modes",
         isDiatonic: true,
-        headers: ["Mode / Scale Degree", "Double Harmonic (I)", "Lydian ♯2 ♯6 (II)", "Ultraphrygian (III)", "Hungarian Minor (IV)", "Oriental (V)", "Ionian Aug ♯2 (VI)", "Locrian ♭♭3 ♭♭7 (VII)"],
+        headers: ["Mode / Scale Degree", "Double Harmonic (I)", "Lydian ♯2 ♯6 (II)", "Ultraphrygian (III)", "Hungarian Minor (IV)", "Oriental (V)", "Ionian Aug ♯2 (VI)", "Ultra-Locrian (VII)"],
         formulas: [
           "1, ♭2, 3, 4, 5, ♭6, 7",
           "1, ♯2, 3, ♯4, 5, ♯6, 7",
@@ -136,7 +136,7 @@ window.populateAllTables = function() {
           "1, ♯2, 3, 4, ♯5, 6, 7",
           "1, ♭2, ♭♭3, ♭4, ♭5, ♭6, ♭♭7"
         ],
-        commonNames: ["Byzantine", "Lydian ♯2 ♯6", "Ultraphrygian", "Hungarian Minor", "Oriental", "Ionian Aug ♯2", "Locrian ♭♭3 ♭♭7"],
+        alternateNames: ["Byzantine", "Lydian ♯2 ♯6", "Ultraphrygian", "Hungarian Minor", "Oriental", "Ionian Aug ♯2", "Locrian ♭♭3 ♭♭7"],
         modeIntervals: [
           [0,1,4,5,7,8,11],
           [0,3,4,6,7,10,11],
@@ -146,7 +146,8 @@ window.populateAllTables = function() {
           [0,3,4,5,8,9,11],
           [0,1,2,4,5,7,8]
         ],
-        parentScaleIntervals: [0,1,4,5,7,8,11]
+        parentScaleIntervals: [0,1,4,5,7,8,11],
+        skipCommonNames: true
       },
       {
         name: "Major Pentatonic",
@@ -261,10 +262,22 @@ window.populateAllTables = function() {
 
         PARENT_KEY_INDICES.forEach((parentKeyIndex, keyRowIndex) => {
             const rootName = PARENT_KEYS[parentKeyIndex];
+            // For Blues Scale, treat G♭ as F♯ (omit G♭ row)
+            let displayRootName = rootName;
+            if (data.tableId === "blues-scale-modes" && rootName === "G♭") {
+                displayRootName = "F♯";
+            }
             const noteRow = tbody.insertRow();
-            noteRow.insertCell().textContent = `${rootName} ${data.name}`;
+            // Use displayRootName for first cell
+            noteRow.insertCell().textContent = `${displayRootName} ${data.name}`;
 
             const diatonicParent = generateDiatonicScale(parentKeyIndex, rootName, [2, 2, 1, 2, 2, 2]);
+
+            // Determine effective parent key for enharmonic logic
+            let effectiveKeyName = rootName;
+            if (data.tableId === "blues-scale-modes" && rootName === "G♭") {
+                effectiveKeyName = "F♯";
+            }
 
             data.parentScaleIntervals.forEach((modeStartInterval, modeIndex) => {
                 const cell = noteRow.insertCell();
@@ -276,21 +289,27 @@ window.populateAllTables = function() {
                 if (data.isDiatonic) {
                     cellNoteText = diatonicParent[modeIndex];
                 } else {
-                    // For non-diatonic scales, prefer the normal spelling; fallback to single flat or single sharp
-                    const pitchEntry = PITCH_CLASS_NAMES[modeRootPitch];
-                    // Use normal name if it doesn't contain double accidentals
-                    if (pitchEntry.normal && !pitchEntry.normal.includes('♭♭') && !pitchEntry.normal.includes('♯♯')) {
-                        cellNoteText = pitchEntry.normal;
-                    }
-                    // Otherwise try flat spelling if it's a single flat
-                    else if (pitchEntry.flat && !pitchEntry.flat.includes('♭♭')) {
+                    // Non-diatonic scales: if the row’s root key is flat-based, use single-flat spellings first
+                    const pitchEntry    = PITCH_CLASS_NAMES[modeRootPitch];
+                    const parentKeyName = PARENT_KEYS[parentKeyIndex];
+                    // Use effectiveKeyName for flat-checks
+                    if (effectiveKeyName.includes('♭')
+                        && pitchEntry.flat
+                        && !pitchEntry.flat.includes('♭♭'))
+                    {
                         cellNoteText = pitchEntry.flat;
                     }
-                    // Otherwise try sharp spelling if it's a single sharp
-                    else if (pitchEntry.sharp && !pitchEntry.sharp.includes('♯♯')) {
+                    else if (pitchEntry.normal
+                             && !pitchEntry.normal.includes('♭♭')
+                             && !pitchEntry.normal.includes('♯♯'))
+                    {
+                        cellNoteText = pitchEntry.normal;
+                    }
+                    else if (pitchEntry.sharp
+                             && !pitchEntry.sharp.includes('♯♯'))
+                    {
                         cellNoteText = pitchEntry.sharp;
                     }
-                    // Fallback to normal if all else fails
                     else {
                         cellNoteText = pitchEntry.normal;
                     }
