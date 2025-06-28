@@ -1,6 +1,3 @@
-// This function is attached to the global window object to ensure it's accessible
-// by other scripts, preventing the scope errors we encountered before.
-// It populates all tables and returns the master list of all scales for MIDI matching.
 window.populateAllTables = function() {
     console.log("tables.js: Running populateAllTables()...");
 
@@ -10,79 +7,34 @@ window.populateAllTables = function() {
     };
     const PARENT_KEY_INDICES = [0, 7, 2, 9, 4, 11, 5, 10, 3, 8, 1, 6];
 
-    // --- DATA FOR 7-NOTE SCALES ---
-    const MAJOR_MODES_DATA = {
-        headers: ["Mode / Scale Degree", "Ionian (I)", "Dorian (II)", "Phrygian (III)", "Lydian (IV)", "Mixolydian (V)", "Aeolian (VI)", "Locrian (VII)"],
-        formulas: ["1, 2, 3, 4, 5, 6, 7", "1, 2, ♭3, 4, 5, 6, ♭7", "1, ♭2, ♭3, 4, 5, ♭6, ♭7", "1, 2, 3, ♯4, 5, 6, 7", "1, 2, 3, 4, 5, 6, ♭7", "1, 2, ♭3, 4, 5, ♭6, ♭7", "1, ♭2, ♭3, 4, ♭5, ♭6, ♭7"],
-        commonNames: ["Major Scale", "Dorian", "Phrygian", "Lydian", "Mixolydian", "Natural Minor", "Locrian"],
-        modeIntervals: [[0,2,4,5,7,9,11], [0,2,3,5,7,9,10], [0,1,3,5,7,8,10], [0,2,4,6,7,9,11], [0,2,4,5,7,9,10], [0,2,3,5,7,8,10], [0,1,3,5,6,8,10]],
-        parentScaleIntervals: [0, 2, 4, 5, 7, 9, 11],
-        parentScaleIntervalPattern: [2, 2, 1, 2, 2, 2, 1]
-    };
-    const MELODIC_MINOR_MODES_DATA = {
-        headers: ["Mode / Scale Degree", "Melodic Minor (I)", "Dorian ♭2 (II)", "Lydian Aug (III)", "Lydian Dom (IV)", "Mixo ♭6 (V)", "Locrian ♮2 (VI)", "Altered (VII)"],
-        formulas: ["1, 2, ♭3, 4, 5, 6, 7","1, ♭2, ♭3, 4, 5, 6, ♭7","1, 2, 3, ♯4, ♯5, 6, 7","1, 2, 3, ♯4, 5, 6, ♭7","1, 2, 3, 4, 5, ♭6, ♭7","1, 2, ♭3, 4, ♭5, ♭6, ♭7","1, ♭2, ♭3, ♭4, ♭5, ♭6, ♭7"],
-        commonNames: ["Melodic Minor", "Phrygian ♮6", "Lydian Augmented", "Lydian Dominant", "Aeolian Dominant", "Half-Diminished ♮2", "Altered Scale"],
-        modeIntervals: [[0,2,3,5,7,9,11], [0,1,3,5,7,9,10], [0,2,4,6,8,9,11], [0,2,4,6,7,9,10], [0,2,4,5,7,8,10], [0,2,3,5,6,8,10], [0,1,3,4,6,8,10]],
-        parentScaleIntervals: [0, 2, 3, 5, 7, 9, 11],
-        parentScaleIntervalPattern: [2, 1, 2, 2, 2, 2, 1]
-    };
-    const HARMONIC_MINOR_DATA = {
-        headers: ["Mode / Scale Degree", "Harmonic Minor (I)", "Locrian ♮6 (II)", "Ionian Aug (III)", "Dorian ♯4 (IV)", "Phrygian Dom (V)", "Lydian ♯2 (VI)", "Altered Dim (VII)"],
-        formulas: ["1, 2, ♭3, 4, 5, ♭6, 7", "1, ♭2, ♭3, 4, ♭5, 6, ♭7", "1, 2, 3, 4, ♯5, 6, 7", "1, 2, ♭3, ♯4, 5, 6, ♭7", "1, ♭2, 3, 4, 5, ♭6, ♭7", "1, ♯2, 3, ♯4, 5, 6, 7", "1, ♭2, ♭3, ♭4, ♭5, ♭6, ♭♭7"],
-        commonNames: ["Harmonic Minor", "Locrian ♮6", "Ionian Augmented", "Ukrainian Dorian", "Phrygian Dominant", "Lydian ♯2", "Altered Diminished"],
-        modeIntervals: [[0,2,3,5,7,8,11], [0,1,3,5,6,8,10], [0,2,4,5,8,9,11], [0,2,3,6,7,9,10], [0,1,4,5,7,8,10], [0,3,4,7,8,10,11], [0,1,3,4,6,7,9]],
-        parentScaleIntervals: [0, 2, 3, 5, 7, 8, 11],
-        parentScaleIntervalPattern: [2, 1, 2, 2, 1, 3, 1]
-    };
-    const HARMONIC_MAJOR_DATA = {
-        headers: ["Mode / Scale Degree", "Harmonic Major (I)", "Dorian ♭5 (II)", "Phrygian ♭4 (III)", "Lydian ♭3 (IV)", "Mixo ♭2 (V)", "Lydian Aug ♯2 (VI)", "Locrian ♭♭7 (VII)"],
-        formulas: ["1, 2, 3, 4, 5, ♭6, 7", "1, 2, ♭3, 4, ♭5, 6, ♭7", "1, ♭2, ♭3, ♭4, 5, ♭6, ♭7", "1, 2, ♭3, ♯4, 5, 6, 7", "1, ♭2, 3, 4, 5, 6, ♭7", "1, ♯2, 3, ♯4, ♯5, 6, 7", "1, ♭2, ♭3, 4, ♭5, ♭6, ♭♭7"],
-        commonNames: ["Harmonic Major", "Dorian ♭5", "Phrygian ♭4", "Lydian ♭3", "Mixolydian ♭2", "Lydian Aug ♯2", "Locrian ♭♭7"],
-        modeIntervals: [[0,2,4,5,7,8,11], [0,2,3,5,6,9,10], [0,1,3,4,7,8,10], [0,2,3,6,7,9,11], [0,1,4,5,7,9,10], [0,3,4,7,9,10,11], [0,1,3,5,6,8,9]],
-        parentScaleIntervals: [0, 2, 4, 5, 7, 8, 11],
-        parentScaleIntervalPattern: [2, 2, 1, 2, 1, 3, 1]
-    };
-    const DOUBLE_HARMONIC_MAJOR_DATA = {
-        headers: ["Mode / Scale Degree", "Double Harmonic (I)", "Lydian ♯2 ♯6 (II)", "Ultraphrygian (III)", "Hungarian Minor (IV)", "Oriental (V)", "Ionian Aug ♯2 (VI)", "Locrian ♭♭3 ♭♭7 (VII)"],
-        formulas: ["1, ♭2, 3, 4, 5, ♭6, 7", "1, ♯2, 3, ♯4, 5, ♯6, 7", "1, ♭2, ♭3, ♭4, 5, 6, ♭7", "1, 2, ♭3, ♯4, 5, ♭6, ♭7", "1, ♭2, 3, 4, ♭5, 6, ♭7", "1, ♯2, 3, 4, ♯5, 6, 7", "1, ♭2, ♭♭3, ♭4, ♭5, ♭6, ♭♭7"],
-        commonNames: ["Byzantine Scale", "Lydian ♯2 ♯6", "Ultraphrygian", "Hungarian Minor", "Oriental", "Ionian Augmented ♯2", "Locrian ♭♭3 ♭♭7"],
-        modeIntervals: [[0,1,4,5,7,8,11], [0,3,4,6,7,10,11], [0,1,3,4,7,9,10], [0,2,3,6,7,8,10], [0,1,4,5,6,9,10], [0,3,4,5,8,9,11], [0,1,2,4,5,7,8]],
-        parentScaleIntervals: [0, 1, 4, 5, 7, 8, 11],
-        parentScaleIntervalPattern: [1, 3, 1, 2, 1, 3, 1]
-    };
-
-    // --- NEW: DATA FOR PENTATONIC/BLUES SCALES ---
-    const MAJOR_PENTATONIC_DATA = {
-        headers: ["Key", "Formula", "Notes"],
-        formula: "1, 2, 3, 5, 6",
-        intervals: [0, 2, 4, 7, 9]
-    };
-    const MINOR_PENTATONIC_DATA = {
-        headers: ["Key", "Formula", "Notes"],
-        formula: "1, ♭3, 4, 5, ♭7",
-        intervals: [0, 3, 5, 7, 10]
-    };
-    const BLUES_SCALE_DATA = {
-        headers: ["Key", "Formula", "Notes"],
-        formula: "1, ♭3, 4, ♭5, 5, ♭7",
-        intervals: [0, 3, 5, 6, 7, 10]
-    };
-
-    let allScales = [];
     const NOTE_LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
     const PITCH_CLASS_NAMES = {
-        0: { normal: 'C' }, 1: { normal: 'D♭', sharp: 'C♯' }, 2: { normal: 'D' }, 3: { normal: 'E♭', sharp: 'D♯' },
-        4: { normal: 'E' }, 5: { normal: 'F' }, 6: { normal: 'G♭', sharp: 'F♯' }, 7: { normal: 'G' },
-        8: { normal: 'A♭', sharp: 'G♯' }, 9: { normal: 'A' }, 10: { normal: 'B♭', sharp: 'A♯' }, 11: { normal: 'B' }
+        0: { normal: 'C', sharp: 'B♯', flat: 'D♭♭' }, 1: { normal: 'C♯', flat: 'D♭' },
+        2: { normal: 'D', sharp: 'C♯♯', flat: 'E♭♭' }, 3: { normal: 'E♭', sharp: 'D♯' },
+        4: { normal: 'E', flat: 'F♭', sharp: 'D♯♯' }, 5: { normal: 'F', sharp: 'E♯', flat: 'G♭♭' },
+        6: { normal: 'F♯', flat: 'G♭' }, 7: { normal: 'G', sharp: 'F♯♯', flat: 'A♭♭' },
+        8: { normal: 'A♭', sharp: 'G♯' }, 9: { normal: 'A', sharp: 'G♯♯', flat: 'B♭♭' },
+        10: { normal: 'B♭', sharp: 'A♯' }, 11: { normal: 'B', flat: 'C♭', sharp: 'A♯♯' }
     };
+
+    const allScaleData = [
+        { name: "Major Scale", tableId: "major-scale-modes", isDiatonic: true, headers: ["Mode / Scale Degree", "Ionian (I)", "Dorian (II)", "Phrygian (III)", "Lydian (IV)", "Mixolydian (V)", "Aeolian (VI)", "Locrian (VII)"], formulas: ["1, 2, 3, 4, 5, 6, 7", "1, 2, ♭3, 4, 5, 6, ♭7", "1, ♭2, ♭3, 4, 5, ♭6, ♭7", "1, 2, 3, ♯4, 5, 6, 7", "1, 2, 3, 4, 5, 6, ♭7", "1, 2, ♭3, 4, 5, ♭6, ♭7", "1, ♭2, ♭3, 4, ♭5, ♭6, ♭7"], commonNames: ["Major Scale", "Dorian", "Phrygian", "Lydian", "Mixolydian", "Natural Minor", "Locrian"], modeIntervals: [[0,2,4,5,7,9,11], [0,2,3,5,7,9,10], [0,1,3,5,7,8,10], [0,2,4,6,7,9,11], [0,2,4,5,7,9,10], [0,2,3,5,7,8,10], [0,1,3,5,6,8,10]], parentScaleIntervals: [0, 2, 4, 5, 7, 9, 11], parentScaleIntervalPattern: [2, 2, 1, 2, 2, 2] },
+        { name: "Melodic Minor", tableId: "melodic-minor-modes", isDiatonic: true, headers: ["Mode / Scale Degree", "Melodic Minor (I)", "Dorian ♭2 (II)", "Lydian Aug (III)", "Lydian Dom (IV)", "Mixo ♭6 (V)", "Locrian ♮2 (VI)", "Altered (VII)"], formulas: ["1, 2, ♭3, 4, 5, 6, 7","1, ♭2, ♭3, 4, 5, 6, ♭7","1, 2, 3, ♯4, ♯5, 6, 7","1, 2, 3, ♯4, 5, 6, ♭7","1, 2, 3, 4, 5, ♭6, ♭7","1, 2, ♭3, 4, ♭5, ♭6, ♭7","1, ♭2, ♭3, ♭4, ♭5, ♭6, ♭7"], commonNames: ["Melodic Minor", "Phrygian ♮6", "Lydian Augmented", "Lydian Dominant", "Aeolian Dominant", "Half-Diminished ♮2", "Altered Scale"], modeIntervals: [[0,2,3,5,7,9,11], [0,1,3,5,7,9,10], [0,2,4,6,8,9,11], [0,2,4,6,7,9,10], [0,2,4,5,7,8,10], [0,2,3,5,6,8,10], [0,1,3,4,6,8,10]], parentScaleIntervals: [0, 2, 3, 5, 7, 9, 11], parentScaleIntervalPattern: [2, 1, 2, 2, 2, 2] },
+        { name: "Harmonic Minor", tableId: "harmonic-minor-modes", isDiatonic: true, headers: ["Mode / Scale Degree", "Harmonic Minor (I)", "Locrian ♮6 (II)", "Ionian Aug (III)", "Dorian ♯4 (IV)", "Phrygian Dom (V)", "Lydian ♯2 (VI)", "Altered Dim (VII)"], formulas: ["1, 2, ♭3, 4, 5, ♭6, 7", "1, ♭2, ♭3, 4, ♭5, 6, ♭7", "1, 2, 3, 4, ♯5, 6, 7", "1, 2, ♭3, ♯4, 5, 6, ♭7", "1, ♭2, 3, 4, 5, ♭6, ♭7", "1, ♯2, 3, ♯4, 5, 6, 7", "1, ♭2, ♭3, ♭4, ♭5, ♭6, ♭♭7"], commonNames: ["Harmonic Minor", "Locrian ♮6", "Ionian Augmented", "Ukrainian Dorian", "Phrygian Dominant", "Lydian ♯2", "Altered Diminished"], modeIntervals: [[0,2,3,5,7,8,11], [0,1,3,5,6,8,10], [0,2,4,5,8,9,11], [0,2,3,6,7,9,10], [0,1,4,5,7,8,10], [0,3,4,7,8,10,11], [0,1,3,4,6,7,9]], parentScaleIntervals: [0, 2, 3, 5, 7, 8, 11], parentScaleIntervalPattern: [2, 1, 2, 2, 1, 3] },
+        { name: "Harmonic Major", tableId: "harmonic-major-modes", isDiatonic: true, headers: ["Mode / Scale Degree", "Harmonic Major (I)", "Dorian ♭5 (II)", "Phrygian ♭4 (III)", "Lydian ♭3 (IV)", "Mixo ♭2 (V)", "Lydian Aug ♯2 (VI)", "Locrian ♭♭7 (VII)"], formulas: ["1, 2, 3, 4, 5, ♭6, 7", "1, 2, ♭3, 4, ♭5, 6, ♭7", "1, ♭2, ♭3, ♭4, 5, ♭6, ♭7", "1, 2, ♭3, ♯4, 5, 6, 7", "1, ♭2, 3, 4, 5, 6, ♭7", "1, ♯2, 3, ♯4, ♯5, 6, 7", "1, ♭2, ♭3, 4, ♭5, ♭6, ♭♭7"], commonNames: ["Harmonic Major", "Dorian ♭5", "Phrygian ♭4", "Lydian ♭3", "Mixolydian ♭2", "Lydian Aug ♯2", "Locrian ♭♭7"], modeIntervals: [[0,2,4,5,7,8,11], [0,2,3,5,6,9,10], [0,1,3,4,7,8,10], [0,2,3,6,7,9,11], [0,1,4,5,7,9,10], [0,3,4,7,9,10,11], [0,1,3,5,6,8,9]], parentScaleIntervals: [0, 2, 4, 5, 7, 8, 11], parentScaleIntervalPattern: [2, 2, 1, 2, 1, 3] },
+        { name: "Double Harmonic Major", tableId: "double-harmonic-major-modes", isDiatonic: true, headers: ["Mode / Scale Degree", "Double Harmonic (I)", "Lydian ♯2 ♯6 (II)", "Ultraphrygian (III)", "Hungarian Minor (IV)", "Oriental (V)", "Ionian Aug ♯2 (VI)", "Locrian ♭♭3 ♭♭7 (VII)"], formulas: ["1, ♭2, 3, 4, 5, ♭6, 7", "1, ♯2, 3, ♯4, 5, ♯6, 7", "1, ♭2, ♭3, ♭4, 5, 6, ♭7", "1, 2, ♭3, ♯4, 5, ♭6, ♭7", "1, ♭2, 3, 4, ♭5, 6, ♭7", "1, ♯2, 3, 4, ♯5, 6, 7", "1, ♭2, ♭♭3, ♭4, ♭5, ♭6, ♭♭7"], commonNames: ["Byzantine Scale", "Lydian ♯2 ♯6", "Ultraphrygian", "Hungarian Minor", "Oriental", "Ionian Augmented ♯2", "Locrian ♭♭3 ♭♭7"], modeIntervals: [[0,1,4,5,7,8,11], [0,3,4,6,7,10,11], [0,1,3,4,7,9,10], [0,2,3,6,7,8,10], [0,1,4,5,6,9,10], [0,3,4,5,8,9,11], [0,1,2,4,5,7,8]], parentScaleIntervals: [0, 1, 4, 5, 7, 8, 11], parentScaleIntervalPattern: [1, 3, 1, 2, 1, 3] },
+        { name: "Major Pentatonic", tableId: "major-pentatonic-modes", isDiatonic: false, headers: ["Mode / Degree", "Major Pentatonic (I)", "Suspended (II)", "Blues Minor (III)", "Blues Major (IV)", "Minor Pentatonic (V)"], formulas: ["1, 2, 3, 5, 6", "1, 2, 4, 5, b7", "1, b3, 4, b6, b7", "1, 2, 4, 5, 6", "1, b3, 4, 5, b7"], commonNames: ["Major Pentatonic", "Egyptian", "Man Gong", "Ritsusen", "Minor Pentatonic"], modeIntervals: [[0,2,4,7,9], [0,2,5,7,10], [0,3,5,8,10], [0,2,5,7,9], [0,3,5,7,10]], parentScaleIntervals: [0, 2, 4, 7, 9] },
+        { name: "Blues Scale", tableId: "blues-scale-modes", isDiatonic: false, headers: ["Mode / Degree", "Blues Scale (I)", "Mode II", "Mode III", "Mode IV", "Mode V", "Mode VI"], formulas: ["1,♭3,4,♭5,5,♭7", "1,2,♭3,3,5,6", "1,♭2,2,4,5,♭7", "1,♭2,3,4,6,♭7", "1,2,♭3,5,6,♭7", "1,♭3,4,♭5,♭6,♭7"], commonNames: ["Blues Scale", "Blues Mode II", "Blues Mode III", "Blues Mode IV", "Blues Mode V", "Blues Mode VI"], modeIntervals: [[0,3,5,6,7,10], [0,2,3,4,7,9], [0,1,2,5,7,10], [0,1,4,5,8,10], [0,2,3,7,9,10], [0,3,5,6,8,10]], parentScaleIntervals: [0, 3, 5, 6, 7, 10] }
+    ];
+
+    let allScales = [];
 
     function generateDiatonicScale(rootPitchClass, rootName, intervalPattern) {
         let scaleNotes = [rootName];
         let currentPitch = rootPitchClass;
         let rootLetter_idx = NOTE_LETTERS.indexOf(rootName.charAt(0));
 
-        for (let i = 0; i < 6; i++) {
+        for (let i = 0; i < intervalPattern.length; i++) {
             currentPitch = (currentPitch + intervalPattern[i]) % 12;
             const nextLetter = NOTE_LETTERS[(rootLetter_idx + i + 1) % 7];
 
@@ -102,8 +54,8 @@ window.populateAllTables = function() {
         return scaleNotes;
     }
 
-    function buildModalTable(tableId, data, parentScaleName) {
-        const table = document.getElementById(tableId);
+    function buildTable(data) {
+        const table = document.getElementById(data.tableId);
         if (!table) return;
         table.innerHTML = '';
 
@@ -131,95 +83,76 @@ window.populateAllTables = function() {
         PARENT_KEY_INDICES.forEach((parentKeyIndex, keyRowIndex) => {
             const rootName = PARENT_KEYS[parentKeyIndex];
             const noteRow = tbody.insertRow();
-            noteRow.insertCell().textContent = `${rootName} ${parentScaleName}`;
+            noteRow.insertCell().textContent = `${rootName} ${data.name}`;
 
-            const parentScaleNotes = generateDiatonicScale(parentKeyIndex, rootName, data.parentScaleIntervalPattern);
+            const diatonicParent = generateDiatonicScale(parentKeyIndex, rootName, [2, 2, 1, 2, 2, 2]);
 
-            parentScaleNotes.forEach((cellNoteText, modeIndex) => {
+            data.parentScaleIntervals.forEach((modeStartInterval, modeIndex) => {
                 const cell = noteRow.insertCell();
-                cell.textContent = cellNoteText;
                 cell.classList.add('note-cell');
 
-                const modeRootNoteIndex = (parentKeyIndex + data.parentScaleIntervals[modeIndex]) % 12;
+                const modeRootPitch = (parentKeyIndex + modeStartInterval) % 12;
+
+                let cellNoteText = '?';
+                if (data.isDiatonic) {
+                    cellNoteText = diatonicParent[modeIndex];
+                } else {
+                    const majorScaleIntervals = [0, 2, 4, 5, 7, 9, 11];
+                    for(let i=0; i < majorScaleIntervals.length; i++){
+                        if( (parentKeyIndex + majorScaleIntervals[i]) % 12 === modeRootPitch) {
+                            cellNoteText = diatonicParent[i];
+                            break;
+                        }
+                    }
+                    if (cellNoteText === '?') {
+                        cellNoteText = PITCH_CLASS_NAMES[modeRootPitch].flat || PITCH_CLASS_NAMES[modeRootPitch].normal;
+                    }
+                }
+
+                cell.textContent = cellNoteText;
+
                 const modeTypeIntervals = data.modeIntervals[modeIndex];
-                const pitchClasses = new Set(modeTypeIntervals.map(i => (modeRootNoteIndex + i) % 12));
-                const cellId = `${tableId}-${keyRowIndex}-${modeIndex}`;
+                const pitchClasses = new Set(modeTypeIntervals.map(i => (modeRootPitch + i) % 12));
+                const cellId = `${data.tableId}-${keyRowIndex}-${modeIndex}`;
                 cell.id = cellId;
 
-                allScales.push({ id: cellId, pitchClasses: pitchClasses, rootNote: modeRootNoteIndex });
+                allScales.push({ id: cellId, pitchClasses: pitchClasses, rootNote: modeRootPitch });
+            });
+        });
 
-                cell.addEventListener('mouseover', (event) => {
-                    const currentCell = event.target;
-                    const noteToMatch = currentCell.textContent.trim();
-
-                    if (noteToMatch) {
-                        currentCell.parentElement.classList.add('row-highlight');
-                        currentCell.classList.add('hover-highlight');
-
-                        const allNoteCells = document.querySelectorAll('.note-cell');
-                        allNoteCells.forEach(otherCell => {
-                            if (otherCell.textContent.trim() === noteToMatch) {
-                                otherCell.classList.add('note-match-highlight');
-                            }
-                        });
-                    }
+        // --- REVISED: More robust event handling ---
+        table.addEventListener('mouseover', (event) => {
+            if (event.target.classList.contains('note-cell')) {
+                // Clear any previous highlights before applying new ones
+                document.querySelectorAll('.row-highlight, .hover-highlight, .note-match-highlight').forEach(el => {
+                    el.classList.remove('row-highlight', 'hover-highlight', 'note-match-highlight');
                 });
 
-                cell.addEventListener('mouseout', (event) => {
-                    document.querySelectorAll('.row-highlight').forEach(r => r.classList.remove('row-highlight'));
-                    document.querySelectorAll('.note-match-highlight').forEach(c => c.classList.remove('note-match-highlight'));
-                    document.querySelectorAll('.hover-highlight').forEach(c => c.classList.remove('hover-highlight'));
-                });
+                const currentCell = event.target;
+                const noteToMatch = currentCell.textContent.trim();
+
+                if (noteToMatch && noteToMatch !== '?') {
+                    currentCell.parentElement.classList.add('row-highlight');
+                    currentCell.classList.add('hover-highlight');
+
+                    document.querySelectorAll('.note-cell').forEach(otherCell => {
+                        if (otherCell.textContent.trim() === noteToMatch) {
+                            otherCell.classList.add('note-match-highlight');
+                        }
+                    });
+                }
+            }
+        });
+
+        table.addEventListener('mouseleave', () => {
+            // Clear all highlights when the mouse leaves the entire table area
+            document.querySelectorAll('.row-highlight, .hover-highlight, .note-match-highlight').forEach(el => {
+                el.classList.remove('row-highlight', 'hover-highlight', 'note-match-highlight');
             });
         });
     }
 
-    // --- NEW: Function to build the simpler Pentatonic/Blues tables ---
-    function buildSimpleTable(tableId, data) {
-        const table = document.getElementById(tableId);
-        if (!table) return;
-        table.innerHTML = '';
-        const NOTES = ["C", "C♯/D♭", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"];
-
-
-        const thead = table.createTHead();
-        const headerRow = thead.insertRow();
-        data.headers.forEach(headerText => {
-            const th = document.createElement('th');
-            th.textContent = headerText;
-            headerRow.appendChild(th);
-        });
-
-        const tbody = table.createTBody();
-
-        PARENT_KEY_INDICES.forEach((keyIndex, rowIndex) => {
-            const row = tbody.insertRow();
-            // Key Cell
-            row.insertCell().textContent = PARENT_KEYS[keyIndex];
-            // Formula Cell
-            row.insertCell().innerHTML = `<code>${data.formula}</code>`;
-            // Notes Cell
-            const notesCell = row.insertCell();
-            const pitchClasses = new Set(data.intervals.map(i => (keyIndex + i) % 12));
-            const notesText = Array.from(pitchClasses).sort((a, b) => a - b).map(pc => NOTES[pc]).join(', ');
-            notesCell.textContent = notesText;
-
-            // Add to master scale list for MIDI matching
-            const cellId = `${tableId}-${rowIndex}`;
-            notesCell.id = cellId;
-            allScales.push({ id: cellId, pitchClasses: pitchClasses, rootNote: keyIndex });
-        });
-    }
-
-    buildModalTable('major-scale-modes', MAJOR_MODES_DATA, 'Major Scale');
-    buildModalTable('melodic-minor-modes', MELODIC_MINOR_MODES_DATA, 'Melodic Minor');
-    buildModalTable('harmonic-minor-modes', HARMONIC_MINOR_DATA, 'Harmonic Minor');
-    buildModalTable('harmonic-major-modes', HARMONIC_MAJOR_DATA, 'Harmonic Major');
-    buildModalTable('double-harmonic-major-modes', DOUBLE_HARMONIC_MAJOR_DATA, 'Double Harmonic Major');
-
-    buildSimpleTable('major-pentatonic-scale', MAJOR_PENTATONIC_DATA);
-    buildSimpleTable('minor-pentatonic-scale', MINOR_PENTATONIC_DATA);
-    buildSimpleTable('blues-scale', BLUES_SCALE_DATA);
+    allScaleData.forEach(buildTable);
 
     console.log("tables.js: Finished populating all tables.");
     return allScales;

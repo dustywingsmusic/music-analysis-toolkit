@@ -102,10 +102,29 @@
             padding: 5px;
             border-radius: 4px;
         }
+        #notes-display-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
         #notes-display {
             font-weight: bold;
             color: #005A9C;
             min-height: 24px;
+        }
+        /* --- NEW: Style for the Clear Button --- */
+        #clear-notes-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        #clear-notes-btn:hover {
+            background: #5a6268;
         }
         code {
             background-color: #e0e0e0;
@@ -131,6 +150,19 @@
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.3s ease, visibility 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+        /* --- NEW: Style for floating clear icon --- */
+        #floating-clear-btn {
+            font-size: 1.2em;
+            cursor: pointer;
+            color: #6c757d;
+        }
+        #floating-clear-btn:hover {
+            color: #343a40;
         }
 
         #floating-notes-display.visible {
@@ -183,17 +215,46 @@
         .suggestion-notes .not-played {
             color: #999;
         }
+        .modal {
+            display:none;
+            position: fixed;
+            z-index: 2000;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 800px;
+            border-radius: 8px;
+        }
+        .modal-close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
 
     </style>
 </head>
 <body>
 
-    <div id="floating-notes-display"></div>
+    <div id="floating-notes-display">
+        <span id="floating-notes-content"></span>
+        <span id="floating-clear-btn" title="Clear notes (Esc)">&times;</span>
+    </div>
+
     <div id="melody-suggestions-overlay"></div>
 
     <div class="header-container">
         <h1>Music Modes and Scales Conversion Table</h1>
-        <a href="#" class="help-link" onclick="document.getElementById('help-modal').style.display = 'block'; return false;">Help</a>
+        <a href="#" class="help-link" id="help-link">Help</a>
     </div>
 
     <div id="midi-status">
@@ -211,7 +272,11 @@
         </div>
 
         <p>Play a scale or melody on your MIDI controller to identify it.</p>
-        <p><strong>Notes Detected:</strong> <span id="notes-display"></span></p>
+        <div id="notes-display-container">
+            <p><strong>Notes Detected:</strong></p>
+            <div id="notes-display"></div>
+            <button id="clear-notes-btn" title="Clear notes (Esc)">Clear</button>
+        </div>
     </div>
 
     <div class="table-container"><h2>Modes of the Major Scale</h2><table id="major-scale-modes"></table></div>
@@ -219,13 +284,12 @@
     <div class="table-container"><h2>Modes of the Harmonic Minor Scale</h2><table id="harmonic-minor-modes"></table></div>
     <div class="table-container"><h2>Modes of the Harmonic Major Scale</h2><table id="harmonic-major-modes"></table></div>
     <div class="table-container"><h2>Modes of the Double Harmonic Major Scale</h2><table id="double-harmonic-major-modes"></table></div>
-    <div class="table-container"><h2>Major Pentatonic Scale</h2><table id="major-pentatonic-scale"></table></div>
-    <div class="table-container"><h2>Minor Pentatonic Scale</h2><table id="minor-pentatonic-scale"></table></div>
-    <div class="table-container"><h2>The Blues Scale</h2><table id="blues-scale"></table></div>
+    <div class="table-container"><h2>Modes of the Major Pentatonic Scale</h2><table id="major-pentatonic-modes"></table></div>
+    <div class="table-container"><h2>Modes of the Blues Scale</h2><table id="blues-scale-modes"></table></div>
 
-    <div id="help-modal" style="display:none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
-      <div style="background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 800px; border-radius: 8px;">
-        <span onclick="document.getElementById('help-modal').style.display = 'none'" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+    <div id="help-modal" class="modal">
+      <div class="modal-content">
+        <span id="help-modal-close" class="modal-close">&times;</span>
         <div id="help-content-container"></div>
       </div>
     </div>
@@ -233,22 +297,7 @@
 <script src="./webmidi.iife.js"></script>
 <script src="./tables.js"></script>
 <script src="./midi.js"></script>
-<script>
-    // Load the markdown help content into the modal
-    fetch('readme.md') // UPDATED to load readme.md
-        .then(response => response.text())
-        .then(text => {
-            function simpleMdToHtml(md) {
-                md = md.replace(/^# (.*$)/gim, '<h1>$1</h1>');
-                md = md.replace(/^### (.*$)/gim, '<h3>$1</h3>');
-                md = md.replace(/\*\*(.*)\*\*/gim, '<b>$1</b>');
-                md = md.replace(/^\* (.*$)/gim, '<li>$1</li>');
-                md = md.replace(/\n\n/g, '<br/><br/>');
-                return md;
-            }
-            document.getElementById('help-content-container').innerHTML = simpleMdToHtml(text);
-        });
-</script>
+<script src="./help.js"></script>
 
 </body>
 </html>

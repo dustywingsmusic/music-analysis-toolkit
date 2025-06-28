@@ -1,5 +1,7 @@
-document.addEventListener('DOMContentLoaded', function() {
-    console.log("midi.js: DOM content loaded. Reverting to WebMidi.js library approach.");
+// Use window.onload to ensure all page resources, including the MIDI
+// library and system services, are fully ready before running the script.
+window.onload = function() {
+    console.log("midi.js: window.onload fired. Starting application script.");
 
     if (typeof WebMidi === 'undefined') {
         const statusText = document.getElementById('status-text');
@@ -16,7 +18,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const allScales = window.populateAllTables();
     const NOTES = ["C", "C♯/D♭", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"];
-    const MINOR_KEYS = ["A", "B♭", "B", "C", "C♯/D♭", "D", "E♭", "E", "F", "F♯", "G", "G♯/A♭"];
+
+    // Get references to UI elements once
+    const clearButton = document.getElementById('clear-notes-btn');
+    const floatingClearButton = document.getElementById('floating-clear-btn');
+    const notesDisplay = document.getElementById('notes-display');
+    const floatingNotesContent = document.getElementById('floating-notes-content');
+    const melodyOverlay = document.getElementById('melody-suggestions-overlay');
+
+
+    function resetSequence() {
+        playedNoteNumbers = [];
+        playedPitchClasses.clear();
+        document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+        if(melodyOverlay) melodyOverlay.style.display = 'none';
+        matchWasFound = false;
+        updateNotesDisplay();
+    }
 
     function handleMidiMessage(e) {
         const selectedMode = document.querySelector('input[name="scale-type"]:checked').value;
@@ -30,11 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentMode === '5' && playedPitchClasses.size >= 6 && !playedPitchClasses.has(pitchClass)) { needsReset = true; }
 
         if (needsReset) {
-            playedNoteNumbers = [];
-            playedPitchClasses.clear();
-            document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
-            document.getElementById('melody-suggestions-overlay').style.display = 'none';
-            matchWasFound = false;
+            resetSequence();
         }
 
         currentMode = selectedMode;
@@ -59,9 +73,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateNotesDisplay() {
-        const notesDisplay = document.getElementById('notes-display');
-        const floatingNotesDisplay = document.getElementById('floating-notes-display');
-
         const lowestNoteNumber = playedNoteNumbers.length > 0 ? Math.min(...playedNoteNumbers) : -1;
         const rootPitchClass = lowestNoteNumber !== -1 ? lowestNoteNumber % 12 : -1;
 
@@ -77,44 +88,50 @@ document.addEventListener('DOMContentLoaded', function() {
         const floatingText = notesHtml ? `Notes: ${notesHtml}` : '';
 
         if(notesDisplay) notesDisplay.innerHTML = notesHtml;
-        if(floatingNotesDisplay) floatingNotesDisplay.innerHTML = floatingText;
+        if(floatingNotesContent) floatingNotesContent.innerHTML = floatingText;
     }
 
     function findScaleMatch() {
-        function setsAreEqual(setA, setB) {
-            if (setA.size !== setB.size) return false;
-            for (const item of setA) if (!setB.has(item)) return false;
-            return true;
-        }
+        console.log("--- findScaleMatch triggered ---");
+        const setsAreEqual = (setA, setB) => setA.size === setB.size && [...setA].every(value => setB.has(value));
 
         const playedRootPitchClass = playedNoteNumbers.length > 0 ? Math.min(...playedNoteNumbers) % 12 : -1;
         const scalesToSearch = allScales.filter(s => s.pitchClasses.size === playedPitchClasses.size);
+
+        console.log(`Played Notes (MIDI Numbers): [${playedNoteNumbers.join(', ')}]`);
+        console.log(`Played Pitch Classes (Set): {${[...playedPitchClasses].join(', ')}}`);
+        console.log(`Determined Root Pitch Class: ${playedRootPitchClass} (${NOTES[playedRootPitchClass]})`);
+        console.log(`Searching through ${scalesToSearch.length} scales of the correct size.`);
 
         const bestMatch = scalesToSearch.find(scale =>
             scale.rootNote === playedRootPitchClass && setsAreEqual(scale.pitchClasses, playedPitchClasses)
         );
 
         if (bestMatch) {
+            console.log("SUCCESS: Found a match!", bestMatch);
             const cell = document.getElementById(bestMatch.id);
             if (cell) {
+                console.log("Highlighting cell:", bestMatch.id);
                 cell.classList.add('highlight');
                 cell.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
                 matchWasFound = true;
+            } else {
+                console.error("Found a match, but could not find cell with ID:", bestMatch.id);
             }
+        } else {
+            console.log("No match found for the played notes with the determined root.");
         }
     }
 
-    // --- REWRITTEN: Function for Key Suggestion Analysis ---
+    // --- REVISED: Now correctly finds and renders KEY suggestions ---
     function findKeySuggestions() {
-        const overlay = document.getElementById('melody-suggestions-overlay');
         if (playedPitchClasses.size === 0) {
-            overlay.style.display = 'none';
+            if(melodyOverlay) melodyOverlay.style.display = 'none';
             return;
         }
-
         let matches = [];
-        // Filter for only the 12 Major Scales (Ionian modes) to act as our parent keys.
-        const parentMajorScales = allScales.filter(s => s.id.startsWith('major-scale-modes') && s.pitchClasses.size === 7 && s.id.endsWith('-0'));
+        // Only consider the 12 Major Scales (Ionian modes) as parent keys
+        const parentMajorScales = allScales.filter(s => s.id.startsWith('major-scale-modes') && s.id.endsWith('-0'));
 
         parentMajorScales.forEach(scale => {
             let matchCount = 0;
@@ -141,91 +158,90 @@ document.addEventListener('DOMContentLoaded', function() {
         renderKeySuggestions(matches.slice(0, 5)); // Show top 5 key suggestions
     }
 
-    // --- REWRITTEN: Function to render Key Suggestions ---
     function renderKeySuggestions(suggestions) {
-        const overlay = document.getElementById('melody-suggestions-overlay');
         if (!suggestions || suggestions.length === 0) {
-            overlay.style.display = 'none';
+            if(melodyOverlay) melodyOverlay.style.display = 'none';
             return;
         }
-
-        overlay.innerHTML = '<h3>Key Suggestions</h3>'; // New Title
+        melodyOverlay.innerHTML = '<h3>Key Suggestions</h3>'; // Correct Title
         suggestions.forEach(s => {
             const itemDiv = document.createElement('div');
             itemDiv.className = 'suggestion-item';
-
             const header = document.createElement('div');
             header.className = 'suggestion-header';
             header.textContent = `${s.name} (${s.matchCount}/${playedPitchClasses.size} match)`;
-
             const notesDiv = document.createElement('div');
             notesDiv.className = 'suggestion-notes';
-
             const sortedPitches = Array.from(s.pitchClasses).sort((a,b)=>a-b);
             sortedPitches.forEach((pitch, index) => {
                 const noteSpan = document.createElement('span');
                 noteSpan.textContent = NOTES[pitch] + (index < sortedPitches.length - 1 ? ', ' : '');
-                if (playedPitchClasses.has(pitch)) {
-                    noteSpan.className = 'played'; // Highlight played notes
-                } else {
-                    noteSpan.className = 'not-played'; // Dim unplayed notes
-                }
+                noteSpan.className = playedPitchClasses.has(pitch) ? 'played' : 'not-played';
                 notesDiv.appendChild(noteSpan);
             });
-
             itemDiv.appendChild(header);
             itemDiv.appendChild(notesDiv);
-            overlay.appendChild(itemDiv);
+            melodyOverlay.appendChild(itemDiv);
         });
-
-        overlay.style.display = 'block';
+        melodyOverlay.style.display = 'block';
     }
 
-
     function setInputDevice(inputId) {
-        const statusText = document.getElementById('status-text');
         if (currentInput) currentInput.removeListener("noteon");
         currentInput = WebMidi.getInputById(inputId);
         if (currentInput) {
             currentInput.addListener("noteon", handleMidiMessage, { channels: "all" });
-            statusText.textContent = `Listening on: ${currentInput.name}`;
-        } else {
-            statusText.textContent = "Selected device not found.";
+            document.getElementById('status-text').textContent = `Listening on: ${currentInput.name}`;
         }
     }
 
     function setupMidi() {
+        console.log("midi.js: Running setupMidi()...");
         const statusText = document.getElementById('status-text');
-        const selectorContainer = document.getElementById('midi-input-selector');
-        WebMidi.enable({ sysex: false }).then(() => {
-            const inputs = WebMidi.inputs;
-            if (inputs.length < 1) {
-                statusText.textContent = "No MIDI input devices detected.";
-                return;
-            }
-            const select = document.createElement('select');
-            select.id = 'midi-devices';
-            selectorContainer.innerHTML = '<strong>Select MIDI Input:</strong> ';
-            selectorContainer.appendChild(select);
-            inputs.forEach(input => {
-                const option = document.createElement('option');
-                option.value = input.id;
-                option.textContent = input.name;
-                select.appendChild(option);
+
+        WebMidi.enable({ sysex: false })
+            .then(() => {
+                console.log("midi.js: WebMidi.enable() SUCCESS.");
+                const inputs = WebMidi.inputs;
+                const selectorContainer = document.getElementById('midi-input-selector');
+                if (inputs.length < 1) {
+                    statusText.textContent = "No MIDI input devices detected.";
+                    return;
+                }
+                const select = document.createElement('select');
+                select.id = 'midi-devices';
+                selectorContainer.innerHTML = '<strong>Select MIDI Input:</strong> ';
+                selectorContainer.appendChild(select);
+                inputs.forEach(input => {
+                    const option = document.createElement('option');
+                    option.value = input.id;
+                    option.textContent = input.name;
+                    select.appendChild(option);
+                });
+                setInputDevice(inputs[0].id);
+                select.addEventListener('change', e => setInputDevice(e.target.value));
+            })
+            .catch(err => {
+                console.error("midi.js: WebMidi.enable() FAILED.", err);
+                statusText.innerHTML = `<strong>MIDI Error:</strong> ${err.message}`;
             });
-            setInputDevice(inputs[0].id);
-            select.addEventListener('change', e => setInputDevice(e.target.value));
-        }).catch(err => {
-            statusText.innerHTML = `<strong>MIDI Error:</strong> ${err.message}`;
-        });
     }
 
     function cleanupMIDI() {
-        if (currentInput) currentInput.removeListener();
+        console.log("midi.js: Tab unloading. Disabling WebMidi to release port.");
         if (WebMidi.enabled) WebMidi.disable();
     }
 
+    // --- Application Initialization and Event Listeners ---
     setupMidi();
+
+    clearButton.addEventListener('click', resetSequence);
+    floatingClearButton.addEventListener('click', resetSequence);
+    window.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            resetSequence();
+        }
+    });
     window.addEventListener('beforeunload', cleanupMIDI);
     window.addEventListener('scroll', () => {
         const mainMidiStatus = document.getElementById('midi-status');
@@ -233,4 +249,4 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!mainMidiStatus || !floatingNotesDisplay) return;
         floatingNotesDisplay.classList.toggle('visible', window.scrollY > (mainMidiStatus.offsetTop + mainMidiStatus.offsetHeight));
     });
-});
+};
