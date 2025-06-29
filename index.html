@@ -113,7 +113,6 @@
             color: #005A9C;
             min-height: 24px;
         }
-        /* --- NEW: Style for the Clear Button --- */
         #clear-notes-btn {
             background: #6c757d;
             color: white;
@@ -155,7 +154,6 @@
             align-items: center;
             gap: 15px;
         }
-        /* --- NEW: Style for floating clear icon --- */
         #floating-clear-btn {
             font-size: 1.2em;
             cursor: pointer;
@@ -281,7 +279,7 @@
 
     <div class="table-container"><h2>Modes of the Major Scale</h2><table id="major-scale-modes"></table></div>
     <div class="table-container"><h2>Modes of the Melodic Minor Scale</h2><table id="melodic-minor-modes"></table></div>
-    <div class="table-container">   <h2>Modes of the Harmonic Minor Scale</h2><table id="harmonic-minor-modes"></table></div>
+    <div class="table-container"><h2>Modes of the Harmonic Minor Scale</h2><table id="harmonic-minor-modes"></table></div>
     <div class="table-container"><h2>Modes of the Harmonic Major Scale</h2><table id="harmonic-major-modes"></table></div>
     <div class="table-container"><h2>Modes of the Double Harmonic Major Scale</h2><table id="double-harmonic-major-modes"></table></div>
     <div class="table-container"><h2>Modes of the Major Pentatonic Scale</h2><table id="major-pentatonic-modes"></table></div>
@@ -294,9 +292,11 @@
       </div>
     </div>
 
+<!-- Scripts loaded in order. tables.js must come before the others. -->
 <script src="./webmidi.iife.js"></script>
 <script src="./tables.js"></script>
-<script src="./midi.js"></script>
+<script src="./midi_handler.js"></script>
+<script src="./presentation_logic.js"></script>
 <script src="./help.js"></script>
 
 </body>
