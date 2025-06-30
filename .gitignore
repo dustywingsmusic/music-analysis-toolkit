@@ -1,3 +1,4 @@
 .llm_docs
 .local_docs
 node_modules
+.env.local
