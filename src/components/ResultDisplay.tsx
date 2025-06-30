@@ -52,7 +52,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, onSwitchToFinder 
             <p className="text-sm font-semibold text-cyan-400">Key</p>
             <p className="text-lg text-white">{analysis.key}</p>
           </div>
-          
+
           {analysis.chord && analysis.romanNumeral ? (
             <>
               <div className="bg-slate-700/50 p-4 rounded-lg">

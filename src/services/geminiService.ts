@@ -102,7 +102,7 @@ export const analyzeMusic = async (musicalKey: string, analysisTarget: { chord?:
         ? `Chord: ${analysisTarget.chord}`
         : `Selected Notes: ${analysisTarget.notes?.join(", ")}`
     }`;
-    
+
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash-preview-04-17",
       contents: userPrompt,
@@ -115,7 +115,7 @@ export const analyzeMusic = async (musicalKey: string, analysisTarget: { chord?:
     });
 
     const jsonStr = response.text;
-    
+
     if (!jsonStr) {
       throw new Error("API returned an empty response.");
     }
@@ -137,7 +137,7 @@ export const analyzeMusic = async (musicalKey: string, analysisTarget: { chord?:
     console.error("Error during analysis:", error);
 
     let finalErrorMessage = "An unknown error occurred during analysis.";
-    
+
     if (error instanceof SyntaxError) {
       finalErrorMessage = "The analysis service returned a malformed response. This might be a temporary issue, please try again.";
     } else if (error instanceof Error) {
@@ -152,7 +152,7 @@ export const analyzeMusic = async (musicalKey: string, analysisTarget: { chord?:
              finalErrorMessage = `Failed to analyze: ${error.message}`;
         }
     }
-    
+
     throw new Error(finalErrorMessage);
   }
 };

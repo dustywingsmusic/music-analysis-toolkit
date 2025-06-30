@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { MUSICAL_KEYS } from '../constants/keys';
 import { analyzeMusic } from '../services/geminiService';
-import type { AnalysisResult } from '../types';
+import type { AnalysisResult } from '@/src/types.ts';
 import ResultDisplay from './ResultDisplay';
 import LoadingSpinner from './LoadingSpinner';
 import ToggleSwitch from './ToggleSwitch';
@@ -24,7 +24,7 @@ const ChordAnalyzer: React.FC<ChordAnalyzerProps> = ({ onSwitchToFinder }) => {
   const handleNoteSelect = (note: string) => {
     setSelectedNotes(prev => ({ ...prev, [note]: !prev[note] }));
   };
-  
+
   const getSelectedNoteArray = useCallback(() => {
     return Object.keys(selectedNotes).filter(note => selectedNotes[note]);
   }, [selectedNotes]);
@@ -80,7 +80,7 @@ const ChordAnalyzer: React.FC<ChordAnalyzerProps> = ({ onSwitchToFinder }) => {
     <div className="w-full max-w-2xl mx-auto">
       {/* Input Form */}
       <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700 shadow-2xl backdrop-blur-sm">
-        
+
         <div className="flex justify-center mb-6">
             <ToggleSwitch
                 labelLeft="Chord"
@@ -122,7 +122,7 @@ const ChordAnalyzer: React.FC<ChordAnalyzerProps> = ({ onSwitchToFinder }) => {
             </div>
           )}
         </div>
-        
+
         {isScaleMode && (
             <div className="mt-4">
                 <label className="block text-sm font-medium text-cyan-300 mb-2">

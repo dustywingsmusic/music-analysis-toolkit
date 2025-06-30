@@ -106,7 +106,7 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId }) => {
           <p className="font-semibold">MIDI Status: <span className="font-normal text-cyan-400">{status}</span></p>
           {error && <p className="text-red-400">Error: {error}</p>}
         </div>
-        
+
         {devices.length > 0 && (
           <div>
             <label htmlFor="midi-device" className="block text-sm font-medium text-cyan-300 mb-1">
@@ -144,7 +144,7 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId }) => {
             ))}
           </div>
         </div>
-        
+
         <div className="flex items-center gap-4">
             <p className="font-semibold">Notes Detected:</p>
             <div className="font-mono text-cyan-300 min-h-[1.5rem]">{playedNoteNames}</div>
@@ -153,7 +153,7 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId }) => {
             </button>
         </div>
       </div>
-      
+
       <div className="space-y-8">
         {allScaleData.map(scaleGroup => (
             <div key={scaleGroup.tableId} className="bg-slate-800/60 p-4 rounded-lg border border-slate-700">

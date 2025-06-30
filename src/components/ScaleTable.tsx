@@ -62,7 +62,7 @@ const ScaleTable: React.FC<ScaleTableProps> = ({
     }
     return classes;
   };
-  
+
   const isRowHovered = (keyRowIndex: number) => {
     return hoveredCell && hoveredCell.startsWith(`${scaleData.tableId}-${keyRowIndex}`);
   };
@@ -111,7 +111,7 @@ const ScaleTable: React.FC<ScaleTableProps> = ({
                 ))}
             </tr>
         )}
-        
+
         {PARENT_KEY_INDICES.map((parentKeyIndex, keyRowIndex) => {
           const rootName = PARENT_KEYS[parentKeyIndex as keyof typeof PARENT_KEYS];
 
@@ -142,9 +142,9 @@ const ScaleTable: React.FC<ScaleTableProps> = ({
                         cellNoteText = pitchEntry.normal || '?';
                     }
                 }
-                
+
                 const cellId = `${scaleData.tableId}-${keyRowIndex}-${modeIndex}`;
-                
+
                 return (
                   <td
                     key={modeIndex}
