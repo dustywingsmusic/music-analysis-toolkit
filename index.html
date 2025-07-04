@@ -1,303 +1,383 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music Modes and Scales</title>
-    <style>
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f8f9fa;
-            color: #333;
-        }
-        .header-container {
-            position: relative;
-            text-align: center;
-        }
-        .help-link {
-            position: absolute;
-            top: 0;
-            right: 20px;
-            font-size: 1.1em;
-            font-weight: bold;
-            color: #007bff;
-            text-decoration: none;
-        }
-        .help-link:hover {
-            text-decoration: underline;
-        }
-        h1, h2 {
-            text-align: center;
-        }
-        h1 {
-            color: #005A9C;
-        }
-        h2 {
-            color: #343a40;
-            margin-top: 40px;
-        }
-        .table-container {
-            overflow-x: auto;
-            margin: auto;
-            max-width: 95%;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            white-space: nowrap;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-        }
-        th, td {
-            border: 1px solid #dee2e6;
-            padding: 12px 15px;
-            text-align: left;
-        }
-        th {
-            background-color: #007bff;
-            color: white;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Music Theory Toolkit</title>
+    <script src="https://cdn.jsdelivr.net/npm/webmidi@next/dist/iife/webmidi.iife.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/abcjs@6.2.3/dist/abcjs-basic-min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/abcjs@6.2.3/abcjs-audio.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- IMPORTANT: LEAVE TAILWIND EMBEDDED HERE IN index.html UNTIL WE MOVE OUT OF AI STUIDO. -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            animation: {
+              'fade-in': 'fadeIn 0.5s ease-in-out',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+            },
+          },
+        },
+      }
+    </script>
+    <style type="text/tailwindcss">
+      @tailwind base;
+      @tailwind components;
+      @tailwind utilities;
 
-        .highlight {
-            background-color: #ffc107 !important;
-            color: black;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
+      /* ~~~~~~~~~~~~~~~~~~ Generic & Reusable Components ~~~~~~~~~~~~~~~~~~ */
 
-        .row-highlight {
-            background-color: #f0f5ff !important;
-        }
-        .hover-highlight {
-            background-color: #dbeafe !important;
-            cursor: pointer;
-        }
-        .note-match-highlight {
-            border: 2px solid #2563eb !important;
-            box-sizing: border-box;
-        }
+      body {
+        @apply bg-slate-900;
+      }
 
-        #midi-status {
-            text-align: center;
-            padding: 15px;
-            margin: 20px auto;
-            background-color: #e9ecef;
-            border-radius: 8px;
-            max-width: 80%;
-            border: 1px solid #ced4da;
-        }
-        #midi-input-selector, #scale-type-selector {
-            margin-top: 10px;
-            margin-bottom: 10px;
-        }
-        #midi-devices {
-            padding: 5px;
-            border-radius: 4px;
-        }
-        #notes-display-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-        }
-        #notes-display {
-            font-weight: bold;
-            color: #005A9C;
-            min-height: 24px;
-        }
-        #clear-notes-btn {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 4px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9em;
-        }
-        #clear-notes-btn:hover {
-            background: #5a6268;
-        }
-        code {
-            background-color: #e0e0e0;
-            padding: 2px 5px;
-            border-radius: 4px;
-        }
 
-        #floating-notes-display {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 10px;
-            background-color: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-            text-align: center;
-            font-weight: bold;
-            color: #005A9C;
-            font-size: 1.1em;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-        }
-        #floating-clear-btn {
-            font-size: 1.2em;
-            cursor: pointer;
-            color: #6c757d;
-        }
-        #floating-clear-btn:hover {
-            color: #343a40;
-        }
+      .card {
+        @apply p-6 rounded-xl border border-slate-700;
+      }
 
-        #floating-notes-display.visible {
-            opacity: 1;
-            visibility: visible;
-        }
+      .card--blur {
+        @apply bg-slate-800/50 shadow-2xl backdrop-blur-sm;
+      }
 
-        #melody-suggestions-overlay {
-            position: fixed;
-            top: 100px;
-            right: 20px;
-            width: 280px;
-            max-height: 70vh;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            padding: 15px;
-            z-index: 1001;
-            overflow-y: auto;
-            display: none;
-        }
-        #melody-suggestions-overlay h3 {
-            margin-top: 0;
-            color: #005A9C;
-            text-align: center;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-        .suggestion-item {
-            margin-bottom: 12px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        .suggestion-item:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-        .suggestion-header {
-            font-weight: bold;
-        }
-        .suggestion-notes {
-            margin-top: 5px;
-        }
-        .suggestion-notes .played {
-            font-weight: bold;
-            color: #005A9C;
-        }
-        .suggestion-notes .not-played {
-            color: #999;
-        }
-        .modal {
-            display:none;
-            position: fixed;
-            z-index: 2000;
-            left: 0; top: 0;
-            width: 100%; height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: 10% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 800px;
-            border-radius: 8px;
-        }
-        .modal-close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+      .btn {
+        @apply font-bold py-3 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900;
+      }
 
+      .btn--primary {
+        @apply bg-cyan-600 text-white hover:bg-cyan-500 disabled:bg-slate-600 disabled:cursor-not-allowed focus:ring-cyan-400;
+      }
+      .btn--secondary {
+        @apply bg-slate-600 text-white hover:bg-slate-500 focus:ring-slate-400;
+      }
+      .btn--sm {
+        @apply text-xs py-1 px-3;
+      }
+      .btn--grow {
+        @apply flex-grow flex justify-center items-center gap-2;
+      }
+
+      .label {
+        @apply block text-sm font-medium text-cyan-300 mb-1;
+      }
+
+      .text-input,
+      .select-input {
+        @apply w-full bg-slate-700 border border-slate-600 rounded-md py-2 px-3 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition;
+      }
+      .select-input--half {
+        @apply md:w-1/2;
+      }
+
+      .link-button {
+        @apply text-cyan-400 hover:text-cyan-200 hover:underline text-sm font-medium transition-colors;
+      }
+
+      .error-box {
+        @apply mt-8 text-center p-4 bg-red-900/50 text-red-300 border border-red-700 rounded-lg;
+      }
+
+      .section-title {
+        @apply text-2xl font-bold mb-4;
+      }
+      .section-title--cyan { @apply text-cyan-300; }
+      .section-title--teal { @apply text-teal-300; }
+      .section-title--amber { @apply text-amber-300; }
+      .section-title--violet { @apply text-violet-300; }
+
+      .subsection-title {
+        @apply text-lg font-semibold text-cyan-300 mb-3 border-b-2 border-slate-700 pb-2;
+      }
+
+      .prose-styles {
+        @apply max-w-none text-slate-200 leading-relaxed;
+      }
+
+      .tooltip {
+        @apply absolute bottom-full mb-2 w-max max-w-xs px-3 py-2 text-xs font-medium text-white bg-slate-800 border border-slate-600 rounded-lg shadow-lg opacity-0 transition-opacity pointer-events-none;
+      }
+      .group:hover .tooltip {
+        @apply opacity-100;
+      }
+
+      /* ~~~~~~~~~~~~~~~~~~ App Layout ~~~~~~~~~~~~~~~~~~ */
+
+      .app-container {
+        @apply min-h-screen bg-slate-900 text-slate-200 flex flex-col items-center p-4 sm:p-6 lg:p-8;
+      }
+
+      .main-content {
+        @apply w-full max-w-4xl mx-auto;
+      }
+
+      .app-header { @apply text-center mb-8; }
+      .app-header__title-wrapper { @apply flex justify-center items-center gap-4 mb-2; }
+      .app-header__icon { @apply h-10 w-10 text-cyan-400; }
+      .app-header__title { @apply text-4xl sm:text-5xl font-extrabold text-white tracking-tight; }
+      .app-header__subtitle { @apply text-slate-400 max-w-2xl mx-auto; }
+      .app-footer { @apply text-center mt-12 text-slate-500 text-sm; }
+
+      .view-controls {
+        @apply flex justify-center items-center gap-4 mb-8;
+      }
+
+      .view-switcher {
+        @apply flex justify-center bg-slate-800 p-2 rounded-lg gap-2;
+      }
+
+      .nav-button {
+        @apply px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-slate-800;
+      }
+      .nav-button:not(.nav-button--active) {
+        @apply bg-slate-700 text-slate-300 hover:bg-slate-600;
+      }
+      .nav-button--active {
+        @apply bg-cyan-600 text-white;
+      }
+
+      /* ~~~~~~~~~~~~~~~~~~ ToggleSwitch Component ~~~~~~~~~~~~~~~~~~ */
+
+      .toggle-switch {
+        @apply flex items-center justify-center space-x-2;
+      }
+
+      .toggle-switch__label {
+        @apply font-medium transition-colors text-slate-400;
+      }
+      .toggle-switch__label--active {
+        @apply text-cyan-300;
+      }
+
+      .toggle-switch__button {
+        @apply relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-cyan-500;
+      }
+      .toggle-switch__button--on { @apply bg-cyan-600; }
+      .toggle-switch__button--off { @apply bg-slate-600; }
+
+      .toggle-switch__slider {
+        @apply inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200;
+      }
+      .toggle-switch__slider--on { @apply translate-x-5; }
+      .toggle-switch__slider--off { @apply translate-x-0; }
+
+      /* ~~~~~~~~~~~~~~~~~~ ChordAnalyzer Component ~~~~~~~~~~~~~~~~~~ */
+      .chord-analyzer {
+        @apply w-full max-w-2xl mx-auto;
+      }
+      .chord-analyzer__toggle-container {
+        @apply flex justify-center mb-6;
+      }
+      .chord-analyzer__input-grid {
+        @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+      }
+      .chord-analyzer__actions {
+        @apply mt-6 flex items-center gap-4;
+      }
+      .chord-analyzer__output {
+        @apply mt-8;
+      }
+
+      .note-selector {
+        @apply mt-4;
+      }
+      .note-selector__grid {
+        @apply grid grid-cols-6 gap-2;
+      }
+      .note-selector__note {
+        @apply flex items-center justify-center p-2 rounded-md cursor-pointer transition-colors border-2 bg-slate-700 border-slate-600 hover:bg-slate-600;
+      }
+      .note-selector__note--selected {
+        @apply bg-cyan-600 border-cyan-400;
+      }
+      .note-selector__note-text {
+        @apply font-mono text-white select-none;
+      }
+
+
+      /* ~~~~~~~~~~~~~~~~~~ ResultDisplay Component ~~~~~~~~~~~~~~~~~~ */
+      .result-display {
+        @apply mt-8 w-full space-y-8 animate-fade-in;
+      }
+
+      .info-pair {
+        @apply bg-slate-700/50 p-4 rounded-lg;
+      }
+      .info-pair__label {
+        @apply text-sm font-semibold text-cyan-400;
+      }
+      .info-pair__value {
+        @apply text-lg text-white;
+      }
+      .info-pair__value--mono {
+        @apply font-mono;
+      }
+
+      .song-example-item {
+        @apply flex items-start bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700;
+      }
+      .song-example-item__icon {
+        @apply h-5 w-5 mt-1 mr-4 text-teal-400 flex-shrink-0;
+      }
+      .song-example-item__usage {
+        @apply text-sm text-slate-300 mt-2 italic bg-slate-600/50 p-2 rounded;
+      }
+
+      /* ~~~~~~~~~~~~~~~~~~ LoadingSpinner Component ~~~~~~~~~~~~~~~~~~ */
+      .loading-spinner-container {
+        @apply flex justify-center items-center p-4;
+      }
+      .loading-spinner {
+        @apply animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400;
+      }
+
+      /* ~~~~~~~~~~~~~~~~~~ ScaleFinder Component ~~~~~~~~~~~~~~~~~~ */
+      .scale-finder {
+        @apply w-full mx-auto space-y-6;
+      }
+      .scale-finder .text-semibold { @apply font-semibold; }
+      .scale-finder .text-cyan { @apply text-cyan-400; }
+      .scale-finder .text-error { @apply text-red-400; }
+
+      .radio-group {
+        @apply flex gap-4;
+      }
+      .radio-label {
+        @apply flex items-center gap-2 cursor-pointer;
+      }
+      .radio-input {
+        @apply h-4 w-4 text-cyan-600 bg-slate-700 border-slate-500 focus:ring-cyan-500;
+      }
+
+      .note-display {
+        @apply flex items-center gap-4;
+      }
+      .note-display__notes {
+        @apply font-mono text-cyan-300 min-h-[1.5rem];
+      }
+
+      .scale-tables-container {
+        @apply space-y-8;
+      }
+      .table-container {
+        @apply overflow-x-auto;
+      }
+
+      /* ~~~~~~~~~~~~~~~~~~ ScaleTable Component ~~~~~~~~~~~~~~~~~~ */
+      .scale-table {
+        @apply min-w-full border-collapse text-sm text-slate-300;
+      }
+      .scale-table__header-row {
+        @apply bg-slate-800;
+      }
+      .scale-table__header-cell {
+        @apply p-2 sm:p-3 font-semibold text-left sticky top-0 bg-slate-800 z-10;
+      }
+      .scale-table__row {
+        @apply border-t border-slate-700;
+      }
+      .scale-table__row:first-of-type {
+        @apply border-t-0;
+      }
+      .scale-table__row--data {
+        @apply bg-slate-800/50;
+      }
+      .scale-table__row--hovered {
+        @apply bg-slate-700;
+      }
+
+      .scale-table__cell {
+        @apply p-2 sm:p-3;
+      }
+      .scale-table__cell--header {
+        @apply font-semibold text-left;
+      }
+      .scale-table__cell--note {
+        @apply text-center transition-colors duration-150 whitespace-nowrap cursor-pointer bg-slate-700/50;
+      }
+      .scale-table__cell--highlighted {
+        @apply bg-yellow-400 text-black font-bold ring-2 ring-yellow-200;
+      }
+      .scale-table__cell--hovered {
+        @apply bg-cyan-600 ring-2 ring-cyan-400;
+      }
+      .scale-table__cell--note-match {
+        @apply bg-slate-600 border-2 border-cyan-500 box-border;
+      }
+
+      /* ~~~~~~~~~~~~~~~~~~ BachExampleDisplay Component ~~~~~~~~~~~~~~~~~~ */
+      .bach-example {
+        @apply bg-slate-700/50 p-4 rounded-lg;
+      }
+      .bach-example__label {
+        @apply text-sm font-semibold text-cyan-400;
+      }
+      .bach-example__title {
+        @apply text-base text-white mt-1;
+      }
+      .bach-example__bwv {
+        @apply text-slate-400 font-mono text-sm;
+      }
+      .bach-example__key {
+        @apply text-cyan-200;
+      }
+      .bach-example__explanation-container {
+        @apply mt-4 text-slate-300;
+      }
+      .bach-example__explanation-text {
+        @apply whitespace-pre-wrap text-sm leading-relaxed font-sans;
+      }
+
+      /* ~~~~~~~~~~~~~~~~~~ DebugInfoDisplay Component ~~~~~~~~~~~~~~~~~~ */
+      .debug-info {
+        @apply mb-8 bg-slate-900/70 border-2 border-dashed border-yellow-400/50 rounded-xl p-4 space-y-4 animate-fade-in;
+      }
+      .debug-info__title {
+        @apply text-xl font-bold text-yellow-300;
+      }
+      .debug-info__section {
+        @apply space-y-2;
+      }
+      .debug-info__subtitle {
+        @apply font-semibold text-cyan-300;
+      }
+      .debug-info__pre {
+        @apply bg-slate-950 p-3 rounded-md text-xs text-slate-300 overflow-auto max-h-60;
+      }
+
+      /* ~~~~~~~~~~~~~~~~~~ NearestGuessIcon Component ~~~~~~~~~~~~~~~~~~ */
+      .nearest-guess-icon {
+        @apply relative flex items-center;
+      }
+      .nearest-guess-icon__svg {
+        @apply w-5 h-5 text-amber-400;
+      }
     </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.7.0",
+    "vite": "https://esm.sh/vite@^7.0.1",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^4.6.0",
+    "path": "https://esm.sh/path@^0.12.7",
+    "url": "https://esm.sh/url@^0.11.4",
+    "tailwindcss": "https://esm.sh/tailwindcss@^4.1.11",
+    "autoprefixer": "https://esm.sh/autoprefixer@^10.4.21"
+  }
+}
+</script>
 </head>
-<body>
-
-    <div id="floating-notes-display">
-        <span id="floating-notes-content"></span>
-        <span id="floating-clear-btn" title="Clear notes (Esc)">&times;</span>
-    </div>
-
-    <div id="melody-suggestions-overlay"></div>
-
-    <div class="header-container">
-        <h1>Music Modes and Scales Conversion Table</h1>
-        <a href="#" class="help-link" id="help-link">Help</a>
-    </div>
-
-    <div id="midi-status">
-        <p><strong>MIDI Status:</strong> <span id="status-text">Initializing...</span></p>
-        <div id="midi-input-selector"></div>
-
-        <div id="scale-type-selector">
-            <strong>Detect Mode:</strong>&nbsp;&nbsp;
-            <input type="radio" id="seven-note" name="scale-type" value="7" checked>
-            <label for="seven-note">7-note Scale</label>&nbsp;&nbsp;
-            <input type="radio" id="five-note" name="scale-type" value="5">
-            <label for="five-note">5-note / Blues</label>&nbsp;&nbsp;
-            <input type="radio" id="melody" name="scale-type" value="melody">
-            <label for="melody">Melody</label>
-        </div>
-
-        <p>Play a scale or melody on your MIDI controller to identify it.</p>
-        <div id="notes-display-container">
-            <p><strong>Notes Detected:</strong></p>
-            <div id="notes-display"></div>
-            <button id="clear-notes-btn" title="Clear notes (Esc)">Clear</button>
-        </div>
-    </div>
-
-    <div class="table-container"><h2>Modes of the Major Scale</h2><table id="major-scale-modes"></table></div>
-    <div class="table-container"><h2>Modes of the Melodic Minor Scale</h2><table id="melodic-minor-modes"></table></div>
-    <div class="table-container"><h2>Modes of the Harmonic Minor Scale</h2><table id="harmonic-minor-modes"></table></div>
-    <div class="table-container"><h2>Modes of the Harmonic Major Scale</h2><table id="harmonic-major-modes"></table></div>
-    <div class="table-container"><h2>Modes of the Double Harmonic Major Scale</h2><table id="double-harmonic-major-modes"></table></div>
-    <div class="table-container"><h2>Modes of the Major Pentatonic Scale</h2><table id="major-pentatonic-modes"></table></div>
-    <div class="table-container"><h2>Modes of the Blues Scale</h2><table id="blues-scale-modes"></table></div>
-
-    <div id="help-modal" class="modal">
-      <div class="modal-content">
-        <span id="help-modal-close" class="modal-close">&times;</span>
-        <div id="help-content-container"></div>
-      </div>
-    </div>
-
-<!-- Scripts loaded in order. tables.js must come before the others. -->
-<script src="./webmidi.iife.js"></script>
-<script src="./tables.js"></script>
-<script src="./midi_handler.js"></script>
-<script src="./presentation_logic.js"></script>
-<script src="./help.js"></script>
-
-</body>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./index.tsx"></script>
+  </body>
 </html>
