@@ -8,13 +8,6 @@ body {
   @apply bg-slate-900;
 }
 
-.hidden {
-  @apply hidden;
-}
-
-.sr-only {
-  @apply sr-only;
-}
 
 .card {
   @apply p-6 rounded-xl border border-slate-700;
@@ -74,7 +67,7 @@ body {
 }
 
 .prose-styles {
-  @apply prose prose-slate prose-invert max-w-none text-slate-200;
+  @apply max-w-none text-slate-200 leading-relaxed;
 }
 
 .tooltip {
@@ -336,7 +329,7 @@ body {
 
 /* ~~~~~~~~~~~~~~~~~~ NearestGuessIcon Component ~~~~~~~~~~~~~~~~~~ */
 .nearest-guess-icon {
-  @apply relative group flex items-center;
+  @apply relative flex items-center;
 }
 .nearest-guess-icon__svg {
   @apply w-5 h-5 text-amber-400;
