@@ -297,12 +297,6 @@ body {
 .bach-example__key {
   @apply text-cyan-200;
 }
-.bach-example__audio-control {
-  @apply mt-2;
-}
-.bach-example__notation-wrapper {
-  @apply text-black bg-white p-2 rounded-md mt-2 overflow-x-auto;
-}
 .bach-example__explanation-container {
   @apply mt-4 text-slate-300;
 }

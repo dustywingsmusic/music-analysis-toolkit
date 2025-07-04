@@ -8,18 +8,368 @@
     <script src="https://cdn.jsdelivr.net/npm/webmidi@next/dist/iife/webmidi.iife.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/abcjs@6.2.3/dist/abcjs-basic-min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/abcjs@6.2.3/abcjs-audio.css">
-<script type="importmap">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- IMPORTANT: LEAVE TAILWIND EMBEDDED HERE IN index.html UNTIL WE MOVE OUT OF AI STUIDO. -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            animation: {
+              'fade-in': 'fadeIn 0.5s ease-in-out',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+            },
+          },
+        },
+      }
+    </script>
+    <style type="text/tailwindcss">
+      @tailwind base;
+      @tailwind components;
+      @tailwind utilities;
+
+      /* ~~~~~~~~~~~~~~~~~~ Generic & Reusable Components ~~~~~~~~~~~~~~~~~~ */
+
+      body {
+        @apply bg-slate-900;
+      }
+
+
+      .card {
+        @apply p-6 rounded-xl border border-slate-700;
+      }
+
+      .card--blur {
+        @apply bg-slate-800/50 shadow-2xl backdrop-blur-sm;
+      }
+
+      .btn {
+        @apply font-bold py-3 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900;
+      }
+
+      .btn--primary {
+        @apply bg-cyan-600 text-white hover:bg-cyan-500 disabled:bg-slate-600 disabled:cursor-not-allowed focus:ring-cyan-400;
+      }
+      .btn--secondary {
+        @apply bg-slate-600 text-white hover:bg-slate-500 focus:ring-slate-400;
+      }
+      .btn--sm {
+        @apply text-xs py-1 px-3;
+      }
+      .btn--grow {
+        @apply flex-grow flex justify-center items-center gap-2;
+      }
+
+      .label {
+        @apply block text-sm font-medium text-cyan-300 mb-1;
+      }
+
+      .text-input,
+      .select-input {
+        @apply w-full bg-slate-700 border border-slate-600 rounded-md py-2 px-3 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition;
+      }
+      .select-input--half {
+        @apply md:w-1/2;
+      }
+
+      .link-button {
+        @apply text-cyan-400 hover:text-cyan-200 hover:underline text-sm font-medium transition-colors;
+      }
+
+      .error-box {
+        @apply mt-8 text-center p-4 bg-red-900/50 text-red-300 border border-red-700 rounded-lg;
+      }
+
+      .section-title {
+        @apply text-2xl font-bold mb-4;
+      }
+      .section-title--cyan { @apply text-cyan-300; }
+      .section-title--teal { @apply text-teal-300; }
+      .section-title--amber { @apply text-amber-300; }
+      .section-title--violet { @apply text-violet-300; }
+
+      .subsection-title {
+        @apply text-lg font-semibold text-cyan-300 mb-3 border-b-2 border-slate-700 pb-2;
+      }
+
+      .prose-styles {
+        @apply max-w-none text-slate-200 leading-relaxed;
+      }
+
+      .tooltip {
+        @apply absolute bottom-full mb-2 w-max max-w-xs px-3 py-2 text-xs font-medium text-white bg-slate-800 border border-slate-600 rounded-lg shadow-lg opacity-0 transition-opacity pointer-events-none;
+      }
+      .group:hover .tooltip {
+        @apply opacity-100;
+      }
+
+      /* ~~~~~~~~~~~~~~~~~~ App Layout ~~~~~~~~~~~~~~~~~~ */
+
+      .app-container {
+        @apply min-h-screen bg-slate-900 text-slate-200 flex flex-col items-center p-4 sm:p-6 lg:p-8;
+      }
+
+      .main-content {
+        @apply w-full max-w-4xl mx-auto;
+      }
+
+      .app-header { @apply text-center mb-8; }
+      .app-header__title-wrapper { @apply flex justify-center items-center gap-4 mb-2; }
+      .app-header__icon { @apply h-10 w-10 text-cyan-400; }
+      .app-header__title { @apply text-4xl sm:text-5xl font-extrabold text-white tracking-tight; }
+      .app-header__subtitle { @apply text-slate-400 max-w-2xl mx-auto; }
+      .app-footer { @apply text-center mt-12 text-slate-500 text-sm; }
+
+      .view-controls {
+        @apply flex justify-center items-center gap-4 mb-8;
+      }
+
+      .view-switcher {
+        @apply flex justify-center bg-slate-800 p-2 rounded-lg gap-2;
+      }
+
+      .nav-button {
+        @apply px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-slate-800;
+      }
+      .nav-button:not(.nav-button--active) {
+        @apply bg-slate-700 text-slate-300 hover:bg-slate-600;
+      }
+      .nav-button--active {
+        @apply bg-cyan-600 text-white;
+      }
+
+      /* ~~~~~~~~~~~~~~~~~~ ToggleSwitch Component ~~~~~~~~~~~~~~~~~~ */
+
+      .toggle-switch {
+        @apply flex items-center justify-center space-x-2;
+      }
+
+      .toggle-switch__label {
+        @apply font-medium transition-colors text-slate-400;
+      }
+      .toggle-switch__label--active {
+        @apply text-cyan-300;
+      }
+
+      .toggle-switch__button {
+        @apply relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-cyan-500;
+      }
+      .toggle-switch__button--on { @apply bg-cyan-600; }
+      .toggle-switch__button--off { @apply bg-slate-600; }
+
+      .toggle-switch__slider {
+        @apply inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200;
+      }
+      .toggle-switch__slider--on { @apply translate-x-5; }
+      .toggle-switch__slider--off { @apply translate-x-0; }
+
+      /* ~~~~~~~~~~~~~~~~~~ ChordAnalyzer Component ~~~~~~~~~~~~~~~~~~ */
+      .chord-analyzer {
+        @apply w-full max-w-2xl mx-auto;
+      }
+      .chord-analyzer__toggle-container {
+        @apply flex justify-center mb-6;
+      }
+      .chord-analyzer__input-grid {
+        @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+      }
+      .chord-analyzer__actions {
+        @apply mt-6 flex items-center gap-4;
+      }
+      .chord-analyzer__output {
+        @apply mt-8;
+      }
+
+      .note-selector {
+        @apply mt-4;
+      }
+      .note-selector__grid {
+        @apply grid grid-cols-6 gap-2;
+      }
+      .note-selector__note {
+        @apply flex items-center justify-center p-2 rounded-md cursor-pointer transition-colors border-2 bg-slate-700 border-slate-600 hover:bg-slate-600;
+      }
+      .note-selector__note--selected {
+        @apply bg-cyan-600 border-cyan-400;
+      }
+      .note-selector__note-text {
+        @apply font-mono text-white select-none;
+      }
+
+
+      /* ~~~~~~~~~~~~~~~~~~ ResultDisplay Component ~~~~~~~~~~~~~~~~~~ */
+      .result-display {
+        @apply mt-8 w-full space-y-8 animate-fade-in;
+      }
+
+      .info-pair {
+        @apply bg-slate-700/50 p-4 rounded-lg;
+      }
+      .info-pair__label {
+        @apply text-sm font-semibold text-cyan-400;
+      }
+      .info-pair__value {
+        @apply text-lg text-white;
+      }
+      .info-pair__value--mono {
+        @apply font-mono;
+      }
+
+      .song-example-item {
+        @apply flex items-start bg-slate-700/50 p-4 rounded-lg transition-all hover:bg-slate-700;
+      }
+      .song-example-item__icon {
+        @apply h-5 w-5 mt-1 mr-4 text-teal-400 flex-shrink-0;
+      }
+      .song-example-item__usage {
+        @apply text-sm text-slate-300 mt-2 italic bg-slate-600/50 p-2 rounded;
+      }
+
+      /* ~~~~~~~~~~~~~~~~~~ LoadingSpinner Component ~~~~~~~~~~~~~~~~~~ */
+      .loading-spinner-container {
+        @apply flex justify-center items-center p-4;
+      }
+      .loading-spinner {
+        @apply animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400;
+      }
+
+      /* ~~~~~~~~~~~~~~~~~~ ScaleFinder Component ~~~~~~~~~~~~~~~~~~ */
+      .scale-finder {
+        @apply w-full mx-auto space-y-6;
+      }
+      .scale-finder .text-semibold { @apply font-semibold; }
+      .scale-finder .text-cyan { @apply text-cyan-400; }
+      .scale-finder .text-error { @apply text-red-400; }
+
+      .radio-group {
+        @apply flex gap-4;
+      }
+      .radio-label {
+        @apply flex items-center gap-2 cursor-pointer;
+      }
+      .radio-input {
+        @apply h-4 w-4 text-cyan-600 bg-slate-700 border-slate-500 focus:ring-cyan-500;
+      }
+
+      .note-display {
+        @apply flex items-center gap-4;
+      }
+      .note-display__notes {
+        @apply font-mono text-cyan-300 min-h-[1.5rem];
+      }
+
+      .scale-tables-container {
+        @apply space-y-8;
+      }
+      .table-container {
+        @apply overflow-x-auto;
+      }
+
+      /* ~~~~~~~~~~~~~~~~~~ ScaleTable Component ~~~~~~~~~~~~~~~~~~ */
+      .scale-table {
+        @apply min-w-full border-collapse text-sm text-slate-300;
+      }
+      .scale-table__header-row {
+        @apply bg-slate-800;
+      }
+      .scale-table__header-cell {
+        @apply p-2 sm:p-3 font-semibold text-left sticky top-0 bg-slate-800 z-10;
+      }
+      .scale-table__row {
+        @apply border-t border-slate-700;
+      }
+      .scale-table__row:first-of-type {
+        @apply border-t-0;
+      }
+      .scale-table__row--data {
+        @apply bg-slate-800/50;
+      }
+      .scale-table__row--hovered {
+        @apply bg-slate-700;
+      }
+
+      .scale-table__cell {
+        @apply p-2 sm:p-3;
+      }
+      .scale-table__cell--header {
+        @apply font-semibold text-left;
+      }
+      .scale-table__cell--note {
+        @apply text-center transition-colors duration-150 whitespace-nowrap cursor-pointer bg-slate-700/50;
+      }
+      .scale-table__cell--highlighted {
+        @apply bg-yellow-400 text-black font-bold ring-2 ring-yellow-200;
+      }
+      .scale-table__cell--hovered {
+        @apply bg-cyan-600 ring-2 ring-cyan-400;
+      }
+      .scale-table__cell--note-match {
+        @apply bg-slate-600 border-2 border-cyan-500 box-border;
+      }
+
+      /* ~~~~~~~~~~~~~~~~~~ BachExampleDisplay Component ~~~~~~~~~~~~~~~~~~ */
+      .bach-example {
+        @apply bg-slate-700/50 p-4 rounded-lg;
+      }
+      .bach-example__label {
+        @apply text-sm font-semibold text-cyan-400;
+      }
+      .bach-example__title {
+        @apply text-base text-white mt-1;
+      }
+      .bach-example__bwv {
+        @apply text-slate-400 font-mono text-sm;
+      }
+      .bach-example__key {
+        @apply text-cyan-200;
+      }
+      .bach-example__explanation-container {
+        @apply mt-4 text-slate-300;
+      }
+      .bach-example__explanation-text {
+        @apply whitespace-pre-wrap text-sm leading-relaxed font-sans;
+      }
+
+      /* ~~~~~~~~~~~~~~~~~~ DebugInfoDisplay Component ~~~~~~~~~~~~~~~~~~ */
+      .debug-info {
+        @apply mb-8 bg-slate-900/70 border-2 border-dashed border-yellow-400/50 rounded-xl p-4 space-y-4 animate-fade-in;
+      }
+      .debug-info__title {
+        @apply text-xl font-bold text-yellow-300;
+      }
+      .debug-info__section {
+        @apply space-y-2;
+      }
+      .debug-info__subtitle {
+        @apply font-semibold text-cyan-300;
+      }
+      .debug-info__pre {
+        @apply bg-slate-950 p-3 rounded-md text-xs text-slate-300 overflow-auto max-h-60;
+      }
+
+      /* ~~~~~~~~~~~~~~~~~~ NearestGuessIcon Component ~~~~~~~~~~~~~~~~~~ */
+      .nearest-guess-icon {
+        @apply relative flex items-center;
+      }
+      .nearest-guess-icon__svg {
+        @apply w-5 h-5 text-amber-400;
+      }
+    </style>
+  <script type="importmap">
 {
   "imports": {
-    "path": "https://esm.sh/path@^0.12.7",
-    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
-    "vite": "https://esm.sh/vite@^7.0.1",
-    "react/": "https://esm.sh/react@^19.1.0/",
     "react": "https://esm.sh/react@^19.1.0",
-    "url": "https://esm.sh/url@^0.11.4",
-    "@google/genai": "https://esm.sh/@google/genai@^1.8.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.7.0",
+    "vite": "https://esm.sh/vite@^7.0.1",
     "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^4.6.0",
-    "@tailwindcss/vite": "https://esm.sh/@tailwindcss/vite@^4.1.11",
+    "path": "https://esm.sh/path@^0.12.7",
+    "url": "https://esm.sh/url@^0.11.4",
     "tailwindcss": "https://esm.sh/tailwindcss@^4.1.11",
     "autoprefixer": "https://esm.sh/autoprefixer@^10.4.21"
   }
@@ -28,6 +378,6 @@
 </head>
   <body>
     <div id="root"></div>
-  <script type="module" src="./index.tsx"></script>
-</body>
+    <script type="module" src="./index.tsx"></script>
+  </body>
 </html>

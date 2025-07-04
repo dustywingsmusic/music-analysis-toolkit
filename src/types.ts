@@ -21,6 +21,8 @@ export interface BachExample {
   bwv?: string;
   exampleKey?: string;
   abcNotation?: string;
+  midiUrl?: string;
+  scoreUrl?: string;
 }
 
 export interface PrimaryAnalysis {

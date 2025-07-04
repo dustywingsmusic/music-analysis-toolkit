@@ -1,197 +1,314 @@
 
 import { GoogleGenAI } from "@google/genai";
-import type { AnalysisResult } from '../types';
+import type { AnalysisResult, AnalysisResponsePayload, PrimaryAnalysis, BachExample, SongExampleGroup, Analysis } from '../types';
 import { allScaleData } from '../constants/scales';
+import { searchPeachnote } from './peachnoteService';
 
-if (!process.env.GEMINI_API_KEY) {
-  throw new Error("GEMINI_API_KEY environment variable not set");
+if (!process.env.API_KEY) {
+  throw new Error("API_KEY environment variable not set");
 }
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-//
-// 1) Expanded schema to include the basicMajorScale and inferred parent key
-//
-const responseSchema = {
-  type: "OBJECT",
-  properties: {
-    analysis: {
-      type: "OBJECT",
-      description: "Detailed analysis of the chord/scale and its corresponding mode. Omit if input is invalid.",
-      properties: {
-        key:               { type: "STRING", description: "The parent musical key (e.g., 'C Major' or 'A Minor') inferred by the AI based on the tonic and the musical input." },
-        basicMajorScale:   { type: "ARRAY",  description: "The notes of the major scale starting on the tonic.", items: { type: "STRING" } },
-        chord:             { type: "STRING", description: "The chord provided by the user, if applicable." },
-        romanNumeral:      { type: "STRING", description: "The Roman numeral of the chord in the given key, if applicable." },
-        selectedNotes:     { type: "ARRAY",  description: "The notes selected by the user for scale analysis, if applicable.", items: { type: "STRING" } },
-        mode:              { type: "STRING", description: "The primary musical mode associated with the chord/scale." },
-        tableId:           { type: "STRING", description: "The 'tableId' from the reference data for the scale containing the mode." },
-        modeIndex:         { type: "NUMBER", description: "The 0-based index of the mode within its parent scale's 'modeIntervals' array." },
-        parentScaleRootNote: { type: "STRING", description: "The root note name of the parent scale of the identified mode." },
-        explanation:       { type: "STRING", description: "A brief explanation of the primary mode." },
-        formula:           { type: "STRING", description: "The interval formula of the mode (e.g., 1, 2, b3, 4, 5, 6, b7)." },
-        intervals:         { type: "ARRAY",  description: "The semitone intervals from the root of the mode.", items: { type: "NUMBER" } },
-        notes:             { type: "ARRAY",  description: "The actual notes of the mode's scale in the given key.", items: { type: "STRING" } },
-        ambiguityExplanation: { type: "STRING", description: "Why other modes might also fit (e.g. enharmonic choices, multiple possible alterations)." },
-        alternateExplanation: { type: "STRING", description: "A concise description of an alternate plausible mode, if one exists." }
+// --- PROMPT 1: CORE ANALYSIS ---
+
+const coreAnalysisExampleOutput = {
+  "analysis": {
+    "key": "A♭ Major",
+    "mode": "Phrygian",
+    "tableId": "major-scale-modes",
+    "modeIndex": 2,
+    "parentScaleRootNote": "A♭",
+    "explanation": "The C Phrygian mode is the third mode of the A♭ Major scale. It is characterized by its flattened second (D♭), which creates its distinctive dark, Spanish/Middle Eastern sound.",
+    "formula": "1, ♭2, ♭3, 4, 5, ♭6, ♭7",
+    "intervals": [0, 1, 3, 5, 7, 8, 10],
+    "notes": ["C", "D♭", "E♭", "F", "G", "A♭", "B♭"]
+  },
+  "alternates": [{
+    "key": "B♭ Melodic Minor",
+    "mode": "Dorian ♭2",
+    "tableId": "melodic-minor-modes",
+    "modeIndex": 1,
+    "parentScaleRootNote": "B♭",
+    "explanation": "The Dorian ♭2 mode also contains the characteristic 1, ♭2, ♭3, 4 intervals. It differs from Phrygian with its natural 6th degree, giving it a slightly brighter, jazzy quality.",
+    "formula": "1, ♭2, ♭3, 4, 5, 6, ♭7",
+    "intervals": [0, 1, 3, 5, 7, 9, 10],
+    "notes": ["C", "D♭", "E♭", "F", "G", "A", "B♭"]
+  }],
+  "modeDiscussion": "The provided notes strongly suggest the C Phrygian mode due to the characteristic [0, 1, 3, 5] interval structure. An alternative is C Dorian ♭2, which shares the same lower tetrachord."
+};
+
+const coreAnalysisSystemInstruction = {
+  parts: [{
+    text: `You are an expert music theory bot. Your function is to return a single, valid JSON object that provides a foundational music theory analysis of a given context. DO NOT include any extra text or markdown like \\\`\\\`\\\`json.
+
+The user will provide a tonic and either a chord or a set of notes.
+
+Your process MUST be:
+1.  **IDENTIFY MODES**: Based on the user's input and the provided Reference Scale Data, identify all plausible musical modes whose root matches the user's tonic.
+2.  **STRUCTURED ANALYSIS**: Create a main \`analysis\` object for the single most likely mode. Populate the \`alternates\` array with objects for all other plausible modes. If only one mode is found, \`alternates\` MUST be an empty array.
+3.  **MODE DISCUSSION**: Write a concise \`modeDiscussion\` string that explains the reasoning based *only* on the modes you have identified.
+4.  **NEAREST GUESS**: If no mode is a perfect match, find the single closest one. Set \`isNearestGuess: true\` in its \`analysis\` object and explain the approximation in its \`explanation\` field. The \`alternates\` array must be empty.
+5.  **VALIDATION**: If the input is invalid (e.g., fewer than 3 notes), return only an \`error\` field with a descriptive message.
+
+**CRITICAL**: The output JSON object MUST be perfectly structured and valid. Escape all double-quotes within string values. DO NOT include \`bachExample\` or \`songExamples\` in this step.
+
+**EXAMPLE INPUT:**
+Analyze this context: Tonic: C. Selected Notes: C♯, D♯, F
+
+**EXAMPLE OUTPUT JSON (Your response must be in this format):**
+${JSON.stringify(coreAnalysisExampleOutput, null, 2)}
+`
+  }, {
+    text: `**Reference Scale Data:**\n${JSON.stringify(allScaleData, null, 2)}`
+  }]
+};
+
+
+// --- PROMPT 2: BACH EXAMPLE ---
+
+const bachExampleSystemInstruction = {
+    text: `You are a musicology expert specializing in the Baroque and Classical periods. Your task is to find a single, real musical work that is a good example of a given musical mode and return its details as a single, valid JSON object.
+
+The user will provide a mode and its key context.
+
+Your process:
+1. Find a suitable piece (preferably by J.S. Bach, but other well-known composers like Beethoven or Mozart are acceptable) that clearly demonstrates the provided mode.
+2. Provide the full, searchable title, including catalogue numbers (e.g., BWV for Bach, Op. for Beethoven).
+3. Write a detailed, educational \`explanation\` that analyzes how the composer uses the characteristic note to achieve a specific emotional or dramatic effect. Structure the explanation with the provided markdown (🎵, 🔍, 🎼, 🧠).
+
+**CRITICAL**:
+- If a good example cannot be found, return an empty JSON object: \`{}\`.
+- The output JSON object MUST be perfectly structured and valid.
+- DO NOT include \`snippet\` or \`abcNotation\`.
+- The example you provide in your response should be DIFFERENT from the one in this prompt.
+
+**EXAMPLE INPUT**:
+Mode: F Lydian. Key context: F Major.
+
+**EXAMPLE OUTPUT (Your response must be in this format and structure, but with a different piece):**
+{
+  "title": "String Quartet No. 15 in A minor, Op. 132, III. Molto adagio",
+  "composer": "L.v. Beethoven",
+  "key": "F Lydian",
+  "explanation": "This movement, titled \\"Holy song of thanksgiving of a convalescent to the Deity, in the Lydian mode,\\" is one of the most famous uses of a church mode in the classical repertoire.\\n\\n⸻\\n\\n🎵 Why is B natural used in F Lydian?\\n\\nBeethoven uses the B natural (the ♯4 degree) to create a sense of sublime, ethereal openness and purity, deliberately avoiding the tension of the standard B-flat to C V-I resolution in F Major.\\n\\n🔍 Let’s break that down:\\n\\t1.\\tThe Lydian ♯4 avoids the tritone with the root, giving the scale a uniquely bright and stable quality, which Beethoven uses to represent divine grace and recovery from illness.\\n\\t2.\\tHe alternates the ancient, placid F Lydian sections with sections in D Major (Neue Kraft fühlend - \\"feeling new strength\\"), creating a powerful narrative of sickness and healing.\\n\\t3.\\tThe lack of a leading tone pull from B-flat to C makes the harmony feel suspended and contemplative, perfectly fitting the mood of a prayerful hymn.\\n\\n⸻\\n\\n🎼 In practice:\\n\\nThe B natural in the main chorale theme gives the melody its floating, otherworldly character. It sounds ancient and fresh at the same time, a deliberate choice by Beethoven to evoke a sense of sacred mystery and profound gratitude.\\n\\n⸻\\n\\n🧠 Summary:\\n\\t•\\tKey of the piece: F Lydian\\n\\t•\\tB natural: Not an error—it is the defining note of the Lydian mode.\\n\\t•\\tEffect: Creates a serene, open, and divine atmosphere, contrasting with the more earthly D Major sections."
+}`
+};
+
+
+// --- PROMPT 3: SONG EXAMPLES ---
+
+const songExamplesSystemInstruction = {
+    text: `You are a pop culture and music expert. Your task is to provide modern song examples for a given list of musical modes. Return a single, valid JSON array.
+
+The user will provide a list of modes. For each mode, find one or two well-known songs from genres like rock, pop, jazz, or film scores that prominently feature that mode.
+
+**CRITICAL**:
+- The output MUST be a JSON array of objects, where each object has a 'mode' and 'examples' key.
+- Provide a concise 'usage' description for each song.
+- If you cannot find a good example for a particular mode, omit it from the array.
+
+**EXAMPLE INPUT**:
+["Phrygian", "Lydian Dominant"]
+
+**EXAMPLE OUTPUT (Your response must be in this format):**
+[
+  {
+    "mode": "Phrygian",
+    "examples": [
+      {
+        "title": "Pyramid Song",
+        "artist": "Radiohead",
+        "usage": "The main harmonic and melodic material is often analyzed as being in C Phrygian."
       },
-      required: [
-        "key","basicMajorScale","mode","tableId","modeIndex","parentScaleRootNote",
-        "explanation","formula","intervals","notes"
-      ]
-    },
-    songExamples: {
-      type: "ARRAY",
-      description: "A list of popular songs that feature the identified mode. Omit if input is invalid.",
-      items: {
-        type: "OBJECT",
-        properties: {
-          title:  { type: "STRING", description: "The title of the song." },
-          artist: { type: "STRING", description: "The artist of the song." },
-          usage:  { type: "STRING", description: "How the mode is used in the song." }
-        },
-        required: ["title","artist","usage"]
+      {
+        "title": "Wherever I May Roam",
+        "artist": "Metallica",
+        "usage": "The main riff is a classic example of the E Phrygian sound."
       }
-    },
-    error: {
-      type: "STRING",
-      description: "An error message to be populated ONLY if the user-provided chord or scale is musically invalid."
+    ]
+  },
+  {
+    "mode": "Lydian Dominant",
+    "examples": [
+      {
+        "title": "The Simpsons Theme",
+        "artist": "Danny Elfman",
+        "usage": "The iconic opening melody is a textbook example of the Lydian Dominant scale."
+      }
+    ]
+  }
+]
+`
+};
+
+const safelyParseJson = <T>(jsonString: string): T | null => {
+  try {
+    let text = jsonString.trim();
+    const fenceRegex = /^```(\w*)?\s*\n?(.*?)\n?\s*```$/s;
+    const match = text.match(fenceRegex);
+    if (match && match[2]) {
+      text = match[2].trim();
     }
+    if (!text) return null;
+    return JSON.parse(text) as T;
+  } catch (e) {
+    console.error("Failed to parse JSON:", e, "Raw string:", jsonString);
+    return null;
   }
 };
 
-//
-// 2) Enhanced system instructions to ask the AI to infer the parent key.
-//
-const systemInstruction = {
-  parts: [
-    {
-      text: `
-You are an expert music theory bot. Your purpose is to analyze a musical context starting from a given tonic (root note).
+const getCoreAnalysis = async (
+  tonic: string,
+  analysisTarget: { chord?: string; notes?: readonly string[] }
+): Promise<{ result: AnalysisResult; debug: AnalysisResponsePayload['debug'] }> => {
+  const userPrompt = `Analyze this context: Tonic: ${tonic}. ${
+    analysisTarget.chord
+      ? `Chord: ${analysisTarget.chord}`
+      : `Selected Notes: ${analysisTarget.notes?.join(", ")}`
+  }`;
 
-Your tasks are:
-1. **Infer Parent Key**: From the tonic and the input (chord or notes), determine the most likely parent key, including its quality (e.g., 'C Major', 'A Minor'). Use this inferred key for all subsequent analysis. The 'key' field in your response must contain this inferred key.
-2. **Basic Major Scale**: Always compute and return the notes of the major (Ionian) scale built on the given tonic.
-3. **Primary Mode**: Determine the single best-guess mode that fits the input (chord or set of notes). The root of this mode must match the provided tonic.
-4. **Alternate Modes**: If more than one mode plausibly matches (e.g. enharmonic ambiguities, multiple viable alterations), populate both:
-   - \`ambiguityExplanation\` describing *why* there's more than one fit
-   - \`alternateExplanation\` giving the next-best plausible mode
-5. **Enharmonic Context**: When inputs include enharmonic notes (e.g. Gb vs. F# in a C tonic context), reason based on your inferred key:
-   - Identify if the alteration is a lowered 5th (C-Gb → C Locrian) **or** a raised 4th (C–F# → C Lydian).
-   - Surface both interpretations as alternate modes if both are musically valid.
-6. **Strict Tonic Context**: All analysis must be based on the provided tonic. Do NOT switch parent scales to a different tonic.
+  const debugInfo = {
+    prompt: coreAnalysisSystemInstruction,
+    userPrompt,
+    rawResponse: ''
+  };
 
----
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash-preview-04-17",
+      contents: userPrompt,
+      config: {
+        systemInstruction: coreAnalysisSystemInstruction,
+        responseMimeType: "application/json",
+        temperature: 0.1,
+      },
+    });
 
-**If a CHORD is provided:**
-- Validate it’s a known chord. If invalid, return only \`{ error: "…"}\`.
-- Based on the provided tonic and chord, infer the parent key.
-- Compute the chord's Roman numeral within that inferred key.
-- Identify the primary mode, then list any alternates as above.
-- Populate \`key\` (with inferred key), \`basicMajorScale\`, \`chord\`, \`romanNumeral\`, all \`mode*\` fields, and \`ambiguityExplanation\`/\`alternateExplanation\` if needed.
+    const rawResponse = response.text;
+    debugInfo.rawResponse = rawResponse;
 
-**If NOTES are provided:**
-- Validate ≥3 unique notes; else error.
-- Based on the provided tonic and notes, infer the parent key.
-- Compute \`basicMajorScale\` for the tonic.
-- Match the note set to the single most likely mode whose root is the provided tonic.
-- If more than one mode fits, explain why and give the alternate.
-- On success, populate \`key\` (with inferred key), \`basicMajorScale\`, \`selectedNotes\`, all \`mode*\` fields, and any ambiguity/alternate.
-- On failure to find a unique best fit, return only \`{ error: "…"}\`.
-
-**Output must be a single JSON object** strictly following the above schema. No extra text.
-`
-    },
-    {
-      text: `**Reference Scale Data:**\n${JSON.stringify(allScaleData, null, 2)}`
+    if (!rawResponse) {
+      return { result: { error: "Core analysis returned an empty response." }, debug: debugInfo };
     }
-  ]
+
+    const parsedData = safelyParseJson<AnalysisResult>(rawResponse);
+
+    if (!parsedData) {
+      return { result: { error: "Core analysis returned a malformed response." }, debug: debugInfo };
+    }
+
+    // Add chord/notes to the analysis object for context
+    if (parsedData.analysis) {
+        if (analysisTarget.chord) parsedData.analysis.chord = analysisTarget.chord;
+        if (analysisTarget.notes) parsedData.analysis.selectedNotes = [...analysisTarget.notes];
+    }
+
+    return { result: parsedData, debug: debugInfo };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error in core analysis";
+    debugInfo.rawResponse = error instanceof Error ? error.stack ?? message : String(error);
+    return { result: { error: `Core analysis failed: ${message}` }, debug: debugInfo };
+  }
+};
+
+const getBachExample = async (analysis: PrimaryAnalysis): Promise<BachExample | null> => {
+    if (!analysis) return null;
+
+    const { mode, key } = analysis;
+    const prompt = `Mode: ${analysis.parentScaleRootNote} ${mode}. Key context: ${key}.`;
+
+    try {
+        const response = await ai.models.generateContent({
+          model: "gemini-2.5-flash-preview-04-17",
+          contents: prompt,
+          config: {
+            systemInstruction: { text: bachExampleSystemInstruction.text },
+            responseMimeType: "application/json",
+            temperature: 0.4,
+          },
+        });
+
+        const rawResponse = response.text;
+        if (!rawResponse) return null;
+
+        const llmSuggestion = safelyParseJson<BachExample>(rawResponse);
+        if (!llmSuggestion || !llmSuggestion.title || !llmSuggestion.composer) {
+            return llmSuggestion;
+        }
+
+        const peachnoteData = await searchPeachnote(llmSuggestion.title, llmSuggestion.composer);
+
+        return {
+            ...llmSuggestion,
+            ...peachnoteData,
+        };
+    } catch (error) {
+        console.warn("Bach example generation failed:", error);
+        return null;
+    }
+};
+
+const getSongExamples = async (allModes: Analysis[]): Promise<SongExampleGroup[] | null> => {
+    if (!allModes || allModes.length === 0) return null;
+
+    const modeNames = allModes.map(m => m.mode);
+    const prompt = JSON.stringify(modeNames);
+
+    try {
+        const response = await ai.models.generateContent({
+          model: "gemini-2.5-flash-preview-04-17",
+          contents: prompt,
+          config: {
+            systemInstruction: { text: songExamplesSystemInstruction.text },
+            responseMimeType: "application/json",
+            temperature: 0.3,
+          },
+        });
+
+        const rawResponse = response.text;
+        if (!rawResponse) return null;
+
+        return safelyParseJson<SongExampleGroup[]>(rawResponse);
+    } catch (error) {
+        console.warn("Song example generation failed:", error);
+        return null;
+    }
 };
 
 export const analyzeMusic = async (
   tonic: string,
   analysisTarget: { chord?: string; notes?: readonly string[] }
-): Promise<AnalysisResult> => {
+): Promise<AnalysisResponsePayload> => {
 
-  try {
-    const userPrompt = `Analyze this context: Tonic: ${tonic}. ${
-      analysisTarget.chord
-        ? `Chord: ${analysisTarget.chord}`
-        : `Selected Notes: ${analysisTarget.notes?.join(", ")}`
-    }`;
+  // Step 1: Get the core analysis
+  const { result: coreResult, debug: coreDebug } = await getCoreAnalysis(tonic, analysisTarget);
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-04-17",
-      contents: userPrompt,
-      config: {
-        systemInstruction,
-        responseMimeType: "application/json",
-        responseSchema: responseSchema,
-        temperature: 0.1,
-      },
-    });
-
-    let jsonStr = response.text;
-
-    if (!jsonStr) {
-      throw new Error("API returned an empty response.");
-    }
-
-    jsonStr = jsonStr.trim();
-    const fenceRegex = /^```(\w*)?\s*\n?(.*?)\n?\s*```$/s;
-    const match = jsonStr.match(fenceRegex);
-    if (match && match[2]) {
-        jsonStr = match[2].trim();
-    }
-
-    if (!jsonStr) {
-        throw new Error("API returned an empty response after stripping markdown.");
-    }
-
-    const parsedData = JSON.parse(jsonStr) as AnalysisResult;
-
-    if (!parsedData) {
-      throw new Error("API returned a null or undefined JSON response.");
-    }
-
-    // The primary valid response is one with an 'error' field.
-    if (parsedData.error) {
-      return { error: parsedData.error };
-    }
-
-    // The other valid response has both 'analysis' and 'songExamples'.
-    if (parsedData.analysis && parsedData.songExamples) {
-      return {
-        analysis: parsedData.analysis,
-        songExamples: parsedData.songExamples,
-      };
-    }
-
-    // If we reach here, the response is not in a recognized format.
-    console.error("Invalid or unexpected JSON structure from API:", parsedData);
-    throw new Error("The API returned an unexpected structure. The response did not contain the expected 'analysis' and 'songExamples' fields, nor an 'error' field.");
-
-
-  } catch (error) {
-    console.error("Error during analysis:", error);
-
-    let finalErrorMessage = "An unknown error occurred during analysis.";
-
-    if (error instanceof SyntaxError) {
-      finalErrorMessage = "The analysis service returned a malformed response. This might be a temporary issue, please try again.";
-    } else if (error instanceof Error) {
-        if (error.message.includes('500') || error.message.includes('unavailable')) {
-             finalErrorMessage = "The analysis service is currently busy or unavailable. Please try again in a moment.";
-        } else if (error.message.includes("API_KEY")) {
-             finalErrorMessage = "The API key is invalid or misconfigured. Please contact support.";
-        } else if (error.message.includes("unexpected structure")) {
-            finalErrorMessage = "The analysis service returned an incomplete or unexpected response. Please try again."
-        }
-        else {
-             finalErrorMessage = `Failed to analyze: ${error.message}`;
-        }
-    }
-
-    throw new Error(finalErrorMessage);
+  if (coreResult.error || !coreResult.analysis) {
+    return { result: { error: coreResult.error || "Analysis failed to produce a result." }, debug: coreDebug };
   }
+
+  // Step 2: Concurrently fetch supplementary data
+  const { analysis, alternates, modeDiscussion } = coreResult;
+  const allFoundModes = [analysis, ...(alternates || [])];
+
+  const [bachExample, songExamples] = await Promise.all([
+    getBachExample(analysis),
+    getSongExamples(allFoundModes)
+  ]);
+
+  // Step 3: Assemble the final result
+  const finalResult: AnalysisResult = {
+    analysis: {
+      ...analysis,
+      ...(bachExample && Object.keys(bachExample).length > 0 && { bachExample }),
+    },
+    alternates,
+    modeDiscussion,
+    ...(songExamples && { songExamples }),
+  };
+
+  // For simplicity, debug info will only contain the core analysis prompt details.
+  // A more advanced implementation could aggregate debug info from all calls.
+  return { result: finalResult, debug: coreDebug };
 };
