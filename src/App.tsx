@@ -1,19 +1,19 @@
+
 import React, { useState } from 'react';
 import ChordAnalyzer from './components/ChordAnalyzer';
 import ScaleFinder from './components/ScaleFinder';
 import MusicIcon from './components/MusicIcon';
+import ToggleSwitch from './components/ToggleSwitch';
 
 type View = 'analyzer' | 'finder';
 
 const App: React.FC = () => {
   const [activeView, setActiveView] = useState<View>('analyzer');
   const [highlightIdForFinder, setHighlightIdForFinder] = useState<string | null>(null);
+  const [showDebugInfo, setShowDebugInfo] = useState<boolean>(false);
 
   const navButtonClasses = (view: View) => 
-    `px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-slate-800 ` +
-    (activeView === view
-      ? 'bg-cyan-600 text-white'
-      : 'bg-slate-700 text-slate-300 hover:bg-slate-600');
+    'nav-button ' + (activeView === view ? 'nav-button--active' : '');
 
   const handleSwitchToFinderWithHighlight = (id: string) => {
     setHighlightIdForFinder(id);
@@ -30,42 +30,51 @@ const App: React.FC = () => {
 
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-200 flex flex-col items-center p-4 sm:p-6 lg:p-8">
-      <div className="w-full max-w-4xl mx-auto">
-        <header className="text-center mb-8">
-          <div className="flex justify-center items-center gap-4 mb-2">
-            <MusicIcon className="h-10 w-10 text-cyan-400" />
-            <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
+    <div className="app-container">
+      <div className="main-content">
+        <header className="app-header">
+          <div className="app-header__title-wrapper">
+            <MusicIcon className="app-header__icon" />
+            <h1 className="app-header__title">
               Music Theory Toolkit
             </h1>
           </div>
-          <p className="text-slate-400 max-w-2xl mx-auto">
+          <p className="app-header__subtitle">
             Interactive tools for chord analysis and scale discovery.
           </p>
         </header>
 
-        <nav className="flex justify-center mb-8 bg-slate-800 p-2 rounded-lg gap-2">
-          <button 
-            onClick={() => handleViewChange('analyzer')}
-            className={navButtonClasses('analyzer')}
-          >
-            Analyzer
-          </button>
-          <button onClick={() => handleViewChange('finder')} className={navButtonClasses('finder')}>
-            Scale Finder
-          </button>
-        </nav>
+        <div className="view-controls">
+          <nav className="view-switcher">
+            <button 
+              onClick={() => handleViewChange('analyzer')}
+              className={navButtonClasses('analyzer')}
+            >
+              Analyzer
+            </button>
+            <button onClick={() => handleViewChange('finder')} className={navButtonClasses('finder')}>
+              Scale Finder
+            </button>
+          </nav>
+          <ToggleSwitch
+            labelLeft="Info"
+            labelRight="Debug"
+            value={showDebugInfo}
+            onChange={setShowDebugInfo}
+          />
+        </div>
+
 
         <main>
           <div className={activeView === 'analyzer' ? '' : 'hidden'}>
-            <ChordAnalyzer onSwitchToFinder={handleSwitchToFinderWithHighlight} />
+            <ChordAnalyzer onSwitchToFinder={handleSwitchToFinderWithHighlight} showDebugInfo={showDebugInfo} />
           </div>
           <div className={activeView === 'finder' ? '' : 'hidden'}>
             <ScaleFinder initialHighlightId={highlightIdForFinder} />
           </div>
         </main>
         
-        <footer className="text-center mt-12 text-slate-500 text-sm">
+        <footer className="app-footer">
             <p>Powered by Dusty Wings</p>
         </footer>
       </div>

@@ -1,5 +1,6 @@
 {
   "name": "Music Theory Toolkit",
   "description": "An all-in-one music theory application that combines a MIDI-interactive scale and mode finder with an AI-powered analyzer.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "prompt": ""
 }

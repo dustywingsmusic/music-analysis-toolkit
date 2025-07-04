@@ -100,23 +100,23 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId }) => {
   const playedNoteNames = playedNotes.map(n => NOTES[n.number % 12]).join(', ');
 
   return (
-    <div className="w-full mx-auto space-y-6">
-      <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700 shadow-2xl backdrop-blur-sm space-y-4">
+    <div className="scale-finder">
+      <div className="card card--blur space-y-4">
         <div>
-          <p className="font-semibold">MIDI Status: <span className="font-normal text-cyan-400">{status}</span></p>
-          {error && <p className="text-red-400">Error: {error}</p>}
+          <p className="text-semibold">MIDI Status: <span className="text-cyan">{status}</span></p>
+          {error && <p className="text-error">Error: {error}</p>}
         </div>
 
         {devices.length > 0 && (
           <div>
-            <label htmlFor="midi-device" className="block text-sm font-medium text-cyan-300 mb-1">
+            <label htmlFor="midi-device" className="label">
               Select MIDI Input
             </label>
             <select
               id="midi-device"
               value={selectedDevice || ''}
               onChange={(e) => setSelectedDevice(e.target.value)}
-              className="w-full md:w-1/2 bg-slate-700 border border-slate-600 rounded-md py-2 px-3 text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition"
+              className="select-input select-input--half"
             >
               <option value="" disabled>Select a device</option>
               {devices.map(device => (
@@ -127,17 +127,17 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId }) => {
         )}
 
         <div>
-          <p className="block text-sm font-medium text-cyan-300 mb-2">Detection Mode</p>
-          <div className="flex gap-4">
+          <p className="label mb-2">Detection Mode</p>
+          <div className="radio-group">
             {(['7', '5', 'melody'] as const).map(m => (
-              <label key={m} className="flex items-center gap-2 cursor-pointer">
+              <label key={m} className="radio-label">
                 <input
                   type="radio"
                   name="scale-type"
                   value={m}
                   checked={mode === m}
                   onChange={(e) => setMode(e.target.value as typeof mode)}
-                  className="form-radio h-4 w-4 text-cyan-600 bg-slate-700 border-slate-500 focus:ring-cyan-500"
+                  className="radio-input"
                 />
                 <span>{m === '7' ? '7-note Scale' : m === '5' ? '5/6-note Scale' : 'Melody'}</span>
               </label>
@@ -145,20 +145,20 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId }) => {
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-            <p className="font-semibold">Notes Detected:</p>
-            <div className="font-mono text-cyan-300 min-h-[1.5rem]">{playedNoteNames}</div>
-            <button onClick={clearPlayedNotes} className="bg-slate-600 hover:bg-slate-500 text-white font-bold text-xs py-1 px-3 rounded-md transition">
+        <div className="note-display">
+            <p className="text-semibold">Notes Detected:</p>
+            <div className="note-display__notes">{playedNoteNames}</div>
+            <button onClick={clearPlayedNotes} className="btn btn--secondary btn--sm">
                 Clear
             </button>
         </div>
       </div>
 
-      <div className="space-y-8">
+      <div className="scale-tables-container">
         {allScaleData.map(scaleGroup => (
-            <div key={scaleGroup.tableId} className="bg-slate-800/60 p-4 rounded-lg border border-slate-700">
-                <h2 className="text-2xl font-bold text-cyan-300 mb-4">{scaleGroup.name}</h2>
-                <div className="overflow-x-auto">
+            <div key={scaleGroup.tableId} className="card bg-slate-800/60 p-4">
+                <h2 className="section-title section-title--cyan">{scaleGroup.name}</h2>
+                <div className="table-container">
                     <ScaleTable 
                         scaleData={scaleGroup} 
                         highlightedCellId={highlightedCellId}

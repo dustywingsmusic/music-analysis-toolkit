@@ -5,26 +5,72 @@ export interface SongExample {
   usage: string;
 }
 
+export interface SongExampleGroup {
+  mode: string;
+  examples: SongExample[];
+}
+
+export interface BachExample {
+  title: string;
+  composer?: string;
+  key?: string;
+  tempo?: string;
+  snippet?: string;
+  explanation?: string;
+  // For backwards compatibility with older response formats
+  bwv?: string;
+  exampleKey?: string;
+  abcNotation?: string;
+}
+
+export interface PrimaryAnalysis {
+  key: string;
+  chord?: string;
+  romanNumeral?: string;
+  selectedNotes?: string[];
+  mode: string;
+  tableId: string;
+  modeIndex: number;
+  parentScaleRootNote: string;
+  explanation: string;
+  formula: string;
+  intervals: number[];
+  notes: string[];
+  bachExample?: BachExample;
+  isNearestGuess?: boolean;
+}
+
+export interface AlternateAnalysis {
+  key: string;
+  mode: string;
+  explanation: string;
+  formula: string;
+  intervals: number[];
+  notes: string[];
+  tableId: string;
+  modeIndex: number;
+  parentScaleRootNote: string;
+}
+
+export type Analysis = PrimaryAnalysis | AlternateAnalysis;
+
 export interface AnalysisResult {
-  analysis?: {
-    key: string;
-    chord?: string;
-    romanNumeral?: string;
-    selectedNotes?: string[];
-    mode: string;
-    tableId: string;
-    modeIndex: number;
-    parentScaleRootNote: string;
-    explanation: string;
-    formula: string;
-    intervals: number[];
-    notes: string[];
-    ambiguityExplanation?: string;
-    alternateExplanation?: string;
-  };
-  songExamples?: SongExample[];
+  analysis?: PrimaryAnalysis;
+  alternates?: AlternateAnalysis[];
+  modeDiscussion?: string;
+  songExamples?: SongExampleGroup[];
   error?: string;
 }
+
+export interface AnalysisResponsePayload {
+  result: AnalysisResult;
+  debug: {
+    prompt: object;
+    userPrompt: string;
+    rawResponse: string;
+  };
+}
+
 
 // Types for Scale Finder
 export interface ScaleData {
