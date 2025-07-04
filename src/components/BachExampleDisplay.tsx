@@ -2,9 +2,9 @@ import React from 'react';
 import type { BachExample } from '../types';
 
 const BachExampleDisplay: React.FC<BachExample> = ({
-  title, bwv, composer, key, exampleKey, explanation, midiUrl, scoreUrl
+  title, bwv, composer, key: musicKey, exampleKey, explanation, midiUrl, scoreUrl
 }) => {
-  const displayKey = key || exampleKey;
+  const displayKey = musicKey || exampleKey;
 
   let displayTitle = title;
   let displayBwv = bwv;

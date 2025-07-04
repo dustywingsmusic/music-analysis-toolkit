@@ -3,7 +3,6 @@ import type { AnalysisResult, AlternateAnalysis, PrimaryAnalysis, SongExampleGro
 import MusicIcon from './MusicIcon';
 import { PARENT_KEY_INDICES } from '../constants/scales';
 import { noteToPc } from '../utils/music';
-import BachExampleDisplay from './BachExampleDisplay';
 import NearestGuessIcon from './NearestGuessIcon';
 
 interface ResultDisplayProps {
@@ -15,16 +14,20 @@ interface ResultDisplayProps {
 const InfoPair: React.FC<{ label: string; value: string | React.ReactNode; isMono?: boolean }> = ({ label, value, isMono }) => (
   <div className="info-pair">
     <p className="info-pair__label">{label}</p>
-    <p className={`info-pair__value ${isMono ? 'info-pair__value--mono' : ''}`}>{value}</p>
+    {typeof value === 'string' ? (
+      <p className={`info-pair__value ${isMono ? 'info-pair__value--mono' : ''}`}>{value}</p>
+    ) : (
+      <div className={`info-pair__value ${isMono ? 'info-pair__value--mono' : ''}`}>{value}</div>
+    )}
   </div>
 );
 
-const AnalysisSection: React.FC<{ 
-    analysis: PrimaryAnalysis | AlternateAnalysis; 
+const AnalysisSection: React.FC<{
+    analysis: PrimaryAnalysis | AlternateAnalysis;
     onSwitchToFinder: (id: string) => void;
     isPrimary?: boolean;
 }> = ({ analysis, onSwitchToFinder, isPrimary }) => {
-    
+
     const handleShowInFinder = () => {
         if (!analysis?.parentScaleRootNote || !analysis.tableId || analysis.modeIndex === undefined) return;
         const pitchClass = noteToPc[analysis.parentScaleRootNote];
@@ -42,7 +45,7 @@ const AnalysisSection: React.FC<{
              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-slate-300">
                 <InfoPair label="Mode" value={
                     <div className="flex items-center justify-start gap-2 mt-1">
-                        <p className="text-lg text-white">{analysis.mode}</p>
+                        <span className="text-lg text-white">{analysis.mode}</span>
                         {isNearestGuess && <NearestGuessIcon />}
                         <button
                             onClick={handleShowInFinder}
@@ -57,10 +60,6 @@ const AnalysisSection: React.FC<{
                 {isPrimary && 'romanNumeral' in analysis && analysis.romanNumeral && <InfoPair label="Roman Numeral" value={analysis.romanNumeral} />}
             </div>
 
-            {isPrimary && 'bachExample' in analysis && analysis.bachExample && (
-                <BachExampleDisplay {...analysis.bachExample} />
-            )}
-            
             <div className="info-pair">
                 <p className="info-pair__label">Notes in Scale</p>
                 <p className="mt-1 text-lg text-white font-mono tracking-wider">{analysis.notes.join(' - ')}</p>
@@ -126,7 +125,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, onSwitchToFinder,
             ) : null}
         </div>
       </div>
-      
+
       {/* Primary Analysis Section */}
       <div className="card card--blur">
         <h2 className="section-title section-title--cyan">Primary Analysis</h2>

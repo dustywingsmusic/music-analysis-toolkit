@@ -10,21 +10,6 @@ export interface SongExampleGroup {
   examples: SongExample[];
 }
 
-export interface BachExample {
-  title: string;
-  composer?: string;
-  key?: string;
-  tempo?: string;
-  snippet?: string;
-  explanation?: string;
-  // For backwards compatibility with older response formats
-  bwv?: string;
-  exampleKey?: string;
-  abcNotation?: string;
-  midiUrl?: string;
-  scoreUrl?: string;
-}
-
 export interface PrimaryAnalysis {
   key: string;
   chord?: string;
@@ -38,7 +23,6 @@ export interface PrimaryAnalysis {
   formula: string;
   intervals: number[];
   notes: string[];
-  bachExample?: BachExample;
   isNearestGuess?: boolean;
 }
 
@@ -71,6 +55,17 @@ export interface AnalysisResponsePayload {
     userPrompt: string;
     rawResponse: string;
   };
+}
+
+export interface BachExample {
+  title: string;
+  bwv?: string;
+  composer?: string;
+  key?: string;
+  exampleKey?: string;
+  explanation?: string;
+  midiUrl?: string;
+  scoreUrl?: string;
 }
 
 

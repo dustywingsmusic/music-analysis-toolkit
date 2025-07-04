@@ -1,8 +1,6 @@
-
-import { GoogleGenAI } from "@google/genai";
-import type { AnalysisResult, AnalysisResponsePayload, PrimaryAnalysis, BachExample, SongExampleGroup, Analysis } from '../types';
-import { allScaleData } from '../constants/scales';
-import { searchPeachnote } from './peachnoteService';
+import {GoogleGenAI} from "@google/genai";
+import type {Analysis, AnalysisResponsePayload, AnalysisResult, SongExampleGroup} from '../types';
+import {allScaleData} from '../constants/scales';
 
 if (!process.env.API_KEY) {
   throw new Error("API_KEY environment variable not set");
@@ -62,37 +60,6 @@ ${JSON.stringify(coreAnalysisExampleOutput, null, 2)}
   }, {
     text: `**Reference Scale Data:**\n${JSON.stringify(allScaleData, null, 2)}`
   }]
-};
-
-
-// --- PROMPT 2: BACH EXAMPLE ---
-
-const bachExampleSystemInstruction = {
-    text: `You are a musicology expert specializing in the Baroque and Classical periods. Your task is to find a single, real musical work that is a good example of a given musical mode and return its details as a single, valid JSON object.
-
-The user will provide a mode and its key context.
-
-Your process:
-1. Find a suitable piece (preferably by J.S. Bach, but other well-known composers like Beethoven or Mozart are acceptable) that clearly demonstrates the provided mode.
-2. Provide the full, searchable title, including catalogue numbers (e.g., BWV for Bach, Op. for Beethoven).
-3. Write a detailed, educational \`explanation\` that analyzes how the composer uses the characteristic note to achieve a specific emotional or dramatic effect. Structure the explanation with the provided markdown (🎵, 🔍, 🎼, 🧠).
-
-**CRITICAL**:
-- If a good example cannot be found, return an empty JSON object: \`{}\`.
-- The output JSON object MUST be perfectly structured and valid.
-- DO NOT include \`snippet\` or \`abcNotation\`.
-- The example you provide in your response should be DIFFERENT from the one in this prompt.
-
-**EXAMPLE INPUT**:
-Mode: F Lydian. Key context: F Major.
-
-**EXAMPLE OUTPUT (Your response must be in this format and structure, but with a different piece):**
-{
-  "title": "String Quartet No. 15 in A minor, Op. 132, III. Molto adagio",
-  "composer": "L.v. Beethoven",
-  "key": "F Lydian",
-  "explanation": "This movement, titled \\"Holy song of thanksgiving of a convalescent to the Deity, in the Lydian mode,\\" is one of the most famous uses of a church mode in the classical repertoire.\\n\\n⸻\\n\\n🎵 Why is B natural used in F Lydian?\\n\\nBeethoven uses the B natural (the ♯4 degree) to create a sense of sublime, ethereal openness and purity, deliberately avoiding the tension of the standard B-flat to C V-I resolution in F Major.\\n\\n🔍 Let’s break that down:\\n\\t1.\\tThe Lydian ♯4 avoids the tritone with the root, giving the scale a uniquely bright and stable quality, which Beethoven uses to represent divine grace and recovery from illness.\\n\\t2.\\tHe alternates the ancient, placid F Lydian sections with sections in D Major (Neue Kraft fühlend - \\"feeling new strength\\"), creating a powerful narrative of sickness and healing.\\n\\t3.\\tThe lack of a leading tone pull from B-flat to C makes the harmony feel suspended and contemplative, perfectly fitting the mood of a prayerful hymn.\\n\\n⸻\\n\\n🎼 In practice:\\n\\nThe B natural in the main chorale theme gives the melody its floating, otherworldly character. It sounds ancient and fresh at the same time, a deliberate choice by Beethoven to evoke a sense of sacred mystery and profound gratitude.\\n\\n⸻\\n\\n🧠 Summary:\\n\\t•\\tKey of the piece: F Lydian\\n\\t•\\tB natural: Not an error—it is the defining note of the Lydian mode.\\n\\t•\\tEffect: Creates a serene, open, and divine atmosphere, contrasting with the more earthly D Major sections."
-}`
 };
 
 
@@ -212,43 +179,6 @@ const getCoreAnalysis = async (
   }
 };
 
-const getBachExample = async (analysis: PrimaryAnalysis): Promise<BachExample | null> => {
-    if (!analysis) return null;
-
-    const { mode, key } = analysis;
-    const prompt = `Mode: ${analysis.parentScaleRootNote} ${mode}. Key context: ${key}.`;
-
-    try {
-        const response = await ai.models.generateContent({
-          model: "gemini-2.5-flash-preview-04-17",
-          contents: prompt,
-          config: {
-            systemInstruction: { text: bachExampleSystemInstruction.text },
-            responseMimeType: "application/json",
-            temperature: 0.4,
-          },
-        });
-
-        const rawResponse = response.text;
-        if (!rawResponse) return null;
-
-        const llmSuggestion = safelyParseJson<BachExample>(rawResponse);
-        if (!llmSuggestion || !llmSuggestion.title || !llmSuggestion.composer) {
-            return llmSuggestion;
-        }
-
-        const peachnoteData = await searchPeachnote(llmSuggestion.title, llmSuggestion.composer);
-
-        return {
-            ...llmSuggestion,
-            ...peachnoteData,
-        };
-    } catch (error) {
-        console.warn("Bach example generation failed:", error);
-        return null;
-    }
-};
-
 const getSongExamples = async (allModes: Analysis[]): Promise<SongExampleGroup[] | null> => {
     if (!allModes || allModes.length === 0) return null;
 
@@ -288,27 +218,20 @@ export const analyzeMusic = async (
     return { result: { error: coreResult.error || "Analysis failed to produce a result." }, debug: coreDebug };
   }
 
-  // Step 2: Concurrently fetch supplementary data
+  // Step 2: Fetch supplementary data
   const { analysis, alternates, modeDiscussion } = coreResult;
   const allFoundModes = [analysis, ...(alternates || [])];
 
-  const [bachExample, songExamples] = await Promise.all([
-    getBachExample(analysis),
-    getSongExamples(allFoundModes)
-  ]);
+  const songExamples = await getSongExamples(allFoundModes);
 
   // Step 3: Assemble the final result
   const finalResult: AnalysisResult = {
-    analysis: {
-      ...analysis,
-      ...(bachExample && Object.keys(bachExample).length > 0 && { bachExample }),
-    },
+    analysis,
     alternates,
     modeDiscussion,
     ...(songExamples && { songExamples }),
   };
 
   // For simplicity, debug info will only contain the core analysis prompt details.
-  // A more advanced implementation could aggregate debug info from all calls.
   return { result: finalResult, debug: coreDebug };
 };
