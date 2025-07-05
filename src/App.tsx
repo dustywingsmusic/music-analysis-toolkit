@@ -1,32 +1,11 @@
 
 import React, { useState } from 'react';
-import ChordAnalyzer from './components/ChordAnalyzer';
-import ScaleFinder from './components/ScaleFinder';
+import UnifiedMusicTool from './components/UnifiedMusicTool';
 import MusicIcon from './components/MusicIcon';
 import ToggleSwitch from './components/ToggleSwitch';
 
-type View = 'analyzer' | 'finder';
-
 const App: React.FC = () => {
-  const [activeView, setActiveView] = useState<View>('analyzer');
-  const [highlightIdForFinder, setHighlightIdForFinder] = useState<string | null>(null);
   const [showDebugInfo, setShowDebugInfo] = useState<boolean>(false);
-
-  const navButtonClasses = (view: View) => 
-    'nav-button ' + (activeView === view ? 'nav-button--active' : '');
-
-  const handleSwitchToFinderWithHighlight = (id: string) => {
-    setHighlightIdForFinder(id);
-    setActiveView('finder');
-  };
-  
-  const handleViewChange = (view: View) => {
-    if (view === 'analyzer') {
-        // When switching back to analyzer, we don't clear the highlight
-        // so if the user switches back and forth, the context is kept.
-    }
-    setActiveView(view);
-  };
 
 
   return (
@@ -45,17 +24,6 @@ const App: React.FC = () => {
         </header>
 
         <div className="view-controls">
-          <nav className="view-switcher">
-            <button 
-              onClick={() => handleViewChange('analyzer')}
-              className={navButtonClasses('analyzer')}
-            >
-              Analyzer
-            </button>
-            <button onClick={() => handleViewChange('finder')} className={navButtonClasses('finder')}>
-              Scale Finder
-            </button>
-          </nav>
           <ToggleSwitch
             labelLeft="Info"
             labelRight="Debug"
@@ -64,16 +32,10 @@ const App: React.FC = () => {
           />
         </div>
 
-
         <main>
-          <div className={activeView === 'analyzer' ? '' : 'hidden'}>
-            <ChordAnalyzer onSwitchToFinder={handleSwitchToFinderWithHighlight} showDebugInfo={showDebugInfo} />
-          </div>
-          <div className={activeView === 'finder' ? '' : 'hidden'}>
-            <ScaleFinder initialHighlightId={highlightIdForFinder} />
-          </div>
+          <UnifiedMusicTool showDebugInfo={showDebugInfo} />
         </main>
-        
+
         <footer className="app-footer">
             <p>Powered by Dusty Wings</p>
         </footer>

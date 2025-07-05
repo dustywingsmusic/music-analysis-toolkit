@@ -84,10 +84,19 @@ export interface ScaleData {
   parentScaleIntervalPattern?: number[];
 }
 
+// Interface for diatonic chord
+export interface DiatonicChord {
+  roman: string;
+  symbol: string;
+  quality: string;
+}
+
 export interface ProcessedScale {
     id: string;
     pitchClasses: Set<number>;
     rootNote: number;
+    name?: string;
+    diatonicChords?: DiatonicChord[];
 }
 
 export interface MidiDevice {
