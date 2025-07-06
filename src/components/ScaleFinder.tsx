@@ -16,9 +16,10 @@ const setsAreEqual = (setA: Set<number>, setB: Set<number>) => {
 interface ScaleFinderProps {
   initialHighlightId: string | null;
   embedded?: boolean;
+  showDebugInfo?: boolean;
 }
 
-const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId, embedded = false }) => {
+const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId, embedded = false, showDebugInfo = false }) => {
   const [baseKey, setBaseKey] = useState<string>("C");
   const [keyMode, setKeyMode] = useState<'major' | 'minor'>('major');
   const [processedScales, setProcessedScales] = useState<ProcessedScale[]>([]);
@@ -28,6 +29,28 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId, embedded 
   const [showPreferences, setShowPreferences] = useState<boolean>(false);
   const midiStatusRef = useRef<HTMLDivElement>(null);
   const keySuggesterInitialized = useRef<boolean>(false);
+
+  // Debug state
+  const [debugInfo, setDebugInfo] = useState<{
+    notesEntered: number;
+    pitchClasses: number[];
+    noteNames: string[];
+    detectionMode: string;
+    shouldCheck: boolean;
+    scalesToSearch: number;
+    allMatches: Array<{
+      id: string;
+      rootNote: number;
+      name?: string;
+      pitchClasses: number[];
+    }>;
+    selectedMatch?: {
+      id: string;
+      rootNote: number;
+      name?: string;
+    };
+    timestamp: number;
+  } | null>(null);
 
   // Callback for chord detection
   const handleChordDetected = useCallback((noteNumbers: number[]) => {
@@ -141,8 +164,14 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId, embedded 
   useEffect(() => {
     if (midiMode === 'melody' || midiMode === 'chord') return; // Melody and chord modes have different logic (implemented in Phase 2)
 
+    const pitchClassArray = Array.from(playedPitchClasses).sort();
+    const noteNames = playedNotes.map(n => NOTES[n.number % 12]);
+
     if (playedPitchClasses.size === 0) {
       setMidiHighlightedCellId(null);
+      if (showDebugInfo) {
+        setDebugInfo(null);
+      }
       return;
     }
 
@@ -151,26 +180,67 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId, embedded 
     if (midiMode === '7' && playedCount === 7) shouldCheck = true;
     if (midiMode === '5' && (playedCount === 5 || playedCount === 6)) shouldCheck = true;
 
+    const scalesToSearch = processedScales.filter(s => s.pitchClasses.size === playedPitchClasses.size);
+
+    // Find all scales that contain the exact same pitch classes (all possible modes)
+    const allMatches = scalesToSearch.filter(scale =>
+      setsAreEqual(scale.pitchClasses, playedPitchClasses)
+    );
+
+    let selectedMatch = undefined;
+
     if (shouldCheck) {
-      const scalesToSearch = processedScales.filter(s => s.pitchClasses.size === playedPitchClasses.size);
-
-      // Find all scales that contain the exact same pitch classes (all possible modes)
-      const allMatches = scalesToSearch.filter(scale =>
-        setsAreEqual(scale.pitchClasses, playedPitchClasses)
-      );
-
       if (allMatches.length > 0) {
-        // For now, highlight the first match, but the keySuggester will show all modes
-        const firstMatch = allMatches[0];
-        setMidiHighlightedCellId(firstMatch.id);
-        const element = document.getElementById(firstMatch.id);
+        // Prioritize the scale that starts with the first note played
+        let preferredMatch = allMatches[0]; // fallback to first match
+
+        if (playedNotes.length > 0) {
+          // Get the first note played
+          const firstNotePitchClass = playedNotes[0].number % 12;
+
+          // Find a match that starts with this note
+          const matchingScale = allMatches.find(scale => scale.rootNote === firstNotePitchClass);
+
+          if (matchingScale) {
+            preferredMatch = matchingScale;
+          }
+        }
+
+        setMidiHighlightedCellId(preferredMatch.id);
+        const element = document.getElementById(preferredMatch.id);
         element?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+
+        selectedMatch = {
+          id: preferredMatch.id,
+          rootNote: preferredMatch.rootNote,
+          name: preferredMatch.name
+        };
       } else {
         setMidiHighlightedCellId(null);
       }
     }
 
-  }, [playedNotes, playedPitchClasses, midiMode, processedScales]);
+    // Update debug info if debugging is enabled
+    if (showDebugInfo) {
+      setDebugInfo({
+        notesEntered: playedCount,
+        pitchClasses: pitchClassArray,
+        noteNames: noteNames,
+        detectionMode: midiMode,
+        shouldCheck: shouldCheck,
+        scalesToSearch: scalesToSearch.length,
+        allMatches: allMatches.map(match => ({
+          id: match.id,
+          rootNote: match.rootNote,
+          name: match.name,
+          pitchClasses: Array.from(match.pitchClasses).sort()
+        })),
+        selectedMatch: selectedMatch,
+        timestamp: Date.now()
+      });
+    }
+
+  }, [playedNotes, playedPitchClasses, midiMode, processedScales, showDebugInfo]);
 
   // Effect to handle scroll for floating notes display
   useEffect(() => {
@@ -212,6 +282,95 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId, embedded 
       {/* Suggestion Overlays */}
       <div id="melody-suggestions-overlay" className="suggestions-overlay melody-suggestions"></div>
       <div id="chord-suggestions-overlay" className="suggestions-overlay chord-suggestions"></div>
+
+      {/* Debug Overlay */}
+      {showDebugInfo && debugInfo && (
+        <div className="debug-overlay">
+          <div className="debug-overlay__content">
+            <div className="debug-overlay__header">
+              <h3>🐛 Scale Detection Debug Info</h3>
+              <span className="debug-overlay__timestamp">
+                {new Date(debugInfo.timestamp).toLocaleTimeString()}
+              </span>
+            </div>
+
+            <div className="debug-overlay__section">
+              <h4>Input Analysis</h4>
+              <div className="debug-info-grid">
+                <div className="debug-info-item">
+                  <span className="debug-label">Notes Entered:</span>
+                  <span className="debug-value">{debugInfo.notesEntered}</span>
+                </div>
+                <div className="debug-info-item">
+                  <span className="debug-label">Detection Mode:</span>
+                  <span className="debug-value">{debugInfo.detectionMode}-note scale</span>
+                </div>
+                <div className="debug-info-item">
+                  <span className="debug-label">Should Check:</span>
+                  <span className={`debug-value ${debugInfo.shouldCheck ? 'debug-value--success' : 'debug-value--warning'}`}>
+                    {debugInfo.shouldCheck ? 'Yes' : 'No'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="debug-info-item debug-info-item--full">
+                <span className="debug-label">Note Names:</span>
+                <span className="debug-value debug-value--mono">[{debugInfo.noteNames.join(', ')}]</span>
+              </div>
+
+              <div className="debug-info-item debug-info-item--full">
+                <span className="debug-label">Pitch Classes:</span>
+                <span className="debug-value debug-value--mono">[{debugInfo.pitchClasses.join(', ')}]</span>
+              </div>
+            </div>
+
+            <div className="debug-overlay__section">
+              <h4>Scale Matching</h4>
+              <div className="debug-info-grid">
+                <div className="debug-info-item">
+                  <span className="debug-label">Scales to Search:</span>
+                  <span className="debug-value">{debugInfo.scalesToSearch}</span>
+                </div>
+                <div className="debug-info-item">
+                  <span className="debug-label">Matches Found:</span>
+                  <span className={`debug-value ${debugInfo.allMatches.length > 0 ? 'debug-value--success' : 'debug-value--error'}`}>
+                    {debugInfo.allMatches.length}
+                  </span>
+                </div>
+              </div>
+
+              {debugInfo.selectedMatch && (
+                <div className="debug-info-item debug-info-item--full">
+                  <span className="debug-label">Selected Match:</span>
+                  <span className="debug-value debug-value--highlight">
+                    {debugInfo.selectedMatch.name || 'Unknown'} (Root: {NOTES[debugInfo.selectedMatch.rootNote]}, ID: {debugInfo.selectedMatch.id})
+                  </span>
+                </div>
+              )}
+
+              {debugInfo.allMatches.length > 0 && (
+                <div className="debug-matches">
+                  <span className="debug-label">All Matches:</span>
+                  <div className="debug-matches-list">
+                    {debugInfo.allMatches.slice(0, 5).map((match, index) => (
+                      <div key={match.id} className="debug-match-item">
+                        <span className="debug-match-name">{match.name || 'Unknown'}</span>
+                        <span className="debug-match-root">Root: {NOTES[match.rootNote]}</span>
+                        <span className="debug-match-id">ID: {match.id}</span>
+                      </div>
+                    ))}
+                    {debugInfo.allMatches.length > 5 && (
+                      <div className="debug-match-item debug-match-item--more">
+                        ... and {debugInfo.allMatches.length - 5} more
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Floating Notes Display */}
       <div id="floating-notes-display" className="floating-notes-display">

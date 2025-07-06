@@ -1108,3 +1108,113 @@ body {
     @apply grid-cols-1;
   }
 }
+
+/* ~~~~~~~~~~~~~~~~~~ Debug Overlay ~~~~~~~~~~~~~~~~~~ */
+.debug-overlay {
+  @apply fixed top-4 right-4 w-96 max-h-[80vh] overflow-y-auto z-50 bg-slate-900/95 border border-orange-500 rounded-lg shadow-2xl backdrop-blur-sm;
+}
+
+.debug-overlay__content {
+  @apply p-4;
+}
+
+.debug-overlay__header {
+  @apply flex items-center justify-between mb-4 pb-2 border-b border-orange-500/30;
+}
+
+.debug-overlay__header h3 {
+  @apply text-lg font-bold text-orange-400;
+}
+
+.debug-overlay__timestamp {
+  @apply text-xs text-slate-400 font-mono;
+}
+
+.debug-overlay__section {
+  @apply mb-4 pb-4 border-b border-slate-700 last:border-b-0;
+}
+
+.debug-overlay__section h4 {
+  @apply text-sm font-semibold text-orange-300 mb-3;
+}
+
+.debug-info-grid {
+  @apply grid grid-cols-2 gap-2 mb-3;
+}
+
+.debug-info-item {
+  @apply flex flex-col gap-1;
+}
+
+.debug-info-item--full {
+  @apply col-span-2;
+}
+
+.debug-label {
+  @apply text-xs font-medium text-slate-400;
+}
+
+.debug-value {
+  @apply text-sm text-white;
+}
+
+.debug-value--mono {
+  @apply font-mono text-xs;
+}
+
+.debug-value--success {
+  @apply text-green-400;
+}
+
+.debug-value--warning {
+  @apply text-yellow-400;
+}
+
+.debug-value--error {
+  @apply text-red-400;
+}
+
+.debug-value--highlight {
+  @apply text-orange-300 font-medium;
+}
+
+.debug-matches {
+  @apply mt-3;
+}
+
+.debug-matches-list {
+  @apply mt-2 space-y-2 max-h-32 overflow-y-auto;
+}
+
+.debug-match-item {
+  @apply bg-slate-800/50 p-2 rounded text-xs border border-slate-700;
+}
+
+.debug-match-item--more {
+  @apply text-slate-400 italic text-center;
+}
+
+.debug-match-name {
+  @apply block font-medium text-white;
+}
+
+.debug-match-root {
+  @apply block text-cyan-300;
+}
+
+.debug-match-id {
+  @apply block text-slate-400 font-mono;
+}
+
+/* Responsive debug overlay */
+@media (max-width: 768px) {
+  .debug-overlay {
+    @apply w-80 top-2 right-2;
+  }
+}
+
+@media (max-width: 640px) {
+  .debug-overlay {
+    @apply w-72 max-h-[70vh];
+  }
+}

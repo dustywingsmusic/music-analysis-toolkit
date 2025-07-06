@@ -1,13 +1,13 @@
-import React, { useState, useCallback } from 'react';
-import NavigationTabs, { TabType } from './NavigationTabs';
+import React, {useCallback, useState} from 'react';
+import NavigationTabs, {TabType} from './NavigationTabs';
 import ModeIdentificationTab from './ModeIdentificationTab';
 import ModeDiscoveryTab from './ModeDiscoveryTab';
 import HarmonyTab from './HarmonyTab';
 import ReferenceTab from './ReferenceTab';
 import ChordAnalyzer from './ChordAnalyzer';
-import { analyzeMusic } from '../services/geminiService';
-import { updateMelodySuggestions, analyzeChordSequenceForKeyGuessing } from '../services/keySuggester';
-import { NOTES } from '../constants/scales';
+import {analyzeMusic} from '../services/geminiService';
+import {analyzeChordSequenceForKeyGuessing} from '../services/keySuggester';
+import {allScaleData, NOTES, PARENT_KEY_INDICES} from '../constants/scales';
 
 interface QuestionDrivenMusicToolProps {
   showDebugInfo: boolean;
@@ -31,8 +31,9 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
 
       const noteIndex = NOTES.findIndex(note => {
         const normalizedNoteEntry = note.toUpperCase();
-        // Check if the note entry contains our normalized note
-        return normalizedNoteEntry.includes(normalizedNote);
+        // Split compound note names and check for exact matches
+        const noteParts = normalizedNoteEntry.split('/');
+        return noteParts.some(part => part === normalizedNote);
       });
 
       if (noteIndex !== -1) {
@@ -59,12 +60,105 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
     return progressionString.trim().split(/\s+/).filter(chord => chord.length > 0);
   };
 
+  // Helper function to detect scales/modes using local scales.ts data
+  const detectLocalScales = (pitchClasses: Set<number>) => {
+    const pitchClassArray = Array.from(pitchClasses).sort();
+    const matches = [];
+
+    // Check each scale in allScaleData
+    for (const scaleData of allScaleData) {
+      // Check each mode of the scale
+      for (let modeIndex = 0; modeIndex < scaleData.modeIntervals.length; modeIndex++) {
+        const modeIntervals = scaleData.modeIntervals[modeIndex];
+
+        // Try each possible root note
+        for (let root = 0; root < 12; root++) {
+          const modePitchClasses = modeIntervals.map(interval => (root + interval) % 12).sort();
+
+          // Check if this mode matches our input pitch classes
+          if (JSON.stringify(modePitchClasses) === JSON.stringify(pitchClassArray)) {
+            const rootNote = NOTES[root];
+            const modeName = scaleData.commonNames ? scaleData.commonNames[modeIndex] : `Mode ${modeIndex + 1}`;
+            const scaleName = scaleData.name;
+
+            matches.push({
+              root: rootNote,
+              mode: modeName,
+              scale: scaleName,
+              fullName: `${rootNote} ${modeName}`,
+              pitchClasses: modePitchClasses,
+              confidence: 1.0 // Perfect match
+            });
+          }
+        }
+      }
+    }
+
+    return matches;
+  };
+
   // Helper function to suggest a tonic from notes
   const suggestTonic = (pitchClasses: Set<number>): string => {
     if (pitchClasses.size === 0) return 'C';
-    // Use the first note as a default tonic
+
+    // Try to detect scales first and use the root of the best match
+    const scaleMatches = detectLocalScales(pitchClasses);
+    if (scaleMatches.length > 0) {
+      // Return the root of the first match (they're all perfect matches)
+      return scaleMatches[0].root;
+    }
+
+    // Fallback to the first note as a default tonic
     const firstNote = Array.from(pitchClasses)[0];
     return NOTES[firstNote];
+  };
+
+  // Helper function to generate highlight ID for scale tables
+  const generateHighlightId = (scaleName: string, modeName: string, rootNote: string): string | null => {
+    // Map scale names to table IDs
+    const scaleToTableId: { [key: string]: string } = {
+      'Major Scale': 'major-scale-modes',
+      'Melodic Minor': 'melodic-minor-modes',
+      'Harmonic Minor': 'harmonic-minor-modes',
+      'Harmonic Major': 'harmonic-major-modes',
+      'Double Harmonic Major': 'double-harmonic-major-modes',
+      'Major Pentatonic': 'major-pentatonic-modes',
+      'Blues Scale': 'blues-scale-modes'
+    };
+
+    // Map mode names to indices for Major Scale
+    const majorScaleModeToIndex: { [key: string]: number } = {
+      'Ionian': 0,
+      'Dorian': 1,
+      'Phrygian': 2,
+      'Lydian': 3,
+      'Mixolydian': 4,
+      'Aeolian': 5,
+      'Locrian': 6
+    };
+
+    // Convert root note to pitch class
+    const rootPitchClass = NOTES.findIndex(note => {
+      const normalizedNote = rootNote.replace(/b/g, '♭').replace(/#/g, '♯').toUpperCase();
+      const normalizedNoteEntry = note.toUpperCase();
+      const noteParts = normalizedNoteEntry.split('/');
+      return noteParts.some(part => part === normalizedNote);
+    });
+
+    if (rootPitchClass === -1) return null;
+
+    // Find the key row index for this root note
+    const keyRowIndex = PARENT_KEY_INDICES.indexOf(rootPitchClass);
+    if (keyRowIndex === -1) return null;
+
+    const tableId = scaleToTableId[scaleName];
+    const modeIndex = majorScaleModeToIndex[modeName];
+
+    if (tableId !== undefined && modeIndex !== undefined) {
+      return `${tableId}-${keyRowIndex}-${modeIndex}`;
+    }
+
+    return null;
   };
 
   const handleTabChange = useCallback((tab: TabType) => {
@@ -96,6 +190,9 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
           const pitchClasses = parseNotesToPitchClasses(data.notes || '');
           const tonic = suggestTonic(pitchClasses);
 
+          // Detect scales/modes using local scales.ts data (same as scale analysis)
+          const detectedScales = detectLocalScales(pitchClasses);
+
           // Use Gemini AI for detailed analysis with original notes
           const geminiResult = await analyzeMusic(tonic, { notes: originalNotes });
 
@@ -107,7 +204,8 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
               pitchClasses: Array.from(pitchClasses),
               suggestedTonic: tonic,
               inputNotes: originalNotes, // Preserve original sequence
-              originalInput: data.notes // Keep the raw input for reference
+              originalInput: data.notes, // Keep the raw input for reference
+              detectedScales: detectedScales // Add local scale detection results
             },
             timestamp: Date.now()
           };
@@ -124,6 +222,9 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
           const pitchClasses = parseNotesToPitchClasses(data.notes || '');
           const tonic = suggestTonic(pitchClasses);
 
+          // Detect scales/modes using local scales.ts data
+          const detectedScales = detectLocalScales(pitchClasses);
+
           // Use Gemini AI for detailed analysis with cleaned notes
           const geminiResult = await analyzeMusic(tonic, { notes: cleanedNotes });
 
@@ -135,7 +236,8 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
               pitchClasses: Array.from(pitchClasses),
               suggestedTonic: tonic,
               inputNotes: cleanedNotes, // Use cleaned notes
-              originalInput: data.notes // Keep the raw input for reference
+              originalInput: data.notes, // Keep the raw input for reference
+              detectedScales: detectedScales // Add local scale detection results
             },
             timestamp: Date.now()
           };
@@ -201,11 +303,67 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
   }, []);
 
   const handleSwitchToReference = useCallback((highlightId?: string) => {
-    if (highlightId) {
-      setHighlightIdForReference(highlightId);
+    let finalHighlightId = highlightId;
+
+    // If no highlightId provided, try to generate one from AI analysis results first
+    if (!finalHighlightId && analysisResults && analysisResults.geminiAnalysis && analysisResults.geminiAnalysis.result && analysisResults.geminiAnalysis.result.analysis) {
+      const analysis = analysisResults.geminiAnalysis.result.analysis;
+
+      // Use AI-provided fields like the working version did
+      if (analysis.parentScaleRootNote && analysis.tableId !== undefined && analysis.modeIndex !== undefined) {
+        const rootPitchClass = NOTES.findIndex(note => {
+          const normalizedNote = analysis.parentScaleRootNote.replace(/b/g, '♭').replace(/#/g, '♯').toUpperCase();
+          const normalizedNoteEntry = note.toUpperCase();
+          const noteParts = normalizedNoteEntry.split('/');
+          return noteParts.some(part => part === normalizedNote);
+        });
+
+        if (rootPitchClass !== -1) {
+          const keyRowIndex = PARENT_KEY_INDICES.indexOf(rootPitchClass);
+          if (keyRowIndex !== -1) {
+            finalHighlightId = `${analysis.tableId}-${keyRowIndex}-${analysis.modeIndex}`;
+          }
+        }
+      }
+    }
+
+    // Fallback to local scale detection if AI fields are not available
+    if (!finalHighlightId && analysisResults && analysisResults.localAnalysis && analysisResults.localAnalysis.detectedScales) {
+      const detectedScales = analysisResults.localAnalysis.detectedScales;
+      if (detectedScales.length > 0) {
+        // Try to find the scale that starts with the first note in the input
+        let preferredScale = detectedScales[0]; // fallback to first scale
+
+        if (analysisResults.localAnalysis.originalInput) {
+          // Parse the first note from the original input
+          const firstInputNote = analysisResults.localAnalysis.originalInput.trim().split(/\s+/)[0];
+          if (firstInputNote) {
+            // Normalize the first note for comparison
+            const normalizedFirstNote = firstInputNote.replace(/b/g, '♭').replace(/#/g, '♯').toUpperCase();
+
+            // Find a detected scale that starts with this note
+            const matchingScale = detectedScales.find(scale => {
+              const normalizedScaleRoot = scale.root.replace(/b/g, '♭').replace(/#/g, '♯').toUpperCase();
+              // Handle compound note names (e.g., "C♯/D♭")
+              const rootParts = normalizedScaleRoot.split('/');
+              return rootParts.some(part => part === normalizedFirstNote);
+            });
+
+            if (matchingScale) {
+              preferredScale = matchingScale;
+            }
+          }
+        }
+
+        finalHighlightId = generateHighlightId(preferredScale.scale, preferredScale.mode, preferredScale.root);
+      }
+    }
+
+    if (finalHighlightId) {
+      setHighlightIdForReference(finalHighlightId);
     }
     setActiveTab('reference');
-  }, []);
+  }, [analysisResults]);
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -234,6 +392,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
         return (
           <ReferenceTab 
             highlightId={highlightIdForReference}
+            showDebugInfo={showDebugInfo}
           />
         );
 

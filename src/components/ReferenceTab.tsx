@@ -3,9 +3,10 @@ import ScaleFinder from './ScaleFinder';
 
 interface ReferenceTabProps {
   highlightId?: string | null;
+  showDebugInfo?: boolean;
 }
 
-const ReferenceTab: React.FC<ReferenceTabProps> = ({ highlightId }) => {
+const ReferenceTab: React.FC<ReferenceTabProps> = ({ highlightId, showDebugInfo = false }) => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filterCategory, setFilterCategory] = useState<string>('all');
 
@@ -116,6 +117,7 @@ const ReferenceTab: React.FC<ReferenceTabProps> = ({ highlightId }) => {
             <ScaleFinder 
               initialHighlightId={highlightId || null}
               embedded={true}
+              showDebugInfo={showDebugInfo}
             />
           </div>
         </div>
