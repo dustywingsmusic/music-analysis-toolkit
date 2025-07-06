@@ -6,4 +6,4 @@ node_modules
 dist
 .idea/
 .vite
-./test_*
+/test_*
