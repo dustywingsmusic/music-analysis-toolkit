@@ -4,9 +4,10 @@ type DiscoveryMethod = 'root' | 'notes' | 'compare' | 'explore';
 
 interface ModeDiscoveryTabProps {
   onDiscoveryRequest: (method: DiscoveryMethod, data: any) => void;
+  hasResults?: boolean;
 }
 
-const ModeDiscoveryTab: React.FC<ModeDiscoveryTabProps> = ({ onDiscoveryRequest }) => {
+const ModeDiscoveryTab: React.FC<ModeDiscoveryTabProps> = ({ onDiscoveryRequest, hasResults = false }) => {
   const [activeMethod, setActiveMethod] = useState<DiscoveryMethod>('root');
   const [rootNote, setRootNote] = useState<string>('C');
   const [selectedNotes, setSelectedNotes] = useState<string[]>([]);
@@ -232,7 +233,7 @@ const ModeDiscoveryTab: React.FC<ModeDiscoveryTabProps> = ({ onDiscoveryRequest 
         </div>
       </div>
 
-      <div className="input-section">
+      <div className={`input-section ${hasResults ? 'input-section--with-results' : ''}`}>
         {renderInputPanel()}
 
         <div className="input-section__actions">

@@ -10,8 +10,8 @@ const getApiKey = (): string => {
   }
 
   // For development, use environment variable
-  if (import.meta.env.VITE_GEMINI_API_KEY) {
-    return import.meta.env.VITE_GEMINI_API_KEY;
+  if ((import.meta as any).env.VITE_GEMINI_API_KEY) {
+    return (import.meta as any).env.VITE_GEMINI_API_KEY;
   }
 
   throw new Error("API key not found. Please set VITE_GEMINI_API_KEY in development or ensure runtime config is available in production.");

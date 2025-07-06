@@ -1,6 +1,6 @@
 # Music Theory Toolkit - Implementation Status & Plan
 
-> **📋 Documentation Flow**: [Use Cases](./design_use_cases.md) → [Requirements](./design_requirements.md) → [Architecture](./architecture.md) → [Implementation](./implementation.md)
+> **📋 Documentation Flow**: [Use Cases](./design_use_cases.md) → [Requirements](./design_requirements.md) → [Architecture](./architecture.md) → [Implementation](./implementation.md) → [Analysis Results Panel](./analysis_results_panel.md)
 > 
 > **📚 Navigation**: See [dev_docs README](./README.md) for complete documentation guide
 
@@ -144,6 +144,7 @@ The redesign follows a question-driven approach where users start with what they
 
 - [ ] **Unified Results Display System** - Comprehensive results management with history and positioning
   - Status: Basic results panel exists, advanced features not implemented
+  - **📋 Implementation Guide**: See [analysis_results_panel.md](./analysis_results_panel.md) for detailed requirements and implementation specifications for the enhanced dismissible companion panel
   - Components needed:
     - [ ] Results History Manager with timestamp and summary tracking
     - [ ] Display Position Controller for adjustable/dockable panel
@@ -240,7 +241,7 @@ The redesign follows a question-driven approach where users start with what they
    - [x] Enhanced results display with reorganized format (COMPLETE)
    - [x] Error handling and safety improvements (COMPLETE)
    - [x] Tonic/mode parsing fixes (COMPLETE)
-   - [ ] **Unified Results Display System** - Implement comprehensive results management
+   - [ ] **Unified Results Display System** - Implement comprehensive results management (see [analysis_results_panel.md](./analysis_results_panel.md) for detailed specifications)
    - [ ] **Results History Functionality** - Add history tracking with summaries and timestamps
    - [ ] **Adjustable Display Location** - Implement draggable/dockable results panel
    - [ ] Implement Mode Discovery and Harmony tab backend integration

@@ -1,6 +1,6 @@
 # Design Requirements for Music Theory Toolkit Redesign
 
-> **📋 Documentation Flow**: [Use Cases](./design_use_cases.md) → [Requirements](./design_requirements.md) → [Architecture](./architecture.md) → [Implementation](./implementation.md)
+> **📋 Documentation Flow**: [Use Cases](./design_use_cases.md) → [Requirements](./design_requirements.md) → [Architecture](./architecture.md) → [Implementation](./implementation.md) → [Analysis Results Panel](./analysis_results_panel.md)
 > 
 > **📚 Navigation**: See [dev_docs README](./README.md) for complete documentation guide
 
@@ -79,6 +79,8 @@ However, the current layout doesn't clearly guide users through the specific wor
 - **Results History**: The user can review previous queries in the analysis results. A history button allows the user to choose a previous analysis by summary and date/time and re-populate the analysis dialog.
 - **Display Access**: The panel opens automatically when a new query is run and can be opened manually by an icon that is always present on the app.
 - **Display Location**: The results display must be adjustable on the screen so it can stay in view across all of the tabs and allow the user to easily work across the results and the main screen.
+
+> **🎛️ Enhanced Implementation**: See [analysis_results_panel.md](./analysis_results_panel.md) for detailed requirements and implementation specifications for the enhanced dismissible companion panel that implements these requirements with modern UI patterns.
 
 #### 5. **Improved Information Architecture**
 

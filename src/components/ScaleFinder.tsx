@@ -353,7 +353,7 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId, embedded 
                 <div className="debug-matches">
                   <span className="debug-label">All Matches:</span>
                   <div className="debug-matches-list">
-                    {debugInfo.allMatches.slice(0, 5).map((match, index) => (
+                    {debugInfo.allMatches.slice(0, 5).map((match, _index) => (
                       <div key={match.id} className="debug-match-item">
                         <span className="debug-match-name">{match.name || 'Unknown'}</span>
                         <span className="debug-match-root">Root: {NOTES[match.rootNote]}</span>

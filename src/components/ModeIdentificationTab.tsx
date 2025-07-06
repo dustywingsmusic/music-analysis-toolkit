@@ -4,9 +4,10 @@ type IdentificationMethod = 'melody' | 'scale' | 'progression' | 'audio';
 
 interface ModeIdentificationTabProps {
   onAnalysisRequest: (method: IdentificationMethod, data: any) => void;
+  hasResults?: boolean;
 }
 
-const ModeIdentificationTab: React.FC<ModeIdentificationTabProps> = ({ onAnalysisRequest }) => {
+const ModeIdentificationTab: React.FC<ModeIdentificationTabProps> = ({ onAnalysisRequest, hasResults = false }) => {
   const [activeMethod, setActiveMethod] = useState<IdentificationMethod>('melody');
   const [melodyNotes, setMelodyNotes] = useState<string>('');
   const [scaleNotes, setScaleNotes] = useState<string>('');
@@ -143,9 +144,9 @@ const ModeIdentificationTab: React.FC<ModeIdentificationTabProps> = ({ onAnalysi
         </div>
       </div>
 
-      <div className="input-section">
+      <div className={`input-section ${hasResults ? 'input-section--with-results' : ''}`}>
         {renderInputPanel()}
-        
+
         <div className="input-section__actions">
           <button
             onClick={handleAnalyze}

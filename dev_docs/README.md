@@ -4,10 +4,10 @@ This directory contains comprehensive documentation for the Music Theory Toolkit
 
 ## 📋 Documentation Overview
 
-The documentation follows a logical flow that ties **use cases** → **requirements** → **design** → **development**:
+The documentation follows a logical flow that ties **use cases** → **requirements** → **design** → **development** → **specialized guides**:
 
 ```
-🎯 User Needs → 📋 Requirements → 🎨 Design → 💻 Implementation
+🎯 User Needs → 📋 Requirements → 🎨 Design → 💻 Implementation → 🎛️ Specialized Guides
 ```
 
 ## 📚 Document Guide
@@ -65,6 +65,20 @@ The documentation follows a logical flow that ties **use cases** → **requireme
   - Priority roadmap
 - **Links to**: Architecture (technical design) → Use cases (user validation)
 
+### 5. 🎛️ [analysis_results_panel.md](./analysis_results_panel.md)
+**Specialized implementation guide for the enhanced analysis results panel**
+
+- **Purpose**: Detailed requirements and implementation for the dismissible companion analysis panel
+- **Content**: Enhanced UI patterns, state management, and responsive behavior specifications
+- **Key Sections**:
+  - Dismissible companion panel architecture
+  - Enhanced state management patterns
+  - Visual design enhancements with smooth transitions
+  - Mobile-responsive drawer behavior
+  - Implementation roadmap (4 phases)
+- **Links to**: Extends implementation.md with specialized analysis panel details
+- **Next**: Use for implementing the enhanced analysis results panel features
+
 ## 🔄 How Documents Connect
 
 ### Use Case → Requirement → Implementation Flow
@@ -85,6 +99,7 @@ The documentation follows a logical flow that ties **use cases** → **requireme
 1. Start with [design_use_cases.md](./design_use_cases.md) to understand user needs
 2. Review [architecture.md](./architecture.md) for technical overview
 3. Check [implementation.md](./implementation.md) for current status
+4. For analysis panel work, see [analysis_results_panel.md](./analysis_results_panel.md) for detailed specifications
 
 ### For Product/Design
 1. Review [design_use_cases.md](./design_use_cases.md) for user workflows

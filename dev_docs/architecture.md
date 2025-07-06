@@ -1,6 +1,6 @@
 # Music Theory Toolkit - System Architecture
 
-> **📋 Documentation Flow**: [Use Cases](./design_use_cases.md) → [Requirements](./design_requirements.md) → [Architecture](./architecture.md) → [Implementation](./implementation.md)
+> **📋 Documentation Flow**: [Use Cases](./design_use_cases.md) → [Requirements](./design_requirements.md) → [Architecture](./architecture.md) → [Implementation](./implementation.md) → [Analysis Results Panel](./analysis_results_panel.md)
 > 
 > **📚 Navigation**: See [dev_docs README](./README.md) for complete documentation guide
 
@@ -202,6 +202,8 @@ UI Updates ← State Updates ← Processing ← API Responses
 
 #### Results Display System
 The unified results display implements a sophisticated state management system that provides persistent, cross-tab access to analysis results with comprehensive history tracking.
+
+> **🎛️ Enhanced Implementation**: See [analysis_results_panel.md](./analysis_results_panel.md) for detailed requirements and implementation guide for the enhanced dismissible companion panel that builds upon this architecture.
 
 **Core Components**:
 

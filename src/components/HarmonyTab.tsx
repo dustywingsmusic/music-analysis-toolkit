@@ -4,9 +4,10 @@ type HarmonyMethod = 'analyze' | 'generate' | 'substitute' | 'progression';
 
 interface HarmonyTabProps {
   onHarmonyRequest: (method: HarmonyMethod, data: any) => void;
+  hasResults?: boolean;
 }
 
-const HarmonyTab: React.FC<HarmonyTabProps> = ({ onHarmonyRequest }) => {
+const HarmonyTab: React.FC<HarmonyTabProps> = ({ onHarmonyRequest, hasResults = false }) => {
   const [activeMethod, setActiveMethod] = useState<HarmonyMethod>('analyze');
   const [chordInput, setChordInput] = useState<string>('');
   const [selectedMode, setSelectedMode] = useState<string>('');
@@ -271,7 +272,7 @@ const HarmonyTab: React.FC<HarmonyTabProps> = ({ onHarmonyRequest }) => {
         </div>
       </div>
 
-      <div className="input-section">
+      <div className={`input-section ${hasResults ? 'input-section--with-results' : ''}`}>
         {renderInputPanel()}
 
         <div className="input-section__actions">

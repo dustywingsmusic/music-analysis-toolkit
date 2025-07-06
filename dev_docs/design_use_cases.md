@@ -1,6 +1,6 @@
 # Music Theory Toolkit - Use Cases
 
-> **📋 Documentation Flow**: [Use Cases](./design_use_cases.md) → [Requirements](./design_requirements.md) → [Architecture](./architecture.md) → [Implementation](./implementation.md)
+> **📋 Documentation Flow**: [Use Cases](./design_use_cases.md) → [Requirements](./design_requirements.md) → [Architecture](./architecture.md) → [Implementation](./implementation.md) → [Analysis Results Panel](./analysis_results_panel.md)
 > 
 > **📚 Navigation**: See [dev_docs README](./README.md) for complete documentation guide
 
