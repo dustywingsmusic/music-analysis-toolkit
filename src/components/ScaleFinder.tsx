@@ -145,7 +145,8 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId, embedded 
             id: cellId, 
             pitchClasses, 
             rootNote: modeRootPitch,
-            name: data.commonNames ? data.commonNames[modeIndex] : undefined,
+            name: data.commonNames ? data.commonNames[modeIndex] : 
+                  data.alternateNames ? data.alternateNames[modeIndex] : undefined,
             diatonicChords
           });
         });
