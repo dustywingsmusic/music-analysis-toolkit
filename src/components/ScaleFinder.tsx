@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useMidi } from '../hooks/useMidi';
 import { allScaleData, NOTES } from '../constants/scales';
-import { ProcessedScale, DiatonicChord } from '../types';
+import { ProcessedScale } from '../types';
 import ScaleTable from './ScaleTable';
 import PreferencesPanel from './PreferencesPanel';
 import * as keySuggester from '../services/keySuggester';
@@ -98,8 +98,8 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId, embedded 
             const romanNumerals = ["I", "ii", "iii", "IV", "V", "vi", "vii°"];
 
             // Adjust roman numerals and qualities based on mode
-            const modeAdjustedRomanNumerals = [];
-            const modeAdjustedQualities = [];
+            const modeAdjustedRomanNumerals: string[] = [];
+            const modeAdjustedQualities: string[] = [];
 
             for (let i = 0; i < 7; i++) {
               const chordIndex = (modeIndex + i) % 7;

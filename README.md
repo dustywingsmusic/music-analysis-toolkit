@@ -18,7 +18,7 @@ An interactive web application for music theory analysis and exploration, powere
 3.  **Set up environment variables:**
     Create a file named `.env` in the root of the project and add your Google Gemini API key:
     ```
-    API_KEY="YOUR_API_KEY_HERE"
+    VITE_GEMINI_API_KEY="YOUR_API_KEY_HERE"
     ```
 
 4.  **Run the development server:**
@@ -128,3 +128,65 @@ The current iteration emphasizes:
 - **Accessibility**: MIDI device compatibility and keyboard navigation
 - **User Experience**: Intuitive interface for music theory exploration
 - **Extensibility**: Modular architecture for future feature additions
+
+## Deployment
+
+### Google Cloud Run Deployment
+
+This application is configured for deployment to Google Cloud Run using Docker containers.
+
+#### Prerequisites
+- Google Cloud SDK installed and configured
+- Docker installed
+- A Google Cloud Project with billing enabled
+- Container Registry API and Cloud Run API enabled
+
+#### Quick Deployment
+
+1. **Set up environment variables:**
+   Create a `.env.prod` file with your production configuration:
+   ```bash
+   PROJECT_ID=your-gcp-project-id
+   VITE_GEMINI_API_KEY=your-gemini-api-key
+   ```
+
+2. **Deploy using the provided script:**
+   ```bash
+   chmod +x deploy.sh
+   ./deploy.sh
+   ```
+
+The deployment script will:
+- Build a Docker image optimized for Cloud Run
+- Push the image to Google Container Registry
+- Store your API key securely in Google Secret Manager
+- Deploy the application to Cloud Run with proper configuration
+- Run non-interactively to prevent hanging on prompts
+
+#### Manual Deployment Steps
+
+If you prefer to deploy manually:
+
+1. **Build and push the Docker image:**
+   ```bash
+   docker build --platform linux/amd64 -t gcr.io/YOUR_PROJECT_ID/music-theory-toolkit .
+   docker push gcr.io/YOUR_PROJECT_ID/music-theory-toolkit
+   ```
+
+2. **Create secret for API key:**
+   ```bash
+   echo "YOUR_GEMINI_API_KEY" | gcloud secrets create gemini-api-key --replication-policy="automatic" --data-file=-
+   ```
+
+3. **Deploy to Cloud Run:**
+   ```bash
+   gcloud run deploy music-theory-toolkit \
+     --image gcr.io/YOUR_PROJECT_ID/music-theory-toolkit \
+     --platform managed \
+     --region us-central1 \
+     --allow-unauthenticated \
+     --port 8080 \
+     --set-secrets GEMINI_API_KEY=gemini-api-key:latest
+   ```
+
+For detailed deployment documentation, see [dev_docs/deployment.md](dev_docs/deployment.md).

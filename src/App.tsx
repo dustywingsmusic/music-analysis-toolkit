@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import UnifiedMusicTool from './components/UnifiedMusicTool';
+import QuestionDrivenMusicTool from './components/QuestionDrivenMusicTool';
 import MusicIcon from './components/MusicIcon';
 import ToggleSwitch from './components/ToggleSwitch';
 
@@ -33,7 +33,7 @@ const App: React.FC = () => {
         </div>
 
         <main>
-          <UnifiedMusicTool showDebugInfo={showDebugInfo} />
+          <QuestionDrivenMusicTool showDebugInfo={showDebugInfo} />
         </main>
 
         <footer className="app-footer">

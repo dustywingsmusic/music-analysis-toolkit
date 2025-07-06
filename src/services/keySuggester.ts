@@ -62,20 +62,6 @@ const NOTE_TO_PITCH: Record<string, number> = {
   "B": 11,
 };
 
-// Modal relationships
-const MODAL_RELATIONSHIPS = {
-  major: ["ionian", "lydian", "mixolydian"],
-  minor: ["dorian", "aeolian", "phrygian"],
-  diminished: ["locrian"],
-  borrowed: [
-    "dorian",
-    "phrygian",
-    "lydian",
-    "mixolydian",
-    "aeolian",
-    "locrian",
-  ],
-};
 
 /**
  * Initializes the key suggester module.
@@ -1020,7 +1006,9 @@ function renderMelodySuggestions(suggestions: KeySuggestion[], playedPitchClasse
 
     itemDiv.appendChild(header);
     itemDiv.appendChild(notesDiv);
-    melodyOverlayElement.appendChild(itemDiv);
+    if (melodyOverlayElement) {
+      melodyOverlayElement.appendChild(itemDiv);
+    }
   });
 
   console.log('Setting melodyOverlayElement display to block');

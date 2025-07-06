@@ -155,7 +155,7 @@ body {
 }
 
 .note-selector {
-  @apply mt-4;
+  @apply mt-4 flex flex-wrap gap-2;
 }
 .note-selector__grid {
   @apply grid grid-cols-6 gap-2;
@@ -671,4 +671,440 @@ body {
 
 .scale-finder--embedded .scale-tables-container {
   @apply space-y-6;
+}
+
+/* ~~~~~~~~~~~~~~~~~~ Question-Driven Music Tool ~~~~~~~~~~~~~~~~~~ */
+.question-driven-music-tool {
+  @apply w-full space-y-6;
+}
+
+.tool-content {
+  @apply flex gap-6;
+}
+
+.main-panel {
+  @apply flex-1 min-w-0;
+}
+
+.results-sidebar {
+  @apply w-80 flex-shrink-0;
+}
+
+.debug-panel {
+  @apply mt-8 p-4 bg-slate-800/50 rounded-lg border border-yellow-400/50;
+}
+
+/* ~~~~~~~~~~~~~~~~~~ Navigation Tabs ~~~~~~~~~~~~~~~~~~ */
+.navigation-tabs {
+  @apply w-full mb-6;
+}
+
+.navigation-tabs__container {
+  @apply flex justify-center bg-slate-800 p-2 rounded-lg gap-2;
+}
+
+.navigation-tabs__tab {
+  @apply px-6 py-3 text-sm font-medium rounded-md transition-colors duration-200 
+         focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-slate-800
+         bg-slate-700 text-slate-300 hover:bg-slate-600;
+}
+
+.navigation-tabs__tab--active {
+  @apply bg-cyan-600 text-white hover:bg-cyan-500;
+}
+
+/* Tab Status Indicators */
+.navigation-tabs__tab-label {
+  @apply mr-2;
+}
+
+.navigation-tabs__tab-status {
+  @apply text-xs font-bold;
+}
+
+.navigation-tabs__tab-status--complete {
+  @apply text-green-400;
+}
+
+.navigation-tabs__tab-status--partial {
+  @apply text-yellow-400;
+}
+
+.navigation-tabs__tab-status--incomplete {
+  @apply text-red-400;
+}
+
+/* Tab Status Styling */
+.navigation-tabs__tab--complete {
+  @apply border-l-4 border-green-400;
+}
+
+.navigation-tabs__tab--partial {
+  @apply border-l-4 border-yellow-400 opacity-80;
+}
+
+.navigation-tabs__tab--incomplete {
+  @apply border-l-4 border-red-400 opacity-60;
+}
+
+/* ~~~~~~~~~~~~~~~~~~ Tab Content Components ~~~~~~~~~~~~~~~~~~ */
+.tab-header {
+  @apply text-center mb-8;
+}
+
+.tab-header__title {
+  @apply text-3xl font-bold text-white mb-2;
+}
+
+.tab-header__subtitle {
+  @apply text-slate-400 max-w-2xl mx-auto;
+}
+
+/* Method Selector */
+.method-selector {
+  @apply mb-8;
+}
+
+.method-selector__grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4;
+}
+
+.method-selector__card {
+  @apply p-4 rounded-lg border-2 border-slate-600 bg-slate-700/50 
+         hover:bg-slate-700 hover:border-slate-500 transition-all duration-200
+         focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-slate-900
+         disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.method-selector__card--active {
+  @apply border-cyan-500 bg-cyan-600/20 hover:bg-cyan-600/30;
+}
+
+.method-selector__card-title {
+  @apply text-lg font-semibold text-white mb-2;
+}
+
+.method-selector__card-description {
+  @apply text-sm text-slate-300;
+}
+
+/* Method Card Status Indicators */
+.method-selector__card-header {
+  @apply flex justify-between items-start mb-2;
+}
+
+.method-selector__card-status {
+  @apply text-xs font-bold ml-2 flex-shrink-0;
+}
+
+.method-selector__card-status--complete {
+  @apply text-green-400;
+}
+
+.method-selector__card-status--partial {
+  @apply text-yellow-400;
+}
+
+.method-selector__card-status--not-implemented {
+  @apply text-red-400;
+}
+
+.method-selector__card-status-label {
+  @apply text-xs text-slate-400 mt-2 font-medium;
+}
+
+/* Method Card Status Styling */
+.method-selector__card--complete {
+  @apply border-l-4 border-green-400;
+}
+
+.method-selector__card--partial {
+  @apply border-l-4 border-yellow-400 opacity-80;
+}
+
+.method-selector__card--not-implemented {
+  @apply border-l-4 border-red-400 opacity-60;
+}
+
+/* Input Panels */
+.input-section {
+  @apply space-y-6;
+}
+
+.input-panel {
+  @apply space-y-4;
+}
+
+.input-panel__label {
+  @apply block text-sm font-medium text-cyan-300 mb-2;
+}
+
+.input-panel__input {
+  @apply w-full bg-slate-700 border border-slate-600 rounded-md py-3 px-4 text-white 
+         focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition;
+}
+
+.input-panel__textarea {
+  @apply w-full bg-slate-700 border border-slate-600 rounded-md py-3 px-4 text-white 
+         focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition resize-y;
+}
+
+.input-panel__select {
+  @apply w-full bg-slate-700 border border-slate-600 rounded-md py-3 px-4 text-white 
+         focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition;
+}
+
+.input-panel__help {
+  @apply text-sm text-slate-400;
+}
+
+.input-panel__placeholder {
+  @apply text-center py-8 text-slate-400;
+}
+
+.input-section__actions {
+  @apply flex justify-center;
+}
+
+/* Note Selector for Discovery Tab */
+.note-selector__note {
+  @apply px-4 py-2 rounded-md border-2 border-slate-600 bg-slate-700 text-white
+         hover:bg-slate-600 transition-colors duration-200 cursor-pointer
+         focus:outline-none focus:ring-2 focus:ring-cyan-400;
+}
+
+.note-selector__note--active {
+  @apply border-cyan-500 bg-cyan-600 hover:bg-cyan-500;
+}
+
+/* Harmony Tab Specific */
+.chord-examples {
+  @apply mt-4;
+}
+
+.chord-examples__list {
+  @apply flex flex-wrap gap-2 mt-2;
+}
+
+.chord-example {
+  @apply px-3 py-1 text-sm bg-slate-600 text-white rounded hover:bg-slate-500 transition-colors;
+}
+
+.progression-examples {
+  @apply mt-4;
+}
+
+.progression-examples__list {
+  @apply space-y-2 mt-2;
+}
+
+.progression-example {
+  @apply block w-full text-left px-3 py-2 text-sm bg-slate-600 text-white rounded 
+         hover:bg-slate-500 transition-colors;
+}
+
+.compare-inputs {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+}
+
+.compare-input {
+  @apply space-y-2;
+}
+
+.selected-notes {
+  @apply mt-3 p-3 bg-slate-600/50 rounded-md text-sm text-cyan-300;
+}
+
+/* Mode Info */
+.mode-info {
+  @apply mt-4 space-y-2;
+}
+
+.substitution-options {
+  @apply mt-4;
+}
+
+.substitution-options ul {
+  @apply mt-2 space-y-1;
+}
+
+.substitution-options li {
+  @apply text-sm text-slate-300;
+}
+
+/* Reference Tab */
+.reference-controls {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6 mb-8;
+}
+
+.search-section,
+.filter-section {
+  @apply space-y-2;
+}
+
+.reference-content {
+  @apply space-y-8;
+}
+
+.quick-reference__title {
+  @apply text-2xl font-bold text-cyan-300 mb-6;
+}
+
+.reference-section {
+  @apply mb-8;
+}
+
+.reference-section__title {
+  @apply text-xl font-semibold text-white mb-4;
+}
+
+.reference-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4;
+}
+
+.reference-card {
+  @apply p-4 bg-slate-700/50 rounded-lg border border-slate-600;
+}
+
+.reference-card__name {
+  @apply text-lg font-semibold text-cyan-300 mb-2;
+}
+
+.reference-card__formula {
+  @apply font-mono text-sm text-slate-300 mb-2;
+}
+
+.reference-card__character {
+  @apply text-sm text-slate-400 italic;
+}
+
+.scale-tables-section {
+  @apply mt-8;
+}
+
+.scale-tables__title {
+  @apply text-2xl font-bold text-cyan-300 mb-4;
+}
+
+.scale-tables__description {
+  @apply text-slate-400 mb-6;
+}
+
+.scale-finder-container {
+  @apply bg-slate-800/50 rounded-lg p-6;
+}
+
+.reference-footer {
+  @apply mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-slate-700;
+}
+
+.legend__title,
+.tips__title {
+  @apply text-lg font-semibold text-cyan-300 mb-3;
+}
+
+.legend__items {
+  @apply space-y-2;
+}
+
+.legend__item {
+  @apply flex items-center gap-3;
+}
+
+.legend__symbol {
+  @apply font-mono text-cyan-300 font-bold;
+}
+
+.legend__text {
+  @apply text-sm text-slate-300;
+}
+
+.tips__list {
+  @apply space-y-2 text-sm text-slate-300;
+}
+
+/* Results Panel */
+.results-panel {
+  @apply bg-slate-800/50 rounded-lg border border-slate-600 overflow-hidden;
+}
+
+.results-panel__header {
+  @apply flex items-center justify-between p-4 border-b border-slate-600 bg-slate-800/70;
+}
+
+.results-panel__title {
+  @apply text-lg font-semibold text-cyan-300;
+}
+
+.results-panel__close {
+  @apply text-slate-400 hover:text-white text-xl cursor-pointer p-1;
+}
+
+.results-panel__content {
+  @apply p-4 space-y-6;
+}
+
+.primary-result {
+  @apply space-y-3;
+}
+
+.primary-result h4 {
+  @apply text-lg font-semibold text-white;
+}
+
+.primary-result p {
+  @apply text-slate-300;
+}
+
+.primary-result pre {
+  @apply bg-slate-900 p-3 rounded text-xs text-slate-300 overflow-auto;
+}
+
+.secondary-results {
+  @apply space-y-4;
+}
+
+.related-info {
+  @apply space-y-3;
+}
+
+.related-info h5 {
+  @apply font-semibold text-cyan-300;
+}
+
+.related-info ul {
+  @apply space-y-1 text-sm text-slate-300;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .tool-content {
+    @apply flex-col;
+  }
+
+  .results-sidebar {
+    @apply w-full;
+  }
+
+  .method-selector__grid {
+    @apply grid-cols-1 md:grid-cols-2;
+  }
+}
+
+@media (max-width: 768px) {
+  .navigation-tabs__container {
+    @apply flex-wrap;
+  }
+
+  .navigation-tabs__tab {
+    @apply px-4 py-2 text-xs;
+  }
+
+  .reference-grid {
+    @apply grid-cols-1;
+  }
+
+  .compare-inputs {
+    @apply grid-cols-1;
+  }
 }

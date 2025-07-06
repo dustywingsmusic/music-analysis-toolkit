@@ -2,11 +2,22 @@ import {GoogleGenAI} from "@google/genai";
 import type {Analysis, AnalysisResponsePayload, AnalysisResult, SongExampleGroup} from '../types';
 import {allScaleData} from '../constants/scales';
 
-if (!process.env.API_KEY) {
-  throw new Error("API_KEY environment variable not set");
-}
+// Get API key from runtime configuration or environment variable
+const getApiKey = (): string => {
+  // For production (Docker/Cloud Run), use runtime config
+  if (typeof window !== 'undefined' && (window as any).RUNTIME_CONFIG?.GEMINI_API_KEY) {
+    return (window as any).RUNTIME_CONFIG.GEMINI_API_KEY;
+  }
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  // For development, use environment variable
+  if (import.meta.env.VITE_GEMINI_API_KEY) {
+    return import.meta.env.VITE_GEMINI_API_KEY;
+  }
+
+  throw new Error("API key not found. Please set VITE_GEMINI_API_KEY in development or ensure runtime config is available in production.");
+};
+
+const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
 // --- PROMPT 1: CORE ANALYSIS ---
 
@@ -153,7 +164,7 @@ const getCoreAnalysis = async (
     });
 
     const rawResponse = response.text;
-    debugInfo.rawResponse = rawResponse;
+    debugInfo.rawResponse = rawResponse || '';
 
     if (!rawResponse) {
       return { result: { error: "Core analysis returned an empty response." }, debug: debugInfo };
