@@ -1,4 +1,5 @@
 import React from 'react';
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export type TabType = 'identify' | 'discover' | 'harmony' | 'reference';
 
@@ -32,22 +33,20 @@ const NavigationTabs: React.FC<NavigationTabsProps> = ({ activeTab, onTabChange 
   ];
 
   return (
-    <nav className="flex space-x-4">
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          onClick={() => onTabChange(tab.id)}
-          className={`px-4 py-2 rounded-md transition-colors duration-200 ${
-            activeTab === tab.id 
-              ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-              : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-          }`}
-          title={tab.title}
-        >
-          {tab.label}
-        </button>
-      ))}
-    </nav>
+    <Tabs value={activeTab} onValueChange={onTabChange}>
+      <TabsList className="grid w-full grid-cols-4 bg-slate-800 border-slate-700">
+        {tabs.map((tab) => (
+          <TabsTrigger 
+            key={tab.id} 
+            value={tab.id}
+            title={tab.title}
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+          >
+            {tab.label}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   );
 };
 

@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 type DiscoveryMethod = 'root' | 'notes' | 'compare' | 'explore';
 
@@ -81,9 +84,7 @@ const ModeDiscoveryTab: React.FC<ModeDiscoveryTabProps> = ({ onDiscoveryRequest,
       case 'root':
         return (
           <div className="input-panel">
-            <label className="input-panel__label">
-              Select root note:
-            </label>
+            <Label>Select root note:</Label>
             <div className="note-selector">
               {notes.map((note) => (
                 <button
@@ -106,9 +107,7 @@ const ModeDiscoveryTab: React.FC<ModeDiscoveryTabProps> = ({ onDiscoveryRequest,
       case 'notes':
         return (
           <div className="input-panel">
-            <label className="input-panel__label">
-              Select notes to include:
-            </label>
+            <Label>Select notes to include:</Label>
             <div className="note-selector">
               {notes.map((note) => (
                 <button
@@ -138,28 +137,28 @@ const ModeDiscoveryTab: React.FC<ModeDiscoveryTabProps> = ({ onDiscoveryRequest,
           <div className="input-panel">
             <div className="compare-inputs">
               <div className="compare-input">
-                <label className="input-panel__label">
-                  First mode/scale:
-                </label>
-                <input
-                  type="text"
-                  className="input-panel__input"
-                  value={compareMode1}
-                  onChange={(e) => setCompareMode1(e.target.value)}
-                  placeholder="e.g., C Major, D Dorian"
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="compare-mode-1">First mode/scale:</Label>
+                  <Input
+                    id="compare-mode-1"
+                    type="text"
+                    value={compareMode1}
+                    onChange={(e) => setCompareMode1(e.target.value)}
+                    placeholder="e.g., C Major, D Dorian"
+                  />
+                </div>
               </div>
               <div className="compare-input">
-                <label className="input-panel__label">
-                  Second mode/scale:
-                </label>
-                <input
-                  type="text"
-                  className="input-panel__input"
-                  value={compareMode2}
-                  onChange={(e) => setCompareMode2(e.target.value)}
-                  placeholder="e.g., A Minor, E Phrygian"
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="compare-mode-2">Second mode/scale:</Label>
+                  <Input
+                    id="compare-mode-2"
+                    type="text"
+                    value={compareMode2}
+                    onChange={(e) => setCompareMode2(e.target.value)}
+                    placeholder="e.g., A Minor, E Phrygian"
+                  />
+                </div>
               </div>
             </div>
             <p className="input-panel__help">
@@ -171,9 +170,7 @@ const ModeDiscoveryTab: React.FC<ModeDiscoveryTabProps> = ({ onDiscoveryRequest,
       case 'explore':
         return (
           <div className="input-panel">
-            <label className="input-panel__label">
-              Starting point for exploration:
-            </label>
+            <Label>Starting point for exploration:</Label>
             <div className="note-selector">
               {notes.map((note) => (
                 <button
@@ -237,16 +234,15 @@ const ModeDiscoveryTab: React.FC<ModeDiscoveryTabProps> = ({ onDiscoveryRequest,
         {renderInputPanel()}
 
         <div className="input-section__actions">
-          <button
+          <Button
             onClick={handleDiscover}
-            className="btn btn--primary"
             disabled={
               (activeMethod === 'notes' && selectedNotes.length === 0) ||
               (activeMethod === 'compare' && (!compareMode1.trim() || !compareMode2.trim()))
             }
           >
             Discover Modes
-          </button>
+          </Button>
         </div>
       </div>
     </div>

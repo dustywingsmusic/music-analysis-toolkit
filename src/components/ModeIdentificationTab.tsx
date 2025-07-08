@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export type IdentificationMethod = 'melody' | 'scale' | 'progression' | 'audio';
 
@@ -255,16 +259,16 @@ const ModeIdentificationTab: React.FC<ModeIdentificationTabProps> = ({
       case 'melody':
         return (
           <div className="input-panel">
-            <label className="input-panel__label">
-              Enter melody notes (e.g., C D E F G A B):
-            </label>
-            <textarea
-              className="input-panel__textarea"
-              value={melodyNotes}
-              onChange={(e) => setMelodyNotes(e.target.value)}
-              placeholder="C D E F G A B C"
-              rows={3}
-            />
+            <div className="space-y-2">
+              <Label htmlFor="melody-notes">Enter melody notes (e.g., C D E F G A B C):</Label>
+              <Textarea
+                id="melody-notes"
+                value={melodyNotes}
+                onChange={(e) => setMelodyNotes(e.target.value)}
+                placeholder="C D E F G A B C"
+                rows={3}
+              />
+            </div>
             <p className="input-panel__help">
               Enter notes in sequence as they appear in your melody. Use sharps (#) or flats (b) as needed.
             </p>
@@ -275,16 +279,16 @@ const ModeIdentificationTab: React.FC<ModeIdentificationTabProps> = ({
       case 'scale':
         return (
           <div className="input-panel">
-            <label className="input-panel__label">
-              Enter scale notes (e.g., C D E F G A B):
-            </label>
-            <input
-              type="text"
-              className="input-panel__input"
-              value={scaleNotes}
-              onChange={(e) => setScaleNotes(e.target.value)}
-              placeholder="C D E F G A B"
-            />
+            <div className="space-y-2">
+              <Label htmlFor="scale-notes">Enter scale notes (e.g., C D E F G A B):</Label>
+              <Input
+                id="scale-notes"
+                type="text"
+                value={scaleNotes}
+                onChange={(e) => setScaleNotes(e.target.value)}
+                placeholder="C D E F G A B"
+              />
+            </div>
             <p className="input-panel__help">
               Enter all the notes that appear in your scale, in any order.
             </p>
@@ -295,16 +299,16 @@ const ModeIdentificationTab: React.FC<ModeIdentificationTabProps> = ({
       case 'progression':
         return (
           <div className="input-panel">
-            <label className="input-panel__label">
-              Enter chord progression (e.g., Am F C G):
-            </label>
-            <input
-              type="text"
-              className="input-panel__input"
-              value={progression}
-              onChange={(e) => setProgression(e.target.value)}
-              placeholder="Am F C G"
-            />
+            <div className="space-y-2">
+              <Label htmlFor="chord-progression">Enter chord progression (e.g., Am F C G):</Label>
+              <Input
+                id="chord-progression"
+                type="text"
+                value={progression}
+                onChange={(e) => setProgression(e.target.value)}
+                placeholder="Am F C G"
+              />
+            </div>
             <p className="input-panel__help">
               Enter chords separated by spaces. Use standard chord notation (Am, F, C7, etc.).
             </p>
@@ -360,9 +364,8 @@ const ModeIdentificationTab: React.FC<ModeIdentificationTabProps> = ({
         {renderInputPanel()}
 
         <div className="input-section__actions">
-          <button
+          <Button
             onClick={handleAnalyze}
-            className="btn btn--primary"
             disabled={
               (activeMethod === 'melody' && !melodyNotes.trim()) ||
               (activeMethod === 'scale' && !scaleNotes.trim()) ||
@@ -371,7 +374,7 @@ const ModeIdentificationTab: React.FC<ModeIdentificationTabProps> = ({
             }
           >
             Analyze Mode
-          </button>
+          </Button>
         </div>
       </div>
     </div>

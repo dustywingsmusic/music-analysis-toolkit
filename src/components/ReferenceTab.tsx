@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import ScaleFinder from './ScaleFinder';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ReferenceTabProps {
   highlightId?: string | null;
@@ -57,33 +60,34 @@ const ReferenceTab: React.FC<ReferenceTabProps> = ({ highlightId, showDebugInfo 
 
       <div className="reference-controls">
         <div className="search-section">
-          <label className="input-panel__label">
-            Search scales and modes:
-          </label>
-          <input
-            type="text"
-            className="input-panel__input"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by name, notes, or characteristics..."
-          />
+          <div className="space-y-2">
+            <Label htmlFor="search-scales">Search scales and modes:</Label>
+            <Input
+              id="search-scales"
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by name, notes, or characteristics..."
+            />
+          </div>
         </div>
 
         <div className="filter-section">
-          <label className="input-panel__label">
-            Filter by category:
-          </label>
-          <select
-            className="input-panel__select"
-            value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
-          >
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.label}
-              </option>
-            ))}
-          </select>
+          <div className="space-y-2">
+            <Label htmlFor="filter-category">Filter by category:</Label>
+            <Select value={filterCategory} onValueChange={setFilterCategory}>
+              <SelectTrigger id="filter-category">
+                <SelectValue placeholder="Filter by category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 

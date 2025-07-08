@@ -1,4 +1,9 @@
 import React, { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type HarmonyMethod = 'analyze' | 'generate' | 'substitute' | 'progression';
 
@@ -84,16 +89,16 @@ const HarmonyTab: React.FC<HarmonyTabProps> = ({ onHarmonyRequest, hasResults = 
       case 'analyze':
         return (
           <div className="input-panel">
-            <label className="input-panel__label">
-              Enter chord to analyze:
-            </label>
-            <input
-              type="text"
-              className="input-panel__input"
-              value={chordInput}
-              onChange={(e) => setChordInput(e.target.value)}
-              placeholder="e.g., Cmaj7, Am, F#dim, Gsus4"
-            />
+            <div className="space-y-2">
+              <Label htmlFor="chord-input">Enter chord to analyze:</Label>
+              <Input
+                id="chord-input"
+                type="text"
+                value={chordInput}
+                onChange={(e) => setChordInput(e.target.value)}
+                placeholder="e.g., Cmaj7, Am, F#dim, Gsus4"
+              />
+            </div>
             <p className="input-panel__help">
               Enter any chord using standard notation. Include extensions, alterations, and bass notes.
             </p>
@@ -132,32 +137,34 @@ const HarmonyTab: React.FC<HarmonyTabProps> = ({ onHarmonyRequest, hasResults = 
       case 'generate':
         return (
           <div className="input-panel">
-            <label className="input-panel__label">
-              Select mode or scale:
-            </label>
-            <select
-              className="input-panel__select"
-              value={selectedMode}
-              onChange={(e) => setSelectedMode(e.target.value)}
-            >
-              <option value="">Choose a mode...</option>
-              {commonModes.map((mode) => (
-                <option key={mode} value={mode}>
-                  {mode}
-                </option>
-              ))}
-            </select>
+            <div className="space-y-2">
+              <Label htmlFor="mode-select">Select mode or scale:</Label>
+              <Select value={selectedMode} onValueChange={setSelectedMode}>
+                <SelectTrigger id="mode-select">
+                  <SelectValue placeholder="Choose a mode..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {commonModes.map((mode) => (
+                    <SelectItem key={mode} value={mode}>
+                      {mode}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <p className="input-panel__help">
               Select a mode to see all the chords that can be built from its notes.
             </p>
             <div className="mode-info">
-              <p><strong>Or enter custom mode:</strong></p>
-              <input
-                type="text"
-                className="input-panel__input"
-                placeholder="e.g., C Dorian, F# Phrygian"
-                onChange={(e) => setSelectedMode(e.target.value)}
-              />
+              <div className="space-y-2">
+                <Label htmlFor="custom-mode">Or enter custom mode:</Label>
+                <Input
+                  id="custom-mode"
+                  type="text"
+                  placeholder="e.g., C Dorian, F# Phrygian"
+                  onChange={(e) => setSelectedMode(e.target.value)}
+                />
+              </div>
             </div>
           </div>
         );
@@ -165,16 +172,16 @@ const HarmonyTab: React.FC<HarmonyTabProps> = ({ onHarmonyRequest, hasResults = 
       case 'substitute':
         return (
           <div className="input-panel">
-            <label className="input-panel__label">
-              Enter chord to find substitutions for:
-            </label>
-            <input
-              type="text"
-              className="input-panel__input"
-              value={targetChord}
-              onChange={(e) => setTargetChord(e.target.value)}
-              placeholder="e.g., Cmaj7, G7, Am"
-            />
+            <div className="space-y-2">
+              <Label htmlFor="target-chord">Enter chord to find substitutions for:</Label>
+              <Input
+                id="target-chord"
+                type="text"
+                value={targetChord}
+                onChange={(e) => setTargetChord(e.target.value)}
+                placeholder="e.g., Cmaj7, G7, Am"
+              />
+            </div>
             <p className="input-panel__help">
               Enter a chord to find suitable substitutions and alternatives.
             </p>
@@ -193,16 +200,16 @@ const HarmonyTab: React.FC<HarmonyTabProps> = ({ onHarmonyRequest, hasResults = 
       case 'progression':
         return (
           <div className="input-panel">
-            <label className="input-panel__label">
-              Enter chord progression:
-            </label>
-            <textarea
-              className="input-panel__textarea"
-              value={progressionInput}
-              onChange={(e) => setProgressionInput(e.target.value)}
-              placeholder="e.g., Am F C G | Dm G Em Am"
-              rows={3}
-            />
+            <div className="space-y-2">
+              <Label htmlFor="chord-progression">Enter chord progression:</Label>
+              <Textarea
+                id="chord-progression"
+                value={progressionInput}
+                onChange={(e) => setProgressionInput(e.target.value)}
+                placeholder="e.g., Am F C G | Dm G Em Am"
+                rows={3}
+              />
+            </div>
             <p className="input-panel__help">
               Enter chords separated by spaces. Use | to separate measures.
             </p>
@@ -276,9 +283,8 @@ const HarmonyTab: React.FC<HarmonyTabProps> = ({ onHarmonyRequest, hasResults = 
         {renderInputPanel()}
 
         <div className="input-section__actions">
-          <button
+          <Button
             onClick={handleAnalyze}
-            className="btn btn--primary"
             disabled={
               (activeMethod === 'analyze' && !chordInput.trim()) ||
               (activeMethod === 'generate' && !selectedMode.trim()) ||
@@ -290,7 +296,7 @@ const HarmonyTab: React.FC<HarmonyTabProps> = ({ onHarmonyRequest, hasResults = 
             {activeMethod === 'generate' && 'Generate Chords'}
             {activeMethod === 'substitute' && 'Find Substitutions'}
             {activeMethod === 'progression' && 'Analyze Progression'}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

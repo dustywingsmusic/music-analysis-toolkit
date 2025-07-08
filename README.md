@@ -52,12 +52,72 @@ An interactive web application for music theory analysis and exploration, powere
 - **Modern UI**: Clean, responsive interface with dark theme optimized for extended use
 - **Cross-Platform**: Works on desktop and mobile browsers
 
+## UI Styling & Component Development
+
+### shadcn/ui Component System
+
+This project uses **shadcn/ui** as its primary component library, providing:
+
+- **Consistent Design Language**: All UI components follow unified design principles
+- **Accessibility**: Built-in ARIA attributes and keyboard navigation support
+- **Dark Theme Integration**: Seamlessly integrated with the existing dark theme
+- **TypeScript Support**: Full type safety for component props and variants
+- **Customizable**: Components can be extended with music-specific variants
+
+### Quick Start for Developers
+
+**Adding New Components:**
+```bash
+# Add individual components
+npx shadcn@latest add button input label card
+
+# Add all available components
+npx shadcn@latest add -a -y -o
+```
+
+**Basic Usage Pattern:**
+```tsx
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+
+function MyComponent() {
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="melody">Melody Notes</Label>
+        <Input id="melody" placeholder="C D E F G A B C" />
+      </div>
+      <Button>Analyze Mode</Button>
+    </div>
+  )
+}
+```
+
+### Styling Guidelines
+
+- **Use semantic color variables**: `bg-background`, `text-foreground`, `border-border`
+- **Follow spacing patterns**: `space-y-2`, `space-y-4`, `space-y-6`
+- **Leverage the `cn` utility**: For intelligent class merging from `@/lib/utils`
+- **Maintain accessibility**: Always use proper `htmlFor`/`id` relationships
+
+### Resources
+
+- **📖 Comprehensive Styling Guide**: [dev_docs/styling_the_app.md](dev_docs/styling_the_app.md)
+- **🎨 shadcn/ui Documentation**: https://ui.shadcn.com/
+- **🧩 Component**: https://ui.shadcn.com/docs/components
+- **🎯 Tailwind CSS**: https://tailwindcss.com/docs
+- **♿ Accessibility Guidelines**: https://www.radix-ui.com/primitives/docs/overview/accessibility
+
+For detailed instructions on creating custom variants, music-specific components, and AI development patterns, see the [complete styling guide](dev_docs/styling_the_app.md).
+
 ## Technology Stack
 
 - **Frontend**: React 19.1.0 with TypeScript
 - **Build Tool**: Vite 6.2.0
 - **AI Service**: Google Gemini 2.5 Flash
-- **Styling**: Tailwind CSS (CDN-based, no build required)
+- **UI Components**: shadcn/ui with Radix UI primitives
+- **Styling**: Tailwind CSS with utility-first approach
 - **Music Libraries**: WebMIDI API for MIDI input, ABCjs for music notation
 - **Additional**: PostCSS with Autoprefixer for enhanced CSS processing
 

@@ -1,82 +1,50 @@
-import React, {useCallback, useState, useEffect} from 'react';
+/**
+ * QuestionDrivenMusicTool - A comprehensive music theory analysis application
+ *
+ * This component serves as the main container for a sophisticated music theory toolkit that allows users to:
+ * - Identify musical modes from melodies, scales, or chord progressions using AI-powered analysis
+ * - Discover and explore different musical modes and their relationships
+ * - Analyze harmonies and chord progressions
+ * - Reference a complete library of musical scales and modes
+ *
+ * The tool integrates with Gemini AI for advanced music theory analysis and maintains a history
+ * of analysis results that can be revisited. It features a unified results display system that 
+ * persists across different tool sections.
+ */
+
+import React, {useCallback, useState} from 'react';
 import NavigationTabs, {TabType} from './NavigationTabs';
-import ModeIdentificationTab, { IdentificationMethod } from './ModeIdentificationTab';
+import ModeIdentificationTab, {IdentificationMethod} from './ModeIdentificationTab';
 import ModeDiscoveryTab from './ModeDiscoveryTab';
 import HarmonyTab from './HarmonyTab';
 import ReferenceTab from './ReferenceTab';
 import ChordAnalyzer from './ChordAnalyzer';
 import {analyzeMusic} from '../services/geminiService';
 import {allScaleData, NOTES, PARENT_KEY_INDICES} from '../constants/scales';
-import {
-  getScaleFamilyFromMode,
-  generateHighlightId as generateHighlightIdFromMappings,
-  noteToPitchClass,
-  validateMappings,
-  getMappingStats
-} from '../constants/mappings';
+import {generateHighlightId as generateHighlightIdFromMappings, getScaleFamilyFromMode} from '../constants/mappings';
 import MappingDebugger from './MappingDebugger';
-import CookieStorage from '../utils/cookieStorage';
+import {useUnifiedResults} from "@/hooks/useUnifiedResults.ts";
+import UnifiedResultsPanel from "@/components/UnifiedResultsPanel.tsx";
 
 interface QuestionDrivenMusicToolProps {
   showDebugInfo: boolean;
 }
 
-interface ResultsHistoryEntry {
-  id: string;
-  timestamp: number;
-  tab: TabType;
-  method: string;
-  summary: string;
-  data: any;
-  results: any;
-  userInputs: {
-    method: string;
-    inputData: any;
-    rawInputs?: {
-      [key: string]: any;
-    };
-  };
-}
-
-interface DisplayPosition {
-  mode: 'sidebar' | 'floating' | 'docked';
-  position?: { x: number; y: number };
-  dockSide?: 'left' | 'right' | 'bottom';
-  width?: number;
-  height?: number;
-}
-
-interface UnifiedResultsState {
-  isVisible: boolean;
-  currentResults: any;
-  history: ResultsHistoryEntry[];
-  displayPosition: DisplayPosition;
-  selectedHistoryId: string | null;
-  showHistory: boolean;
-  isAnalysisDismissed: boolean;
-  autoShowResults: boolean;
-}
 
 const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showDebugInfo }) => {
   const [activeTab, setActiveTab] = useState<TabType>('identify');
   const [highlightIdForReference, setHighlightIdForReference] = useState<string | null>(null);
 
-  // Unified Results Display System State
-  const [unifiedResults, setUnifiedResults] = useState<UnifiedResultsState>({
-    isVisible: false,
-    currentResults: null,
-    history: [],
-    displayPosition: {
-      mode: 'sidebar',
-      dockSide: 'right',
-      width: 400,
-      height: 600
-    },
-    selectedHistoryId: null,
-    showHistory: false,
-    isAnalysisDismissed: false,
-    autoShowResults: true
-  });
+  // Use the unified results hook
+  const {
+    unifiedResults,
+    setUnifiedResults,
+    addToHistory,
+    showUnifiedResults,
+    dismissAnalysisPanel,
+    restoreFromHistory,
+    updateDisplayPosition
+  } = useUnifiedResults(activeTab);
 
   // Legacy compatibility - keep for backward compatibility during transition
   const [analysisResults, setAnalysisResults] = useState<any>(null);
@@ -92,242 +60,15 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
   // State for mapping debugger
   const [showMappingDebugger, setShowMappingDebugger] = useState<boolean>(false);
 
-  // Local Storage Keys
-  const STORAGE_KEYS = {
-    RESULTS_HISTORY: 'music-tool-results-history',
-    DISPLAY_POSITION: 'music-tool-display-position',
-    USER_PREFERENCES: 'music-tool-user-preferences'
-  };
-
-  // Load data from cookie storage on component mount
-  useEffect(() => {
-    try {
-      // Check if cookies are available, fallback to localStorage if not
-      if (!CookieStorage.isAvailable()) {
-        console.warn('Cookies not available, falling back to localStorage');
-        // Fallback to localStorage
-        const savedHistory = localStorage.getItem(STORAGE_KEYS.RESULTS_HISTORY);
-        const savedPosition = localStorage.getItem(STORAGE_KEYS.DISPLAY_POSITION);
-        const savedPreferences = localStorage.getItem(STORAGE_KEYS.USER_PREFERENCES);
-
-        if (savedHistory) {
-          const history = JSON.parse(savedHistory);
-          setUnifiedResults(prev => ({ ...prev, history }));
-        }
-
-        if (savedPosition) {
-          const displayPosition = JSON.parse(savedPosition);
-          setUnifiedResults(prev => ({ ...prev, displayPosition }));
-        }
-
-        if (savedPreferences) {
-          const preferences = JSON.parse(savedPreferences);
-          setUnifiedResults(prev => ({ 
-            ...prev, 
-            autoShowResults: preferences.autoShowResults ?? true,
-            isAnalysisDismissed: preferences.isAnalysisDismissed ?? false
-          }));
-        }
-        return;
-      }
-
-      // Use cookie storage
-      const savedHistory = CookieStorage.getItem(STORAGE_KEYS.RESULTS_HISTORY);
-      const savedPosition = CookieStorage.getItem(STORAGE_KEYS.DISPLAY_POSITION);
-      const savedPreferences = CookieStorage.getItem(STORAGE_KEYS.USER_PREFERENCES);
-
-      if (savedHistory) {
-        setUnifiedResults(prev => ({ ...prev, history: savedHistory }));
-      }
-
-      if (savedPosition) {
-        setUnifiedResults(prev => ({ ...prev, displayPosition: savedPosition }));
-      }
-
-      if (savedPreferences) {
-        setUnifiedResults(prev => ({ 
-          ...prev, 
-          autoShowResults: savedPreferences.autoShowResults ?? true,
-          isAnalysisDismissed: savedPreferences.isAnalysisDismissed ?? false
-        }));
-      }
-    } catch (error) {
-      console.warn('Failed to load results data from cookie storage:', error);
-    }
-  }, []);
-
-  // Save history to cookie storage whenever it changes
-  useEffect(() => {
-    try {
-      if (CookieStorage.isAvailable()) {
-        CookieStorage.setItem(STORAGE_KEYS.RESULTS_HISTORY, unifiedResults.history);
-      } else {
-        // Fallback to localStorage
-        localStorage.setItem(STORAGE_KEYS.RESULTS_HISTORY, JSON.stringify(unifiedResults.history));
-      }
-    } catch (error) {
-      console.warn('Failed to save results history to cookie storage:', error);
-    }
-  }, [unifiedResults.history]);
-
-  // Save display position to cookie storage whenever it changes
-  useEffect(() => {
-    try {
-      if (CookieStorage.isAvailable()) {
-        CookieStorage.setItem(STORAGE_KEYS.DISPLAY_POSITION, unifiedResults.displayPosition);
-      } else {
-        // Fallback to localStorage
-        localStorage.setItem(STORAGE_KEYS.DISPLAY_POSITION, JSON.stringify(unifiedResults.displayPosition));
-      }
-    } catch (error) {
-      console.warn('Failed to save display position to cookie storage:', error);
-    }
-  }, [unifiedResults.displayPosition]);
-
-  // Save user preferences to cookie storage whenever they change
-  useEffect(() => {
-    try {
-      const preferences = {
-        autoShowResults: unifiedResults.autoShowResults,
-        isAnalysisDismissed: unifiedResults.isAnalysisDismissed
-      };
-
-      if (CookieStorage.isAvailable()) {
-        CookieStorage.setItem(STORAGE_KEYS.USER_PREFERENCES, preferences);
-      } else {
-        // Fallback to localStorage
-        localStorage.setItem(STORAGE_KEYS.USER_PREFERENCES, JSON.stringify(preferences));
-      }
-    } catch (error) {
-      console.warn('Failed to save user preferences to cookie storage:', error);
-    }
-  }, [unifiedResults.autoShowResults, unifiedResults.isAnalysisDismissed]);
-
-  // Helper function to determine if analysis panel should be visible
-  const shouldShowAnalysisPanel = (state: UnifiedResultsState): boolean => {
-    return !!(
-      state.currentResults && 
-      !state.isAnalysisDismissed && 
-      state.autoShowResults
-    );
-  };
-
-  // Helper function to update panel visibility based on auto-hide logic
-  const updateAnalysisPanelVisibility = useCallback(() => {
-    const shouldShow = shouldShowAnalysisPanel(unifiedResults);
-    if (shouldShow !== unifiedResults.isVisible) {
-      setUnifiedResults(prev => ({
-        ...prev,
-        isVisible: shouldShow
-      }));
-    }
-  }, [unifiedResults]);
-
-  // Auto-hide effect - runs when currentResults, isAnalysisDismissed, or autoShowResults change
-  useEffect(() => {
-    updateAnalysisPanelVisibility();
-  }, [unifiedResults.currentResults, unifiedResults.isAnalysisDismissed, unifiedResults.autoShowResults, updateAnalysisPanelVisibility]);
-
-  // Helper function to generate a summary from analysis results
-  const generateResultSummary = (method: string, data: any, results: any): string => {
-    switch (method) {
-      case 'melody':
-        if (results?.geminiAnalysis?.result?.analysis?.mode) {
-          return `Melody → ${results.geminiAnalysis.result.analysis.mode}`;
-        }
-        return `Melody analysis: ${data.notes?.substring(0, 20) || 'Unknown'}...`;
-
-      case 'scale':
-        if (results?.geminiAnalysis?.result?.analysis?.mode) {
-          return `Scale → ${results.geminiAnalysis.result.analysis.mode}`;
-        }
-        return `Scale analysis: ${data.notes?.substring(0, 20) || 'Unknown'}...`;
-
-      case 'progression':
-        if (results?.geminiAnalysis?.result?.analysis?.mode) {
-          return `Progression → ${results.geminiAnalysis.result.analysis.mode}`;
-        }
-        return `Chord progression: ${data.chords?.substring(0, 20) || 'Unknown'}...`;
-
-      default:
-        return `${method} analysis`;
-    }
-  };
-
-  // Helper function to add results to history
-  const addToHistory = (method: string, data: any, results: any, tab: TabType = activeTab, userInputs?: any) => {
-    const historyEntry: ResultsHistoryEntry = {
-      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      timestamp: Date.now(),
-      tab,
-      method,
-      summary: generateResultSummary(method, data, results),
-      data,
-      results,
-      userInputs: userInputs || {
-        method,
-        inputData: data,
-        rawInputs: {}
-      }
-    };
-
-    setUnifiedResults(prev => ({
-      ...prev,
-      history: [historyEntry, ...prev.history.slice(0, 49)] // Keep last 50 entries
-    }));
-
-    return historyEntry.id;
-  };
-
-  // Helper function to show results in unified display
-  const showUnifiedResults = (results: any, historyId?: string) => {
-    setUnifiedResults(prev => ({
-      ...prev,
-      isVisible: true,
-      currentResults: results,
-      selectedHistoryId: historyId || null,
-      isAnalysisDismissed: false // Reset dismissal when showing new results
-    }));
-
+  // Wrapper functions to handle legacy compatibility and tab changes
+  const showUnifiedResultsWithLegacy = (results: any, historyId?: string) => {
+    showUnifiedResults(results, historyId);
     // Update legacy state for backward compatibility
     setAnalysisResults(results);
   };
 
-  // Helper function to dismiss analysis panel (user explicitly closes it)
-  const dismissAnalysisPanel = () => {
-    setUnifiedResults(prev => ({
-      ...prev,
-      isVisible: false,
-      isAnalysisDismissed: true,
-      selectedHistoryId: null
-    }));
-  };
-
-  // Helper function to restore results from history
-  const restoreFromHistory = (historyId: string) => {
-    const historyEntry = unifiedResults.history.find(entry => entry.id === historyId);
-    if (historyEntry) {
-      showUnifiedResults(historyEntry.results, historyId);
-      // Optionally switch to the tab where the analysis was performed
-      if (historyEntry.tab !== activeTab) {
-        setActiveTab(historyEntry.tab);
-      }
-    }
-  };
-
-  // Helper function to update display position
-  const updateDisplayPosition = (newPosition: Partial<DisplayPosition>) => {
-    setUnifiedResults(prev => ({
-      ...prev,
-      displayPosition: { ...prev.displayPosition, ...newPosition }
-    }));
-  };
-
-  // Helper function to check if a string is a valid note name
-  const isValidNoteName = (str: string): boolean => {
-    // Valid note names: A, B, C, D, E, F, G with optional sharps (#) or flats (b/♭)
-    const notePattern = /^[A-G][#b♭]?$/;
-    return notePattern.test(str);
+  const restoreFromHistoryWithTabChange = (historyId: string) => {
+    restoreFromHistory(historyId, setActiveTab);
   };
 
   // Helper function to parse note names into pitch classes
@@ -442,7 +183,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
 
     // Show loading state in unified results
     const loadingResult = { method, data, loading: true, timestamp: Date.now() };
-    showUnifiedResults(loadingResult);
+    showUnifiedResultsWithLegacy(loadingResult);
 
     try {
       let analysisResult;
@@ -563,7 +304,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
 
       // Add to history and show results
       const historyId = addToHistory(method, data, analysisResult, activeTab, userInputs);
-      showUnifiedResults(analysisResult, historyId);
+      showUnifiedResultsWithLegacy(analysisResult, historyId);
 
     } catch (error) {
       console.error('Analysis failed:', error);
@@ -591,9 +332,9 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
 
       // Add error to history and show results
       const historyId = addToHistory(method, data, errorResult, activeTab, userInputs);
-      showUnifiedResults(errorResult, historyId);
+      showUnifiedResultsWithLegacy(errorResult, historyId);
     }
-  }, [addToHistory, showUnifiedResults]);
+  }, [addToHistory, showUnifiedResultsWithLegacy]);
 
   const handleDiscoveryRequest = useCallback((method: string, data: any) => {
     console.log('Discovery request:', method, data);
@@ -622,8 +363,8 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
 
     // Add to history and show results
     const historyId = addToHistory(method, data, discoveryResult, 'discover', userInputs);
-    showUnifiedResults(discoveryResult, historyId);
-  }, [addToHistory, showUnifiedResults]);
+    showUnifiedResultsWithLegacy(discoveryResult, historyId);
+  }, [addToHistory, showUnifiedResultsWithLegacy]);
 
   const handleHarmonyRequest = useCallback((method: string, data: any) => {
     console.log('Harmony request:', method, data);
@@ -652,8 +393,8 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
 
     // Add to history and show results
     const historyId = addToHistory(method, data, harmonyResult, 'harmony', userInputs);
-    showUnifiedResults(harmonyResult, historyId);
-  }, [addToHistory, showUnifiedResults]);
+    showUnifiedResultsWithLegacy(harmonyResult, historyId);
+  }, [addToHistory, showUnifiedResultsWithLegacy]);
 
   const handleSwitchToReference = useCallback((highlightId?: string) => {
     let finalHighlightId = highlightId;
@@ -808,360 +549,6 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
     }
   };
 
-  // Enhanced Unified Results Display System
-  const renderUnifiedResults = () => {
-    if (!unifiedResults.isVisible) {
-      return null;
-    }
-
-    const currentResults = unifiedResults.currentResults;
-    if (!currentResults) {
-      return null;
-    }
-
-    const { method, loading, error, geminiAnalysis, localAnalysis, placeholder, message } = currentResults;
-
-    return (
-      <div className={`unified-results-panel unified-results-panel--${unifiedResults.displayPosition.mode}`}>
-        {/* Enhanced Header with Controls */}
-        <div className="unified-results-panel__header">
-          <div className="unified-results-panel__title-section">
-            <h3 className="unified-results-panel__title">
-              {placeholder ? `${method.charAt(0).toUpperCase() + method.slice(1)} Results` : 'Analysis Results'}
-            </h3>
-            <div className="unified-results-panel__meta">
-              {unifiedResults.history.length > 0 && (
-                <span className="unified-results-panel__history-count">
-                  {unifiedResults.history.length} result{unifiedResults.history.length !== 1 ? 's' : ''} in history
-                </span>
-              )}
-            </div>
-          </div>
-
-          <div className="unified-results-panel__controls">
-            {/* History Browser Toggle */}
-            <button 
-              onClick={() => setUnifiedResults(prev => ({ ...prev, showHistory: !prev.showHistory }))}
-              className="unified-results-panel__control-btn"
-              title="View results history"
-              disabled={unifiedResults.history.length === 0}
-            >
-              📋
-            </button>
-
-            {/* Display Position Controls */}
-            <div className="unified-results-panel__position-controls">
-              <button 
-                onClick={() => updateDisplayPosition({ mode: 'sidebar', dockSide: 'right' })}
-                className={`unified-results-panel__control-btn ${unifiedResults.displayPosition.mode === 'sidebar' ? 'active' : ''}`}
-                title="Dock to sidebar"
-              >
-                ⫸
-              </button>
-              <button 
-                onClick={() => updateDisplayPosition({ mode: 'floating' })}
-                className={`unified-results-panel__control-btn ${unifiedResults.displayPosition.mode === 'floating' ? 'active' : ''}`}
-                title="Floating window"
-              >
-                ⧉
-              </button>
-            </div>
-
-            {/* Close Button */}
-            <button 
-              onClick={dismissAnalysisPanel}
-              className="unified-results-panel__close"
-              title="Close results"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-
-        {/* History Browser */}
-        {unifiedResults.showHistory && unifiedResults.history.length > 0 && (
-          <div className="unified-results-panel__history">
-            <h4>Results History</h4>
-            <div className="unified-results-panel__history-list">
-              {unifiedResults.history.slice(0, 10).map((entry) => (
-                <div 
-                  key={entry.id} 
-                  className={`unified-results-panel__history-item ${entry.id === unifiedResults.selectedHistoryId ? 'active' : ''}`}
-                  onClick={() => restoreFromHistory(entry.id)}
-                >
-                  <div className="unified-results-panel__history-summary">{entry.summary}</div>
-                  {entry.userInputs && entry.userInputs.rawInputs && (
-                    <div className="unified-results-panel__history-input">
-                      <span className="history-input-label">
-                        {entry.userInputs.rawInputs.analysisType === 'melody' ? 'Melody:' :
-                         entry.userInputs.rawInputs.analysisType === 'scale' ? 'Scale:' :
-                         entry.userInputs.rawInputs.analysisType === 'progression' ? 'Progression:' :
-                         entry.userInputs.rawInputs.discoveryType ? `${entry.userInputs.rawInputs.discoveryType}:` :
-                         entry.userInputs.rawInputs.harmonyType ? `${entry.userInputs.rawInputs.harmonyType}:` :
-                         'Input:'}
-                      </span>
-                      <span className="history-input-value">
-                        {entry.userInputs.rawInputs.originalInput.length > 30 
-                          ? `${entry.userInputs.rawInputs.originalInput.substring(0, 30)}...`
-                          : entry.userInputs.rawInputs.originalInput}
-                      </span>
-                    </div>
-                  )}
-                  <div className="unified-results-panel__history-meta">
-                    <span className="unified-results-panel__history-tab">{entry.tab}</span>
-                    <span className="unified-results-panel__history-time">
-                      {new Date(entry.timestamp).toLocaleTimeString()}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Main Content */}
-        <div className="unified-results-panel__content">
-          {/* User Inputs Section */}
-          {(() => {
-            // Get user inputs from current history entry
-            const currentHistoryEntry = unifiedResults.selectedHistoryId 
-              ? unifiedResults.history.find(entry => entry.id === unifiedResults.selectedHistoryId)
-              : unifiedResults.history[0]; // fallback to most recent
-
-            const userInputs = currentHistoryEntry?.userInputs;
-
-            if (userInputs && userInputs.rawInputs && !loading) {
-              return (
-                <div className="user-inputs-section">
-                  <h4>Original Input</h4>
-                  <div className="user-inputs-content">
-                    <div className="input-display">
-                      <span className="input-label">
-                        {userInputs.rawInputs.analysisType === 'melody' ? 'Melody Notes:' :
-                         userInputs.rawInputs.analysisType === 'scale' ? 'Scale Notes:' :
-                         userInputs.rawInputs.analysisType === 'progression' ? 'Chord Progression:' :
-                         userInputs.rawInputs.discoveryType ? `${userInputs.rawInputs.discoveryType} Input:` :
-                         userInputs.rawInputs.harmonyType ? `${userInputs.rawInputs.harmonyType} Input:` :
-                         'Input:'}
-                      </span>
-                      <span className="input-value">{userInputs.rawInputs.originalInput}</span>
-                    </div>
-                    <div className="input-meta">
-                      <span className="input-method">Method: {userInputs.method}</span>
-                      {userInputs.rawInputs.error && (
-                        <span className="input-error">⚠️ Analysis failed</span>
-                      )}
-                    </div>
-                    <div className="input-actions">
-                      <button 
-                        onClick={() => handleReturnToInput(userInputs)}
-                        className="btn btn--secondary btn--sm"
-                        title="Return to input area with these values"
-                      >
-                        ↩️ Return to Input
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            }
-            return null;
-          })()}
-
-          {loading && (
-            <div className="loading-state">
-              <p>🎵 Analyzing your {method}...</p>
-            </div>
-          )}
-
-          {placeholder && message && (
-            <div className="placeholder-state">
-              <h4>Coming Soon</h4>
-              <p>{message}</p>
-              <p className="placeholder-note">This feature is planned for the next development phase.</p>
-            </div>
-          )}
-
-          {error && (
-            <div className="error-state">
-              <h4>Analysis Error</h4>
-              <p>{error}</p>
-            </div>
-          )}
-
-          {geminiAnalysis && !loading && !error && !placeholder && (
-            <>
-              <div className="primary-result">
-                <h4>Primary Analysis</h4>
-                {geminiAnalysis.result?.analysis && (
-                  <div className="mode-analysis">
-                    {/* Extract tonic and mode from the full mode name */}
-                    {(() => {
-                      const fullMode = geminiAnalysis.result.analysis.mode;
-                      const parts = fullMode.split(' ');
-
-                      // Check if we have both tonic and mode, or just mode
-                      let tonic, mode;
-                      if (parts.length > 1 && isValidNoteName(parts[0])) {
-                        // Format: "F Ionian" - first part is a valid note name (tonic), rest is mode
-                        tonic = parts[0];
-                        mode = parts.slice(1).join(' ');
-                      } else {
-                        // Format: "Ionian" or "Blues Mode II" - no valid note name at start, need to get tonic from elsewhere
-                        mode = fullMode;
-                        // Try to get tonic from scale notes first (first note is the mode root), then fallback to other sources
-                        let extractedTonic = null;
-                        if (geminiAnalysis.result.analysis.notes && geminiAnalysis.result.analysis.notes.length > 0) {
-                          extractedTonic = geminiAnalysis.result.analysis.notes[0];
-                        } else if (geminiAnalysis.result.analysis.scale) {
-                          // Parse scale string to get first note
-                          const scaleNotes = geminiAnalysis.result.analysis.scale.trim().split(/\s+/);
-                          if (scaleNotes.length > 0) {
-                            extractedTonic = scaleNotes[0];
-                          }
-                        }
-
-                        tonic = extractedTonic || 
-                               geminiAnalysis.result.analysis.parentScaleRootNote || 
-                               (localAnalysis && localAnalysis.suggestedTonic) || 'F';
-                      }
-
-                      return (
-                        <>
-                          <p>
-                            <strong>Mode:</strong> {mode}
-                            <button 
-                              onClick={() => handleSwitchToReferenceWithHighlight(mode, tonic)}
-                              className="link-button ml-2"
-                              title="View this mode in scale tables"
-                            >
-                              📊 View in Tables
-                            </button>
-                          </p>
-                          <p><strong>Tonic (Root):</strong> {tonic}</p>
-                        </>
-                      );
-                    })()}
-                    <p><strong>Scale:</strong> {geminiAnalysis.result.analysis.notes ? geminiAnalysis.result.analysis.notes.join(' ') : geminiAnalysis.result.analysis.scale}</p>
-                    <p><strong>Parent Key:</strong> {geminiAnalysis.result.analysis.key}</p>
-
-                    {geminiAnalysis.result.analysis.explanation && (
-                      <div className="explanation-section">
-                        <h5>Explanation</h5>
-                        <p>{geminiAnalysis.result.analysis.explanation}</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {geminiAnalysis.result?.error && (
-                  <div className="ai-error">
-                    <p>AI Analysis: {geminiAnalysis.result.error}</p>
-                  </div>
-                )}
-              </div>
-
-              {geminiAnalysis.result?.alternates && geminiAnalysis.result.alternates.length > 0 && (
-                <div className="alternate-results">
-                  <h5>Alternative Analyses</h5>
-                  {geminiAnalysis.result.alternates.map((alt: any, index: number) => (
-                    <div key={index} className="alternate-mode">
-                      {(() => {
-                        const fullMode = alt.mode;
-                        const parts = fullMode.split(' ');
-
-                        // Check if we have both tonic and mode, or just mode
-                        let tonic, mode;
-                        if (parts.length > 1 && isValidNoteName(parts[0])) {
-                          // Format: "F Ionian" - first part is a valid note name (tonic), rest is mode
-                          tonic = parts[0];
-                          mode = parts.slice(1).join(' ');
-                        } else {
-                          // Format: "Ionian" or "Blues Mode II" - no valid note name at start, need to get tonic from elsewhere
-                          mode = fullMode;
-                          // Try to get tonic from scale notes first (first note is the mode root), then fallback to other sources
-                          let extractedTonic = null;
-                          if (alt.notes && alt.notes.length > 0) {
-                            extractedTonic = alt.notes[0];
-                          } else if (alt.scale) {
-                            // Parse scale string to get first note
-                            const scaleNotes = alt.scale.trim().split(/\s+/);
-                            if (scaleNotes.length > 0) {
-                              extractedTonic = scaleNotes[0];
-                            }
-                          }
-
-                          tonic = extractedTonic || 
-                                 alt.parentScaleRootNote || 
-                                 (localAnalysis && localAnalysis.suggestedTonic) || 'F';
-                        }
-
-                        return (
-                          <>
-                            <h6>Alternative {index + 1}</h6>
-                            <p>
-                              <strong>Mode:</strong> {mode}
-                              <button 
-                                onClick={() => handleSwitchToReferenceWithHighlight(mode, tonic)}
-                                className="link-button ml-2"
-                                title="View this mode in scale tables"
-                              >
-                                📊 View in Tables
-                              </button>
-                            </p>
-                            <p><strong>Tonic (Root):</strong> {tonic}</p>
-                          </>
-                        );
-                      })()}
-                      <p><strong>Scale:</strong> {alt.notes ? alt.notes.join(' ') : 'Scale notes not available'}</p>
-                      <p><strong>Parent Key:</strong> {alt.key}</p>
-                      {alt.explanation && (
-                        <div className="explanation-section">
-                          <h6>Explanation</h6>
-                          <p>{alt.explanation}</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {geminiAnalysis.result?.songExamples && Array.isArray(geminiAnalysis.result.songExamples) && (
-                <div className="song-examples">
-                  <h5>Song Examples</h5>
-                  {geminiAnalysis.result.songExamples.map((group: any, index: number) => (
-                    <div key={index} className="song-group">
-                      <h6>{group.mode}</h6>
-                      <ul>
-                        {group.songs && Array.isArray(group.songs) && group.songs.map((song: any, songIndex: number) => (
-                          <li key={songIndex}>
-                            <strong>{song.title}</strong> by {song.artist}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-
-          {!loading && !placeholder && (
-            <div className="secondary-results">
-              <div className="related-info">
-                <button 
-                  onClick={() => handleSwitchToReference()}
-                  className="btn btn--secondary"
-                >
-                  View in Scale Tables
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
 
 
   return (
@@ -1205,7 +592,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
                   } else if (unifiedResults.history.length > 0) {
                     const lastResult = unifiedResults.history[0];
                     if (lastResult) {
-                      restoreFromHistory(lastResult.id);
+                      restoreFromHistoryWithTabChange(lastResult.id);
                     }
                   } else {
                     setUnifiedResults(prev => ({
@@ -1262,7 +649,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
                 // Restore from history
                 const lastResult = unifiedResults.history[0];
                 if (lastResult) {
-                  restoreFromHistory(lastResult.id);
+                  restoreFromHistoryWithTabChange(lastResult.id);
                 }
               } else {
                 // No results yet - show empty results panel with instructions
@@ -1314,7 +701,16 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
         {/* Fixed Analysis Results Sidebar */}
         {unifiedResults.isVisible && (
           <aside className="analysis-sidebar">
-            {renderUnifiedResults()}
+            <UnifiedResultsPanel
+              unifiedResults={unifiedResults}
+              setUnifiedResults={setUnifiedResults}
+              onSwitchToReference={handleSwitchToReference}
+              onSwitchToReferenceWithHighlight={handleSwitchToReferenceWithHighlight}
+              onReturnToInput={handleReturnToInput}
+              onRestoreFromHistory={restoreFromHistoryWithTabChange}
+              onDismissAnalysisPanel={dismissAnalysisPanel}
+              onUpdateDisplayPosition={updateDisplayPosition}
+            />
           </aside>
         )}
       </div>

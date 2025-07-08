@@ -56,6 +56,10 @@ The Music Theory Toolkit is a **client-side single-page application (SPA)** buil
 - **TypeScript 5.7.2** - Type safety and enhanced developer experience
 - **Vite 6.2.0** - Fast build tool and development server
 - **Tailwind CSS 3.4.17** - Utility-first CSS framework
+- **shadcn/ui** - Modern component library built on Radix UI primitives
+  - **Radix UI** - Accessible, unstyled UI primitives
+  - **class-variance-authority** - Component variant management
+  - **tailwind-merge** - Intelligent Tailwind class merging
 
 #### External Integrations
 - **@google/genai 1.7.0** - Google Generative AI for music analysis
@@ -67,15 +71,28 @@ The Music Theory Toolkit is a **client-side single-page application (SPA)** buil
 ```
 src/
 ├── components/           # React UI Components
-│   ├── NavigationTabs.tsx
+│   ├── ui/              # shadcn/ui Component Library
+│   │   ├── button.tsx      # shadcn/ui Button component
+│   │   ├── input.tsx       # shadcn/ui Input component
+│   │   ├── label.tsx       # shadcn/ui Label component
+│   │   ├── card.tsx        # shadcn/ui Card component
+│   │   ├── tabs.tsx        # shadcn/ui Tabs component
+│   │   ├── select.tsx      # shadcn/ui Select component
+│   │   ├── textarea.tsx    # shadcn/ui Textarea component
+│   │   ├── sheet.tsx       # shadcn/ui Sheet component
+│   │   ├── dialog.tsx      # shadcn/ui Dialog component
+│   │   └── [other ui components]
+│   ├── NavigationTabs.tsx  # Uses shadcn/ui Tabs
 │   ├── QuestionDrivenMusicTool.tsx
-│   ├── ModeIdentificationTab.tsx
-│   ├── ModeDiscoveryTab.tsx
-│   ├── HarmonyTab.tsx
+│   ├── ModeIdentificationTab.tsx  # Uses shadcn/ui Button
+│   ├── ModeDiscoveryTab.tsx       # Uses shadcn/ui Button
+│   ├── HarmonyTab.tsx             # Uses shadcn/ui Button, Input, Label
 │   ├── ReferenceTab.tsx
 │   ├── ScaleFinder.tsx
 │   ├── ChordAnalyzer.tsx
 │   └── [utility components]
+├── lib/                 # shadcn/ui Utilities
+│   └── utils.ts            # Utility functions for component styling
 ├── services/            # Business Logic & External APIs
 │   ├── geminiService.ts    # AI analysis integration
 │   ├── chordLogic.ts       # Chord analysis algorithms
@@ -112,19 +129,19 @@ type TabType = 'identify' | 'discover' | 'harmony' | 'reference';
 ```
 App
 └── QuestionDrivenMusicTool
-    ├── NavigationTabs
+    ├── NavigationTabs (shadcn/ui Tabs)
     ├── ModeIdentificationTab
     │   ├── Method Selector (melody/scale/progression/audio)
     │   ├── Input Panels (context-sensitive)
-    │   └── Analysis Actions
+    │   └── Analysis Actions (shadcn/ui Button)
     ├── ModeDiscoveryTab
     │   ├── Discovery Methods (root/notes/compare/explore)
     │   ├── Note Selectors
-    │   └── Comparison Tools
+    │   └── Comparison Tools (shadcn/ui Button)
     ├── HarmonyTab
     │   ├── Harmony Methods (analyze/generate/substitute/progression)
-    │   ├── Chord Input Systems
-    │   └── Progression Builder
+    │   ├── Chord Input Systems (shadcn/ui Input, Label)
+    │   └── Progression Builder (shadcn/ui Button)
     ├── ReferenceTab
     │   ├── Search & Filter Controls
     │   ├── Quick Reference Cards
@@ -135,6 +152,37 @@ App
         ├── Display Position Controller
         └── Cross-Tab State Manager
 ```
+
+#### UI Design System Integration
+
+**shadcn/ui Component Library**:
+The application uses shadcn/ui as its primary component library, providing:
+
+- **Consistent Design Language**: All UI components follow the same design principles
+- **Accessibility**: Built-in ARIA attributes and keyboard navigation support
+- **Dark Theme Support**: Integrated with the existing dark theme (slate-900 background, cyan accents)
+- **TypeScript Integration**: Full type safety for component props and variants
+- **Customizable**: Components can be extended with custom variants for music-specific use cases
+
+**Theme Configuration**:
+```css
+/* CSS Variables for Dark Theme */
+:root {
+  --background: 222.2 84% 4.9%;     /* slate-900 equivalent */
+  --foreground: 210 40% 98%;        /* slate-50 equivalent */
+  --primary: 188 100% 42%;          /* cyan-600 equivalent */
+  --secondary: 215 27.9% 16.9%;     /* slate-700 equivalent */
+  --border: 215 27.9% 16.9%;
+  --input: 215 27.9% 16.9%;
+  --ring: 188 100% 42%;
+  --radius: 0.75rem;
+}
+```
+
+**Migration Strategy**:
+- **Phase 1** (Complete): Core components (Button, Input, Label, Tabs)
+- **Phase 2** (Planned): Remaining form components, custom music variants
+- **Phase 3** (Planned): Advanced components (Sheet, Dialog for results panel)
 
 ### 4. Service Layer Architecture
 
