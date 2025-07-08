@@ -1,0 +1,225 @@
+/* Tab Content Components */
+
+@layer components {
+  /* Tab Headers */
+  .tab-header {
+    @apply text-center mb-8;
+  }
+
+  .tab-header__title {
+    @apply text-3xl font-bold text-foreground mb-2;
+  }
+
+  .tab-header__subtitle {
+    @apply text-muted-foreground max-w-2xl mx-auto;
+  }
+
+  /* Method Selector */
+  .method-selector {
+    @apply mb-8;
+  }
+
+  .method-selector__grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4;
+  }
+
+  .method-selector__card {
+    @apply p-4 rounded-lg border-2 border-border bg-card 
+           hover:bg-muted transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .method-selector__card:hover {
+    border-color: color-mix(in oklch, var(--primary) 50%, transparent);
+  }
+
+  .method-selector__card--active {
+    @apply border-primary;
+    background-color: color-mix(in oklch, var(--primary) 20%, transparent);
+  }
+  .method-selector__card--active:hover {
+    background-color: color-mix(in oklch, var(--primary) 30%, transparent);
+  }
+
+  .method-selector__card-title {
+    @apply text-lg font-semibold text-card-foreground mb-2;
+  }
+
+  .method-selector__card-description {
+    @apply text-sm text-muted-foreground;
+  }
+
+  /* Method Card Status Indicators */
+  .method-selector__card-header {
+    @apply flex justify-between items-start mb-2;
+  }
+
+  .method-selector__card-status {
+    @apply text-xs font-bold ml-2 flex-shrink-0;
+  }
+
+  .method-selector__card-status--complete {
+    @apply text-success;
+  }
+
+  .method-selector__card-status--partial {
+    @apply text-warning;
+  }
+
+  .method-selector__card-status--not-implemented {
+    @apply text-destructive;
+  }
+
+  .method-selector__card-status-label {
+    @apply text-xs text-muted-foreground mt-2 font-medium;
+  }
+
+  /* Method Card Status Styling */
+  .method-selector__card--complete {
+    @apply border-l-4 border-success;
+  }
+
+  .method-selector__card--partial {
+    @apply border-l-4 border-warning opacity-80;
+  }
+
+  .method-selector__card--not-implemented {
+    @apply border-l-4 border-destructive opacity-60;
+  }
+
+  /* Input Panels */
+  .input-section {
+    @apply space-y-6;
+  }
+
+  .input-panel {
+    @apply space-y-4;
+  }
+
+  .input-panel__label {
+    @apply block text-sm font-medium text-foreground mb-2;
+  }
+
+  .input-panel__input {
+    @apply w-full bg-input border border-border rounded-md py-3 px-4 text-foreground 
+           focus:ring-2 focus:ring-ring focus:border-primary transition;
+  }
+
+  .input-panel__textarea {
+    @apply w-full bg-input border border-border rounded-md py-3 px-4 text-foreground 
+           focus:ring-2 focus:ring-ring focus:border-primary transition resize-y;
+  }
+
+  .input-panel__select {
+    @apply w-full bg-input border border-border rounded-md py-3 px-4 text-foreground 
+           focus:ring-2 focus:ring-ring focus:border-primary transition;
+  }
+
+  .input-panel__help {
+    @apply text-sm text-muted-foreground;
+  }
+
+  .input-panel__placeholder {
+    @apply text-center py-8 text-muted-foreground;
+  }
+
+  .input-section__actions {
+    @apply flex justify-center;
+  }
+
+  /* Input Validation Feedback */
+  .validation-feedback {
+    @apply mt-3 space-y-2;
+  }
+
+  .validation-feedback__issue {
+    @apply p-3 rounded-md border;
+    background-color: color-mix(in oklch, var(--warning) 30%, transparent);
+    border-color: color-mix(in oklch, var(--warning) 50%, transparent);
+  }
+
+  .validation-feedback__message {
+    @apply flex items-center gap-2 text-warning-foreground font-medium mb-2;
+  }
+
+  .validation-feedback__icon {
+    @apply text-warning;
+  }
+
+  .validation-feedback__suggestion {
+    @apply text-sm text-warning-foreground mb-3;
+  }
+
+  .validation-feedback__switch-btn {
+    @apply px-3 py-1 text-sm bg-warning text-warning-foreground rounded 
+           transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-ring;
+  }
+  .validation-feedback__switch-btn:hover {
+    background-color: color-mix(in oklch, var(--warning) 90%, transparent);
+  }
+
+  /* Mode Identification Tab */
+  .mode-identification-tab {
+    @apply w-full space-y-6;
+  }
+
+  /* Note Selector for Discovery Tab */
+  .note-selector__note {
+    @apply px-4 py-2 rounded-md border-2 border-border bg-card text-card-foreground
+           hover:bg-muted transition-colors duration-200 cursor-pointer
+           focus:outline-none focus:ring-2 focus:ring-ring;
+  }
+
+  .note-selector__note--active {
+    @apply border-primary bg-primary text-primary-foreground;
+  }
+  .note-selector__note--active:hover {
+    background-color: color-mix(in oklch, var(--primary) 90%, transparent);
+  }
+
+  /* Harmony Tab Specific */
+  .chord-examples {
+    @apply mt-4;
+  }
+
+  .chord-examples__list {
+    @apply flex flex-wrap gap-2 mt-2;
+  }
+
+  .chord-example {
+    @apply px-3 py-1 text-sm bg-secondary text-secondary-foreground rounded transition-colors;
+  }
+  .chord-example:hover {
+    background-color: color-mix(in oklch, var(--secondary) 80%, transparent);
+  }
+
+  .progression-examples {
+    @apply mt-4;
+  }
+
+  .progression-examples__list {
+    @apply space-y-2 mt-2;
+  }
+
+  .progression-example {
+    @apply block w-full text-left px-3 py-2 text-sm bg-secondary text-secondary-foreground rounded 
+           transition-colors;
+  }
+  .progression-example:hover {
+    background-color: color-mix(in oklch, var(--secondary) 80%, transparent);
+  }
+
+  .compare-inputs {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+  }
+
+  .compare-input {
+    @apply space-y-2;
+  }
+
+  .selected-notes {
+    @apply mt-3 p-3 rounded-md text-sm text-accent-foreground;
+    background-color: color-mix(in oklch, var(--accent) 20%, transparent);
+    border: 1px solid color-mix(in oklch, var(--accent) 30%, transparent);
+  }
+}

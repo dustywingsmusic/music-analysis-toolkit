@@ -1,0 +1,125 @@
+/* Design Tokens & CSS Custom Properties */
+
+@layer base {
+  :root {
+    /* Base radius */
+    --radius: 0.65rem;
+
+    /* Light mode colors */
+    --background: oklch(0.98 0.01 270); /* very light purple-tinted background */
+    --foreground: oklch(0.1 0.05 270); /* dark text matching dark mode background */
+    --card: oklch(0.95 0.02 270); /* light card background */
+    --card-foreground: oklch(0.1 0.05 270); /* dark text */
+    --popover: oklch(0.95 0.02 270); /* same as card */
+    --popover-foreground: oklch(0.1 0.05 270); /* dark text */
+    --primary: oklch(0.55 0.2 270); /* darker version of bright purple for light mode */
+    --primary-foreground: oklch(0.98 0.01 270); /* light text on primary */
+    --secondary: oklch(0.9 0.05 270); /* light purple */
+    --secondary-foreground: oklch(0.35 0.15 270); /* medium purple text */
+    --muted: oklch(0.92 0.03 270); /* muted background */
+    --muted-foreground: oklch(0.4 0.1 270); /* muted text */
+    --accent: oklch(0.8 0.12 85); /* slightly darker yellow for light mode */
+    --accent-foreground: oklch(0.1 0.05 270); /* dark text on yellow */
+    --destructive: oklch(0.577 0.245 27.325); /* keep red for errors */
+    --destructive-foreground: oklch(0.98 0.01 270); /* light text on destructive */
+    --border: oklch(0.85 0.05 270); /* subtle border */
+    --input: oklch(0.93 0.03 270); /* input background */
+    --ring: oklch(0.55 0.2 270); /* focus ring matches primary */
+
+    /* Chart colors */
+    --chart-1: oklch(0.55 0.2 270); /* primary purple */
+    --chart-2: oklch(0.8 0.12 85); /* yellow */
+    --chart-3: oklch(0.35 0.15 270); /* secondary purple */
+    --chart-4: oklch(0.7 0.15 300); /* lighter purple variant */
+    --chart-5: oklch(0.85 0.08 60); /* light yellow variant */
+
+    /* Sidebar colors */
+    --sidebar: oklch(0.96 0.02 270); /* light sidebar */
+    --sidebar-foreground: oklch(0.1 0.05 270); /* dark text */
+    --sidebar-primary: oklch(0.55 0.2 270); /* primary purple */
+    --sidebar-primary-foreground: oklch(0.98 0.01 270); /* light text */
+    --sidebar-accent: oklch(0.8 0.12 85); /* yellow accent */
+    --sidebar-accent-foreground: oklch(0.1 0.05 270); /* dark text */
+    --sidebar-border: oklch(0.85 0.05 270); /* subtle border */
+    --sidebar-ring: oklch(0.55 0.2 270); /* focus ring */
+
+    /* Extended semantic tokens for replacing hardcoded colors */
+    --success: oklch(0.7 0.15 140); /* green for success states */
+    --success-foreground: oklch(0.98 0.01 270); /* light text on success */
+    --warning: oklch(0.8 0.15 85); /* yellow/amber for warnings */
+    --warning-foreground: oklch(0.1 0.05 270); /* dark text on warning */
+    --info: oklch(0.65 0.2 240); /* blue for info states */
+    --info-foreground: oklch(0.98 0.01 270); /* light text on info */
+
+    /* Navigation-specific tokens */
+    --nav-background: var(--muted);
+    --nav-foreground: var(--muted-foreground);
+    --nav-active: var(--primary);
+    --nav-active-foreground: var(--primary-foreground);
+
+    /* Error states (extending destructive) */
+    --error: var(--destructive);
+    --error-foreground: var(--destructive-foreground);
+    --error-muted: oklch(0.95 0.05 27); /* light error background */
+    --error-muted-foreground: oklch(0.4 0.15 27); /* muted error text */
+  }
+
+  .dark {
+    --background: oklch(0.1 0.05 270); /* #090040 - dark blue background */
+    --foreground: oklch(0.985 0 0); /* white text */
+    --card: oklch(0.15 0.08 270); /* slightly lighter than background */
+    --card-foreground: oklch(0.985 0 0); /* white text */
+    --popover: oklch(0.15 0.08 270); /* same as card */
+    --popover-foreground: oklch(0.985 0 0); /* white text */
+    --primary: oklch(0.65 0.25 270); /* #B13BFF - bright purple */
+    --primary-foreground: oklch(0.985 0 0); /* white text */
+    --secondary: oklch(0.35 0.15 270); /* #471396 - medium purple */
+    --secondary-foreground: oklch(0.985 0 0); /* white text */
+    --muted: oklch(0.2 0.1 270); /* muted version of background */
+    --muted-foreground: oklch(0.7 0.05 270); /* muted text */
+    --accent: oklch(0.85 0.15 85); /* #FFCC00 - yellow/gold accent */
+    --accent-foreground: oklch(0.1 0.05 270); /* dark text on yellow */
+    --destructive: oklch(0.704 0.191 22.216); /* keep red for errors */
+    --destructive-foreground: oklch(0.985 0 0); /* white text on destructive */
+    --border: oklch(0.25 0.1 270); /* subtle border */
+    --input: oklch(0.18 0.08 270); /* input background */
+    --ring: oklch(0.65 0.25 270); /* focus ring matches primary */
+
+    /* Chart colors - dark mode */
+    --chart-1: oklch(0.65 0.25 270); /* primary purple */
+    --chart-2: oklch(0.85 0.15 85); /* yellow */
+    --chart-3: oklch(0.35 0.15 270); /* secondary purple */
+    --chart-4: oklch(0.75 0.2 300); /* lighter purple variant */
+    --chart-5: oklch(0.9 0.1 60); /* light yellow variant */
+
+    /* Sidebar colors - dark mode */
+    --sidebar: oklch(0.12 0.06 270); /* slightly lighter than background */
+    --sidebar-foreground: oklch(0.985 0 0); /* white text */
+    --sidebar-primary: oklch(0.65 0.25 270); /* bright purple */
+    --sidebar-primary-foreground: oklch(0.985 0 0); /* white text */
+    --sidebar-accent: oklch(0.85 0.15 85); /* yellow accent */
+    --sidebar-accent-foreground: oklch(0.1 0.05 270); /* dark text */
+    --sidebar-border: oklch(0.25 0.1 270); /* subtle border */
+    --sidebar-ring: oklch(0.65 0.25 270); /* focus ring */
+
+    /* Extended semantic tokens - dark mode */
+    --success: oklch(0.6 0.2 140); /* darker green for dark mode */
+    --success-foreground: oklch(0.985 0 0); /* white text on success */
+    --warning: oklch(0.75 0.2 85); /* darker yellow for dark mode */
+    --warning-foreground: oklch(0.1 0.05 270); /* dark text on warning */
+    --info: oklch(0.7 0.25 240); /* brighter blue for dark mode */
+    --info-foreground: oklch(0.985 0 0); /* white text on info */
+
+    /* Navigation-specific tokens - dark mode */
+    --nav-background: var(--muted);
+    --nav-foreground: var(--muted-foreground);
+    --nav-active: var(--primary);
+    --nav-active-foreground: var(--primary-foreground);
+
+    /* Error states - dark mode */
+    --error: var(--destructive);
+    --error-foreground: var(--destructive-foreground);
+    --error-muted: oklch(0.15 0.1 27); /* dark error background */
+    --error-muted-foreground: oklch(0.7 0.15 27); /* muted error text */
+  }
+}

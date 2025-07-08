@@ -5,18 +5,15 @@
  * music theory tools. It provides:
  * - Unified display of analysis results from different tabs
  * - Results history management with persistence
- * - Multiple display modes (sidebar, floating, docked)
+ * - Multiple display modes (sidebar, docked)
  * - User input tracking and "Return to Input" functionality
  * - Storage management using cookies with localStorage fallback
  */
 
 import React from 'react';
-import { TabType } from './NavigationTabs';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
+import {TabType} from './NavigationTabs';
+import {Button} from '@/components/ui/button';
+import {Badge} from '@/components/ui/badge';
 
 export interface ResultsHistoryEntry {
   id: string;
@@ -36,7 +33,7 @@ export interface ResultsHistoryEntry {
 }
 
 export interface DisplayPosition {
-  mode: 'sidebar' | 'floating' | 'docked';
+  mode: 'sidebar' | 'docked';
   position?: { x: number; y: number };
   dockSide?: 'left' | 'right' | 'bottom';
   width?: number;
@@ -136,15 +133,6 @@ const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
                 title="Dock to sidebar"
               >
                 ⫸
-              </Button>
-              <Button 
-                onClick={() => onUpdateDisplayPosition({ mode: 'floating' })}
-                variant={unifiedResults.displayPosition.mode === 'floating' ? 'default' : 'ghost'}
-                size="sm"
-                className="unified-results-panel__control-btn"
-                title="Floating window"
-              >
-                ⧉
               </Button>
             </div>
 

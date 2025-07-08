@@ -1,0 +1,10 @@
+/* Global Resets & Base Styles */
+
+* {
+  @apply border-border;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  @apply bg-background text-foreground;
+}

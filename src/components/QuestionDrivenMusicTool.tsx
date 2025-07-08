@@ -554,76 +554,24 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header Section */}
-      <header className="bg-gray-800 p-4 shadow-lg z-10">
+      <header className="bg-background border-b border-border p-4 shadow-lg z-10">
         <div className="container mx-auto flex justify-between items-center">
           {/* Left: Title */}
-          <h1 className="text-2xl font-bold text-blue-400">🎶 Music Theory Toolkit</h1>
+          <div className="flex items-center gap-3">
+            <span className="text-3xl animate-pulse">🎶</span>
+            <h1 className="text-2xl font-bold text-foreground">Music Theory Toolkit</h1>
+          </div>
 
-          {/* Right: Nav, Search, Help */}
-          <div className="flex items-center space-x-6">
+          {/* Right: Navigation */}
+          <div className="flex items-center">
             <NavigationTabs 
               activeTab={activeTab}
               onTabChange={handleTabChange}
             />
-            <div className="relative">
-              <input 
-                type="text" 
-                placeholder="Search..." 
-                className="pl-8 pr-3 py-1 rounded-md bg-gray-700 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              {/* Search Icon */}
-              <svg className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-              </svg>
-            </div>
-            <button 
-              onClick={() => {
-                if (unifiedResults.isVisible) {
-                  // Close results panel
-                  dismissAnalysisPanel();
-                } else {
-                  // Open results panel
-                  if (unifiedResults.currentResults) {
-                    setUnifiedResults(prev => ({
-                      ...prev,
-                      isVisible: true,
-                      isAnalysisDismissed: false
-                    }));
-                  } else if (unifiedResults.history.length > 0) {
-                    const lastResult = unifiedResults.history[0];
-                    if (lastResult) {
-                      restoreFromHistoryWithTabChange(lastResult.id);
-                    }
-                  } else {
-                    setUnifiedResults(prev => ({
-                      ...prev,
-                      isVisible: true,
-                      currentResults: {
-                        method: 'none',
-                        message: 'No analysis results yet. Use the tabs below to analyze melodies, scales, or chord progressions.',
-                        placeholder: true,
-                        timestamp: Date.now()
-                      },
-                      isAnalysisDismissed: false
-                    }));
-                  }
-                }
-              }}
-              className="text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-1"
-              title={unifiedResults.isVisible ? "Close results panel" : "Open results panel"}
-            >
-              📊 Results
-              {unifiedResults.history.length > 0 && !unifiedResults.isVisible && (
-                <span className="bg-cyan-600 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[1.25rem] text-center">
-                  {unifiedResults.history.length}
-                </span>
-              )}
-            </button>
-            <button className="text-gray-300 hover:text-white transition-colors duration-200">Help</button>
             {showDebugInfo && (
               <button 
                 onClick={() => setShowMappingDebugger(true)}
-                className="text-gray-300 hover:text-white transition-colors duration-200"
+                className="text-muted-foreground hover:text-foreground transition-colors duration-200"
                 title="Open Mapping System Debugger"
               >
                 🔧 Debug
@@ -633,61 +581,6 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
         </div>
       </header>
 
-      {/* Always-visible Results Access Button */}
-      {!unifiedResults.isVisible && (
-        <div className="unified-results-access">
-          <button 
-            onClick={() => {
-              if (unifiedResults.currentResults) {
-                // Show current results and reset dismissal
-                setUnifiedResults(prev => ({
-                  ...prev,
-                  isVisible: true,
-                  isAnalysisDismissed: false
-                }));
-              } else if (unifiedResults.history.length > 0) {
-                // Restore from history
-                const lastResult = unifiedResults.history[0];
-                if (lastResult) {
-                  restoreFromHistoryWithTabChange(lastResult.id);
-                }
-              } else {
-                // No results yet - show empty results panel with instructions
-                setUnifiedResults(prev => ({
-                  ...prev,
-                  isVisible: true,
-                  currentResults: {
-                    method: 'none',
-                    message: 'No analysis results yet. Use the tabs above to analyze melodies, scales, or chord progressions.',
-                    placeholder: true,
-                    timestamp: Date.now()
-                  },
-                  isAnalysisDismissed: false
-                }));
-              }
-            }}
-            className="unified-results-access__btn"
-            title={
-              unifiedResults.currentResults 
-                ? "Show current analysis results" 
-                : unifiedResults.history.length > 0
-                ? `View latest result: ${unifiedResults.history[0]?.summary || 'Recent analysis'}`
-                : "Open results panel"
-            }
-          >
-            📊 {
-              unifiedResults.currentResults 
-                ? 'Show Results' 
-                : unifiedResults.history.length > 0 
-                ? `Results (${unifiedResults.history.length})`
-                : 'Results'
-            }
-            {!unifiedResults.autoShowResults && (
-              <span className="ml-1 text-xs opacity-75">📌</span>
-            )}
-          </button>
-        </div>
-      )}
 
       {/* Main Content Area & Analysis Results Sidebar */}
       <div className={`flex flex-1 p-6 md:p-8 overflow-y-auto ${unifiedResults.isVisible ? 'with-sidebar' : ''}`}>
@@ -714,6 +607,27 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
           </aside>
         )}
       </div>
+
+      {/* Analysis Results Toggle Button (FAB) - Always visible when results exist but panel is hidden */}
+      {!unifiedResults.isVisible && (unifiedResults.currentResults || unifiedResults.history.length > 0) && (
+        <div className="analysis-toggle-fab">
+          <button 
+            onClick={() => showUnifiedResults(unifiedResults.currentResults || unifiedResults.history[0]?.results)}
+            className="analysis-toggle-fab__btn"
+            title="Show Analysis Results"
+            aria-label="Show analysis results panel"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+            {unifiedResults.history.length > 0 && (
+              <span className="analysis-toggle-fab__badge">
+                {unifiedResults.history.length}
+              </span>
+            )}
+          </button>
+        </div>
+      )}
 
       {/* Legacy chord analyzer for backward compatibility - hidden by default */}
       {showDebugInfo && (

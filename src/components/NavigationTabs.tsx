@@ -12,37 +12,50 @@ const NavigationTabs: React.FC<NavigationTabsProps> = ({ activeTab, onTabChange 
   const tabs = [
     { 
       id: 'identify' as TabType, 
-      label: 'Identify', 
-      title: 'Mode Identification'
+      label: '🎼 Identify', 
+      title: 'Mode Identification',
+      icon: '🎼',
+      color: 'text-primary'
     },
     { 
       id: 'discover' as TabType, 
-      label: 'Input', 
-      title: 'Mode Discovery'
+      label: '🔍 Discover', 
+      title: 'Mode Discovery',
+      icon: '🔍',
+      color: 'text-secondary'
     },
     { 
       id: 'harmony' as TabType, 
-      label: 'Harmonize', 
-      title: 'Chords & Harmony'
+      label: '🎵 Harmony', 
+      title: 'Chords & Harmony',
+      icon: '🎵',
+      color: 'text-primary'
     },
     { 
       id: 'reference' as TabType, 
-      label: 'Reference', 
-      title: 'Scale Tables & Reference'
+      label: '📚 Reference', 
+      title: 'Scale Tables & Reference',
+      icon: '📚',
+      color: 'text-accent'
     },
   ];
 
   return (
     <Tabs value={activeTab} onValueChange={onTabChange}>
-      <TabsList className="grid w-full grid-cols-4 bg-slate-800 border-slate-700">
+      <TabsList className="grid w-full grid-cols-4 bg-background border-border">
         {tabs.map((tab) => (
           <TabsTrigger 
             key={tab.id} 
             value={tab.id}
             title={tab.title}
-            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            className="data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground text-muted-foreground hover:text-foreground flex items-center gap-2 transition-all duration-200"
           >
-            {tab.label}
+            <span className={`text-lg transition-all duration-200 ${activeTab === tab.id ? tab.color : 'text-muted-foreground'} hover:scale-110`}>
+              {tab.icon}
+            </span>
+            <span className="text-sm font-medium">
+              {tab.label.split(' ').slice(1).join(' ')}
+            </span>
           </TabsTrigger>
         ))}
       </TabsList>

@@ -1,0 +1,87 @@
+/* Music-Specific Components */
+
+@layer components {
+  /* ChordAnalyzer Component */
+  .chord-analyzer {
+    @apply w-full max-w-2xl mx-auto;
+  }
+  .chord-analyzer__toggle-container {
+    @apply flex justify-center mb-6;
+  }
+  .chord-analyzer__input-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+  }
+  .chord-analyzer__actions {
+    @apply mt-6 flex items-center gap-4;
+  }
+  .chord-analyzer__output {
+    @apply mt-8;
+  }
+
+  .note-selector {
+    @apply mt-4 flex flex-wrap gap-2;
+  }
+  .note-selector__grid {
+    @apply grid grid-cols-6 gap-2;
+  }
+  .note-selector__note {
+    @apply flex items-center justify-center p-2 rounded-md cursor-pointer transition-colors border-2 bg-card border-border hover:bg-muted;
+  }
+  .note-selector__note--selected {
+    @apply bg-primary border-primary text-primary-foreground;
+  }
+  .note-selector__note-text {
+    @apply font-mono text-card-foreground select-none;
+  }
+
+  /* ResultDisplay Component */
+  .result-display {
+    @apply mt-8 w-full space-y-8 animate-fade-in;
+  }
+
+  .info-pair {
+    @apply bg-card p-4 rounded-lg border border-border;
+  }
+  .info-pair__label {
+    @apply text-sm font-bold text-primary;
+  }
+  .info-pair__value {
+    @apply text-lg text-card-foreground;
+  }
+  .info-pair__value--mono {
+    @apply font-mono;
+  }
+
+  .song-example-item {
+    @apply flex items-start bg-card p-4 rounded-lg border border-border transition-all hover:bg-muted;
+  }
+  .song-example-item__icon {
+    @apply h-5 w-5 mt-1 mr-4 text-accent flex-shrink-0;
+  }
+  .song-example-item__usage {
+    @apply text-sm text-muted-foreground mt-2 italic bg-muted p-2 rounded;
+  }
+
+  /* LoadingSpinner Component */
+  .loading-spinner-container {
+    @apply flex justify-center items-center p-4;
+  }
+  .loading-spinner {
+    @apply animate-spin rounded-full h-12 w-12 border-b-2 border-primary;
+  }
+
+  /* ScaleFinder Component */
+  .scale-finder {
+    @apply w-full mx-auto space-y-6;
+  }
+  .scale-finder .text-semibold { @apply font-semibold; }
+  .scale-finder .text-error { @apply text-destructive; }
+
+  .scale-finder__checkbox {
+    @apply h-4 w-4 text-primary bg-input border-border focus:ring-ring;
+  }
+
+  .scale-finder__output {
+    @apply font-mono text-primary min-h-[1.5rem];
+  }
+}
