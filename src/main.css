@@ -6,6 +6,9 @@
 
 body {
   @apply bg-slate-900;
+  font-family: "Inter", sans-serif;
+  background-color: #0f172a; /* Dark blue-gray background */
+  color: #e2e8f0; /* Light gray text */
 }
 
 
@@ -80,11 +83,15 @@ body {
 /* ~~~~~~~~~~~~~~~~~~ App Layout ~~~~~~~~~~~~~~~~~~ */
 
 .app-container {
-  @apply min-h-screen bg-slate-900 text-slate-200 flex flex-col items-center p-4 sm:p-6 lg:p-8;
+  @apply min-h-screen bg-slate-900 text-slate-200 flex flex-col;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .main-content {
-  @apply w-full max-w-4xl mx-auto;
+  @apply w-full mx-auto px-4 sm:px-6 lg:px-8;
+  @apply flex-1 flex flex-col;
 }
 
 .app-header { @apply text-center mb-8; }
@@ -180,7 +187,7 @@ body {
   @apply bg-slate-700/50 p-4 rounded-lg;
 }
 .info-pair__label {
-  @apply text-sm font-semibold text-cyan-400;
+  @apply text-sm font-bold text-cyan-400;
 }
 .info-pair__value {
   @apply text-lg text-white;
@@ -235,23 +242,6 @@ body {
   @apply flex items-center gap-2;
 }
 
-/* Floating Notes Display */
-.floating-notes-display {
-  @apply fixed top-0 left-0 right-0 z-50 bg-slate-800/90 backdrop-blur-sm border-b border-slate-700 
-         py-2 px-4 flex items-center justify-between shadow-lg transform -translate-y-full transition-transform duration-300;
-}
-
-.floating-notes-display.visible {
-  @apply translate-y-0;
-}
-
-.floating-notes-content {
-  @apply font-mono text-cyan-300 flex-grow;
-}
-
-.floating-clear-btn {
-  @apply ml-4;
-}
 
 /* Modal Backdrop */
 .modal-backdrop {
@@ -542,7 +532,7 @@ body {
 /* Analysis Sidebar */
 .analysis-sidebar {
   @apply flex-shrink-0 transition-all duration-300 ease-in-out;
-  width: 400px;
+  width: 500px;
 }
 
 .adaptive-layout.analysis-collapsed .analysis-sidebar {
@@ -675,15 +665,168 @@ body {
 
 /* ~~~~~~~~~~~~~~~~~~ Question-Driven Music Tool ~~~~~~~~~~~~~~~~~~ */
 .question-driven-music-tool {
-  @apply w-full space-y-6;
+  @apply w-full flex-1 flex flex-col;
 }
 
 .tool-content {
   @apply flex gap-6;
 }
 
+/* New layout with sidebar similar to example_layout.html */
+.tool-content-with-sidebar {
+  @apply flex flex-1 overflow-hidden mt-6;
+}
+
 .main-panel {
   @apply flex-1 min-w-0;
+}
+
+/* Adjust main panel when sidebar is visible to prevent overlap */
+.tool-content-with-sidebar--with-sidebar .main-panel {
+  @apply pr-80 lg:pr-96;
+}
+
+/* Analysis Results Sidebar - matches example layout */
+.analysis-results-sidebar {
+  @apply w-80 lg:w-96 flex-shrink-0;
+  @apply fixed top-0 right-0 h-screen overflow-y-auto z-40;
+  @apply bg-slate-800 border-l border-slate-600;
+  @apply transition-transform duration-300 ease-in-out;
+}
+
+.analysis-results-sidebar--hidden {
+  @apply transform translate-x-full opacity-0 pointer-events-none;
+}
+
+/* Custom scrollbar styling for sidebar */
+.analysis-results-sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.analysis-results-sidebar::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+.analysis-results-sidebar::-webkit-scrollbar-thumb {
+  background-color: #475569;
+  border-radius: 4px;
+  border: 2px solid #1e293b;
+}
+
+/* Fixed Analysis Sidebar that moves with scroll and sizes with content */
+.analysis-sidebar {
+  position: fixed;
+  top: 4rem;
+  right: 1.5rem;
+  width: auto; /* Size based on content */
+  min-width: 20rem; /* Minimum width for readability */
+  max-width: 30rem; /* Maximum width to prevent excessive size */
+  background-color: #1e293b; /* Slightly lighter dark blue for sidebar */
+  border-left: 1px solid #334155; /* Subtle border */
+  padding: 1.5rem; /* p-6 */
+  border-radius: 0.5rem; /* rounded-lg for a softer look */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  overflow-y: auto; /* Enable scrolling if content overflows */
+  max-height: calc(100vh - 5rem); /* Full height minus top offset */
+  height: auto; /* Size based on content height */
+  z-index: 10; /* Ensure it stays above other content */
+}
+
+/* Basic scrollbar styling for better aesthetics */
+.analysis-sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.analysis-sidebar::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+.analysis-sidebar::-webkit-scrollbar-thumb {
+  background-color: #475569;
+  border-radius: 4px;
+  border: 2px solid #1e293b;
+}
+
+/* Main content area adjustments when sidebar is visible */
+.with-sidebar {
+  margin-right: 22rem; /* Account for sidebar min-width + padding + margin */
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 1200px) {
+  .with-sidebar {
+    margin-right: 0; /* Remove margin on smaller screens */
+  }
+
+  .analysis-sidebar {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    left: 1rem;
+    width: auto;
+    min-width: auto;
+    max-width: none;
+  }
+}
+
+/* User Inputs Display Section */
+.user-inputs-section {
+  @apply mb-6 p-4 bg-slate-700/50 rounded-lg border border-slate-600;
+}
+
+.user-inputs-section h4 {
+  @apply text-lg font-semibold text-cyan-300 mb-3;
+}
+
+.user-inputs-content {
+  @apply space-y-2;
+}
+
+.input-display {
+  @apply flex flex-col space-y-1;
+}
+
+.input-label {
+  @apply text-sm font-medium text-slate-300;
+}
+
+.input-value {
+  @apply text-white bg-slate-800 px-3 py-2 rounded border border-slate-600 font-mono text-sm;
+  word-break: break-word;
+}
+
+.input-meta {
+  @apply flex items-center justify-between text-xs text-slate-400;
+}
+
+.input-method {
+  @apply capitalize;
+}
+
+.input-error {
+  @apply text-red-400 font-medium;
+}
+
+.input-actions {
+  @apply mt-3 flex justify-start;
+}
+
+/* Utility Classes */
+.ml-2 {
+  margin-left: 0.5rem;
+}
+
+/* History Input Display */
+.unified-results-panel__history-input {
+  @apply mt-1 mb-2 text-xs;
+}
+
+.history-input-label {
+  @apply text-slate-400 font-medium;
+}
+
+.history-input-value {
+  @apply text-slate-300 ml-1 font-mono;
 }
 
 /* Tab Content Wrapper - creates layout for tab content and results */
@@ -877,6 +1020,32 @@ body {
 
 .input-panel__help {
   @apply text-sm text-slate-400;
+}
+
+/* Input Validation Feedback */
+.validation-feedback {
+  @apply mt-3 space-y-2;
+}
+
+.validation-feedback__issue {
+  @apply p-3 bg-amber-900/30 border border-amber-600/50 rounded-md;
+}
+
+.validation-feedback__message {
+  @apply flex items-center gap-2 text-amber-200 font-medium mb-2;
+}
+
+.validation-feedback__icon {
+  @apply text-amber-400;
+}
+
+.validation-feedback__suggestion {
+  @apply text-sm text-amber-100 mb-3;
+}
+
+.validation-feedback__switch-btn {
+  @apply px-3 py-1 text-sm bg-amber-600 hover:bg-amber-500 text-white rounded 
+         transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-amber-400;
 }
 
 .input-panel__placeholder {
@@ -1267,18 +1436,48 @@ body {
 /* Unified Results Container */
 .unified-results-container {
   @apply relative;
+  @apply transition-all duration-300 ease-in-out;
 }
 
 .unified-results-container--sidebar {
   @apply w-full max-w-md;
+  @apply transform transition-transform duration-300 ease-in-out;
 }
 
 .unified-results-container--floating {
   @apply fixed top-24 right-4 w-96 max-w-[90vw] z-50;
+  @apply transform transition-all duration-300 ease-in-out;
 }
 
 .unified-results-container--docked {
   @apply fixed z-50;
+  @apply transform transition-all duration-300 ease-in-out;
+}
+
+/* Enhanced panel animations */
+.unified-results-container--sidebar {
+  @apply translate-x-0 opacity-100;
+}
+
+.unified-results-container--floating {
+  @apply translate-x-0 translate-y-0 opacity-100 scale-100;
+}
+
+/* Hidden state animations */
+.unified-results-container--hidden {
+  @apply pointer-events-none;
+}
+
+.unified-results-container--sidebar.unified-results-container--hidden {
+  @apply translate-x-full opacity-0;
+}
+
+.unified-results-container--floating.unified-results-container--hidden {
+  @apply translate-x-4 translate-y-2 opacity-0 scale-95;
+}
+
+.unified-results-container--docked.unified-results-container--hidden {
+  @apply translate-y-full opacity-0;
 }
 
 /* Unified Results Panel */
@@ -1509,7 +1708,7 @@ body {
   @apply text-orange-300;
 }
 
-/* Responsive Design for Unified Results */
+/* Enhanced Mobile Responsive Design for Unified Results */
 @media (max-width: 1024px) {
   .unified-results-container--sidebar {
     @apply w-full;
@@ -1529,12 +1728,36 @@ body {
     @apply px-3 py-2 text-xs;
   }
 
-  .unified-results-container--floating {
-    @apply w-72 top-20 right-2 left-2 max-w-none;
+  /* Mobile bottom drawer behavior */
+  .unified-results-container--floating,
+  .unified-results-container--sidebar {
+    @apply fixed bottom-0 left-0 right-0 top-auto w-full max-w-none;
+    @apply h-1/2 max-h-[60vh] min-h-[300px];
+    @apply transform translate-y-0;
+  }
+
+  .unified-results-container--floating.unified-results-container--hidden,
+  .unified-results-container--sidebar.unified-results-container--hidden {
+    @apply translate-y-full opacity-100;
+  }
+
+  .unified-results-container--docked {
+    @apply fixed bottom-0 left-0 right-0 top-auto w-full;
+    @apply h-1/2 max-h-[60vh] min-h-[300px];
+  }
+
+  .unified-results-container--docked.unified-results-container--hidden {
+    @apply translate-y-full;
+  }
+
+  .unified-results-panel {
+    @apply rounded-t-lg rounded-b-none border-b-0;
+    @apply h-full;
   }
 
   .unified-results-panel__header {
     @apply p-3;
+    @apply border-b border-slate-600;
   }
 
   .unified-results-panel__title {
@@ -1551,6 +1774,7 @@ body {
 
   .unified-results-panel__content {
     @apply p-3;
+    @apply max-h-[calc(60vh-80px)] overflow-y-auto;
   }
 
   .unified-results-panel__history {

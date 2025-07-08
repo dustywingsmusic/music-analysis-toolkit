@@ -27,7 +27,6 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId, embedded 
   const [hoveredCell, setHoveredCell] = useState<string | null>(null);
   const [hoveredNote, setHoveredNote] = useState<string | null>(null);
   const [showPreferences, setShowPreferences] = useState<boolean>(false);
-  const midiStatusRef = useRef<HTMLDivElement>(null);
   const keySuggesterInitialized = useRef<boolean>(false);
 
   // Debug state
@@ -243,21 +242,6 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId, embedded 
 
   }, [playedNotes, playedPitchClasses, midiMode, processedScales, showDebugInfo]);
 
-  // Effect to handle scroll for floating notes display
-  useEffect(() => {
-    const handleScroll = () => {
-      const floatingNotesDisplay = document.getElementById('floating-notes-display');
-      if (!midiStatusRef.current || !floatingNotesDisplay) return;
-
-      const shouldShow = window.scrollY > (midiStatusRef.current.offsetTop + midiStatusRef.current.offsetHeight);
-      floatingNotesDisplay.classList.toggle('visible', shouldShow);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
 
   // Callback to highlight a scale in the tables
   const handleHighlightScale = useCallback((scaleId: string) => {
@@ -373,18 +357,6 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId, embedded 
         </div>
       )}
 
-      {/* Floating Notes Display */}
-      <div id="floating-notes-display" className="floating-notes-display">
-        <div id="floating-notes-content" className="floating-notes-content">
-          {playedNoteNames ? `Notes: ${playedNoteNames}` : ''}
-        </div>
-        <button 
-          onClick={handleClearAll} 
-          className="floating-clear-btn btn btn--secondary btn--sm"
-        >
-          Clear
-        </button>
-      </div>
 
       <div className="card card--blur space-y-4">
         <div>
@@ -483,7 +455,7 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId, embedded 
           </div>
         )}
 
-        <div className="note-display" ref={midiStatusRef}>
+        <div className="note-display">
             <p className="text-semibold">Notes Detected:</p>
             <div className="note-display__notes">{playedNoteNames}</div>
             <div className="note-display-actions">

@@ -1,6 +1,7 @@
 // This module contains the logic for finding and rendering key/chord suggestions.
 import { ProcessedScale, DiatonicChord } from '../types';
 import { NOTES } from '../constants/scales';
+import { NOTE_TO_PITCH_CLASS } from '../constants/mappings';
 import { ChordMatch } from './chordLogic';
 import { loadPreferences } from './preferences';
 
@@ -36,31 +37,9 @@ let keyAnalysis = new Map<string, { matchCount: number; confidence: number; scal
 let activeOverlay: HTMLElement | null = null;
 let highlightScaleCallback: ((scaleId: string) => void) | null = null;
 
-// Note mapping for enharmonic equivalents
-const NOTE_MAP: Record<string, number> = {
-  C: 0,
-  "C#": 1, "CS": 1, "DB": 1, "D♭": 1, "C♯": 1,
-  D: 2,
-  "D#": 3, "DS": 3, "EB": 3, "E♭": 3, "D♯": 3,
-  E: 4,
-  F: 5,
-  "F#": 6, "FS": 6, "GB": 6, "G♭": 6, "F♯": 6,
-  G: 7,
-  "G#": 8, "GS": 8, "AB": 8, "A♭": 8, "G♯": 8,
-  A: 9,
-  "A#": 10, "AS": 10, "BB": 10, "B♭": 10, "A♯": 10,
-  B: 11,
-};
-
-// Comprehensive note to pitch mapping
-const NOTE_TO_PITCH: Record<string, number> = {
-  "C": 0, "C#": 1, "C♯": 1, "Db": 1, "D♭": 1,
-  "D": 2, "D#": 3, "D♯": 3, "Eb": 3, "E♭": 3,
-  "E": 4, "F": 5, "F#": 6, "F♯": 6, "Gb": 6, "G♭": 6,
-  "G": 7, "G#": 8, "G♯": 8, "Ab": 8, "A♭": 8,
-  "A": 9, "A#": 10, "A♯": 10, "Bb": 10, "B♭": 10,
-  "B": 11,
-};
+// Use centralized note mappings (legacy aliases for backward compatibility)
+const NOTE_MAP = NOTE_TO_PITCH_CLASS;
+const NOTE_TO_PITCH = NOTE_TO_PITCH_CLASS;
 
 
 /**

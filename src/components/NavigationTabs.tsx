@@ -11,53 +11,42 @@ const NavigationTabs: React.FC<NavigationTabsProps> = ({ activeTab, onTabChange 
   const tabs = [
     { 
       id: 'identify' as TabType, 
-      label: '🎼 Identify', 
-      title: 'Mode Identification', 
-      status: 'complete',
-      statusLabel: 'Fully Implemented'
+      label: 'Identify', 
+      title: 'Mode Identification'
     },
     { 
       id: 'discover' as TabType, 
-      label: '🔍 Discover', 
-      title: 'Mode Discovery', 
-      status: 'partial',
-      statusLabel: 'UI Complete - Backend Pending'
+      label: 'Input', 
+      title: 'Mode Discovery'
     },
     { 
       id: 'harmony' as TabType, 
-      label: '🎵 Harmony', 
-      title: 'Chords & Harmony', 
-      status: 'partial',
-      statusLabel: 'UI Complete - Backend Pending'
+      label: 'Harmonize', 
+      title: 'Chords & Harmony'
     },
     { 
       id: 'reference' as TabType, 
-      label: '📚 Reference', 
-      title: 'Scale Tables & Reference', 
-      status: 'complete',
-      statusLabel: 'Fully Implemented'
+      label: 'Reference', 
+      title: 'Scale Tables & Reference'
     },
   ];
 
   return (
-    <nav className="navigation-tabs">
-      <div className="navigation-tabs__container">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => onTabChange(tab.id)}
-            className={`navigation-tabs__tab ${
-              activeTab === tab.id ? 'navigation-tabs__tab--active' : ''
-            } navigation-tabs__tab--${tab.status}`}
-            title={`${tab.title} - ${tab.statusLabel}`}
-          >
-            <span className="navigation-tabs__tab-label">{tab.label}</span>
-            <span className={`navigation-tabs__tab-status navigation-tabs__tab-status--${tab.status}`}>
-              {tab.status === 'complete' ? '✓' : tab.status === 'partial' ? '⚠' : '○'}
-            </span>
-          </button>
-        ))}
-      </div>
+    <nav className="flex space-x-4">
+      {tabs.map((tab) => (
+        <button
+          key={tab.id}
+          onClick={() => onTabChange(tab.id)}
+          className={`px-4 py-2 rounded-md transition-colors duration-200 ${
+            activeTab === tab.id 
+              ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+              : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+          }`}
+          title={tab.title}
+        >
+          {tab.label}
+        </button>
+      ))}
     </nav>
   );
 };
