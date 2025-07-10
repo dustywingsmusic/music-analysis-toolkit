@@ -47,6 +47,13 @@ An interactive web application for music theory analysis and exploration, powere
 - **Structured Responses**: Consistent, reliable analysis with comprehensive error handling
 - **Musical Validation**: Intelligent input validation to ensure musically sensible queries
 
+### 📊 Cloud Logging & Monitoring
+- **Structured Logging**: Comprehensive logging of all user interactions and API calls
+- **Google Cloud Logging**: Integrated with Google Cloud Logging for production monitoring
+- **Filterable Logs**: Easy filtering by app name, interaction type, and severity level
+- **Request/Response Tracking**: Complete audit trail of Gemini API requests and responses
+- **User Activity Monitoring**: Tracks web clicks, tab navigation, and analysis requests
+
 ### 🎹 Additional Features
 - **MIDI Support**: Compatible with MIDI input devices for real-time note entry
 - **Modern UI**: Clean, responsive interface with dark theme optimized for extended use
@@ -188,6 +195,98 @@ The current iteration emphasizes:
 - **Accessibility**: MIDI device compatibility and keyboard navigation
 - **User Experience**: Intuitive interface for music theory exploration
 - **Extensibility**: Modular architecture for future feature additions
+
+## Logging & Monitoring
+
+### Structured Logging Implementation
+
+The application implements comprehensive structured logging for production monitoring and debugging. All logs are formatted as JSON objects and sent to Google Cloud Logging for centralized analysis.
+
+✅ **Server-Side Cloud Logging Integration**: The application now includes full server-side Google Cloud Logging integration using service account authentication. Logs are sent from the client to a server endpoint, which then writes them to Google Cloud Logging with proper authentication and enhanced metadata.
+
+#### Logging Categories
+
+**Web Click Interactions:**
+- Tab navigation
+- Analysis requests
+- Discovery requests
+- Button clicks and user interactions
+
+**Gemini API Tracking:**
+- Request logging with parameters and context
+- Response logging with metadata
+- Error tracking with stack traces
+- Performance metrics
+
+**Application Events:**
+- App initialization
+- Component mounting
+- Error states
+
+#### Usage Example
+
+```typescript
+import { logger } from '../utils/logger';
+
+// Log user interactions
+logger.webClick('User clicked analyze button', {
+  component: 'ModeAnalyzer',
+  action: 'analyze_melody',
+  inputLength: notes.length
+});
+
+// Log API requests
+logger.geminiRequest('Sending analysis request', {
+  function: 'analyzeMusic',
+  model: 'gemini-2.5-flash',
+  tonic: 'C',
+  noteCount: 7
+});
+
+// Log API responses
+logger.geminiResponse('Received analysis response', {
+  function: 'analyzeMusic',
+  responseLength: 1250,
+  hasError: false
+});
+```
+
+#### Cloud Logging Filters
+
+Use these filters in Google Cloud Logging Console to analyze specific log types:
+
+```
+# All app logs
+jsonPayload.app_name="music-theory-toolkit"
+
+# Web click interactions only
+jsonPayload.app_name="music-theory-toolkit" AND jsonPayload.interaction_type="web_click"
+
+# Gemini API requests and responses
+jsonPayload.app_name="music-theory-toolkit" AND jsonPayload.interaction_type=("gemini_request" OR "gemini_response")
+
+# Error logs only
+jsonPayload.app_name="music-theory-toolkit" AND severity=ERROR
+
+# Specific component interactions
+jsonPayload.app_name="music-theory-toolkit" AND jsonPayload.component="QuestionDrivenMusicTool"
+```
+
+#### Log Structure
+
+All logs follow this structured format:
+```json
+{
+  "message": "Human-readable description",
+  "severity": "INFO|DEBUG|WARNING|ERROR",
+  "app_name": "music-theory-toolkit",
+  "interaction_type": "web_click|gemini_request|gemini_response|app_init|error",
+  "timestamp": "2024-01-01T12:00:00.000Z",
+  "component": "ComponentName",
+  "action": "specific_action",
+  "additionalData": "..."
+}
+```
 
 ## Deployment
 

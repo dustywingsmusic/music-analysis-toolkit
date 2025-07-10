@@ -707,6 +707,143 @@ const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
             </>
           )}
 
+          {localAnalysis && !loading && !error && !placeholder && (
+            <>
+              <div className="primary-result">
+                <h4>Key Suggestions - Melody Mode</h4>
+                <p><strong>Played Notes:</strong> {localAnalysis.playedNotes}</p>
+                <p><strong>Total Notes:</strong> {localAnalysis.totalNotes}</p>
+
+                {localAnalysis.suggestions && Array.isArray(localAnalysis.suggestions) && localAnalysis.suggestions.length > 0 ? (
+                  <div className="melody-suggestions">
+                    <h5>Possible Keys and Modes</h5>
+                    <div className="suggestions-grid">
+                      {localAnalysis.suggestions.map((suggestion: any, index: number) => (
+                        <div key={index} className="suggestion-item">
+                          <div className="suggestion-header">
+                            <strong>{suggestion.name}</strong>
+                            <Badge variant={suggestion.confidence === 1.0 ? "default" : "secondary"} className="ml-2">
+                              {suggestion.confidence === 1.0 ? "Perfect Match" : `${Math.round(suggestion.confidence * 100)}% Match`}
+                            </Badge>
+                          </div>
+                          <div className="suggestion-details">
+                            <p><strong>Matching Notes:</strong> {suggestion.matchCount}/{localAnalysis.totalNotes}</p>
+                            <div className="suggestion-notes">
+                              <strong>Scale Notes:</strong>
+                              <div className="notes-display">
+                                {Array.from(suggestion.pitchClasses).sort((a, b) => a - b).map((pitch: number, noteIndex: number) => {
+                                  const noteName = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'][pitch];
+                                  const isPlayed = localAnalysis.playedNotes.includes(noteName);
+                                  return (
+                                    <span 
+                                      key={noteIndex} 
+                                      className={`note-badge ${isPlayed ? 'note-played' : 'note-not-played'}`}
+                                    >
+                                      {noteName}
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                            {/* Add links to reference scale grids */}
+                            {(() => {
+                              // Extract mode names from the suggestion name
+                              const suggestionText = suggestion.name;
+
+                              // Handle "Possible modes:" format
+                              if (suggestionText.includes('Possible modes:')) {
+                                const modesText = suggestionText.replace('Possible modes:', '').trim();
+                                const modes = modesText.split(',').map(m => m.trim());
+
+                                return (
+                                  <div className="scale-links">
+                                    <small>View in scale tables:</small>
+                                    <div className="scale-links-buttons">
+                                      {modes.slice(0, 3).map((modeText, modeIndex) => {
+                                        // Parse "Note Mode" format (e.g., "C Major", "D Dorian")
+                                        const parts = modeText.trim().split(' ');
+                                        if (parts.length >= 2 && isValidNoteName(parts[0])) {
+                                          const tonic = parts[0];
+                                          const mode = parts.slice(1).join(' ');
+                                          return (
+                                            <Button 
+                                              key={modeIndex}
+                                              onClick={() => onSwitchToReferenceWithHighlight(mode, tonic)}
+                                              variant="link"
+                                              size="sm"
+                                              className="scale-link-button"
+                                              title={`View ${modeText} in scale tables`}
+                                            >
+                                              📊 {modeText}
+                                            </Button>
+                                          );
+                                        }
+                                        return null;
+                                      })}
+                                    </div>
+                                  </div>
+                                );
+                              }
+
+                              // Handle "Partial match" format
+                              if (suggestionText.includes('Partial match')) {
+                                const colonIndex = suggestionText.lastIndexOf(':');
+                                if (colonIndex !== -1) {
+                                  const modesText = suggestionText.substring(colonIndex + 1).trim();
+                                  const modes = modesText.split(',').map(m => m.trim());
+
+                                  return (
+                                    <div className="scale-links">
+                                      <small>View in scale tables:</small>
+                                      <div className="scale-links-buttons">
+                                        {modes.slice(0, 3).map((modeText, modeIndex) => {
+                                          // Parse "Note Mode" format
+                                          const parts = modeText.trim().split(' ');
+                                          if (parts.length >= 2 && isValidNoteName(parts[0])) {
+                                            const tonic = parts[0];
+                                            const mode = parts.slice(1).join(' ');
+                                            return (
+                                              <Button 
+                                                key={modeIndex}
+                                                onClick={() => onSwitchToReferenceWithHighlight(mode, tonic)}
+                                                variant="link"
+                                                size="sm"
+                                                className="scale-link-button"
+                                                title={`View ${modeText} in scale tables`}
+                                              >
+                                                📊 {modeText}
+                                              </Button>
+                                            );
+                                          }
+                                          return null;
+                                        })}
+                                      </div>
+                                    </div>
+                                  );
+                                }
+                              }
+
+                              return null;
+                            })()}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="no-suggestions">
+                    <p>No key suggestions available for the current melody.</p>
+                    <p className="text-muted">Try playing more notes to get better suggestions.</p>
+                  </div>
+                )}
+
+                <Badge variant="secondary" className="mt-2">
+                  🎹 MIDI Input Analysis
+                </Badge>
+              </div>
+            </>
+          )}
+
           {!loading && !placeholder && (
             <div className="secondary-results">
               <div className="related-info">

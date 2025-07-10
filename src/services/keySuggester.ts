@@ -213,6 +213,7 @@ function showModal(overlay: HTMLElement): void {
   console.log('Modal shown:', overlay.id || 'unnamed overlay');
 }
 
+
 /**
  * Clears the current chord sequence and key analysis.
  */
@@ -930,65 +931,70 @@ function renderMelodySuggestions(suggestions: KeySuggestion[], playedPitchClasse
   // Add title
   const title = document.createElement('h3');
   title.id = 'melody-suggestions-dialog';
-  title.textContent = 'Key Suggestions';
+  title.textContent = 'Key Suggestions - Melody Mode';
   melodyOverlayElement.appendChild(title);
 
-  // Add suggestions
-  suggestions.forEach(suggestion => {
-    const itemDiv = document.createElement('div');
-    itemDiv.className = 'suggestion-item clickable-suggestion';
+  if (suggestions.length === 0) {
+    const noSuggestionsDiv = document.createElement('div');
+    noSuggestionsDiv.className = 'no-suggestions';
+    noSuggestionsDiv.textContent = 'No key suggestions available for the current melody.';
+    melodyOverlayElement.appendChild(noSuggestionsDiv);
+  } else {
+    // Add suggestions
+    suggestions.forEach(suggestion => {
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'suggestion-item clickable-suggestion';
 
-    const header = document.createElement('div');
-    header.className = 'suggestion-header';
-    header.textContent = `${suggestion.name} (${suggestion.matchCount}/${playedPitchClasses.size} match)`;
+      const header = document.createElement('div');
+      header.className = 'suggestion-header';
+      header.textContent = `${suggestion.name} (${suggestion.matchCount}/${playedPitchClasses.size} match)`;
 
-    const notesDiv = document.createElement('div');
-    notesDiv.className = 'suggestion-notes';
+      const notesDiv = document.createElement('div');
+      notesDiv.className = 'suggestion-notes';
 
-    const sortedPitches = Array.from(suggestion.pitchClasses).sort((a, b) => a - b);
-    sortedPitches.forEach((pitch, index) => {
-      const noteSpan = document.createElement('span');
-      noteSpan.textContent = NOTES[pitch] + (index < sortedPitches.length - 1 ? ', ' : '');
-      noteSpan.className = playedPitchClasses.has(pitch) ? 'played' : 'not-played';
-      notesDiv.appendChild(noteSpan);
-    });
+      const sortedPitches = Array.from(suggestion.pitchClasses).sort((a, b) => a - b);
+      sortedPitches.forEach((pitch, index) => {
+        const noteSpan = document.createElement('span');
+        noteSpan.textContent = NOTES[pitch] + (index < sortedPitches.length - 1 ? ', ' : '');
+        noteSpan.className = playedPitchClasses.has(pitch) ? 'played' : 'not-played';
+        notesDiv.appendChild(noteSpan);
+      });
 
-    // Find matching scales in the scale tables (if scale links are enabled)
-    const preferences = loadPreferences();
-    if (preferences.showScaleLinks) {
-      const matchingScales = allScales.filter(scale => 
-        scale.pitchClasses.size === suggestion.pitchClasses.size &&
-        Array.from(scale.pitchClasses).every(pc => suggestion.pitchClasses.has(pc)) &&
-        Array.from(suggestion.pitchClasses).every(pc => scale.pitchClasses.has(pc))
-      );
+      // Find matching scales in the scale tables (if scale links are enabled)
+      const preferences = loadPreferences();
+      if (preferences.showScaleLinks) {
+        const matchingScales = allScales.filter(scale => 
+          scale.pitchClasses.size === suggestion.pitchClasses.size &&
+          Array.from(scale.pitchClasses).every(pc => suggestion.pitchClasses.has(pc)) &&
+          Array.from(suggestion.pitchClasses).every(pc => scale.pitchClasses.has(pc))
+        );
 
-      if (matchingScales.length > 0) {
-        const scaleLinksDiv = document.createElement('div');
-        scaleLinksDiv.className = 'scale-links';
-        scaleLinksDiv.innerHTML = '<small>Click to view in tables:</small>';
+        if (matchingScales.length > 0) {
+          const scaleLinksDiv = document.createElement('div');
+          scaleLinksDiv.className = 'scale-links';
+          scaleLinksDiv.innerHTML = '<small>Click to view in tables:</small>';
 
-        matchingScales.slice(0, 3).forEach((scale, index) => {
-          const linkSpan = document.createElement('span');
-          linkSpan.className = 'scale-link';
-          linkSpan.textContent = scale.name || `Scale ${index + 1}`;
-          linkSpan.onclick = () => highlightScale(scale.id);
-          scaleLinksDiv.appendChild(linkSpan);
+          matchingScales.slice(0, 3).forEach((scale, index) => {
+            const linkSpan = document.createElement('span');
+            linkSpan.className = 'scale-link';
+            linkSpan.textContent = scale.name || `Scale ${index + 1}`;
+            linkSpan.onclick = () => highlightScale(scale.id);
+            scaleLinksDiv.appendChild(linkSpan);
 
-          if (index < Math.min(matchingScales.length - 1, 2)) {
-            scaleLinksDiv.appendChild(document.createTextNode(', '));
-          }
-        });
+            if (index < Math.min(matchingScales.length - 1, 2)) {
+              scaleLinksDiv.appendChild(document.createTextNode(', '));
+            }
+          });
 
-        itemDiv.appendChild(scaleLinksDiv);
+          itemDiv.appendChild(scaleLinksDiv);
+        }
       }
-    }
 
-    itemDiv.appendChild(header);
-    itemDiv.appendChild(notesDiv);
-    if (melodyOverlayElement) {
+      itemDiv.appendChild(header);
+      itemDiv.appendChild(notesDiv);
       melodyOverlayElement.appendChild(itemDiv);
-    }
-  });
+    });
+  }
 
   console.log('Setting melodyOverlayElement display to block');
   showModal(melodyOverlayElement);

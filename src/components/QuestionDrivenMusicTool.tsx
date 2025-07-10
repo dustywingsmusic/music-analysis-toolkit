@@ -12,20 +12,21 @@
  * persists across different tool sections.
  */
 
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import NavigationTabs, {TabType} from './NavigationTabs';
 import ModeIdentificationTab, {IdentificationMethod} from './ModeIdentificationTab';
 import ModeDiscoveryTab from './ModeDiscoveryTab';
 import HarmonyTab from './HarmonyTab';
 import ReferenceTab from './ReferenceTab';
 import ChordAnalyzer from './ChordAnalyzer';
-import {analyzeMusic, discoverModes, analyzeHarmony, getSongExamples} from '../services/geminiService';
-import {buildModesFromRoot, isValidRootNote} from '../services/scaleDataService';
+import {analyzeHarmony, analyzeMusic, discoverModes, getSongExamples} from '../services/geminiService';
+import {buildModesFromRoot, isValidRootNote, ModeFromRoot} from '../services/scaleDataService';
 import {allScaleData, NOTES, PARENT_KEY_INDICES} from '../constants/scales';
 import {generateHighlightId as generateHighlightIdFromMappings, getScaleFamilyFromMode} from '../constants/mappings';
 import MappingDebugger from './MappingDebugger';
 import {useUnifiedResults} from "@/hooks/useUnifiedResults.ts";
 import UnifiedResultsPanel from "@/components/UnifiedResultsPanel.tsx";
+import {logger} from '../utils/logger';
 
 interface QuestionDrivenMusicToolProps {
   showDebugInfo: boolean;
@@ -63,6 +64,16 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
 
   // Loading state for async operations
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // App initialization logging
+  useEffect(() => {
+    logger.appInit('Music Theory Toolkit initialized', {
+      component: 'QuestionDrivenMusicTool',
+      initialTab: activeTab,
+      showDebugInfo,
+      timestamp: Date.now()
+    });
+  }, []); // Empty dependency array means this runs once on mount
 
   // Wrapper functions to handle legacy compatibility and tab changes
   const showUnifiedResultsWithLegacy = (results: any, historyId?: string) => {
@@ -173,6 +184,15 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
   const generateHighlightId = generateHighlightIdFromMappings;
 
   const handleTabChange = useCallback((tab: TabType) => {
+    // Log tab navigation
+    logger.webClick('User navigated to tab', {
+      component: 'QuestionDrivenMusicTool',
+      action: 'tab_change',
+      previousTab: activeTab,
+      newTab: tab,
+      hasVisibleResults: unifiedResults.isVisible
+    });
+
     setActiveTab(tab);
     // With unified results system, results persist across tabs
     // Only clear results if explicitly requested or going to reference with no results
@@ -180,10 +200,19 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
       // Don't change results visibility when going to reference
     }
     // Results remain visible and accessible across all tabs
-  }, [unifiedResults.isVisible]);
+  }, [activeTab, unifiedResults.isVisible]);
 
   const handleAnalysisRequest = useCallback(async (method: string, data: any) => {
     console.log('Analysis request:', method, data);
+
+    // Log analysis request
+    logger.webClick('User initiated analysis request', {
+      component: 'QuestionDrivenMusicTool',
+      action: 'analysis_request',
+      method,
+      dataKeys: Object.keys(data),
+      currentTab: activeTab
+    });
 
     // Show loading state in unified results
     const loadingResult = { method, data, loading: true, timestamp: Date.now() };
@@ -342,6 +371,15 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
 
   const handleDiscoveryRequest = useCallback(async (method: string, data: any) => {
     console.log('Discovery request:', method, data);
+
+    // Log discovery request
+    logger.webClick('User initiated discovery request', {
+      component: 'QuestionDrivenMusicTool',
+      action: 'discovery_request',
+      method,
+      dataKeys: Object.keys(data),
+      currentTab: activeTab
+    });
 
     // Create user inputs object for discovery
     const userInputs = {
@@ -802,6 +840,8 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
           <ReferenceTab 
             highlightId={highlightIdForReference}
             showDebugInfo={showDebugInfo}
+            onShowUnifiedResults={showUnifiedResults}
+            onAddToHistory={addToHistory}
           />
         );
 

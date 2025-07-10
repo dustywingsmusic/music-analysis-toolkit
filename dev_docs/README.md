@@ -84,6 +84,20 @@ The documentation follows a logical flow that ties **use cases** → **requireme
 - **Links to**: Extends implementation.md with specialized analysis panel details
 - **Next**: Use for implementing the enhanced analysis results panel features
 
+### 6. 📊 [logging.md](./logging.md)
+**Comprehensive logging and monitoring implementation guide**
+
+- **Purpose**: Documents the structured logging system for production monitoring and debugging
+- **Content**: Logging architecture, usage patterns, and Cloud Logging integration
+- **Key Sections**:
+  - Structured logging utility implementation
+  - Web click and user interaction tracking
+  - Gemini API request/response auditing
+  - Google Cloud Logging integration and filtering
+  - Log analysis and monitoring strategies
+- **Links to**: Supports all components with comprehensive audit trails
+- **Next**: Use for implementing logging in new components and monitoring production usage
+
 ## 🔄 How Documents Connect
 
 ### Use Case → Requirement → Implementation Flow

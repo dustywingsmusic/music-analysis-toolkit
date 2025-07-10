@@ -7,9 +7,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 interface ReferenceTabProps {
   highlightId?: string | null;
   showDebugInfo?: boolean;
+  onShowUnifiedResults?: (results: any, historyId?: string) => void;
+  onAddToHistory?: (method: string, data: any, results: any, tab?: string, userInputs?: any) => string;
 }
 
-const ReferenceTab: React.FC<ReferenceTabProps> = ({ highlightId, showDebugInfo = false }) => {
+const ReferenceTab: React.FC<ReferenceTabProps> = ({ 
+  highlightId, 
+  showDebugInfo = false, 
+  onShowUnifiedResults, 
+  onAddToHistory 
+}) => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filterCategory, setFilterCategory] = useState<string>('all');
 
@@ -122,6 +129,8 @@ const ReferenceTab: React.FC<ReferenceTabProps> = ({ highlightId, showDebugInfo 
               initialHighlightId={highlightId || null}
               embedded={true}
               showDebugInfo={showDebugInfo}
+              onShowUnifiedResults={onShowUnifiedResults}
+              onAddToHistory={onAddToHistory}
             />
           </div>
         </div>

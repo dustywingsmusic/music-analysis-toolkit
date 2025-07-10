@@ -9,6 +9,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { TabType } from '../components/NavigationTabs';
 import { ResultsHistoryEntry, DisplayPosition, UnifiedResultsState } from '../components/UnifiedResultsPanel';
 import CookieStorage from '../utils/cookieStorage';
+import { logger } from '../utils/logger';
 
 export const useUnifiedResults = (activeTab: TabType) => {
   // Unified Results Display System State
@@ -217,6 +218,16 @@ export const useUnifiedResults = (activeTab: TabType) => {
 
   // Helper function to show results in unified display
   const showUnifiedResults = (results: any, historyId?: string) => {
+    // Log unified results popup opening
+    logger.webClick('User opened unified results popup', {
+      component: 'UnifiedResultsPanel',
+      action: 'popup_open',
+      trigger: historyId ? 'history_restore' : 'new_results',
+      historyId: historyId || null,
+      hasResults: !!results,
+      currentTab: activeTab
+    });
+
     setUnifiedResults(prev => ({
       ...prev,
       isVisible: true,
@@ -228,6 +239,16 @@ export const useUnifiedResults = (activeTab: TabType) => {
 
   // Helper function to dismiss analysis panel (user explicitly closes it)
   const dismissAnalysisPanel = () => {
+    // Log unified results popup closing
+    logger.webClick('User closed unified results popup', {
+      component: 'UnifiedResultsPanel',
+      action: 'popup_close',
+      trigger: 'user_dismiss',
+      hadResults: !!unifiedResults.currentResults,
+      historyCount: unifiedResults.history.length,
+      currentTab: activeTab
+    });
+
     setUnifiedResults(prev => ({
       ...prev,
       isVisible: false,

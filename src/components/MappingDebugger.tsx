@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
-  validateMappings,
+  generateHighlightId,
   getAllModes,
   getMappingStats,
   getScaleFamilyFromMode,
-  generateHighlightId,
-  SCALE_TO_TABLE_ID,
   MODE_TO_SCALE_FAMILY,
-  MODE_TO_INDEX_MAPPINGS
+  SCALE_TO_TABLE_ID,
+  validateMappings
 } from '../constants/mappings';
 
 interface MappingDebuggerProps {

@@ -17,9 +17,17 @@ interface ScaleFinderProps {
   initialHighlightId: string | null;
   embedded?: boolean;
   showDebugInfo?: boolean;
+  onShowUnifiedResults?: (results: any, historyId?: string) => void;
+  onAddToHistory?: (method: string, data: any, results: any, tab?: string, userInputs?: any) => string;
 }
 
-const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId, embedded = false, showDebugInfo = false }) => {
+const ScaleFinder: React.FC<ScaleFinderProps> = ({ 
+  initialHighlightId, 
+  embedded = false, 
+  showDebugInfo = false, 
+  onShowUnifiedResults, 
+  onAddToHistory 
+}) => {
   const [baseKey, setBaseKey] = useState<string>("C");
   const [keyMode, setKeyMode] = useState<'major' | 'minor'>('major');
   const [processedScales, setProcessedScales] = useState<ProcessedScale[]>([]);
@@ -51,6 +59,118 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId, embedded 
     timestamp: number;
   } | null>(null);
 
+  // Generate key suggestions based on played pitch classes
+  const generateKeySuggestions = useCallback((playedPitchClasses: Set<number>) => {
+    const suggestions: Array<{
+      name: string;
+      matchCount: number;
+      pitchClasses: Set<number>;
+      confidence: number;
+    }> = [];
+
+    // Find all scales that contain all the played notes (exact matches)
+    const exactMatches = processedScales.filter((scale) => {
+      // Check if all played notes are contained in this scale
+      for (const playedNote of playedPitchClasses) {
+        if (!scale.pitchClasses.has(playedNote)) {
+          return false;
+        }
+      }
+      return true;
+    });
+
+    // Group exact matches by their pitch class sets to find modes of the same parent scale
+    const scaleGroups = new Map<string, ProcessedScale[]>();
+    exactMatches.forEach((scale) => {
+      const pitchClassKey = Array.from(scale.pitchClasses).sort().join(',');
+      if (!scaleGroups.has(pitchClassKey)) {
+        scaleGroups.set(pitchClassKey, []);
+      }
+      scaleGroups.get(pitchClassKey)!.push(scale);
+    });
+
+    // Create suggestions for each group of modes
+    scaleGroups.forEach((scales) => {
+      if (scales.length > 0) {
+        const matchCount = playedPitchClasses.size; // All notes match exactly
+
+        // Create a suggestion showing all modes of this scale group
+        const modeNames = scales
+          .filter(scale => scale.name) // Only include scales with names
+          .map(scale => `${NOTES[scale.rootNote]} ${scale.name}`)
+          .join(', ');
+
+        if (modeNames) {
+          suggestions.push({
+            name: `Possible modes: ${modeNames}`,
+            matchCount: matchCount,
+            pitchClasses: scales[0].pitchClasses,
+            confidence: 1.0 // Perfect match
+          });
+        }
+      }
+    });
+
+    // If no exact matches, find partial matches (scales that contain some of the played notes)
+    if (suggestions.length === 0) {
+      const partialMatches = processedScales.filter((scale) => {
+        let matchCount = 0;
+        playedPitchClasses.forEach((playedNote) => {
+          if (scale.pitchClasses.has(playedNote)) {
+            matchCount++;
+          }
+        });
+        return matchCount > 0;
+      });
+
+      // Group partial matches and show the best ones
+      const partialGroups = new Map<string, { scales: ProcessedScale[], matchCount: number }>();
+      partialMatches.forEach((scale) => {
+        let matchCount = 0;
+        playedPitchClasses.forEach((playedNote) => {
+          if (scale.pitchClasses.has(playedNote)) {
+            matchCount++;
+          }
+        });
+
+        const pitchClassKey = Array.from(scale.pitchClasses).sort().join(',');
+        if (!partialGroups.has(pitchClassKey) || partialGroups.get(pitchClassKey)!.matchCount < matchCount) {
+          partialGroups.set(pitchClassKey, { scales: [scale], matchCount });
+        }
+      });
+
+      partialGroups.forEach(({ scales, matchCount }) => {
+        if (scales.length > 0 && matchCount >= Math.ceil(playedPitchClasses.size * 0.6)) {
+          const modeNames = scales
+            .filter(scale => scale.name)
+            .slice(0, 3) // Limit to first 3 modes to avoid clutter
+            .map(scale => `${NOTES[scale.rootNote]} ${scale.name}`)
+            .join(', ');
+
+          if (modeNames) {
+            const confidence = matchCount / playedPitchClasses.size;
+            suggestions.push({
+              name: `Partial match (${matchCount}/${playedPitchClasses.size}): ${modeNames}`,
+              matchCount: matchCount,
+              pitchClasses: scales[0].pitchClasses,
+              confidence: confidence
+            });
+          }
+        }
+      });
+    }
+
+    // Sort by match count and confidence
+    suggestions.sort((a, b) => {
+      if (b.matchCount !== a.matchCount) {
+        return b.matchCount - a.matchCount;
+      }
+      return b.confidence - a.confidence;
+    });
+
+    return suggestions.slice(0, 5); // Return top 5 suggestions
+  }, [processedScales]);
+
   // Callback for chord detection
   const handleChordDetected = useCallback((noteNumbers: number[]) => {
     const detectedChords = findChordMatches(noteNumbers);
@@ -61,8 +181,39 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId, embedded 
 
   // Callback for melody mode
   const handleMelodyUpdate = useCallback((pitchClasses: Set<number>) => {
-    keySuggester.updateMelodySuggestions(pitchClasses);
-  }, []);
+    if (onShowUnifiedResults && onAddToHistory && pitchClasses.size > 0) {
+      // Generate key suggestions using the same logic as keySuggester
+      const suggestions = generateKeySuggestions(pitchClasses);
+
+      // Create results object for unified results system
+      const results = {
+        method: 'melody',
+        loading: false,
+        error: null,
+        localAnalysis: {
+          suggestions: suggestions,
+          playedNotes: Array.from(pitchClasses).map(pc => NOTES[pc]).join(', '),
+          totalNotes: pitchClasses.size
+        }
+      };
+
+      // Add to history and show in unified results
+      const historyId = onAddToHistory(
+        'melody', 
+        { 
+          pitchClasses: Array.from(pitchClasses),
+          notes: Array.from(pitchClasses).map(pc => NOTES[pc]).join(', ')
+        }, 
+        results,
+        'reference'
+      );
+
+      onShowUnifiedResults(results, historyId);
+    } else {
+      // Fallback to original modal approach if unified results not available
+      keySuggester.updateMelodySuggestions(pitchClasses);
+    }
+  }, [onShowUnifiedResults, onAddToHistory, processedScales]);
 
   const { 
     status, 
@@ -260,6 +411,7 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId, embedded 
     }
   }, [processedScales, handleHighlightScale]);
 
+
   const playedNoteNames = playedNotes.map(n => NOTES[n.number % 12]).join(', ');
 
   return (
@@ -386,32 +538,35 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({ initialHighlightId, embedded 
         <div>
           <p className="label mb-2">Detection Mode</p>
           <div className="radio-group">
-            {(['7', '5', 'melody', 'chord'] as const).map(m => (
-              <label key={m} className="radio-label">
-                <input
-                  type="radio"
-                  name="scale-type"
-                  value={m}
-                  checked={midiMode === m}
-                  onChange={(e) => setMidiMode(e.target.value as typeof midiMode)}
-                  className="radio-input"
-                />
-                <span>
-                  {m === '7' ? '7-note Scale' : 
-                   m === '5' ? '5/6-note Scale' : 
-                   m === 'melody' ? 'Melody Mode' : 
-                   'Chord Mode'}
-                </span>
-              </label>
+            {(['7', '5', 'melody', 'chord'] as const).map((m, i) => (
+                <>
+                  {i > 0 && <span className="radio-delimiter"> | </span>}
+                  <label key={m} className="radio-label">
+                    <input
+                        type="radio"
+                        name="scale-type"
+                        value={m}
+                        checked={midiMode === m}
+                        onChange={(e) => setMidiMode(e.target.value as typeof midiMode)}
+                        className="radio-input"
+                    />
+                    <span>
+          {m === '7' ? '7-note Scale' :
+              m === '5' ? '5/6-note Scale' :
+                  m === 'melody' ? 'Melody Mode' :
+                      'Chord Mode'}
+        </span>
+                  </label>
+                </>
             ))}
           </div>
         </div>
 
         {midiMode === 'chord' && (
-          <div className="chord-controls">
-            <div className="mb-4">
-              <label htmlFor="base-key-input" className="label">
-                Base Key for Chord Progressions
+            <div className="chord-controls">
+              <div className="mb-4">
+                <label htmlFor="base-key-input" className="label">
+                  Base Key for Chord Progressions
               </label>
               <select
                 id="base-key-input"

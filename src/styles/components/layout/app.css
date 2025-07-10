@@ -388,4 +388,99 @@
   .ai-error {
     @apply mt-4 p-3 rounded bg-error-muted text-error-muted-foreground border border-error;
   }
+
+  /* Melody Suggestions Styling */
+  .melody-suggestions {
+    @apply mt-4;
+  }
+
+  .melody-suggestions h5 {
+    @apply text-base font-semibold text-primary mb-3 pb-2 border-b border-border;
+  }
+
+  .suggestions-grid {
+    @apply space-y-3;
+  }
+
+  .suggestion-item {
+    @apply p-4 rounded-lg border border-border bg-card transition-all duration-200 hover:shadow-md;
+    background-color: color-mix(in oklch, var(--card) 90%, transparent);
+  }
+
+  .suggestion-header {
+    @apply flex items-center justify-between mb-3 pb-2 border-b border-border;
+  }
+
+  .suggestion-header strong {
+    @apply text-primary font-bold text-base;
+  }
+
+  .suggestion-details {
+    @apply space-y-2;
+  }
+
+  .suggestion-details strong {
+    @apply font-semibold text-foreground;
+  }
+
+  .suggestion-notes {
+    @apply mt-3;
+  }
+
+  .notes-display {
+    @apply flex flex-wrap gap-2 mt-2;
+  }
+
+  .note-badge {
+    @apply px-2 py-1 rounded-full text-xs font-medium border transition-all duration-200;
+  }
+
+  .note-played {
+    @apply bg-primary text-primary-foreground border-primary shadow-sm;
+  }
+
+  .note-not-played {
+    @apply bg-muted text-muted-foreground border-border;
+  }
+
+  .no-suggestions {
+    @apply text-center py-6 px-4 rounded-lg bg-muted border border-border;
+    background-color: color-mix(in oklch, var(--muted) 50%, transparent);
+  }
+
+  .no-suggestions p {
+    @apply text-muted-foreground;
+  }
+
+  .no-suggestions .text-muted {
+    @apply text-sm mt-2 opacity-75;
+  }
+
+  /* Enhanced styling for melody suggestions strong text */
+  .melody-suggestions strong {
+    @apply font-bold text-primary;
+    font-weight: 700;
+  }
+
+  /* Scale links styling */
+  .scale-links {
+    @apply mt-3 pt-3 border-t border-border;
+  }
+
+  .scale-links small {
+    @apply text-muted-foreground font-medium block mb-2;
+  }
+
+  .scale-links-buttons {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .scale-link-button {
+    @apply text-xs px-2 py-1 h-auto font-medium bg-muted hover:bg-accent hover:text-accent-foreground border border-border rounded transition-all duration-200;
+    text-decoration: none !important;
+  }
+
+  .scale-link-button:hover {
+    @apply shadow-sm transform scale-105;
+  }
 }

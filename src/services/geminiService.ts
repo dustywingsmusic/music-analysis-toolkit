@@ -1,6 +1,7 @@
 import {GoogleGenAI} from "@google/genai";
 import type {Analysis, AnalysisResponsePayload, AnalysisResult, SongExampleGroup} from '../types';
 import {allScaleData} from '../constants/scales';
+import {logger} from '../utils/logger';
 
 // Get API key from runtime configuration or environment variable
 const getApiKey = (): string => {
@@ -55,6 +56,10 @@ The user will provide a tonic and either a chord or a set of notes.
 
 Your process MUST be:
 1.  **IDENTIFY MODES**: Based on the user's input and the provided Reference Scale Data, identify all plausible musical modes whose root matches the user's tonic.
+    - For each identified mode, calculate the **Parent Key**:  
+      The Parent Key is the **major scale** (or scale family root) from which the mode is derived.  
+      To compute this, use the mode degree (e.g., Phrygian = 3rd mode). Shift the tonic **down (mode degree − 1)** diatonically.  
+      Example: C Phrygian → A♭ Major, because C is the 3rd degree of A♭.
 2.  **STRUCTURED ANALYSIS**: Create a main \`analysis\` object for the single most likely mode. Populate the \`alternates\` array with objects for all other plausible modes. If only one mode is found, \`alternates\` MUST be an empty array.
 3.  **MODE DISCUSSION**: Write a concise \`modeDiscussion\` string that explains the reasoning based *only* on the modes you have identified.
 4.  **NEAREST GUESS**: If no mode is a perfect match, find the single closest one. Set \`isNearestGuess: true\` in its \`analysis\` object and explain the approximation in its \`explanation\` field. The \`alternates\` array must be empty.
@@ -210,6 +215,16 @@ const getCoreAnalysis = async (
   };
 
   try {
+    // Log the request
+    logger.geminiRequest('Core analysis request to Gemini API', {
+      function: 'getCoreAnalysis',
+      model: 'gemini-2.5-flash-preview-04-17',
+      tonic,
+      analysisTarget,
+      userPrompt,
+      temperature: 0.1
+    });
+
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash-preview-04-17",
       contents: userPrompt,
@@ -223,13 +238,33 @@ const getCoreAnalysis = async (
     const rawResponse = response.text;
     debugInfo.rawResponse = rawResponse || '';
 
+    // Log the response
+    logger.geminiResponse('Core analysis response from Gemini API', {
+      function: 'getCoreAnalysis',
+      responseLength: rawResponse?.length || 0,
+      hasResponse: !!rawResponse,
+      tonic,
+      analysisTarget
+    });
+
     if (!rawResponse) {
+      logger.error('Core analysis returned empty response', {
+        function: 'getCoreAnalysis',
+        tonic,
+        analysisTarget
+      });
       return { result: { error: "Core analysis returned an empty response." }, debug: debugInfo };
     }
 
     const parsedData = safelyParseJson<AnalysisResult>(rawResponse);
 
     if (!parsedData) {
+      logger.error('Core analysis returned malformed response', {
+        function: 'getCoreAnalysis',
+        tonic,
+        analysisTarget,
+        rawResponseLength: rawResponse.length
+      });
       return { result: { error: "Core analysis returned a malformed response." }, debug: debugInfo };
     }
 
@@ -243,6 +278,15 @@ const getCoreAnalysis = async (
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error in core analysis";
     debugInfo.rawResponse = error instanceof Error ? error.stack ?? message : String(error);
+
+    logger.error('Core analysis API call failed', {
+      function: 'getCoreAnalysis',
+      error: message,
+      tonic,
+      analysisTarget,
+      stack: error instanceof Error ? error.stack : undefined
+    });
+
     return { result: { error: `Core analysis failed: ${message}` }, debug: debugInfo };
   }
 };
@@ -254,6 +298,15 @@ export const getSongExamples = async (allModes: Analysis[]): Promise<SongExample
     const prompt = JSON.stringify(modeNames);
 
     try {
+        // Log the request
+        logger.geminiRequest('Song examples request to Gemini API', {
+          function: 'getSongExamples',
+          model: 'gemini-2.5-flash-preview-04-17',
+          modeNames,
+          modesCount: modeNames.length,
+          temperature: 0.3
+        });
+
         const response = await ai.models.generateContent({
           model: "gemini-2.5-flash-preview-04-17",
           contents: prompt,
@@ -265,11 +318,43 @@ export const getSongExamples = async (allModes: Analysis[]): Promise<SongExample
         });
 
         const rawResponse = response.text;
-        if (!rawResponse) return null;
 
-        return safelyParseJson<SongExampleGroup[]>(rawResponse);
+        // Log the response
+        logger.geminiResponse('Song examples response from Gemini API', {
+          function: 'getSongExamples',
+          responseLength: rawResponse?.length || 0,
+          hasResponse: !!rawResponse,
+          modeNames,
+          modesCount: modeNames.length
+        });
+
+        if (!rawResponse) {
+          logger.warn('Song examples returned empty response', {
+            function: 'getSongExamples',
+            modeNames
+          });
+          return null;
+        }
+
+        const result = safelyParseJson<SongExampleGroup[]>(rawResponse);
+
+        if (!result) {
+          logger.warn('Song examples returned malformed response', {
+            function: 'getSongExamples',
+            modeNames,
+            rawResponseLength: rawResponse.length
+          });
+        }
+
+        return result;
     } catch (error) {
-        console.warn("Song example generation failed:", error);
+        const message = error instanceof Error ? error.message : "Unknown error in song examples";
+        logger.error('Song examples API call failed', {
+          function: 'getSongExamples',
+          error: message,
+          modeNames,
+          stack: error instanceof Error ? error.stack : undefined
+        });
         return null;
     }
 };
