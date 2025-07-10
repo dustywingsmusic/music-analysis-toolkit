@@ -1,0 +1,8 @@
+/* Typography Definitions */
+
+/* Font families are defined in the reset.css body rule */
+/* Additional typography utilities can be added here as needed */
+
+.prose-styles {
+  @apply max-w-none text-foreground leading-relaxed;
+}

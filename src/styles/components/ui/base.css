@@ -1,0 +1,92 @@
+/* Generic & Reusable UI Components */
+
+@layer components {
+  .card {
+    @apply p-6 rounded-xl border border-border bg-card text-card-foreground transition-all duration-200 hover:shadow-lg;
+  }
+
+  .card--blur {
+    @apply shadow-2xl backdrop-blur-sm border border-border transition-all duration-200;
+    background-color: color-mix(in oklch, var(--card) 50%, transparent);
+  }
+  .card--blur:hover {
+    @apply shadow-2xl;
+    border-color: color-mix(in oklch, var(--primary) 30%, transparent);
+    filter: drop-shadow(0 25px 25px rgb(0 0 0 / 0.15));
+  }
+
+  .btn {
+    @apply font-bold py-3 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background;
+  }
+
+  .btn--primary {
+    @apply bg-primary text-primary-foreground disabled:bg-muted disabled:cursor-not-allowed focus:ring-ring shadow-lg transition-all duration-200;
+  }
+  .btn--primary:hover:not(:disabled) {
+    background-color: color-mix(in oklch, var(--primary) 90%, transparent);
+    @apply shadow-xl scale-105;
+  }
+  .btn--secondary {
+    @apply bg-secondary text-secondary-foreground focus:ring-ring;
+  }
+  .btn--secondary:hover {
+    background-color: color-mix(in oklch, var(--secondary) 80%, transparent);
+  }
+  .btn--sm {
+    @apply text-xs py-1 px-3;
+  }
+  .btn--grow {
+    @apply flex-grow flex justify-center items-center gap-2;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-foreground mb-1;
+  }
+
+  .text-input,
+  .select-input {
+    @apply w-full bg-input border border-border rounded-md py-2 px-3 text-foreground focus:ring-2 focus:ring-ring focus:border-ring transition-all duration-200;
+    @apply focus:shadow-lg focus:scale-[1.02];
+  }
+  .text-input:hover,
+  .select-input:hover {
+    border-color: color-mix(in oklch, var(--primary) 50%, transparent);
+  }
+  .select-input--half {
+    @apply md:w-1/2;
+  }
+
+  .link-button {
+    @apply text-primary hover:underline text-sm font-medium transition-colors;
+  }
+  .link-button:hover {
+    color: color-mix(in oklch, var(--primary) 80%, transparent);
+  }
+
+  .error-box {
+    @apply mt-8 text-center p-4 bg-error-muted text-error-muted-foreground border border-error rounded-lg;
+  }
+
+  .section-title {
+    @apply text-2xl font-bold mb-4 transition-all duration-200;
+  }
+  .section-title--primary { @apply text-primary drop-shadow-lg; }
+  .section-title--primary:hover { color: color-mix(in oklch, var(--primary) 80%, transparent); }
+  .section-title--accent { @apply text-accent drop-shadow-lg; }
+  .section-title--accent:hover { color: color-mix(in oklch, var(--accent) 80%, transparent); }
+  .section-title--info { @apply text-info drop-shadow-lg; }
+  .section-title--info:hover { color: color-mix(in oklch, var(--info) 80%, transparent); }
+  .section-title--secondary { @apply text-secondary drop-shadow-lg; }
+  .section-title--secondary:hover { color: color-mix(in oklch, var(--secondary) 80%, transparent); }
+
+  .subsection-title {
+    @apply text-lg font-semibold text-primary mb-3 border-b-2 border-border pb-2;
+  }
+
+  .tooltip {
+    @apply absolute bottom-full mb-2 w-max max-w-xs px-3 py-2 text-xs font-medium text-foreground bg-card border border-border rounded-lg shadow-lg opacity-0 transition-opacity pointer-events-none;
+  }
+  .group:hover .tooltip {
+    @apply opacity-100;
+  }
+}

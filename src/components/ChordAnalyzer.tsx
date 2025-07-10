@@ -11,9 +11,11 @@ import DebugInfoDisplay from './DebugInfoDisplay';
 interface ChordAnalyzerProps {
   onSwitchToFinder: (id: string) => void;
   showDebugInfo: boolean;
+  compact?: boolean;
+  onAnalysisStateChange?: (hasResults: boolean) => void;
 }
 
-const ChordAnalyzer: React.FC<ChordAnalyzerProps> = ({ onSwitchToFinder, showDebugInfo }) => {
+const ChordAnalyzer: React.FC<ChordAnalyzerProps> = ({ onSwitchToFinder, showDebugInfo, compact = false, onAnalysisStateChange }) => {
   const [tonic, setTonic] = useState<string>(TONIC_ROOT_NAMES[0]);
   const [chord, setChord] = useState<string>('Dm7');
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
@@ -28,6 +30,11 @@ const ChordAnalyzer: React.FC<ChordAnalyzerProps> = ({ onSwitchToFinder, showDeb
   useEffect(() => {
     setSelectedNotes({});
   }, [tonic, isScaleMode]);
+
+  // Notify parent when analysis results change
+  useEffect(() => {
+    onAnalysisStateChange?.(!!analysisResult);
+  }, [analysisResult, onAnalysisStateChange]);
 
   const handleNoteSelect = (note: string) => {
     setSelectedNotes(prev => ({ ...prev, [note]: !prev[note] }));
@@ -61,7 +68,7 @@ const ChordAnalyzer: React.FC<ChordAnalyzerProps> = ({ onSwitchToFinder, showDeb
         }
         payload = await analyzeMusic(tonic, { chord });
       }
-      
+
       setDebugInfo(payload.debug);
 
       if (payload.result.error) {
@@ -90,7 +97,7 @@ const ChordAnalyzer: React.FC<ChordAnalyzerProps> = ({ onSwitchToFinder, showDeb
   }, [isScaleMode]);
 
   return (
-    <div className="chord-analyzer">
+    <div className={`chord-analyzer ${compact ? 'chord-analyzer--compact' : ''}`}>
       {/* Input Form */}
       <div className="card card--blur">
 

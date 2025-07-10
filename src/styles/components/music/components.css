@@ -1,0 +1,337 @@
+/* Music-Specific Components */
+
+@layer components {
+  /* ChordAnalyzer Component */
+  .chord-analyzer {
+    @apply w-full max-w-2xl mx-auto;
+  }
+  .chord-analyzer__toggle-container {
+    @apply flex justify-center mb-6;
+  }
+  .chord-analyzer__input-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+  }
+  .chord-analyzer__actions {
+    @apply mt-6 flex items-center gap-4;
+  }
+  .chord-analyzer__output {
+    @apply mt-8;
+  }
+
+  .note-selector {
+    @apply mt-4 flex flex-wrap gap-2;
+  }
+  .note-selector__grid {
+    @apply grid grid-cols-6 gap-2;
+  }
+  .note-selector__note {
+    @apply flex items-center justify-center p-2 rounded-md cursor-pointer transition-colors border-2 bg-card border-border hover:bg-muted;
+  }
+  .note-selector__note--selected {
+    @apply bg-primary border-primary text-primary-foreground;
+  }
+  .note-selector__note-text {
+    @apply font-mono text-card-foreground select-none;
+  }
+
+  /* ResultDisplay Component */
+  .result-display {
+    @apply mt-8 w-full space-y-8 animate-fade-in;
+  }
+
+  .info-pair {
+    @apply bg-card p-4 rounded-lg border border-border;
+  }
+  .info-pair__label {
+    @apply text-sm font-bold text-primary;
+  }
+  .info-pair__value {
+    @apply text-lg text-card-foreground;
+  }
+  .info-pair__value--mono {
+    @apply font-mono;
+  }
+
+  .song-example-item {
+    @apply flex items-start bg-card p-4 rounded-lg border border-border transition-all hover:bg-muted;
+  }
+  .song-example-item__icon {
+    @apply h-5 w-5 mt-1 mr-4 text-accent flex-shrink-0;
+  }
+  .song-example-item__usage {
+    @apply text-sm text-muted-foreground mt-2 italic bg-muted p-2 rounded;
+  }
+
+  /* LoadingSpinner Component */
+  .loading-spinner-container {
+    @apply flex justify-center items-center p-4;
+  }
+  .loading-spinner {
+    @apply animate-spin rounded-full h-12 w-12 border-b-2 border-primary;
+  }
+
+  /* ScaleFinder Component */
+  .scale-finder {
+    @apply w-full mx-auto space-y-6;
+  }
+  .scale-finder .text-semibold { @apply font-semibold; }
+  .scale-finder .text-error { @apply text-destructive; }
+
+  .scale-finder__checkbox {
+    @apply h-4 w-4 text-primary bg-input border-border focus:ring-ring;
+  }
+
+  .scale-finder__output {
+    @apply font-mono text-primary min-h-[1.5rem];
+  }
+
+  /* Chord Analysis Results - Modal Chord Analysis */
+  .chord-analysis-section {
+    @apply mt-6 space-y-4;
+  }
+
+  .chord-analysis-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4;
+  }
+
+  .chord-analysis-item {
+    @apply bg-card border border-border rounded-lg p-4 space-y-3 hover:bg-muted transition-colors;
+  }
+
+  .chord-header {
+    @apply flex items-center justify-between pb-2 border-b border-border;
+  }
+
+  .chord-header strong {
+    @apply text-lg font-semibold text-primary;
+  }
+
+  .chord-analysis-item p {
+    @apply text-sm space-y-1;
+  }
+
+  .chord-analysis-item p strong {
+    @apply font-medium text-foreground;
+  }
+
+  .modal-chords-section {
+    @apply mt-6 p-4 bg-accent border border-accent rounded-lg;
+  }
+
+  .modal-chords-list {
+    @apply flex flex-wrap gap-2 mt-3;
+  }
+
+  .modal-chord-item {
+    @apply bg-accent text-accent-foreground px-3 py-1 rounded-full text-sm font-medium border border-accent;
+  }
+
+  .modal-interchange-section {
+    @apply mt-6 p-4 bg-muted border border-border rounded-lg;
+  }
+
+  .progression-analysis {
+    @apply space-y-6;
+  }
+
+  .applications-section {
+    @apply mt-6 p-4 bg-muted border border-border rounded-lg;
+  }
+
+  /* ReferenceTab Component */
+  .reference-tab {
+    @apply w-full max-w-6xl mx-auto space-y-6;
+  }
+
+  .tab-header {
+    @apply text-center mb-8;
+  }
+  .tab-header__title {
+    @apply text-3xl font-bold text-primary mb-2;
+  }
+  .tab-header__subtitle {
+    @apply text-lg text-muted-foreground;
+  }
+
+  .reference-controls {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 p-6 bg-card rounded-lg border border-border;
+  }
+  .search-section {
+    @apply space-y-2;
+  }
+  .filter-section {
+    @apply space-y-2;
+  }
+
+  .reference-content {
+    @apply space-y-8;
+  }
+
+  .quick-reference {
+    @apply space-y-6;
+  }
+  .quick-reference__title {
+    @apply text-2xl font-semibold text-primary mb-4;
+  }
+
+  .reference-section {
+    @apply space-y-4;
+  }
+  .reference-section__title {
+    @apply text-xl font-semibold text-primary mb-3;
+  }
+
+  .reference-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4;
+  }
+
+  .reference-card {
+    @apply bg-card p-4 rounded-lg border border-border hover:bg-muted transition-colors cursor-pointer;
+  }
+  .reference-card__name {
+    @apply text-lg font-semibold text-primary mb-2;
+  }
+  .reference-card__formula {
+    @apply font-mono text-sm text-muted-foreground mb-2;
+  }
+  .reference-card__character {
+    @apply text-sm text-card-foreground italic;
+  }
+
+  .scale-tables-section {
+    @apply space-y-4;
+  }
+  .scale-tables__title {
+    @apply text-2xl font-semibold text-primary mb-2;
+  }
+  .scale-tables__description {
+    @apply text-muted-foreground mb-4;
+  }
+
+  .scale-finder-container {
+    @apply bg-card p-6 rounded-lg border border-border;
+  }
+
+  .reference-footer {
+    @apply mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 p-6 bg-muted rounded-lg;
+  }
+
+  .legend {
+    @apply space-y-3;
+  }
+  .legend__title {
+    @apply text-lg font-semibold text-primary mb-3;
+  }
+  .legend__items {
+    @apply space-y-2;
+  }
+  .legend__item {
+    @apply flex items-center gap-3;
+  }
+  .legend__symbol {
+    @apply font-mono text-lg font-bold text-primary min-w-[2rem];
+  }
+  .legend__text {
+    @apply text-sm text-muted-foreground;
+  }
+
+  .tips {
+    @apply space-y-3;
+  }
+  .tips__title {
+    @apply text-lg font-semibold text-primary mb-3;
+  }
+  .tips__list {
+    @apply space-y-2 list-disc list-inside text-sm text-muted-foreground;
+  }
+
+  /* Scale Tables Container */
+  .scale-tables-container {
+    @apply space-y-8;
+  }
+  .table-container {
+    @apply overflow-x-auto;
+  }
+
+  /* Enhanced table layout for adaptive system */
+  .scale-main-area .table-container {
+    @apply overflow-x-auto;
+  }
+
+  .scale-main-area .scale-table {
+    @apply min-w-full border-collapse text-sm text-slate-300;
+  }
+
+  /* Responsive table adjustments */
+  @media (min-width: 1280px) {
+    .scale-main-area .table-container {
+      @apply overflow-x-visible;
+    }
+
+    .scale-main-area .scale-table {
+      @apply w-full;
+    }
+  }
+
+  /* ScaleTable Component */
+  .scale-table {
+    @apply min-w-full border-collapse text-sm text-slate-300;
+  }
+  .scale-table__header-row {
+    @apply bg-slate-800;
+  }
+  .scale-table__header-cell {
+    @apply p-2 sm:p-3 font-semibold text-left sticky top-0 bg-slate-800 z-10;
+  }
+  .scale-table__row {
+    @apply border-t border-slate-700;
+  }
+  .scale-table__row:first-of-type {
+    @apply border-t-0;
+  }
+  .scale-table__row--data {
+    @apply bg-slate-800/50;
+  }
+  .scale-table__row--hovered {
+    @apply bg-slate-700;
+  }
+
+  .scale-table__cell {
+    @apply p-2 sm:p-3;
+  }
+  .scale-table__cell--header {
+    @apply font-semibold text-left;
+  }
+  .scale-table__cell--note {
+    @apply text-center transition-colors duration-150 whitespace-nowrap cursor-pointer bg-slate-700/50;
+  }
+  .scale-table__cell--highlighted {
+    @apply bg-yellow-400 text-black font-bold ring-2 ring-yellow-200;
+  }
+  .scale-table__cell--hovered {
+    @apply bg-cyan-600 ring-2 ring-cyan-400;
+  }
+  .scale-table__cell--note-match {
+    @apply bg-slate-600 border-2 border-cyan-500 box-border;
+  }
+
+  /* Inline Results for Two-Stage Flow */
+  .inline-results {
+    @apply mt-6 space-y-4 p-6 bg-card rounded-lg border border-border animate-fade-in;
+  }
+  .inline-results__header {
+    @apply flex items-center justify-between mb-4;
+  }
+  .inline-results__title {
+    @apply text-xl font-semibold text-primary;
+  }
+  .inline-results__count {
+    @apply text-sm text-muted-foreground;
+  }
+  .inline-results__error {
+    @apply p-4 bg-red-500/10 border border-red-500/20 rounded-md;
+  }
+  .inline-results__grid {
+    @apply space-y-4;
+  }
+}

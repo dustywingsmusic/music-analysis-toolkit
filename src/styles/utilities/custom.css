@@ -1,0 +1,27 @@
+/* Custom Utility Classes */
+
+@layer utilities {
+  .glass-effect {
+    @apply backdrop-blur-sm border border-border;
+    background-color: color-mix(in oklch, var(--card) 50%, transparent);
+  }
+  
+  .hover-lift {
+    @apply transition-all duration-200 hover:shadow-xl hover:scale-105;
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
