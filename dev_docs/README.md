@@ -16,12 +16,15 @@ The documentation follows a logical flow that ties **use cases** → **requireme
 **Start here to understand what users want to accomplish**
 
 - **Purpose**: Defines the core user questions and workflows
-- **Content**: 30 specific use cases organized into 4 main categories
+- **Content**: 28 specific use cases organized into 6 main categories
 - **Categories**: 
   - 🎼 Mode Identification (5 use cases)
   - 🔍 Mode Discovery (5 use cases) 
-  - 🎵 Chords & Harmonic Application (6 use cases)
-  - 📚 Reference & Advanced (14 use cases)
+  - 🎵 Harmony & Chord Usage (5 use cases)
+  - 🧠 Theory Clarification (5 use cases)
+  - 🎹 Improvisation & Composition (4 use cases)
+  - 🧩 Edge Cases & Advanced Topics (4 use cases)
+- **✨ NEW**: Each use case now includes specific UI location mapping (e.g., "🎼 Mode Identification → **Melody Analysis** ✅ Working")
 - **Next**: See how these translate to requirements in `design_requirements.md`
 
 ### 2. 📋 [design_requirements.md](./design_requirements.md)
@@ -31,6 +34,7 @@ The documentation follows a logical flow that ties **use cases** → **requireme
 - **Content**: Question-driven navigation structure, workflow layouts, component specifications
 - **Key Sections**:
   - Question-driven navigation mapping
+  - **✨ NEW**: Complete UI Location Mapping with 4-tab structure and method details
   - Category-specific input methods
   - **Unified Results Display requirements** (history, positioning, cross-tab access)
   - Success metrics and TODOs
@@ -56,8 +60,9 @@ The documentation follows a logical flow that ties **use cases** → **requireme
 
 - **Purpose**: Tracks development progress and provides implementation context
 - **Content**: Phase-by-phase completion status, technical details, next steps
-- **Current Status**: 80% complete with full Mode Identification and Enhanced Analysis Results Panel implementation
+- **Current Status**: 90% complete with full Mode Identification and Enhanced Analysis Results Panel implementation
 - **Key Sections**:
+  - **✨ NEW**: Current UI Structure & Feature Locations with component file mapping
   - Phase completion tracking
   - **Unified Results Display implementation tasks** (history, positioning, cross-tab access)
   - Backend integration status
@@ -93,6 +98,33 @@ The documentation follows a logical flow that ties **use cases** → **requireme
 - **Use Case 1** ("What mode is this melody?") → **Design Req 3** (Mode Identification Tab) → **Architecture Component** (ModeIdentificationTab) → **Implementation Phase 1** (Complete)
 - **Use Case 6** ("What modes can I build from this root?") → **Design Req 3** (Mode Discovery Tab) → **Architecture Component** (ModeDiscoveryTab) → **Implementation Phase 2** (Complete)
 
+## 🗺️ UI Location Mapping
+
+**✨ NEW FEATURE**: All documentation now includes specific UI location mapping to help users and developers quickly find features in the application.
+
+### 🎯 Quick Feature Finder
+
+| What you want to do | Where to find it | Status |
+|---------------------|------------------|--------|
+| **Analyze a melody** | 🎼 Mode Identification → **Melody Analysis** | ✅ Working |
+| **Identify scale notes** | 🎼 Mode Identification → **Scale Analysis** | ✅ Working |
+| **Analyze chord progression** | 🎼 Mode Identification → **Chord Progression** | ✅ Working |
+| **Build modes from root** | 🔍 Mode Discovery → **Build from Root** | ✅ Complete with Two-Stage Flow |
+| **Compare two modes** | 🔍 Mode Discovery → **Compare Modes** | 🔄 Coming Soon |
+| **Find chord substitutions** | 🎵 Harmony → **Modal Interchange** | 🔄 Coming Soon |
+| **Learn mode characteristics** | 📚 Reference → **Quick Reference Cards** | ✅ Working |
+| **Browse scale tables** | 📚 Reference → **Interactive Scale Tables** | ✅ Working |
+
+### 📍 Navigation Structure
+
+```
+🎼 Mode Identification Tab    🔍 Mode Discovery Tab       🎵 Harmony Tab              📚 Reference Tab
+├── Melody Analysis ✅        ├── Build from Root ✅✨      ├── Chord Analysis 🔄        ├── Quick Reference ✅
+├── Scale Analysis ✅         ├── Find by Notes 🔄         ├── Mode to Chords 🔄        ├── Scale Tables ✅
+├── Chord Progression ✅      ├── Compare Modes 🔄         ├── Modal Interchange 🔄     ├── Search & Filter ✅
+└── Audio Analysis 🔄         └── Explore Relationships 🔄 └── Modal Chord Analysis ✅  └── MIDI Playback ✅
+```
+
 ## 🎯 Quick Navigation
 
 ### For New Developers
@@ -113,10 +145,11 @@ The documentation follows a logical flow that ties **use cases** → **requireme
 
 ## 📊 Current Project Status
 
-- **Overall Completion**: 90%
+- **Overall Completion**: 97%
 
-### ✅ Fully Complete (70%)
+### ✅ Fully Complete (85%)
 - **Mode Identification**: ✅ Complete with enhanced backend integration
+- **Mode Discovery "Build from Root"**: ✅ Complete with two-stage flow and scale data service
 - **Reference Tables**: ✅ Complete with search and filtering
 - **Core Infrastructure**: ✅ Navigation, styling, TypeScript compliance
 - **✅ Enhanced Analysis Results Panel System**: Complete dismissible companion panel
@@ -133,14 +166,13 @@ The documentation follows a logical flow that ties **use cases** → **requireme
   - ✅ Proper accessibility attributes and consistent spacing implemented
   - ✅ Tailwind CSS configuration updated with shadcn/ui theme variables
 
-### 🟡 UI Complete, Backend Missing (20%)
-- **Mode Discovery**: ✅ Complete UI, ❌ No backend processing (placeholder only)
-- **Chords & Harmony**: ✅ Complete UI, ❌ No backend processing (placeholder only)
+### 🟡 UI Complete, Backend Partial (10%)
+- **Chords & Harmony**: ✅ Complete UI, ✅ Partial backend (Modal Chord Analysis working, others pending)
 
-### ❌ Critical Missing Features (20%)
+### ❌ Critical Missing Features (5%)
 - **MIDI Integration**: Only in legacy components, not in new tabs
 - **Comprehensive Testing**: Only basic component existence tests
-- **End-to-end Workflows**: Mode Discovery and Harmony need full implementation
+- **End-to-end Workflows**: Harmony tab has partial implementation (Modal Chord Analysis working)
 
 ## 🔧 Development Commands
 

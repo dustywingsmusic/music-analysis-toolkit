@@ -10,7 +10,7 @@ The Music Theory Toolkit is a **client-side single-page application (SPA)** buil
 
 > **🔗 Related Documents**: 
 > - **User Requirements**: See [design requirements](./design_requirements.md) for the UI/UX specifications driving this architecture
-> - **User Workflows**: See [use cases](./design_use_cases.md) for the 29 user questions this architecture supports
+> - **User Workflows**: See [use cases](./design_use_cases.md) for the 28 user questions this architecture supports
 > - **Implementation Status**: See [implementation](./implementation.md) for current development progress (95% complete)
 
 ## Architecture Type: Client-Side SPA with External Services
@@ -82,6 +82,14 @@ src/
 │   │   ├── sheet.tsx       # shadcn/ui Sheet component
 │   │   ├── dialog.tsx      # shadcn/ui Dialog component
 │   │   └── [other ui components]
+│   ├── reference/       # NEW: Enhanced Reference Components
+│   │   ├── ScaleGrid.tsx           # Unified grid display for scales/modes
+│   │   ├── InteractiveScaleTable.tsx # Enhanced scale table with MIDI
+│   │   ├── ModeRelationshipVisualizer.tsx # Visual mode relationships
+│   │   ├── ScaleComparator.tsx     # Side-by-side mode comparison
+│   │   ├── LiveScaleBuilder.tsx    # Real-time scale construction
+│   │   ├── AnalysisResultsLinker.tsx # Analysis-to-reference integration
+│   │   └── SmartReferencePanel.tsx # Context-aware reference panel
 │   ├── NavigationTabs.tsx  # Uses shadcn/ui Tabs
 │   ├── QuestionDrivenMusicTool.tsx
 │   ├── ModeIdentificationTab.tsx  # Uses shadcn/ui Button
@@ -95,6 +103,7 @@ src/
 │   └── utils.ts            # Utility functions for component styling
 ├── services/            # Business Logic & External APIs
 │   ├── geminiService.ts    # AI analysis integration
+│   ├── scaleDataService.ts # NEW: Direct scale data computation service
 │   ├── chordLogic.ts       # Chord analysis algorithms
 │   ├── keySuggester.ts     # Key/mode suggestion engine
 │   ├── preferences.ts      # User settings management
@@ -209,6 +218,163 @@ export const findChordMatches = (noteNumbers: number[]): ChordMatch[]
 export function updateMelodySuggestions(pitchClasses: Set<number>): void
 export function updateChordSuggestions(chords: ChordMatch[], baseKey: string, keyMode: 'major' | 'minor'): void
 ```
+
+**scaleDataService.ts** - Direct Scale Data Computation (NEW)
+```typescript
+// Direct computation using existing scale data instead of AI
+export interface ModeFromRoot {
+  id: string;
+  name: string;
+  commonName?: string;
+  formula: string;
+  intervals: number[];
+  notes: string[];
+  tableId: string;
+  modeIndex: number;
+  parentScaleName: string;
+  parentScaleRootNote: string;
+  character?: string;
+}
+
+export const buildModesFromRoot = (rootNote: string): ModeFromRoot[]
+export const getCharacterDescription = (scaleName: string, modeIndex: number): string
+```
+
+### 5. Enhanced Reference Components Architecture
+
+#### Reference Components System
+
+The application implements a sophisticated reference system with reusable components that integrate seamlessly across all tabs, transforming the reference system from a static lookup tool into a dynamic, intelligent companion.
+
+**Core Reference Components**:
+
+**ScaleGrid Component** (`src/components/reference/ScaleGrid.tsx`):
+```typescript
+interface ScaleGridProps {
+  modes: ModeFromRoot[];
+  onModeSelect?: (mode: ModeFromRoot) => void;
+  highlightedModeId?: string;
+  compact?: boolean;
+  showCharacteristics?: boolean;
+  enableFiltering?: boolean;
+  interactionMode?: 'select' | 'preview' | 'compare';
+}
+```
+- Unified grid display for scales and modes with interactive capabilities
+- Real-time filtering and search functionality
+- Hover previews with audio playback
+- Comparison mode for side-by-side analysis
+- Responsive grid layout with card-based design
+
+**InteractiveScaleTable Component** (`src/components/reference/InteractiveScaleTable.tsx`):
+```typescript
+interface InteractiveScaleTableProps {
+  mode: ModeFromRoot;
+  onNotePlay?: (note: string) => void;
+  showMidiControls?: boolean;
+  highlightNotes?: string[];
+  comparisonMode?: boolean;
+  parentMode?: ModeFromRoot;
+}
+```
+- Enhanced scale table with real-time interaction capabilities
+- Live MIDI integration with note highlighting
+- Comparison overlays and formula visualization
+- Parent scale relationship display
+
+**ModeRelationshipVisualizer Component**:
+- Interactive circle of fifths display
+- Mode family trees and interval relationship mapping
+- Animated transitions between modes
+- Visual representation of mode relationships
+
+**ScaleComparator Component**:
+- Side-by-side comparison of multiple scales/modes
+- Difference highlighting and common note identification
+- Chord progression compatibility analysis
+
+**LiveScaleBuilder Component**:
+- Real-time scale construction and exploration
+- Interactive note selection with MIDI input integration
+- Real-time mode matching and visual feedback
+
+**AnalysisResultsLinker Component**:
+- Seamless integration between analysis results and reference materials
+- Automatic reference highlighting from analysis results
+- One-click navigation to relevant reference sections
+- Context-aware suggestions and cross-tab state synchronization
+
+**SmartReferencePanel Component**:
+- Context-aware reference panel that adapts to current analysis
+- Auto-updating based on current analysis context
+- Related concept suggestions and adaptive positioning
+
+#### Enhanced Interaction Patterns
+
+**Cross-Tab State Synchronization**:
+```typescript
+interface ReferenceIntegrationState {
+  activeHighlights: Set<string>;
+  comparisonQueue: ModeFromRoot[];
+  contextHistory: ReferenceContext[];
+  liveUpdatesEnabled: boolean;
+  crossTabSync: boolean;
+}
+
+const useReferenceIntegration = () => {
+  const [state, setState] = useState<ReferenceIntegrationState>();
+
+  const addToComparison = (mode: ModeFromRoot) => {
+    setState(prev => ({
+      ...prev,
+      comparisonQueue: [...prev.comparisonQueue, mode]
+    }));
+  };
+
+  const syncAcrossTabs = (context: ReferenceContext) => {
+    broadcastReferenceUpdate(context);
+  };
+
+  return { state, addToComparison, syncAcrossTabs };
+};
+```
+
+**Smart Context Awareness**:
+```typescript
+const generateSmartSuggestions = (
+  currentTab: TabType,
+  userInput: any,
+  analysisHistory: AnalysisHistoryItem[]
+) => {
+  const suggestions: ReferenceSuggestion[] = [];
+
+  switch (currentTab) {
+    case 'identify':
+      suggestions.push(...getMatchingScaleSuggestions(userInput));
+      break;
+    case 'discover':
+      suggestions.push(...getRelatedModeSuggestions(userInput));
+      break;
+    case 'harmony':
+      suggestions.push(...getHarmonicScaleSuggestions(userInput));
+      break;
+  }
+
+  return suggestions;
+};
+```
+
+#### Component Reusability Matrix
+
+| Component | Identify Tab | Discovery Tab | Harmony Tab | Reference Tab |
+|-----------|--------------|---------------|-------------|---------------|
+| ScaleGrid | ✅ Results display | ✅ Primary interface | ✅ Scale suggestions | ✅ Main grid |
+| InteractiveScaleTable | ✅ Detailed view | ✅ Mode exploration | ✅ Chord analysis | ✅ Full tables |
+| ModeRelationshipVisualizer | ✅ Alternate modes | ✅ Mode families | ✅ Harmonic relationships | ✅ Navigation aid |
+| ScaleComparator | ✅ Analysis alternatives | ✅ Mode comparison | ✅ Scale compatibility | ✅ Reference tool |
+| LiveScaleBuilder | ❌ | ✅ Note selection | ✅ Chord building | ✅ Interactive tool |
+| AnalysisResultsLinker | ✅ Core integration | ✅ Discovery links | ✅ Harmony links | ✅ Bidirectional |
+| SmartReferencePanel | ✅ Live suggestions | ✅ Context help | ✅ Scale recommendations | ✅ Enhanced navigation |
 
 **useMidi.ts** - MIDI Integration Hook
 ```typescript

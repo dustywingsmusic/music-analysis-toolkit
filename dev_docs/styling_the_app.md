@@ -405,7 +405,7 @@ export function ChordProgressionBuilder({
   onClear
 }: ChordProgressionBuilderProps) {
   const commonChords = ["C", "Dm", "Em", "F", "G", "Am", "Bdim"]
-  
+
   return (
     <div className="space-y-4">
       <Card className="p-4">
@@ -439,7 +439,7 @@ export function ChordProgressionBuilder({
           </Button>
         )}
       </Card>
-      
+
       <div className="grid grid-cols-7 gap-2">
         {commonChords.map((chord) => (
           <Button
@@ -454,6 +454,502 @@ export function ChordProgressionBuilder({
       </div>
     </div>
   )
+}
+```
+
+### Enhanced Reference Components
+
+The application includes sophisticated reference components that require specific styling patterns for optimal user experience and seamless integration across all tabs.
+
+#### ScaleGrid Component
+
+```tsx
+// components/reference/ScaleGrid.tsx
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+
+interface ScaleGridProps {
+  modes: ModeFromRoot[];
+  onModeSelect?: (mode: ModeFromRoot) => void;
+  highlightedModeId?: string;
+  compact?: boolean;
+  showCharacteristics?: boolean;
+  enableFiltering?: boolean;
+  interactionMode?: 'select' | 'preview' | 'compare';
+}
+
+export function ScaleGrid({ 
+  modes, 
+  onModeSelect, 
+  highlightedModeId,
+  compact = false,
+  showCharacteristics = true,
+  enableFiltering = true,
+  interactionMode = 'select'
+}: ScaleGridProps) {
+  return (
+    <div className="scale-grid space-y-4">
+      {enableFiltering && (
+        <div className="scale-grid__filters">
+          <Input 
+            placeholder="Search scales and modes..."
+            className="bg-slate-700 border-slate-600"
+          />
+        </div>
+      )}
+
+      <div className={`
+        grid gap-4
+        ${compact ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}
+      `}>
+        {modes.map((mode) => (
+          <Card 
+            key={mode.id}
+            className={`
+              scale-card cursor-pointer transition-all duration-200
+              hover:bg-accent/50 hover:scale-105
+              ${highlightedModeId === mode.id ? 'ring-2 ring-primary bg-primary/10' : ''}
+              ${interactionMode === 'compare' ? 'hover:ring-2 hover:ring-secondary' : ''}
+            `}
+            onClick={() => onModeSelect?.(mode)}
+          >
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">{mode.name}</CardTitle>
+                {mode.commonName && (
+                  <Badge variant="secondary" className="text-xs">
+                    {mode.commonName}
+                  </Badge>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="scale-card__formula">
+                <Badge variant="outline" className="text-xs font-mono">
+                  {mode.formula}
+                </Badge>
+              </div>
+
+              <div className="scale-card__notes flex flex-wrap gap-1">
+                {mode.notes.map((note, index) => (
+                  <Badge 
+                    key={index} 
+                    variant="musical" 
+                    className="text-xs px-2 py-1"
+                  >
+                    {note}
+                  </Badge>
+                ))}
+              </div>
+
+              {showCharacteristics && mode.character && (
+                <p className="scale-card__character text-sm text-muted-foreground">
+                  {mode.character}
+                </p>
+              )}
+
+              <div className="scale-card__parent text-xs text-muted-foreground">
+                From {mode.parentScaleName} in {mode.parentScaleRootNote}
+              </div>
+
+              {interactionMode === 'preview' && (
+                <div className="scale-card__actions opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button variant="musical" size="sm" className="w-full">
+                    ▶ Preview
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  )
+}
+```
+
+#### InteractiveScaleTable Component
+
+```tsx
+// components/reference/InteractiveScaleTable.tsx
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+
+interface InteractiveScaleTableProps {
+  mode: ModeFromRoot;
+  onNotePlay?: (note: string) => void;
+  showMidiControls?: boolean;
+  highlightNotes?: string[];
+  comparisonMode?: boolean;
+  parentMode?: ModeFromRoot;
+}
+
+export function InteractiveScaleTable({
+  mode,
+  onNotePlay,
+  showMidiControls = true,
+  highlightNotes = [],
+  comparisonMode = false,
+  parentMode
+}: InteractiveScaleTableProps) {
+  return (
+    <Card className="interactive-scale-table">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-xl">{mode.name}</CardTitle>
+          {showMidiControls && (
+            <div className="midi-controls flex gap-2">
+              <Button variant="musical" size="sm">
+                ▶ Play Scale
+              </Button>
+              <Button variant="outline" size="sm">
+                🎹 MIDI
+              </Button>
+            </div>
+          )}
+        </div>
+
+        <div className="scale-info space-y-2">
+          <Badge variant="outline" className="font-mono">
+            {mode.formula}
+          </Badge>
+          {mode.character && (
+            <p className="text-sm text-muted-foreground">{mode.character}</p>
+          )}
+        </div>
+      </CardHeader>
+
+      <CardContent>
+        <div className="scale-table-container">
+          <div className="scale-notes grid grid-cols-7 gap-2 mb-4">
+            {mode.notes.map((note, index) => (
+              <Button
+                key={index}
+                variant={highlightNotes.includes(note) ? "default" : "outline"}
+                size="sm"
+                className={`
+                  note-button transition-all duration-200
+                  ${highlightNotes.includes(note) ? 'bg-primary text-primary-foreground' : ''}
+                  hover:scale-110 hover:bg-primary/80
+                `}
+                onClick={() => onNotePlay?.(note)}
+              >
+                {note}
+              </Button>
+            ))}
+          </div>
+
+          {comparisonMode && parentMode && (
+            <div className="comparison-overlay border-t pt-4">
+              <h4 className="text-sm font-medium mb-2">Compared to {parentMode.name}:</h4>
+              <div className="comparison-notes grid grid-cols-7 gap-2">
+                {mode.notes.map((note, index) => {
+                  const isChanged = !parentMode.notes.includes(note);
+                  return (
+                    <Badge
+                      key={index}
+                      variant={isChanged ? "destructive" : "secondary"}
+                      className="text-xs text-center"
+                    >
+                      {note}
+                    </Badge>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="parent-scale-info mt-4 p-3 bg-muted rounded-md">
+          <p className="text-sm">
+            <span className="font-medium">Parent Scale:</span> {mode.parentScaleName} in {mode.parentScaleRootNote}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+```
+
+#### ScaleComparator Component
+
+```tsx
+// components/reference/ScaleComparator.tsx
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { X } from "lucide-react"
+
+interface ScaleComparatorProps {
+  modes: ModeFromRoot[];
+  comparisonType: 'intervals' | 'notes' | 'characteristics' | 'chords';
+  onAddMode?: () => void;
+  onRemoveMode?: (modeId: string) => void;
+  maxComparisons?: number;
+}
+
+export function ScaleComparator({
+  modes,
+  comparisonType,
+  onAddMode,
+  onRemoveMode,
+  maxComparisons = 4
+}: ScaleComparatorProps) {
+  return (
+    <div className="scale-comparator space-y-4">
+      <div className="comparator-header flex items-center justify-between">
+        <h3 className="text-lg font-semibold">Scale Comparison</h3>
+        {modes.length < maxComparisons && (
+          <Button variant="outline" size="sm" onClick={onAddMode}>
+            + Add Scale
+          </Button>
+        )}
+      </div>
+
+      <div className="comparison-grid grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {modes.map((mode) => (
+          <Card key={mode.id} className="comparison-card">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base">{mode.name}</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onRemoveMode?.(mode.id)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardHeader>
+
+            <CardContent className="space-y-3">
+              {comparisonType === 'notes' && (
+                <div className="notes-comparison">
+                  <div className="flex flex-wrap gap-1">
+                    {mode.notes.map((note, index) => (
+                      <Badge key={index} variant="musical" className="text-xs">
+                        {note}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {comparisonType === 'intervals' && (
+                <div className="intervals-comparison">
+                  <Badge variant="outline" className="font-mono text-xs">
+                    {mode.formula}
+                  </Badge>
+                </div>
+              )}
+
+              {comparisonType === 'characteristics' && mode.character && (
+                <div className="characteristics-comparison">
+                  <p className="text-sm text-muted-foreground">{mode.character}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {modes.length > 1 && (
+        <Card className="comparison-summary">
+          <CardHeader>
+            <CardTitle className="text-base">Comparison Summary</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="summary-content space-y-2">
+              <div className="common-notes">
+                <span className="font-medium">Common Notes:</span>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {/* Logic to find common notes would go here */}
+                  <Badge variant="secondary" className="text-xs">C</Badge>
+                  <Badge variant="secondary" className="text-xs">G</Badge>
+                </div>
+              </div>
+
+              <div className="differences">
+                <span className="font-medium">Key Differences:</span>
+                <ul className="text-sm text-muted-foreground mt-1 space-y-1">
+                  <li>• Different interval patterns</li>
+                  <li>• Unique characteristic notes</li>
+                </ul>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  )
+}
+```
+
+#### SmartReferencePanel Component
+
+```tsx
+// components/reference/SmartReferencePanel.tsx
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+
+interface SmartReferencePanelProps {
+  currentContext: AnalysisContext;
+  position: 'sidebar' | 'overlay' | 'inline';
+  autoUpdate?: boolean;
+  showRelatedConcepts?: boolean;
+}
+
+export function SmartReferencePanel({
+  currentContext,
+  position,
+  autoUpdate = true,
+  showRelatedConcepts = true
+}: SmartReferencePanelProps) {
+  const panelContent = (
+    <div className="smart-reference-panel space-y-4">
+      <div className="context-header">
+        <h3 className="text-lg font-semibold">Related Scales</h3>
+        {autoUpdate && (
+          <Badge variant="secondary" className="text-xs">
+            Live Updates
+          </Badge>
+        )}
+      </div>
+
+      <div className="context-suggestions space-y-2">
+        {currentContext.suggestions?.map((suggestion, index) => (
+          <Card key={index} className="suggestion-card cursor-pointer hover:bg-accent/50">
+            <CardContent className="p-3">
+              <div className="flex items-center justify-between">
+                <span className="font-medium">{suggestion.name}</span>
+                <Button variant="ghost" size="sm">
+                  Explore →
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground mt-1">
+                {suggestion.description}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {showRelatedConcepts && (
+        <div className="related-concepts">
+          <h4 className="font-medium mb-2">Related Concepts</h4>
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="outline" className="cursor-pointer hover:bg-primary/20">
+              Circle of Fifths
+            </Badge>
+            <Badge variant="outline" className="cursor-pointer hover:bg-primary/20">
+              Mode Relationships
+            </Badge>
+            <Badge variant="outline" className="cursor-pointer hover:bg-primary/20">
+              Chord Progressions
+            </Badge>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  if (position === 'overlay') {
+    return (
+      <Sheet>
+        <SheetContent side="right" className="w-96">
+          <SheetHeader>
+            <SheetTitle>Reference Panel</SheetTitle>
+          </SheetHeader>
+          {panelContent}
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  return (
+    <Card className={`
+      smart-reference-panel-container
+      ${position === 'sidebar' ? 'w-80 h-fit sticky top-4' : 'w-full'}
+    `}>
+      <CardHeader>
+        <CardTitle className="text-base">Smart Reference</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {panelContent}
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+#### Reference Components CSS Variables
+
+Add these CSS variables to `src/main.css` for reference component theming:
+
+```css
+@layer base {
+  :root {
+    /* Reference Component Colors */
+    --scale-card-bg: 215 27.9% 16.9%;
+    --scale-card-hover: 215 27.9% 20%;
+    --scale-card-highlight: 188 100% 42%;
+    --comparison-diff: 0 84.2% 60.2%;
+    --comparison-same: 142.1 76.2% 36.3%;
+    --reference-panel-bg: 222.2 84% 4.9%;
+    --live-update-indicator: 47.9 95.8% 53.1%;
+  }
+}
+
+/* Reference Component Specific Styles */
+.scale-grid {
+  @apply transition-all duration-300;
+}
+
+.scale-card {
+  @apply relative overflow-hidden;
+}
+
+.scale-card::before {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-200;
+}
+
+.scale-card:hover::before {
+  @apply opacity-100;
+}
+
+.note-button {
+  @apply relative;
+}
+
+.note-button::after {
+  content: '';
+  @apply absolute inset-0 rounded-md bg-primary/20 opacity-0 transition-opacity duration-150;
+}
+
+.note-button:hover::after {
+  @apply opacity-100;
+}
+
+.comparison-card {
+  @apply border-l-4 border-l-primary/50;
+}
+
+.smart-reference-panel {
+  @apply backdrop-blur-sm bg-background/95;
+}
+
+.suggestion-card {
+  @apply border-l-2 border-l-accent;
+}
+
+.live-update-indicator {
+  @apply animate-pulse;
 }
 ```
 

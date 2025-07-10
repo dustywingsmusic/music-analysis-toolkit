@@ -19,7 +19,8 @@ import ModeDiscoveryTab from './ModeDiscoveryTab';
 import HarmonyTab from './HarmonyTab';
 import ReferenceTab from './ReferenceTab';
 import ChordAnalyzer from './ChordAnalyzer';
-import {analyzeMusic} from '../services/geminiService';
+import {analyzeMusic, discoverModes, analyzeHarmony, getSongExamples} from '../services/geminiService';
+import {buildModesFromRoot, isValidRootNote} from '../services/scaleDataService';
 import {allScaleData, NOTES, PARENT_KEY_INDICES} from '../constants/scales';
 import {generateHighlightId as generateHighlightIdFromMappings, getScaleFamilyFromMode} from '../constants/mappings';
 import MappingDebugger from './MappingDebugger';
@@ -59,6 +60,9 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
 
   // State for mapping debugger
   const [showMappingDebugger, setShowMappingDebugger] = useState<boolean>(false);
+
+  // Loading state for async operations
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Wrapper functions to handle legacy compatibility and tab changes
   const showUnifiedResultsWithLegacy = (results: any, historyId?: string) => {
@@ -336,15 +340,8 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
     }
   }, [addToHistory, showUnifiedResultsWithLegacy]);
 
-  const handleDiscoveryRequest = useCallback((method: string, data: any) => {
+  const handleDiscoveryRequest = useCallback(async (method: string, data: any) => {
     console.log('Discovery request:', method, data);
-    const discoveryResult = { 
-      method, 
-      data, 
-      timestamp: Date.now(),
-      placeholder: true, // Mark as placeholder until backend integration
-      message: 'Mode Discovery backend integration coming soon'
-    };
 
     // Create user inputs object for discovery
     const userInputs = {
@@ -361,20 +358,91 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
       }
     };
 
-    // Add to history and show results
-    const historyId = addToHistory(method, data, discoveryResult, 'discover', userInputs);
-    showUnifiedResultsWithLegacy(discoveryResult, historyId);
+    // Show loading state
+    setIsLoading(true);
+
+    try {
+      let result, debug;
+
+      if (method === 'root') {
+        // Use direct scale data computation instead of AI
+        try {
+          if (!isValidRootNote(data.rootNote)) {
+            throw new Error(`Invalid root note: ${data.rootNote}`);
+          }
+
+          const modes = buildModesFromRoot(data.rootNote);
+
+          result = {
+            modes,
+            rootNote: data.rootNote,
+            totalModes: modes.length,
+            scaleDataSource: 'direct', // Indicate this came from scale data, not AI
+            message: `Found ${modes.length} modes that can be built from ${data.rootNote}`
+          };
+
+          debug = {
+            method: 'root',
+            rootNote: data.rootNote,
+            scaleDataService: true,
+            modesFound: modes.length,
+            timestamp: Date.now(),
+            message: 'Used direct scale data computation instead of AI'
+          };
+
+        } catch (scaleError) {
+          result = { 
+            error: scaleError instanceof Error ? scaleError.message : 'Unknown error in scale data service' 
+          };
+          debug = {
+            method: 'root',
+            rootNote: data.rootNote,
+            scaleDataService: true,
+            error: scaleError instanceof Error ? scaleError.message : 'Unknown error',
+            timestamp: Date.now()
+          };
+        }
+      } else {
+        // For other methods, fall back to AI service
+        const aiResult = await discoverModes(method, data);
+        result = aiResult.result;
+        debug = aiResult.debug;
+      }
+
+      const discoveryResult = {
+        method,
+        data,
+        timestamp: Date.now(),
+        discoveryAnalysis: result,
+        debug,
+        success: !result.error
+      };
+
+      // Add to history and show results
+      const historyId = addToHistory(method, data, discoveryResult, 'discover', userInputs);
+      showUnifiedResultsWithLegacy(discoveryResult, historyId);
+
+    } catch (error) {
+      console.error('Discovery request failed:', error);
+
+      const errorResult = {
+        method,
+        data,
+        timestamp: Date.now(),
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        success: false
+      };
+
+      // Add error to history and show results
+      const historyId = addToHistory(method, data, errorResult, 'discover', userInputs);
+      showUnifiedResultsWithLegacy(errorResult, historyId);
+    } finally {
+      setIsLoading(false);
+    }
   }, [addToHistory, showUnifiedResultsWithLegacy]);
 
-  const handleHarmonyRequest = useCallback((method: string, data: any) => {
+  const handleHarmonyRequest = useCallback(async (method: string, data: any) => {
     console.log('Harmony request:', method, data);
-    const harmonyResult = { 
-      method, 
-      data, 
-      timestamp: Date.now(),
-      placeholder: true, // Mark as placeholder until backend integration
-      message: 'Harmony analysis backend integration coming soon'
-    };
 
     // Create user inputs object for harmony
     const userInputs = {
@@ -391,9 +459,43 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
       }
     };
 
-    // Add to history and show results
-    const historyId = addToHistory(method, data, harmonyResult, 'harmony', userInputs);
-    showUnifiedResultsWithLegacy(harmonyResult, historyId);
+    // Show loading state
+    setIsLoading(true);
+
+    try {
+      // Call the backend service
+      const { result, debug } = await analyzeHarmony(method, data);
+
+      const harmonyResult = {
+        method,
+        data,
+        timestamp: Date.now(),
+        harmonyAnalysis: result,
+        debug,
+        success: !result.error
+      };
+
+      // Add to history and show results
+      const historyId = addToHistory(method, data, harmonyResult, 'harmony', userInputs);
+      showUnifiedResultsWithLegacy(harmonyResult, historyId);
+
+    } catch (error) {
+      console.error('Harmony request failed:', error);
+
+      const errorResult = {
+        method,
+        data,
+        timestamp: Date.now(),
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        success: false
+      };
+
+      // Add error to history and show results
+      const historyId = addToHistory(method, data, errorResult, 'harmony', userInputs);
+      showUnifiedResultsWithLegacy(errorResult, historyId);
+    } finally {
+      setIsLoading(false);
+    }
   }, [addToHistory, showUnifiedResultsWithLegacy]);
 
   const handleSwitchToReference = useCallback((highlightId?: string) => {
@@ -506,6 +608,161 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
     setActiveTab('reference');
   }, []);
 
+  const handleDeeperAnalysis = useCallback(async (mode: ModeFromRoot) => {
+    // Create discovery request data for deeper analysis
+    const data = { rootNote: mode.notes[0] }; // Use the first note as root
+    const method = 'root';
+
+    // Create user inputs object for deeper analysis
+    const userInputs = {
+      method,
+      inputData: data,
+      rawInputs: {
+        originalInput: `${mode.name} mode analysis`,
+        discoveryType: 'deeper-analysis',
+        selectedMode: mode,
+        timestamp: Date.now()
+      }
+    };
+
+    // Show loading state
+    setIsLoading(true);
+
+    try {
+      // Use AI service for deeper analysis with song examples
+      const aiResult = await discoverModes(method, data);
+
+      // Generate song examples specifically for the selected mode
+      let songExamples = null;
+      try {
+        // Create an Analysis object for the selected mode to get song examples
+        const modeAnalysis = [{
+          mode: mode.name,
+          notes: mode.notes,
+          formula: mode.formula,
+          characteristics: mode.character || 'Unique modal character',
+          tonic: mode.notes[0],
+          key: `${mode.notes[0]} ${mode.name}`,
+          confidence: 1.0
+        }];
+
+        // Call getSongExamples with the mode analysis
+        songExamples = await getSongExamples(modeAnalysis);
+      } catch (songError) {
+        console.warn('Failed to get song examples:', songError);
+        // Continue without song examples rather than failing the whole request
+      }
+
+      const discoveryResult = {
+        method,
+        data,
+        timestamp: Date.now(),
+        discoveryAnalysis: {
+          ...aiResult.result,
+          selectedMode: mode, // Include the specific mode that was selected
+          deeperAnalysis: true, // Flag to indicate this is deeper analysis
+          ...(songExamples && { songExamples }) // Include song examples if available
+        },
+        debug: aiResult.debug,
+        success: !aiResult.result.error
+      };
+
+      // Add to history and show results
+      const historyId = addToHistory(method, data, discoveryResult, 'discover', userInputs);
+      showUnifiedResultsWithLegacy(discoveryResult, historyId);
+
+    } catch (error) {
+      console.error('Deeper analysis request failed:', error);
+
+      const errorResult = {
+        method,
+        data,
+        timestamp: Date.now(),
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        success: false
+      };
+
+      // Add error to history and show results
+      const historyId = addToHistory(method, data, errorResult, 'discover', userInputs);
+      showUnifiedResultsWithLegacy(errorResult, historyId);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [addToHistory, showUnifiedResultsWithLegacy]);
+
+  const handleModeAnalysisRequest = useCallback(async (mode: ModeFromRoot) => {
+    console.log('Mode analysis request:', mode);
+
+    // Create analysis data for the specific mode
+    const data = {
+      notes: mode.notes.join(' '),
+      mode: mode.name,
+      rootNote: mode.notes[0]
+    };
+
+    // Create user inputs object for mode analysis
+    const userInputs = {
+      method: 'mode-analysis',
+      inputData: data,
+      rawInputs: {
+        originalInput: `${mode.name} in ${mode.notes[0]}`,
+        analysisType: 'mode-specific',
+        selectedMode: mode,
+        timestamp: Date.now()
+      }
+    };
+
+    // Show loading state in unified results
+    const loadingResult = { 
+      method: 'mode-analysis', 
+      data, 
+      loading: true, 
+      timestamp: Date.now(),
+      selectedMode: mode
+    };
+    showUnifiedResultsWithLegacy(loadingResult);
+
+    try {
+      // Use AI service for detailed mode analysis
+      const tonic = mode.notes[0];
+      const geminiResult = await analyzeMusic(tonic, { notes: mode.notes });
+
+      const analysisResult = {
+        method: 'mode-analysis',
+        data,
+        geminiAnalysis: geminiResult,
+        localAnalysis: {
+          selectedMode: mode,
+          pitchClasses: mode.intervals,
+          suggestedTonic: tonic,
+          inputNotes: mode.notes,
+          originalInput: `${mode.name} in ${tonic}`,
+          modeSpecific: true
+        },
+        timestamp: Date.now()
+      };
+
+      // Add to history and show results
+      const historyId = addToHistory('mode-analysis', data, analysisResult, activeTab, userInputs);
+      showUnifiedResultsWithLegacy(analysisResult, historyId);
+
+    } catch (error) {
+      console.error('Mode analysis request failed:', error);
+
+      const errorResult = {
+        method: 'mode-analysis',
+        data,
+        timestamp: Date.now(),
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        selectedMode: mode
+      };
+
+      // Add error to history and show results
+      const historyId = addToHistory('mode-analysis', data, errorResult, activeTab, userInputs);
+      showUnifiedResultsWithLegacy(errorResult, historyId);
+    }
+  }, [addToHistory, showUnifiedResultsWithLegacy, activeTab]);
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'identify':
@@ -513,6 +770,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
           <ModeIdentificationTab 
             onAnalysisRequest={handleAnalysisRequest}
             hasResults={unifiedResults.isVisible}
+            isLoading={isLoading}
             initialMethod={inputRepopulationData?.method}
             initialMelodyNotes={inputRepopulationData?.melodyNotes}
             initialScaleNotes={inputRepopulationData?.scaleNotes}
@@ -525,6 +783,8 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
           <ModeDiscoveryTab 
             onDiscoveryRequest={handleDiscoveryRequest}
             hasResults={unifiedResults.isVisible}
+            isLoading={isLoading}
+            onDeeperAnalysis={handleDeeperAnalysis}
           />
         );
 
@@ -533,6 +793,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
           <HarmonyTab 
             onHarmonyRequest={handleHarmonyRequest}
             hasResults={unifiedResults.isVisible}
+            isLoading={isLoading}
           />
         );
 
@@ -603,6 +864,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
               onRestoreFromHistory={restoreFromHistoryWithTabChange}
               onDismissAnalysisPanel={dismissAnalysisPanel}
               onUpdateDisplayPosition={updateDisplayPosition}
+              onModeAnalysisRequest={handleModeAnalysisRequest}
             />
           </aside>
         )}

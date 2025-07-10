@@ -10,9 +10,10 @@ type HarmonyMethod = 'analyze' | 'generate' | 'substitute' | 'progression';
 interface HarmonyTabProps {
   onHarmonyRequest: (method: HarmonyMethod, data: any) => void;
   hasResults?: boolean;
+  isLoading?: boolean;
 }
 
-const HarmonyTab: React.FC<HarmonyTabProps> = ({ onHarmonyRequest, hasResults = false }) => {
+const HarmonyTab: React.FC<HarmonyTabProps> = ({ onHarmonyRequest, hasResults = false, isLoading = false }) => {
   const [activeMethod, setActiveMethod] = useState<HarmonyMethod>('analyze');
   const [chordInput, setChordInput] = useState<string>('');
   const [selectedMode, setSelectedMode] = useState<string>('');
@@ -45,8 +46,8 @@ const HarmonyTab: React.FC<HarmonyTabProps> = ({ onHarmonyRequest, hasResults = 
       id: 'progression' as HarmonyMethod, 
       label: 'Modal Chord Analysis', 
       description: 'What chords in this progression are modal and what are their modes? (Feature 16)',
-      status: 'not-implemented',
-      statusLabel: 'Coming Soon'
+      status: 'complete',
+      statusLabel: 'Ready'
     },
   ];
 
@@ -285,17 +286,10 @@ const HarmonyTab: React.FC<HarmonyTabProps> = ({ onHarmonyRequest, hasResults = 
         <div className="input-section__actions">
           <Button
             onClick={handleAnalyze}
-            disabled={
-              (activeMethod === 'analyze' && !chordInput.trim()) ||
-              (activeMethod === 'generate' && !selectedMode.trim()) ||
-              (activeMethod === 'substitute' && !targetChord.trim()) ||
-              (activeMethod === 'progression' && !progressionInput.trim())
-            }
+            disabled={isLoading || activeMethod !== 'progression'}
           >
-            {activeMethod === 'analyze' && 'Analyze Chord'}
-            {activeMethod === 'generate' && 'Generate Chords'}
-            {activeMethod === 'substitute' && 'Find Substitutions'}
-            {activeMethod === 'progression' && 'Analyze Progression'}
+            {isLoading && activeMethod === 'progression' ? 'Analyzing...' : 
+             activeMethod === 'progression' ? 'Analyze Progression' : 'Coming Soon'}
           </Button>
         </div>
       </div>

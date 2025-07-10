@@ -22,6 +22,7 @@ interface ValidationResult {
 interface ModeIdentificationTabProps {
   onAnalysisRequest: (method: IdentificationMethod, data: any) => void;
   hasResults?: boolean;
+  isLoading?: boolean;
   initialMethod?: IdentificationMethod;
   initialMelodyNotes?: string;
   initialScaleNotes?: string;
@@ -31,6 +32,7 @@ interface ModeIdentificationTabProps {
 const ModeIdentificationTab: React.FC<ModeIdentificationTabProps> = ({ 
   onAnalysisRequest, 
   hasResults = false,
+  isLoading = false,
   initialMethod,
   initialMelodyNotes,
   initialScaleNotes,
@@ -351,7 +353,6 @@ const ModeIdentificationTab: React.FC<ModeIdentificationTabProps> = ({
               className={`method-selector__card ${
                 activeMethod === method.id ? 'method-selector__card--active' : ''
               }`}
-              disabled={method.id === 'audio'} // Disable audio for now
             >
               <h3 className="method-selector__card-title">{method.label}</h3>
               <p className="method-selector__card-description">{method.description}</p>
@@ -367,13 +368,14 @@ const ModeIdentificationTab: React.FC<ModeIdentificationTabProps> = ({
           <Button
             onClick={handleAnalyze}
             disabled={
+              isLoading ||
               (activeMethod === 'melody' && !melodyNotes.trim()) ||
               (activeMethod === 'scale' && !scaleNotes.trim()) ||
               (activeMethod === 'progression' && !progression.trim()) ||
               activeMethod === 'audio'
             }
           >
-            Analyze Mode
+            {isLoading ? 'Analyzing...' : 'Analyze Mode'}
           </Button>
         </div>
       </div>

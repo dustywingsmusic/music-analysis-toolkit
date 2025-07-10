@@ -14,6 +14,8 @@ import React from 'react';
 import {TabType} from './NavigationTabs';
 import {Button} from '@/components/ui/button';
 import {Badge} from '@/components/ui/badge';
+import ScaleGrid from './reference/ScaleGrid';
+import {ModeFromRoot} from '../services/scaleDataService';
 
 export interface ResultsHistoryEntry {
   id: string;
@@ -60,6 +62,7 @@ interface UnifiedResultsPanelProps {
   onRestoreFromHistory: (historyId: string) => void;
   onDismissAnalysisPanel: () => void;
   onUpdateDisplayPosition: (newPosition: Partial<DisplayPosition>) => void;
+  onModeAnalysisRequest: (mode: ModeFromRoot) => void;
 }
 
 const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
@@ -70,7 +73,8 @@ const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
   onReturnToInput,
   onRestoreFromHistory,
   onDismissAnalysisPanel,
-  onUpdateDisplayPosition
+  onUpdateDisplayPosition,
+  onModeAnalysisRequest
 }) => {
 
   // Helper function to check if a string is a valid note name
@@ -91,7 +95,7 @@ const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
       return null;
     }
 
-    const { method, loading, error, geminiAnalysis, localAnalysis, placeholder, message } = currentResults;
+    const { method, loading, error, geminiAnalysis, localAnalysis, placeholder, message, discoveryAnalysis, harmonyAnalysis } = currentResults;
 
     return (
       <div className={`unified-results-panel unified-results-panel--${unifiedResults.displayPosition.mode}`}>
@@ -144,7 +148,19 @@ const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
               className="unified-results-panel__close"
               title="Close results"
             >
-              ×
+              <svg 
+                width="16" 
+                height="16" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
             </Button>
           </div>
         </div>
@@ -404,14 +420,15 @@ const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
 
               {geminiAnalysis.result?.songExamples && Array.isArray(geminiAnalysis.result.songExamples) && (
                 <div className="song-examples">
-                  <h5>Song Examples</h5>
+                  <h5>Example Songs</h5>
                   {geminiAnalysis.result.songExamples.map((group: any, index: number) => (
                     <div key={index} className="song-group">
                       <h6>{group.mode}</h6>
                       <ul>
-                        {group.songs && Array.isArray(group.songs) && group.songs.map((song: any, songIndex: number) => (
+                        {group.examples && Array.isArray(group.examples) && group.examples.map((song: any, songIndex: number) => (
                           <li key={songIndex}>
                             <strong>{song.title}</strong> by {song.artist}
+                            {song.usage && <div className="song-example-item__usage">"{song.usage}"</div>}
                           </li>
                         ))}
                       </ul>
@@ -419,6 +436,274 @@ const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
                   ))}
                 </div>
               )}
+            </>
+          )}
+
+          {discoveryAnalysis && !loading && !error && !placeholder && (
+            <>
+              <div className="primary-result">
+                {discoveryAnalysis.deeperAnalysis && discoveryAnalysis.selectedMode ? (
+                  <>
+                    <h4>{discoveryAnalysis.selectedMode.name} - Deeper Analysis</h4>
+                    <p><strong>Mode:</strong> {discoveryAnalysis.selectedMode.name}</p>
+                    <p><strong>Tonic (Root):</strong> {discoveryAnalysis.selectedMode.notes[0]}</p>
+                    <p><strong>Notes:</strong> {discoveryAnalysis.selectedMode.notes.join(' ')}</p>
+                    <p><strong>Formula:</strong> {discoveryAnalysis.selectedMode.formula}</p>
+                    <p><strong>Parent Scale:</strong> {discoveryAnalysis.selectedMode.parentScaleName} in {discoveryAnalysis.selectedMode.parentScaleRootNote}</p>
+                    {discoveryAnalysis.selectedMode.character && (
+                      <p><strong>Character:</strong> {discoveryAnalysis.selectedMode.character}</p>
+                    )}
+                    <Badge variant="secondary" className="mt-2">
+                      🎵 AI-Powered Analysis
+                    </Badge>
+                  </>
+                ) : (
+                  <>
+                    <h4>Mode Discovery Results</h4>
+                    {discoveryAnalysis.rootNote && (
+                      <p><strong>Root Note:</strong> {discoveryAnalysis.rootNote}</p>
+                    )}
+                    {discoveryAnalysis.totalModes && (
+                      <p><strong>Total Modes Found:</strong> {discoveryAnalysis.totalModes}</p>
+                    )}
+                    {discoveryAnalysis.message && (
+                      <p className="text-slate-400">{discoveryAnalysis.message}</p>
+                    )}
+                    {discoveryAnalysis.scaleDataSource === 'direct' && (
+                      <Badge variant="secondary" className="mt-2">
+                        ⚡ Instant Results - Using Scale Data
+                      </Badge>
+                    )}
+                  </>
+                )}
+              </div>
+
+              {/* Only show ScaleGrid for non-deeper analysis (general discovery) */}
+              {!discoveryAnalysis.deeperAnalysis && discoveryAnalysis.modes && Array.isArray(discoveryAnalysis.modes) && (
+                <div className="discovery-modes-grid mt-6">
+                  <ScaleGrid 
+                    modes={discoveryAnalysis.modes as ModeFromRoot[]}
+                    onModeSelect={(mode: ModeFromRoot) => {
+                      // Trigger focused analysis for the selected mode
+                      onModeAnalysisRequest(mode);
+                    }}
+                    compact={true}
+                    showCharacteristics={true}
+                    enableFiltering={true}
+                    interactionMode="select"
+                  />
+                </div>
+              )}
+
+              {/* Legacy display for AI-generated results - only show for non-deeper analysis */}
+              {!discoveryAnalysis.deeperAnalysis && discoveryAnalysis.modesByFamily && (
+                <div className="modes-by-family">
+                  <h5>Modes by Scale Family</h5>
+                  {Object.entries(discoveryAnalysis.modesByFamily).map(([family, modes]) => (
+                    <div key={family} className="mode-family">
+                      <h6>{family}</h6>
+                      <div className="mode-list">
+                        {Array.isArray(modes) && modes.map((mode: any, index: number) => (
+                          <div key={index} className="mode-item">
+                            <div className="mode-header">
+                              <strong>{mode.mode}</strong>
+                              {mode.mode && (() => {
+                                const parts = mode.mode.split(' ');
+                                let tonic, modeName;
+                                if (parts.length > 1 && isValidNoteName(parts[0])) {
+                                  tonic = parts[0];
+                                  modeName = parts.slice(1).join(' ');
+                                } else {
+                                  modeName = mode.mode;
+                                  tonic = discoveryAnalysis.rootNote || 'C';
+                                }
+                                return (
+                                  <Button 
+                                    onClick={() => onSwitchToReferenceWithHighlight(modeName, tonic)}
+                                    variant="link"
+                                    size="sm"
+                                    className="ml-2"
+                                    title="View this mode in scale tables"
+                                  >
+                                    📊 View in Tables
+                                  </Button>
+                                );
+                              })()}
+                            </div>
+                            {mode.notes && (
+                              <p><strong>Notes:</strong> {Array.isArray(mode.notes) ? mode.notes.join(' ') : mode.notes}</p>
+                            )}
+                            {mode.formula && (
+                              <p><strong>Formula:</strong> {mode.formula}</p>
+                            )}
+                            {mode.characteristics && (
+                              <p><strong>Characteristics:</strong> {mode.characteristics}</p>
+                            )}
+                            {mode.applications && (
+                              <p><strong>Applications:</strong> {mode.applications}</p>
+                            )}
+                            {mode.parentScale && (
+                              <p><strong>Parent Scale:</strong> {mode.parentScale}</p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Song examples - filter for selected mode when doing deeper analysis */}
+              {discoveryAnalysis.songExamples && Array.isArray(discoveryAnalysis.songExamples) && (
+                <div className="song-examples">
+                  <h5>Example Songs</h5>
+                  {discoveryAnalysis.songExamples
+                    .filter((group: any) => {
+                      // If deeper analysis, only show examples for the selected mode
+                      if (discoveryAnalysis.deeperAnalysis && discoveryAnalysis.selectedMode) {
+                        return group.mode && group.mode.toLowerCase().includes(discoveryAnalysis.selectedMode.name.toLowerCase());
+                      }
+                      // Otherwise show all examples
+                      return true;
+                    })
+                    .map((group: any, index: number) => (
+                      <div key={index} className="song-group">
+                        <h6>{group.mode}</h6>
+                        <ul>
+                          {group.examples && Array.isArray(group.examples) && group.examples.map((song: any, songIndex: number) => (
+                            <li key={songIndex}>
+                              <strong>{song.title}</strong> by {song.artist}
+                              {song.usage && <div className="song-example-item__usage">"{song.usage}"</div>}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {harmonyAnalysis && !loading && !error && !placeholder && (
+            <>
+              <div className="primary-result">
+                <h4>Harmony Analysis Results</h4>
+                {harmonyAnalysis.method && (
+                  <p><strong>Analysis Type:</strong> {harmonyAnalysis.method}</p>
+                )}
+
+                {/* Handle progression analysis results */}
+                {harmonyAnalysis.method === 'progression' && harmonyAnalysis.analysis && (
+                  <div className="progression-analysis">
+                    {harmonyAnalysis.progression && (
+                      <p><strong>Chord Progression:</strong> {harmonyAnalysis.progression}</p>
+                    )}
+
+                    {harmonyAnalysis.analysis.keyCenter && (
+                      <p><strong>Key Center:</strong> {harmonyAnalysis.analysis.keyCenter}</p>
+                    )}
+
+                    {harmonyAnalysis.analysis.overallMode && (
+                      <p><strong>Overall Mode:</strong> {harmonyAnalysis.analysis.overallMode}</p>
+                    )}
+
+                    {harmonyAnalysis.analysis.chordAnalysis && Array.isArray(harmonyAnalysis.analysis.chordAnalysis) && (
+                      <div className="chord-analysis-section">
+                        <h5>Individual Chord Analysis</h5>
+                        <div className="chord-analysis-grid">
+                          {harmonyAnalysis.analysis.chordAnalysis.map((chord: any, index: number) => (
+                            <div key={index} className="chord-analysis-item">
+                              <div className="chord-header">
+                                <strong>{chord.chord}</strong>
+                                {chord.isModal && (
+                                  <Badge variant="secondary" className="ml-2">Modal</Badge>
+                                )}
+                              </div>
+                              {chord.function && (
+                                <p><strong>Function:</strong> {chord.function}</p>
+                              )}
+                              {chord.mode && (
+                                <p><strong>Mode:</strong> {chord.mode}</p>
+                              )}
+                              {chord.notes && Array.isArray(chord.notes) && (
+                                <p><strong>Notes:</strong> {chord.notes.join(' ')}</p>
+                              )}
+                              {chord.relationship && (
+                                <p><strong>Relationship:</strong> {chord.relationship}</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {harmonyAnalysis.analysis.modalChords && Array.isArray(harmonyAnalysis.analysis.modalChords) && harmonyAnalysis.analysis.modalChords.length > 0 && (
+                      <div className="modal-chords-section">
+                        <h5>Modal Chords Identified</h5>
+                        <div className="modal-chords-list">
+                          {harmonyAnalysis.analysis.modalChords.map((modalChord: any, index: number) => (
+                            <div key={index} className="modal-chord-item">
+                              <strong>{modalChord.chord || modalChord}</strong>
+                              {modalChord.mode && <span> - {modalChord.mode}</span>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {harmonyAnalysis.analysis.modalInterchange && (
+                      <div className="modal-interchange-section">
+                        <h5>Modal Interchange Analysis</h5>
+                        <p>{harmonyAnalysis.analysis.modalInterchange}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Handle other harmony analysis methods */}
+                {harmonyAnalysis.method === 'analyze' && harmonyAnalysis.analysis && (
+                  <div className="chord-analysis">
+                    {harmonyAnalysis.chord && (
+                      <p><strong>Chord:</strong> {harmonyAnalysis.chord}</p>
+                    )}
+                    {harmonyAnalysis.analysis.rootNote && (
+                      <p><strong>Root Note:</strong> {harmonyAnalysis.analysis.rootNote}</p>
+                    )}
+                    {harmonyAnalysis.analysis.chordType && (
+                      <p><strong>Chord Type:</strong> {harmonyAnalysis.analysis.chordType}</p>
+                    )}
+                    {harmonyAnalysis.analysis.notes && Array.isArray(harmonyAnalysis.analysis.notes) && (
+                      <p><strong>Notes:</strong> {harmonyAnalysis.analysis.notes.join(' ')}</p>
+                    )}
+                    {harmonyAnalysis.analysis.function && (
+                      <p><strong>Function:</strong> {harmonyAnalysis.analysis.function}</p>
+                    )}
+                    {harmonyAnalysis.analysis.characteristics && (
+                      <p><strong>Characteristics:</strong> {harmonyAnalysis.analysis.characteristics}</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Applications section */}
+                {harmonyAnalysis.applications && (
+                  <div className="applications-section">
+                    <h5>Applications</h5>
+                    {harmonyAnalysis.applications.genres && Array.isArray(harmonyAnalysis.applications.genres) && (
+                      <p><strong>Genres:</strong> {harmonyAnalysis.applications.genres.join(', ')}</p>
+                    )}
+                    {harmonyAnalysis.applications.progressions && Array.isArray(harmonyAnalysis.applications.progressions) && (
+                      <p><strong>Common Progressions:</strong> {harmonyAnalysis.applications.progressions.join(', ')}</p>
+                    )}
+                    {harmonyAnalysis.applications.tips && (
+                      <p><strong>Tips:</strong> {harmonyAnalysis.applications.tips}</p>
+                    )}
+                  </div>
+                )}
+
+                <Badge variant="secondary" className="mt-2">
+                  🎵 AI-Powered Harmony Analysis
+                </Badge>
+              </div>
             </>
           )}
 

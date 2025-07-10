@@ -311,4 +311,81 @@
   .unified-results-panel__close {
     @apply text-muted-foreground hover:text-foreground text-xl cursor-pointer p-1 hover:bg-muted rounded transition-colors duration-200;
   }
+
+  /* Analysis Results Sections - Better Visual Separation */
+  .primary-result,
+  .alternate-results,
+  .song-examples {
+    @apply mb-6 p-4 rounded-lg border border-border bg-card;
+    background-color: color-mix(in oklch, var(--card) 80%, transparent);
+  }
+
+  .primary-result h4,
+  .alternate-results h5,
+  .song-examples h5 {
+    @apply text-lg font-bold text-primary mb-4 pb-2 border-b border-border;
+  }
+
+  .alternate-mode {
+    @apply mb-4 p-3 rounded border border-border bg-muted;
+    background-color: color-mix(in oklch, var(--muted) 60%, transparent);
+  }
+
+  .alternate-mode h6 {
+    @apply text-base font-semibold text-secondary mb-2;
+  }
+
+  .song-group {
+    @apply mb-4 p-3 rounded border border-border bg-muted;
+    background-color: color-mix(in oklch, var(--muted) 60%, transparent);
+  }
+
+  .song-group h6 {
+    @apply text-base font-semibold text-accent mb-2;
+  }
+
+  .explanation-section {
+    @apply mt-3 p-3 rounded bg-muted border-l-4 border-info;
+    background-color: color-mix(in oklch, var(--info) 10%, transparent);
+  }
+
+  .explanation-section h5,
+  .explanation-section h6 {
+    @apply text-sm font-semibold text-info mb-2;
+  }
+
+  /* Enhanced Bold Text Styling */
+  .primary-result strong,
+  .alternate-results strong,
+  .song-examples strong,
+  .mode-analysis strong {
+    @apply font-bold text-primary;
+    font-weight: 700;
+  }
+
+  /* Loading and Error States */
+  .loading-state,
+  .placeholder-state,
+  .error-state {
+    @apply p-6 text-center rounded-lg border border-border;
+  }
+
+  .loading-state {
+    @apply bg-info text-info-foreground;
+    background-color: color-mix(in oklch, var(--info) 20%, transparent);
+  }
+
+  .placeholder-state {
+    @apply bg-warning text-warning-foreground;
+    background-color: color-mix(in oklch, var(--warning) 20%, transparent);
+  }
+
+  .error-state {
+    @apply bg-error text-error-foreground;
+    background-color: color-mix(in oklch, var(--destructive) 20%, transparent);
+  }
+
+  .ai-error {
+    @apply mt-4 p-3 rounded bg-error-muted text-error-muted-foreground border border-error;
+  }
 }
