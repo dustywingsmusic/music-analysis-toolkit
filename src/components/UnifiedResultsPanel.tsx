@@ -101,30 +101,30 @@ const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
                 ⫸
               </Button>
             </div>
-
-            {/* Close Button */}
-            <Button 
-              onClick={onDismissAnalysisPanel}
-              variant="ghost"
-              size="sm"
-              className="unified-results-panel__close"
-              title="Close results"
-            >
-              <svg 
-                width="16" 
-                height="16" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-              >
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </Button>
           </div>
+
+          {/* Close Button - Moved to top right corner */}
+          <Button 
+            onClick={onDismissAnalysisPanel}
+            variant="ghost"
+            size="sm"
+            className="unified-results-panel__close-top-right"
+            title="Close results"
+          >
+            <svg 
+              width="16" 
+              height="16" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </Button>
         </div>
 
 
@@ -734,14 +734,6 @@ const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
 
           {!loading && !placeholder && (
             <div className="secondary-results">
-              <div className="related-info">
-                <Button 
-                  onClick={() => onSwitchToReference()}
-                  variant="secondary"
-                >
-                  View in Scale Tables
-                </Button>
-              </div>
             </div>
           )}
         </div>

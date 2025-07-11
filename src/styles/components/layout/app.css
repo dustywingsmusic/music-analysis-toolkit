@@ -274,6 +274,11 @@
     @apply mt-3 flex justify-start;
   }
 
+  /* Unified Results Panel Container */
+  .unified-results-panel {
+    @apply relative;
+  }
+
   /* History Input Display */
   .unified-results-panel__history-input {
     @apply mt-1 mb-2 text-xs;
@@ -310,6 +315,10 @@
 
   .unified-results-panel__close {
     @apply text-muted-foreground hover:text-foreground text-xl cursor-pointer p-1 hover:bg-muted rounded transition-colors duration-200;
+  }
+
+  .unified-results-panel__close-top-right {
+    @apply absolute top-2 right-2 text-muted-foreground hover:text-foreground cursor-pointer p-1 hover:bg-muted rounded transition-colors duration-200 z-10;
   }
 
   /* Analysis Results Sections - Better Visual Separation */
