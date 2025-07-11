@@ -1,8 +1,43 @@
 # Music Theory Toolkit
 
-An interactive web application for music theory analysis and exploration, powered by AI. This toolkit provides comprehensive chord analysis and scale discovery tools for musicians, music students, and theory enthusiasts.
+> **📋 Consolidated Documentation**: This project's documentation has been reorganized into four main documents that logically reflect design, feature requirements, technical implementation, deployment procedures, and development practices.
 
-## Setup and Installation
+An interactive web application for music theory analysis and exploration, powered by AI. This toolkit provides comprehensive mode identification, scale discovery, and chord analysis tools for musicians, music students, and theory enthusiasts.
+
+## 📚 Documentation Structure
+
+The project documentation is organized into four comprehensive documents:
+
+### 1. 🎯 [DESIGN_AND_REQUIREMENTS.md](./DESIGN_AND_REQUIREMENTS.md)
+**User needs, use cases, and design specifications**
+- 28 specific use cases organized by category
+- Question-driven navigation structure  
+- UI wireframes and interaction patterns
+- Feature implementation status and roadmap
+
+### 2. 🏗️ [TECHNICAL_ARCHITECTURE.md](./TECHNICAL_ARCHITECTURE.md)
+**System architecture and implementation status**
+- Client-side SPA architecture with external services
+- Technology stack and component hierarchy
+- Implementation status (90% complete)
+- Development roadmap and testing strategy
+
+### 3. 🚀 [DEPLOYMENT_AND_OPERATIONS.md](./DEPLOYMENT_AND_OPERATIONS.md)
+**Deployment procedures, logging, and operational guidelines**
+- Google Cloud Run deployment architecture
+- Server-side logging implementation
+- Monitoring, observability, and troubleshooting
+
+### 4. 🛠️ [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md)
+**Styling guidelines, development practices, and specialized implementation guides**
+- shadcn/ui component system usage
+- Theme customization and styling patterns
+- Specialized implementation guides
+- Best practices and AI development tips
+
+## 🚀 Quick Start
+
+### Development Setup
 
 1.  **Clone the repository:**
     ```bash
@@ -26,150 +61,107 @@ An interactive web application for music theory analysis and exploration, powere
     npm run dev
     ```
 
-## Features
+### Production Deployment
 
-### 🎵 Chord Analyzer
-- **Intelligent Chord Analysis**: Input a musical key and chord to get detailed theoretical analysis
-- **Roman Numeral Analysis**: Automatic Roman numeral identification within the given key
-- **Mode Identification**: Determines the most appropriate musical mode for the chord context
-- **Comprehensive Details**: Provides interval formulas, scale degrees, and theoretical explanations
-- **Song Examples**: Suggests popular songs that feature the identified mode
-- **Ambiguity Handling**: Explains alternative interpretations when multiple analyses are possible
-
-### 🎼 Scale Finder
-- **Note Set Analysis**: Input a set of notes to identify matching scales and modes
-- **Interactive Scale Tables**: Browse comprehensive scale databases with visual highlighting
-- **Cross-Reference Integration**: Seamlessly switch between analyzer and finder with context preservation
-- **Multiple Scale Systems**: Supports diatonic scales, modes, and various other scale types
-
-### 🤖 AI-Powered Analysis
-- **Google Gemini Integration**: Uses advanced AI for sophisticated music theory analysis
-- **Structured Responses**: Consistent, reliable analysis with comprehensive error handling
-- **Musical Validation**: Intelligent input validation to ensure musically sensible queries
-
-### 📊 Cloud Logging & Monitoring
-- **Structured Logging**: Comprehensive logging of all user interactions and API calls
-- **Google Cloud Logging**: Integrated with Google Cloud Logging for production monitoring
-- **Filterable Logs**: Easy filtering by app name, interaction type, and severity level
-- **Request/Response Tracking**: Complete audit trail of Gemini API requests and responses
-- **User Activity Monitoring**: Tracks web clicks, tab navigation, and analysis requests
-
-### 🎹 Additional Features
-- **MIDI Support**: Compatible with MIDI input devices for real-time note entry
-- **Modern UI**: Clean, responsive interface with dark theme optimized for extended use
-- **Cross-Platform**: Works on desktop and mobile browsers
-
-## UI Styling & Component Development
-
-### shadcn/ui Component System
-
-This project uses **shadcn/ui** as its primary component library, providing:
-
-- **Consistent Design Language**: All UI components follow unified design principles
-- **Accessibility**: Built-in ARIA attributes and keyboard navigation support
-- **Dark Theme Integration**: Seamlessly integrated with the existing dark theme
-- **TypeScript Support**: Full type safety for component props and variants
-- **Customizable**: Components can be extended with music-specific variants
-
-### Quick Start for Developers
-
-**Adding New Components:**
 ```bash
-# Add individual components
-npx shadcn@latest add button input label card
-
-# Add all available components
-npx shadcn@latest add -a -y -o
+# Deploy to Google Cloud Run
+./deploy.sh
 ```
 
-**Basic Usage Pattern:**
-```tsx
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+For detailed deployment instructions, see [DEPLOYMENT_AND_OPERATIONS.md](./DEPLOYMENT_AND_OPERATIONS.md).
 
-function MyComponent() {
-  return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="melody">Melody Notes</Label>
-        <Input id="melody" placeholder="C D E F G A B C" />
-      </div>
-      <Button>Analyze Mode</Button>
-    </div>
-  )
-}
+## 🎵 Key Features
+
+### Mode Identification & Analysis
+- **Melody Analysis**: Identify modes from note sequences with AI-powered analysis
+- **Scale Analysis**: Determine modes from note collections and scale patterns
+- **Chord Progression Analysis**: Analyze chord progressions to identify modal contexts
+- **Comprehensive Results**: Detailed theoretical explanations with song examples
+
+### Mode Discovery & Exploration
+- **Build from Root**: Explore all modes available from a specific root note
+- **Two-Stage Flow**: Immediate results with optional deeper AI analysis
+- **Interactive Scale Tables**: Browse comprehensive mode databases with MIDI playback
+- **Cross-Reference Integration**: Seamless navigation between analysis and reference
+
+### Harmony & Chord Tools
+- **Modal Chord Analysis**: Identify modal characteristics in chord progressions
+- **Roman Numeral Analysis**: Automatic theoretical analysis within musical contexts
+- **Chord-to-Mode Mapping**: Discover which modes work over specific chords
+
+### AI-Powered Intelligence
+- **Google Gemini Integration**: Advanced AI for sophisticated music theory analysis
+- **Song Examples**: AI-generated examples of modes in popular music
+- **Contextual Analysis**: Intelligent interpretation of musical material
+
+### Modern Technology Stack
+- **React + TypeScript**: Modern, type-safe frontend development
+- **shadcn/ui Components**: Accessible, customizable UI component library
+- **MIDI Support**: Real-time input from MIDI devices
+- **Cloud Deployment**: Production-ready Google Cloud Run hosting
+- **Comprehensive Logging**: Full observability and monitoring
+
+> **📖 For detailed feature specifications and use cases, see [DESIGN_AND_REQUIREMENTS.md](./DESIGN_AND_REQUIREMENTS.md)**
+
+## 🛠️ Development
+
+This project uses modern React development practices with TypeScript and shadcn/ui components.
+
+### Technology Stack
+- **React 19.1.0** + **TypeScript 5.7.2** + **Vite 6.2.0**
+- **shadcn/ui** component library built on Radix UI primitives
+- **Tailwind CSS 3.4.17** for utility-first styling
+- **Google Gemini AI** for music analysis
+- **Express.js** server for static serving and logging
+- **Google Cloud Run** for production deployment
+
+### Development Commands
+```bash
+# Development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Server-side development
+npm run dev:server
+
+# Type checking
+npm run type-check
 ```
 
-### Styling Guidelines
+> **📖 For comprehensive development guidelines, styling patterns, and component usage, see [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md)**
 
-- **Use semantic color variables**: `bg-background`, `text-foreground`, `border-border`
-- **Follow spacing patterns**: `space-y-2`, `space-y-4`, `space-y-6`
-- **Leverage the `cn` utility**: For intelligent class merging from `@/lib/utils`
-- **Maintain accessibility**: Always use proper `htmlFor`/`id` relationships
 
-### Resources
+## 📋 Project Status
 
-- **📖 Comprehensive Styling Guide**: [dev_docs/styling_the_app.md](dev_docs/styling_the_app.md)
-- **🎨 shadcn/ui Documentation**: https://ui.shadcn.com/
-- **🧩 Component**: https://ui.shadcn.com/docs/components
-- **🎯 Tailwind CSS**: https://tailwindcss.com/docs
-- **♿ Accessibility Guidelines**: https://www.radix-ui.com/primitives/docs/overview/accessibility
+- **Current State**: 90% complete with full Mode Identification and Enhanced Analysis Results Panel implementation
+- **Architecture**: Modern React SPA with external API integrations
+- **Deployment**: Production-ready with Google Cloud Run hosting
+- **Documentation**: Fully consolidated and comprehensive
 
-For detailed instructions on creating custom variants, music-specific components, and AI development patterns, see the [complete styling guide](dev_docs/styling_the_app.md).
+## 🔗 Quick Navigation
 
-## Technology Stack
+- **Need to understand user requirements?** → [DESIGN_AND_REQUIREMENTS.md](./DESIGN_AND_REQUIREMENTS.md)
+- **Want to see technical architecture?** → [TECHNICAL_ARCHITECTURE.md](./TECHNICAL_ARCHITECTURE.md)
+- **Ready to deploy or troubleshoot?** → [DEPLOYMENT_AND_OPERATIONS.md](./DEPLOYMENT_AND_OPERATIONS.md)
+- **Developing new features or styling?** → [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md)
 
-- **Frontend**: React 19.1.0 with TypeScript
-- **Build Tool**: Vite 6.2.0
-- **AI Service**: Google Gemini 2.5 Flash
-- **UI Components**: shadcn/ui with Radix UI primitives
-- **Styling**: Tailwind CSS with utility-first approach
-- **Music Libraries**: WebMIDI API for MIDI input, ABCjs for music notation
-- **Additional**: PostCSS with Autoprefixer for enhanced CSS processing
+## 🎵 Application Overview
 
-## Tailwind CSS Setup
+The Music Theory Toolkit uses a question-driven interface that directly addresses common music theory workflows:
 
-This project uses a **no-build approach** for Tailwind CSS, which means you can start developing immediately without waiting for CSS compilation. Here's how it works:
+### Question-Driven Navigation
+- **"What mode is this?"** → Mode Identification Tab
+- **"What modes can I explore?"** → Mode Discovery Tab  
+- **"How do modes work with chords?"** → Harmony Tab
+- **"Show me mode information"** → Reference Tab
 
-### CDN-Based Implementation
-- Tailwind CSS is loaded directly from CDN via `<script src="https://cdn.tailwindcss.com"></script>`
-- No separate build step required for CSS processing
-- Instant development with real-time style updates
-
-### Configuration
-The Tailwind configuration is embedded directly in `index.html`:
-```javascript
-tailwind.config = {
-  theme: {
-    extend: {
-      animation: {
-        'fade-in': 'fadeIn 0.5s ease-in-out',
-      },
-      keyframes: {
-        fadeIn: {
-          '0%': { opacity: '0' },
-          '100%': { opacity: '1' },
-        },
-      },
-    },
-  },
-}
-```
-
-### Custom Styles
-Custom component styles are defined using Tailwind's `@apply` directive within a `<style type="text/tailwindcss">` block in `index.html`. This approach provides:
-- **Component-based styling**: Reusable CSS classes like `.btn`, `.card`, `.section-title`
-- **Consistent design system**: Unified color palette and spacing
-- **Dark theme optimization**: Slate color scheme optimized for extended use
-- **Responsive design**: Mobile-first approach with responsive utilities
-
-### Benefits of This Approach
-- ⚡ **Instant startup**: No CSS build time during development
-- 🔄 **Hot reloading**: Immediate style updates without compilation
-- 📦 **Zero configuration**: Works out of the box
-- 🎨 **Full Tailwind features**: Access to all utilities and responsive design
-- 🛠️ **Easy customization**: Direct configuration in HTML
+### Core Technologies
+- **React 19.1.0** + **TypeScript 5.7.2** + **Vite 6.2.0**
+- **Google Gemini AI** for music analysis
+- **shadcn/ui** + **Tailwind CSS** for modern UI
+- **Express.js** + **Google Cloud Run** for deployment
 
 ## Current Project Status
 
@@ -196,156 +188,7 @@ The current iteration emphasizes:
 - **User Experience**: Intuitive interface for music theory exploration
 - **Extensibility**: Modular architecture for future feature additions
 
-## Logging & Monitoring
 
-### Structured Logging Implementation
+---
 
-The application implements comprehensive structured logging for production monitoring and debugging. All logs are formatted as JSON objects and sent to Google Cloud Logging for centralized analysis.
-
-✅ **Server-Side Cloud Logging Integration**: The application now includes full server-side Google Cloud Logging integration using service account authentication. Logs are sent from the client to a server endpoint, which then writes them to Google Cloud Logging with proper authentication and enhanced metadata.
-
-#### Logging Categories
-
-**Web Click Interactions:**
-- Tab navigation
-- Analysis requests
-- Discovery requests
-- Button clicks and user interactions
-
-**Gemini API Tracking:**
-- Request logging with parameters and context
-- Response logging with metadata
-- Error tracking with stack traces
-- Performance metrics
-
-**Application Events:**
-- App initialization
-- Component mounting
-- Error states
-
-#### Usage Example
-
-```typescript
-import { logger } from '../utils/logger';
-
-// Log user interactions
-logger.webClick('User clicked analyze button', {
-  component: 'ModeAnalyzer',
-  action: 'analyze_melody',
-  inputLength: notes.length
-});
-
-// Log API requests
-logger.geminiRequest('Sending analysis request', {
-  function: 'analyzeMusic',
-  model: 'gemini-2.5-flash',
-  tonic: 'C',
-  noteCount: 7
-});
-
-// Log API responses
-logger.geminiResponse('Received analysis response', {
-  function: 'analyzeMusic',
-  responseLength: 1250,
-  hasError: false
-});
-```
-
-#### Cloud Logging Filters
-
-Use these filters in Google Cloud Logging Console to analyze specific log types:
-
-```
-# All app logs
-jsonPayload.app_name="music-theory-toolkit"
-
-# Web click interactions only
-jsonPayload.app_name="music-theory-toolkit" AND jsonPayload.interaction_type="web_click"
-
-# Gemini API requests and responses
-jsonPayload.app_name="music-theory-toolkit" AND jsonPayload.interaction_type=("gemini_request" OR "gemini_response")
-
-# Error logs only
-jsonPayload.app_name="music-theory-toolkit" AND severity=ERROR
-
-# Specific component interactions
-jsonPayload.app_name="music-theory-toolkit" AND jsonPayload.component="QuestionDrivenMusicTool"
-```
-
-#### Log Structure
-
-All logs follow this structured format:
-```json
-{
-  "message": "Human-readable description",
-  "severity": "INFO|DEBUG|WARNING|ERROR",
-  "app_name": "music-theory-toolkit",
-  "interaction_type": "web_click|gemini_request|gemini_response|app_init|error",
-  "timestamp": "2024-01-01T12:00:00.000Z",
-  "component": "ComponentName",
-  "action": "specific_action",
-  "additionalData": "..."
-}
-```
-
-## Deployment
-
-### Google Cloud Run Deployment
-
-This application is configured for deployment to Google Cloud Run using Docker containers.
-
-#### Prerequisites
-- Google Cloud SDK installed and configured
-- Docker installed
-- A Google Cloud Project with billing enabled
-- Container Registry API and Cloud Run API enabled
-
-#### Quick Deployment
-
-1. **Set up environment variables:**
-   Create a `.env.prod` file with your production configuration:
-   ```bash
-   PROJECT_ID=your-gcp-project-id
-   VITE_GEMINI_API_KEY=your-gemini-api-key
-   ```
-
-2. **Deploy using the provided script:**
-   ```bash
-   chmod +x deploy.sh
-   ./deploy.sh
-   ```
-
-The deployment script will:
-- Build a Docker image optimized for Cloud Run
-- Push the image to Google Container Registry
-- Store your API key securely in Google Secret Manager
-- Deploy the application to Cloud Run with proper configuration
-- Run non-interactively to prevent hanging on prompts
-
-#### Manual Deployment Steps
-
-If you prefer to deploy manually:
-
-1. **Build and push the Docker image:**
-   ```bash
-   docker build --platform linux/amd64 -t gcr.io/YOUR_PROJECT_ID/music-theory-toolkit .
-   docker push gcr.io/YOUR_PROJECT_ID/music-theory-toolkit
-   ```
-
-2. **Create secret for API key:**
-   ```bash
-   echo "YOUR_GEMINI_API_KEY" | gcloud secrets create gemini-api-key --replication-policy="automatic" --data-file=-
-   ```
-
-3. **Deploy to Cloud Run:**
-   ```bash
-   gcloud run deploy music-theory-toolkit \
-     --image gcr.io/YOUR_PROJECT_ID/music-theory-toolkit \
-     --platform managed \
-     --region us-central1 \
-     --allow-unauthenticated \
-     --port 8080 \
-     --set-secrets GEMINI_API_KEY=gemini-api-key:latest
-   ```
-
-For detailed deployment documentation, see [dev_docs/deployment.md](dev_docs/deployment.md).
+*This documentation structure consolidates the previous dev_docs directory and scattered root-level files into a logical, comprehensive, and maintainable format.*

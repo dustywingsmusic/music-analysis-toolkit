@@ -3,7 +3,6 @@ import { ProcessedScale, DiatonicChord } from '../types';
 import { NOTES } from '../constants/scales';
 import { NOTE_TO_PITCH_CLASS } from '../constants/mappings';
 import { ChordMatch } from './chordLogic';
-import { loadPreferences } from './preferences';
 
 // Interface for key suggestion results
 export interface KeySuggestion {
@@ -161,13 +160,10 @@ export function highlightScale(scaleId: string): void {
   if (highlightScaleCallback) {
     highlightScaleCallback(scaleId);
 
-    // Auto-scroll to the scale if preference is enabled
-    const preferences = loadPreferences();
-    if (preferences.autoScrollToScale) {
-      const element = document.getElementById(scaleId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-      }
+    // Auto-scroll to the scale
+    const element = document.getElementById(scaleId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
     }
 
     // Hide the modal after highlighting
@@ -960,34 +956,31 @@ function renderMelodySuggestions(suggestions: KeySuggestion[], playedPitchClasse
         notesDiv.appendChild(noteSpan);
       });
 
-      // Find matching scales in the scale tables (if scale links are enabled)
-      const preferences = loadPreferences();
-      if (preferences.showScaleLinks) {
-        const matchingScales = allScales.filter(scale => 
-          scale.pitchClasses.size === suggestion.pitchClasses.size &&
-          Array.from(scale.pitchClasses).every(pc => suggestion.pitchClasses.has(pc)) &&
-          Array.from(suggestion.pitchClasses).every(pc => scale.pitchClasses.has(pc))
-        );
+      // Find matching scales in the scale tables
+      const matchingScales = allScales.filter(scale => 
+        scale.pitchClasses.size === suggestion.pitchClasses.size &&
+        Array.from(scale.pitchClasses).every(pc => suggestion.pitchClasses.has(pc)) &&
+        Array.from(suggestion.pitchClasses).every(pc => scale.pitchClasses.has(pc))
+      );
 
-        if (matchingScales.length > 0) {
-          const scaleLinksDiv = document.createElement('div');
-          scaleLinksDiv.className = 'scale-links';
-          scaleLinksDiv.innerHTML = '<small>Click to view in tables:</small>';
+      if (matchingScales.length > 0) {
+        const scaleLinksDiv = document.createElement('div');
+        scaleLinksDiv.className = 'scale-links';
+        scaleLinksDiv.innerHTML = '<small>Click to view in tables:</small>';
 
-          matchingScales.slice(0, 3).forEach((scale, index) => {
-            const linkSpan = document.createElement('span');
-            linkSpan.className = 'scale-link';
-            linkSpan.textContent = scale.name || `Scale ${index + 1}`;
-            linkSpan.onclick = () => highlightScale(scale.id);
-            scaleLinksDiv.appendChild(linkSpan);
+        matchingScales.slice(0, 3).forEach((scale, index) => {
+          const linkSpan = document.createElement('span');
+          linkSpan.className = 'scale-link';
+          linkSpan.textContent = scale.name || `Scale ${index + 1}`;
+          linkSpan.onclick = () => highlightScale(scale.id);
+          scaleLinksDiv.appendChild(linkSpan);
 
-            if (index < Math.min(matchingScales.length - 1, 2)) {
-              scaleLinksDiv.appendChild(document.createTextNode(', '));
-            }
-          });
+          if (index < Math.min(matchingScales.length - 1, 2)) {
+            scaleLinksDiv.appendChild(document.createTextNode(', '));
+          }
+        });
 
-          itemDiv.appendChild(scaleLinksDiv);
-        }
+        itemDiv.appendChild(scaleLinksDiv);
       }
 
       itemDiv.appendChild(header);

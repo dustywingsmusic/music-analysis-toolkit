@@ -10,9 +10,29 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = process.env.PORT || 8080;
 
-// Initialize Cloud Logging
-const logging = new Logging();
-const log = logging.log('music-theory-toolkit');
+// Initialize Cloud Logging conditionally
+let logging = null;
+let log = null;
+let cloudLoggingEnabled = false;
+
+// Only initialize Cloud Logging in production or when credentials are available
+const isProduction = process.env.NODE_ENV === 'production';
+const hasGoogleCloudProject = !!process.env.GOOGLE_CLOUD_PROJECT;
+
+if (isProduction || hasGoogleCloudProject) {
+  try {
+    logging = new Logging();
+    log = logging.log('music-theory-toolkit');
+    cloudLoggingEnabled = true;
+    console.log('Cloud Logging initialized successfully');
+  } catch (error) {
+    console.warn('Failed to initialize Cloud Logging, falling back to console logging:', error.message);
+    cloudLoggingEnabled = false;
+  }
+} else {
+  console.log('Cloud Logging disabled in development environment');
+  cloudLoggingEnabled = false;
+}
 
 // Middleware
 app.use(express.json({ limit: '10mb' }));
@@ -64,27 +84,32 @@ app.post('/api/log', async (req, res) => {
       request_id: `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     };
 
-    // Create Cloud Logging entry
-    const entry = log.entry({
-      resource: { 
-        type: 'cloud_run_revision',
-        labels: {
-          service_name: 'music-theory-toolkit',
-          revision_name: process.env.K_REVISION || 'unknown'
-        }
-      },
-      severity: severity || 'INFO',
-      labels: {
-        app_name: app_name,
-        interaction_type: interaction_type || 'unknown',
-        environment: process.env.NODE_ENV || 'production'
+    // Write to Cloud Logging if available, otherwise just log to console
+    if (cloudLoggingEnabled && log) {
+      try {
+        const entry = log.entry({
+          resource: { 
+            type: 'cloud_run_revision',
+            labels: {
+              service_name: 'music-theory-toolkit',
+              revision_name: process.env.K_REVISION || 'unknown'
+            }
+          },
+          severity: severity || 'INFO',
+          labels: {
+            app_name: app_name,
+            interaction_type: interaction_type || 'unknown',
+            environment: process.env.NODE_ENV || 'production'
+          }
+        }, logData);
+
+        await log.write(entry);
+      } catch (cloudError) {
+        console.warn('Failed to write to Cloud Logging:', cloudError.message);
       }
-    }, logData);
+    }
 
-    // Write to Cloud Logging
-    await log.write(entry);
-
-    // Also log to console for development/debugging
+    // Always log to console for development/debugging
     console.log(`[${severity || 'INFO'}] ${message}`, JSON.stringify(logData, null, 2));
 
     res.status(200).json({ 
@@ -96,22 +121,24 @@ app.post('/api/log', async (req, res) => {
   } catch (error) {
     console.error('Logging error:', error);
 
-    // Log the error to Cloud Logging as well
-    try {
-      const errorEntry = log.entry({
-        resource: { type: 'cloud_run_revision' },
-        severity: 'ERROR'
-      }, {
-        message: 'Server-side logging error',
-        error: error.message,
-        stack: error.stack,
-        timestamp: new Date().toISOString(),
-        app_name: 'music-theory-toolkit',
-        interaction_type: 'error'
-      });
-      await log.write(errorEntry);
-    } catch (loggingError) {
-      console.error('Failed to log error to Cloud Logging:', loggingError);
+    // Log the error to Cloud Logging if available
+    if (cloudLoggingEnabled && log) {
+      try {
+        const errorEntry = log.entry({
+          resource: { type: 'cloud_run_revision' },
+          severity: 'ERROR'
+        }, {
+          message: 'Server-side logging error',
+          error: error.message,
+          stack: error.stack,
+          timestamp: new Date().toISOString(),
+          app_name: 'music-theory-toolkit',
+          interaction_type: 'error'
+        });
+        await log.write(errorEntry);
+      } catch (loggingError) {
+        console.error('Failed to log error to Cloud Logging:', loggingError);
+      }
     }
 
     res.status(500).json({ 
@@ -139,7 +166,11 @@ app.use((error, req, res, next) => {
 app.listen(port, '0.0.0.0', () => {
   console.log(`Music Theory Toolkit server running on port ${port}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'production'}`);
-  console.log(`Cloud Logging initialized for project: ${process.env.GOOGLE_CLOUD_PROJECT || 'default'}`);
+  if (cloudLoggingEnabled) {
+    console.log(`Cloud Logging enabled for project: ${process.env.GOOGLE_CLOUD_PROJECT || 'default'}`);
+  } else {
+    console.log('Cloud Logging disabled - using console logging only');
+  }
 });
 
 // Graceful shutdown

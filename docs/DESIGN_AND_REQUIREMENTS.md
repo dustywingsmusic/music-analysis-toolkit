@@ -1,0 +1,220 @@
+# Music Theory Toolkit - Design & Requirements
+
+> **📋 Consolidated Documentation**: This document consolidates user needs, use cases, and design requirements into a single comprehensive reference.
+
+## Table of Contents
+
+1. [Overview](#overview)
+2. [User Use Cases](#user-use-cases)
+3. [Design Requirements](#design-requirements)
+4. [UI Structure & Navigation](#ui-structure--navigation)
+5. [Feature Status](#feature-status)
+
+## Overview
+
+The Music Theory Toolkit is designed around a question-driven approach where users start with what they want to know. This document defines the core user workflows and translates them into specific design requirements.
+
+### Design Philosophy
+The application follows a user-centric, question-driven interface that directly addresses common music theory use cases:
+- "What mode is this?" → Mode Identification
+- "What modes can I build?" → Mode Discovery  
+- "What chords work together?" → Chords & Harmony
+- "Show me scale references" → Reference Tables
+
+## User Use Cases
+
+The application supports 28 specific use cases organized into 6 main categories:
+
+### 🎼 Mode Identification
+**Purpose**: "I have musical material—what mode is it?"
+**Implementation Status**: ✅ Partially Complete
+**UI Location**: 🎼 Mode Identification Tab
+
+1. **What mode is this melody in?** → 🎼 Mode Identification → **Melody Analysis** ✅ Working
+2. **What mode fits this scale or note collection?** → 🎼 Mode Identification → **Scale Analysis** ✅ Working  
+3. **What modes are possible given these notes and tonic/root?** → 🎼 Mode Identification → **Scale Analysis** ✅ Working
+4. **What mode fits this chord progression?** → 🎼 Mode Identification → **Chord Progression** ✅ Working
+5. **Is this material modal or tonal?** → 🎼 Mode Identification → **Any Analysis Method** ✅ Working
+
+### 🔍 Mode Discovery  
+**Purpose**: "I want to explore or compare modes."
+**Implementation Status**: ✅ UI complete, backend integration pending
+**UI Location**: 🔍 Mode Discovery Tab + 📚 Reference Tab
+
+6. **What modes can I build from this root note?** → 🔍 Mode Discovery → **Build from Root** ✅ Working
+7. **What modes contain these specific notes?** → 🔍 Mode Discovery → **Find by Notes** 🔄 Coming Soon
+8. **What are the modes of the major, melodic minor, or harmonic minor scale?** → 📚 Reference → **Scale Tables** ✅ Working
+9. **What's the difference between Dorian and Aeolian (or any two modes)?** → 🔍 Mode Discovery → **Compare Modes** 🔄 Coming Soon
+10. **What is the parent scale of this mode?** → 🔍 Mode Discovery → **Explore Relationships** 🔄 Coming Soon
+
+### 🎵 Harmony & Chord Usage  
+**Purpose**: "I want to use modes in writing or analyzing chords."
+**Implementation Status**: ✅ Partially Complete - Modal Chord Analysis working
+**UI Location**: 🎵 Harmony Tab + 🎼 Mode Identification Tab
+
+11. **What chords can I use in this mode?** → 🎵 Harmony → **Mode to Chords** 🔄 Coming Soon
+12. **What chords can I substitute for [chord X] in this key or mode?** → 🎵 Harmony → **Chord Analysis** 🔄 Coming Soon
+13. **Which mode works over a specific chord or progression?** → 🎼 Mode Identification → **Chord Progression** ✅ Working
+14. **Can I use modal interchange here? From which modes?** → 🎵 Harmony → **Modal Interchange** 🔄 Coming Soon
+15. **What chords in this progression are modal and what are their modes?** → 🎵 Harmony → **Modal Chord Analysis** ✅ Working
+
+### 🧠 Theory Clarification  
+**Purpose**: "I want to understand how modes work."
+**Implementation Status**: ✅ Partially Complete (Reference materials available)
+**UI Location**: 📚 Reference Tab
+
+16. **What is a mode, and how is it different from a scale or key?** → 📚 Reference → **Quick Reference Cards** ✅ Working
+17. **What are the characteristics or 'color' of each mode?** → 📚 Reference → **Quick Reference Cards** ✅ Working
+18. **How do modes relate to the major, melodic minor, or other scales?** → 📚 Reference → **Scale Tables** ✅ Working
+19. **How do I know when a song is in a mode instead of a key?** → 📚 Reference → **Quick Reference Cards** ✅ Working
+20. **Can two modes use the same notes but have different tonics?** → 📚 Reference → **Scale Tables** ✅ Working
+
+### 🎹 Improvisation & Composition  
+**Purpose**: "I want to use modes creatively."
+**Implementation Status**: ✅ Partially Complete (Analysis tools + Reference materials available)
+**UI Location**: 📚 Reference Tab + 🎼 Mode Identification Tab + 🎵 Harmony Tab
+
+21. **Which mode should I use to write a darker or brighter melody?** → 📚 Reference → **Quick Reference Cards** ✅ Working
+22. **What mode should I use to solo over this chord progression?** → 🎼 Mode Identification → **Chord Progression** ✅ Working
+23. **How do I use modes in jazz, rock, metal, etc.?** → 📚 Reference → **Quick Reference Cards** ✅ Working
+24. **How do modes change the feel of a melody or harmony?** → 📚 Reference → **MIDI Playback** ✅ Working
+
+### 🧩 Edge Cases & Advanced Topics  
+**Purpose**: "I'm analyzing unusual modal material."
+**Implementation Status**: ✅ Partially Complete (Can be analyzed using existing tools)
+**UI Location**: 🎼 Mode Identification Tab + 📚 Reference Tab
+
+25. **What mode is this if it contains both a ♭6 and a natural 7?** → 🎼 Mode Identification → **Scale Analysis** ✅ Working
+26. **How do enharmonic spellings affect modal interpretation?** → 🎼 Mode Identification → **Any Analysis Method** ✅ Working
+27. **How do I recognize modal modulation in a piece of music?** → 🎼 Mode Identification → **Melody Analysis** ✅ Working
+28. **Is this mode derived from major, melodic minor, harmonic minor, or another system?** → 📚 Reference → **Scale Tables** ✅ Working
+
+## Design Requirements
+
+### Question-Driven Navigation Structure
+
+The application implements a 4-tab navigation structure that maps directly to user questions:
+
+#### Tab Structure
+1. **🎼 Mode Identification** - "What mode is this?"
+2. **🔍 Mode Discovery** - "What modes can I explore?"
+3. **🎵 Harmony** - "How do modes work with chords?"
+4. **📚 Reference** - "Show me mode information"
+
+### Enhanced Interaction Patterns
+
+#### Seamless Analysis-to-Reference Flow
+- Analysis results include "View in Tables" buttons for instant reference navigation
+- Context preservation maintains analysis state when switching to reference tab
+- Reference tab automatically highlights relevant scales/modes
+- Breadcrumb navigation provides clear path back to original analysis
+
+#### Live Reference Updates During Analysis
+- Real-time reference panel updates as user types input
+- Side panel shows relevant scales during melody/chord input
+- Hover previews provide instant scale information
+- Smooth transitions between contextual suggestions
+
+#### Bidirectional Reference-to-Analysis Flow
+- Reference tables include "Analyze This Mode" buttons
+- Clicking pre-fills analysis forms with scale data
+- Automatic tab switching with preserved context
+- Results automatically link back to original reference
+
+## UI Structure & Navigation
+
+### 🎼 Mode Identification Tab
+**Purpose**: "I have musical material—what mode is it?"
+
+| Method | UI Location | Status | Use Cases Addressed |
+|--------|-------------|--------|-------------------|
+| **Melody Analysis** | Mode Identification → Melody Analysis | ✅ Working | UC1: What mode is this melody? |
+| **Scale Analysis** | Mode Identification → Scale Analysis | ✅ Working | UC2: What mode fits this scale/note collection? |
+| **Chord Progression** | Mode Identification → Chord Progression | ✅ Working | UC4: What mode fits this progression? |
+| **Audio Analysis** | Mode Identification → Audio Analysis | 🔄 Coming Soon | UC1: Audio-based mode identification |
+
+### 🔍 Mode Discovery Tab  
+**Purpose**: "I want to explore or compare modes."
+
+| Method | UI Location | Status | Use Cases Addressed |
+|--------|-------------|--------|-------------------|
+| **Build from Root** | Mode Discovery → Build from Root → Two-Stage Flow | ✅ Working Two-Stage Flow | UC6: What modes can I build from this root? |
+| **Find by Notes** | Mode Discovery → Find by Notes | 🔄 Coming Soon | UC7: What modes contain these specific notes? |
+| **Compare Modes** | Mode Discovery → Compare Modes | 🔄 Coming Soon | UC9: What's the difference between two modes? |
+| **Explore Relationships** | Mode Discovery → Explore Relationships | 🔄 Coming Soon | UC8, UC10: Parent scales and mode relationships |
+
+#### Build from Root Two-Stage Flow Design
+
+**Stage 1: Immediate Results Layout**
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Mode Discovery Tab                                          │
+├─────────────────────────────────────────────────────────────┤
+│ Build from Root Method                                      │
+│                                                             │
+│ Root Note Selector:                                         │
+│ [C] [C#] [D] [D#] [E] [F] [F#] [G] [G#] [A] [A#] [B]      │
+│                                                             │
+│ ↓ Immediate Results (appears below when note clicked)       │
+│                                                             │
+│ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
+│ │ C Ionian    │ │ C Dorian    │ │ C Phrygian  │           │
+│ │ 1 2 3 4 5 6 7│ │ 1 2 ♭3 4 5 6│ │ 1 ♭2 ♭3 4 5│           │
+│ │ C D E F G A B│ │ C D E♭ F G A│ │ C D♭ E♭ F G│           │
+│ │ Bright, happy│ │ Minor w/ 6th│ │ Dark, exotic│           │
+│ │[Deeper Analysis]│[Deeper Analysis]│[Deeper Analysis]│     │
+│ └─────────────┘ └─────────────┘ └─────────────┘           │
+│                                                             │
+│ [Show More Modes...] [Filter by Scale Family ▼]            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Stage 2: Deeper Analysis Trigger**
+- User clicks "Deeper Analysis" button on any mode card
+- Unified Results Panel opens with comprehensive analysis
+- AI-powered song examples and detailed mode information
+- Rich analysis capabilities preserved from current implementation
+
+### 🎵 Harmony Tab
+**Purpose**: "I want to use modes in writing or analyzing chords."
+
+| Method | UI Location | Status | Use Cases Addressed |
+|--------|-------------|--------|-------------------|
+| **Chord Analysis** | Harmony → Chord Analysis | 🔄 Coming Soon | UC11: Individual chord analysis |
+| **Mode to Chords** | Harmony → Mode to Chords | 🔄 Coming Soon | UC11: What chords can I use in this mode? |
+| **Modal Interchange** | Harmony → Modal Interchange | 🔄 Coming Soon | UC14: Can I use modal interchange here? |
+| **Modal Chord Analysis** | Harmony → Modal Chord Analysis | ✅ Working | UC15: What chords are modal in this progression? |
+
+### 📚 Reference Tab
+**Purpose**: "I want to understand modes and access reference materials."
+
+| Feature | UI Location | Status | Use Cases Addressed |
+|---------|-------------|--------|-------------------|
+| **Quick Reference Cards** | Reference → Quick Reference | ✅ Working | UC16-20: Mode characteristics and theory |
+| **Interactive Scale Tables** | Reference → Scale Tables | ✅ Working | UC8, UC10, UC16-20: Mode relationships and theory |
+| **Search & Filter** | Reference → Search/Filter | ✅ Working | UC16-20: Finding specific modes and scales |
+| **MIDI Playback** | Reference → Scale Tables | ✅ Working | UC21-24: Hearing mode characteristics |
+
+## Feature Status
+
+### Completed Features ✅
+- **Mode Identification**: Melody, Scale, and Chord Progression analysis
+- **Mode Discovery**: Build from Root with Two-Stage Flow
+- **Reference Materials**: Quick Reference Cards, Interactive Scale Tables, MIDI Playback
+- **Modal Chord Analysis**: Working chord progression analysis
+- **Enhanced UI**: Question-driven navigation with 4-tab structure
+
+### In Development 🔄
+- **Audio Analysis**: MIDI and audio input for mode identification
+- **Advanced Mode Discovery**: Find by Notes, Compare Modes, Explore Relationships
+- **Harmony Tools**: Mode to Chords, Chord Analysis, Modal Interchange
+
+### Future Enhancements 🔮
+- **Advanced Analysis**: Multi-modal comparison workflows
+- **Enhanced Integration**: Seamless cross-tab workflows
+- **Extended Reference**: Expanded scale families and exotic modes
+- **Composition Tools**: Mode-based composition assistance
+
+---
+
+*This document consolidates information from the original design_use_cases.md and design_requirements.md files to provide a comprehensive view of user needs and design specifications.*

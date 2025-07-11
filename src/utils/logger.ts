@@ -1,4 +1,5 @@
 // logger.ts - Enhanced logging utility with server-side Cloud Logging integration
+//             Ultimately, would be best stored in an app-specific way, but for now, this will do.
 interface LogEntry {
   message: string;
   severity?: 'DEBUG' | 'INFO' | 'NOTICE' | 'WARNING' | 'ERROR' | 'CRITICAL' | 'ALERT' | 'EMERGENCY';

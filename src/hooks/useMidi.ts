@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { MidiDevice, NotePlayed } from '../types';
-import { loadPreferences } from '../services/preferences';
 
 declare const WebMidi: any;
 
@@ -80,7 +79,7 @@ export const useMidi = (
         });
 
         setChordDetectionTimeout(null);
-      }, loadPreferences().chordDetectionTimeout); // Configurable timeout from preferences
+      }, 200); // Default chord detection timeout (200ms)
 
       setChordDetectionTimeout(timeout);
     } else {

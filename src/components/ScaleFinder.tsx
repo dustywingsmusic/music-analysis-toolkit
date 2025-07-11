@@ -3,7 +3,6 @@ import { useMidi } from '../hooks/useMidi';
 import { allScaleData, NOTES } from '../constants/scales';
 import { ProcessedScale } from '../types';
 import ScaleTable from './ScaleTable';
-import PreferencesPanel from './PreferencesPanel';
 import * as keySuggester from '../services/keySuggester';
 import { findChordMatches } from '../services/chordLogic';
 
@@ -18,15 +17,13 @@ interface ScaleFinderProps {
   embedded?: boolean;
   showDebugInfo?: boolean;
   onShowUnifiedResults?: (results: any, historyId?: string) => void;
-  onAddToHistory?: (method: string, data: any, results: any, tab?: string, userInputs?: any) => string;
 }
 
 const ScaleFinder: React.FC<ScaleFinderProps> = ({ 
   initialHighlightId, 
   embedded = false, 
   showDebugInfo = false, 
-  onShowUnifiedResults, 
-  onAddToHistory 
+  onShowUnifiedResults
 }) => {
   const [baseKey, setBaseKey] = useState<string>("C");
   const [keyMode, setKeyMode] = useState<'major' | 'minor'>('major');
@@ -34,7 +31,6 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({
   const [midiHighlightedCellId, setMidiHighlightedCellId] = useState<string | null>(null);
   const [hoveredCell, setHoveredCell] = useState<string | null>(null);
   const [hoveredNote, setHoveredNote] = useState<string | null>(null);
-  const [showPreferences, setShowPreferences] = useState<boolean>(false);
   const keySuggesterInitialized = useRef<boolean>(false);
 
   // Debug state
@@ -181,7 +177,7 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({
 
   // Callback for melody mode
   const handleMelodyUpdate = useCallback((pitchClasses: Set<number>) => {
-    if (onShowUnifiedResults && onAddToHistory && pitchClasses.size > 0) {
+    if (onShowUnifiedResults && pitchClasses.size > 0) {
       // Generate key suggestions using the same logic as keySuggester
       const suggestions = generateKeySuggestions(pitchClasses);
 
@@ -197,23 +193,13 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({
         }
       };
 
-      // Add to history and show in unified results
-      const historyId = onAddToHistory(
-        'melody', 
-        { 
-          pitchClasses: Array.from(pitchClasses),
-          notes: Array.from(pitchClasses).map(pc => NOTES[pc]).join(', ')
-        }, 
-        results,
-        'reference'
-      );
-
-      onShowUnifiedResults(results, historyId);
+      // Show in unified results
+      onShowUnifiedResults(results);
     } else {
       // Fallback to original modal approach if unified results not available
       keySuggester.updateMelodySuggestions(pitchClasses);
     }
-  }, [onShowUnifiedResults, onAddToHistory, processedScales]);
+  }, [onShowUnifiedResults, processedScales]);
 
   const { 
     status, 
@@ -617,13 +603,6 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({
               <button onClick={handleClearAll} className="btn btn--secondary btn--sm">
                   Clear
               </button>
-              <button 
-                onClick={() => setShowPreferences(true)} 
-                className="btn btn--secondary btn--sm"
-                title="Open preferences"
-              >
-                  ⚙️ Settings
-              </button>
             </div>
         </div>
       </div>
@@ -646,11 +625,6 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({
         ))}
       </div>
 
-      {/* Preferences Panel */}
-      <PreferencesPanel 
-        isOpen={showPreferences}
-        onClose={() => setShowPreferences(false)}
-      />
     </div>
   );
 };
