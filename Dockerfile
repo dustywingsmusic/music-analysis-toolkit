@@ -8,10 +8,31 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
+FROM node:18-alpine
+WORKDIR /app
+
+# Copy built application
+COPY --from=builder /app/dist ./dist
+
+# Copy server files
+COPY server ./server
+COPY package*.json ./
+
+# Install production dependencies
+RUN npm install --production
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nodejs -u 1001
+
+# Change ownership of the app directory
+RUN chown -R nodejs:nodejs /app
+USER nodejs
+
 EXPOSE 8080
-CMD ["/docker-entrypoint.sh"]
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:8080/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+
+CMD ["node", "server/index.js"]

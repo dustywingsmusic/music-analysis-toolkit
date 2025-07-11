@@ -3,7 +3,6 @@ import { ProcessedScale, DiatonicChord } from '../types';
 import { NOTES } from '../constants/scales';
 import { NOTE_TO_PITCH_CLASS } from '../constants/mappings';
 import { ChordMatch } from './chordLogic';
-import { loadPreferences } from './preferences';
 
 // Interface for key suggestion results
 export interface KeySuggestion {
@@ -161,13 +160,10 @@ export function highlightScale(scaleId: string): void {
   if (highlightScaleCallback) {
     highlightScaleCallback(scaleId);
 
-    // Auto-scroll to the scale if preference is enabled
-    const preferences = loadPreferences();
-    if (preferences.autoScrollToScale) {
-      const element = document.getElementById(scaleId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-      }
+    // Auto-scroll to the scale
+    const element = document.getElementById(scaleId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
     }
 
     // Hide the modal after highlighting
@@ -212,6 +208,7 @@ function showModal(overlay: HTMLElement): void {
 
   console.log('Modal shown:', overlay.id || 'unnamed overlay');
 }
+
 
 /**
  * Clears the current chord sequence and key analysis.
@@ -930,32 +927,36 @@ function renderMelodySuggestions(suggestions: KeySuggestion[], playedPitchClasse
   // Add title
   const title = document.createElement('h3');
   title.id = 'melody-suggestions-dialog';
-  title.textContent = 'Key Suggestions';
+  title.textContent = 'Key Suggestions - Melody Mode';
   melodyOverlayElement.appendChild(title);
 
-  // Add suggestions
-  suggestions.forEach(suggestion => {
-    const itemDiv = document.createElement('div');
-    itemDiv.className = 'suggestion-item clickable-suggestion';
+  if (suggestions.length === 0) {
+    const noSuggestionsDiv = document.createElement('div');
+    noSuggestionsDiv.className = 'no-suggestions';
+    noSuggestionsDiv.textContent = 'No key suggestions available for the current melody.';
+    melodyOverlayElement.appendChild(noSuggestionsDiv);
+  } else {
+    // Add suggestions
+    suggestions.forEach(suggestion => {
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'suggestion-item clickable-suggestion';
 
-    const header = document.createElement('div');
-    header.className = 'suggestion-header';
-    header.textContent = `${suggestion.name} (${suggestion.matchCount}/${playedPitchClasses.size} match)`;
+      const header = document.createElement('div');
+      header.className = 'suggestion-header';
+      header.textContent = `${suggestion.name} (${suggestion.matchCount}/${playedPitchClasses.size} match)`;
 
-    const notesDiv = document.createElement('div');
-    notesDiv.className = 'suggestion-notes';
+      const notesDiv = document.createElement('div');
+      notesDiv.className = 'suggestion-notes';
 
-    const sortedPitches = Array.from(suggestion.pitchClasses).sort((a, b) => a - b);
-    sortedPitches.forEach((pitch, index) => {
-      const noteSpan = document.createElement('span');
-      noteSpan.textContent = NOTES[pitch] + (index < sortedPitches.length - 1 ? ', ' : '');
-      noteSpan.className = playedPitchClasses.has(pitch) ? 'played' : 'not-played';
-      notesDiv.appendChild(noteSpan);
-    });
+      const sortedPitches = Array.from(suggestion.pitchClasses).sort((a, b) => a - b);
+      sortedPitches.forEach((pitch, index) => {
+        const noteSpan = document.createElement('span');
+        noteSpan.textContent = NOTES[pitch] + (index < sortedPitches.length - 1 ? ', ' : '');
+        noteSpan.className = playedPitchClasses.has(pitch) ? 'played' : 'not-played';
+        notesDiv.appendChild(noteSpan);
+      });
 
-    // Find matching scales in the scale tables (if scale links are enabled)
-    const preferences = loadPreferences();
-    if (preferences.showScaleLinks) {
+      // Find matching scales in the scale tables
       const matchingScales = allScales.filter(scale => 
         scale.pitchClasses.size === suggestion.pitchClasses.size &&
         Array.from(scale.pitchClasses).every(pc => suggestion.pitchClasses.has(pc)) &&
@@ -981,14 +982,12 @@ function renderMelodySuggestions(suggestions: KeySuggestion[], playedPitchClasse
 
         itemDiv.appendChild(scaleLinksDiv);
       }
-    }
 
-    itemDiv.appendChild(header);
-    itemDiv.appendChild(notesDiv);
-    if (melodyOverlayElement) {
+      itemDiv.appendChild(header);
+      itemDiv.appendChild(notesDiv);
       melodyOverlayElement.appendChild(itemDiv);
-    }
-  });
+    });
+  }
 
   console.log('Setting melodyOverlayElement display to block');
   showModal(melodyOverlayElement);

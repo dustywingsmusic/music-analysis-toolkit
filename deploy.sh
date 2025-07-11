@@ -22,6 +22,19 @@ if [ -z "$VITE_GEMINI_API_KEY" ]; then
   exit 1
 fi
 
+# --- Enable required APIs ---
+echo "Enabling Cloud Run and Cloud Logging APIs..."
+gcloud services enable run.googleapis.com \
+                       logging.googleapis.com \
+                       cloudresourcemanager.googleapis.com \
+                       --project="$PROJECT_ID"
+echo "APIs enabled."
+
+# --- Server-Side Cloud Logging Setup ---
+# The application now uses server-side logging with service account authentication.
+# Cloud Run automatically provides service account credentials for Cloud Logging.
+echo "Using server-side Cloud Logging with service account authentication"
+
 echo "Building Docker image..."
 # Build and tag the image
 docker build --platform linux/amd64 -t gcr.io/"$PROJECT_ID"/music-theory-toolkit .
@@ -41,7 +54,7 @@ else
 fi
 
 echo "Deploying to Cloud Run..."
-# Deploy with secret
+# Deploy with server-side logging support
 gcloud run deploy music-theory-toolkit \
   --image gcr.io/"$PROJECT_ID"/music-theory-toolkit \
   --platform managed \
@@ -49,6 +62,11 @@ gcloud run deploy music-theory-toolkit \
   --allow-unauthenticated \
   --port 8080 \
   --set-secrets GEMINI_API_KEY=gemini-api-key:latest \
+  --set-env-vars GOOGLE_CLOUD_PROJECT="$PROJECT_ID",NODE_ENV=production \
+  --memory 1Gi \
+  --cpu 1 \
+  --max-instances 10 \
+  --timeout 300 \
   --project="$PROJECT_ID" \
   --quiet
 

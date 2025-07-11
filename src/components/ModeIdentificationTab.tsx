@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { logger } from '../utils/logger';
 
 export type IdentificationMethod = 'melody' | 'scale' | 'progression' | 'audio';
 
@@ -91,7 +92,6 @@ const ModeIdentificationTab: React.FC<ModeIdentificationTabProps> = ({
     const slashChordPattern = /^[A-G][#b]?(maj|min|m|M|\+|dim|aug|sus|add)?[0-9]*\/[A-G][#b]?$/;
 
     let chordCount = 0;
-    let noteCount = 0;
     let ambiguousCount = 0; // Simple letter names that could be either notes or chords
 
     tokens.forEach(token => {
@@ -203,6 +203,15 @@ const ModeIdentificationTab: React.FC<ModeIdentificationTabProps> = ({
   }, [activeMethod, melodyNotes, scaleNotes, progression]);
 
   const handleMethodSwitch = (suggestedMethod: IdentificationMethod) => {
+    // Log method switching from validation suggestions
+    logger.webClick('User switched identification method via validation suggestion', {
+      component: 'ModeIdentificationTab',
+      action: 'method_switch_validation',
+      previousMethod: activeMethod,
+      newMethod: suggestedMethod,
+      trigger: 'validation_suggestion'
+    });
+
     setActiveMethod(suggestedMethod);
     setValidationResult(null); // Clear validation when switching
   };
@@ -349,7 +358,20 @@ const ModeIdentificationTab: React.FC<ModeIdentificationTabProps> = ({
           {methods.map((method) => (
             <button
               key={method.id}
-              onClick={() => setActiveMethod(method.id)}
+              onClick={() => {
+                // Log method switching from direct selection
+                if (method.id !== activeMethod) {
+                  logger.webClick('User switched identification method via direct selection', {
+                    component: 'ModeIdentificationTab',
+                    action: 'method_switch_direct',
+                    previousMethod: activeMethod,
+                    newMethod: method.id,
+                    trigger: 'method_card_click',
+                    methodLabel: method.label
+                  });
+                }
+                setActiveMethod(method.id);
+              }}
               className={`method-selector__card ${
                 activeMethod === method.id ? 'method-selector__card--active' : ''
               }`}
