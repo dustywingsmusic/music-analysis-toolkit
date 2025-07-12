@@ -87,6 +87,9 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
     setMode: setMidiMode,
     clearPlayedNotes: clearMidiPlayedNotes,
     error: midiError,
+    enabled: midiEnabled,
+    enableMidi,
+    disableMidi,
   } = useMidi(handleChordDetected, handleMelodyUpdate);
 
   // App initialization logging
@@ -896,6 +899,9 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
               selectedDevice={midiSelectedDevice}
               setSelectedDevice={setMidiSelectedDevice}
               error={midiError}
+              enabled={midiEnabled}
+              enableMidi={enableMidi}
+              disableMidi={disableMidi}
             />
             {showDebugInfo && (
               <button 

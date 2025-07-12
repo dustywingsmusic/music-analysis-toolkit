@@ -8,6 +8,9 @@ interface MidiSettingsPanelProps {
   setSelectedDevice?: (deviceId: string) => void;
   error?: string | null;
   className?: string;
+  enabled?: boolean;
+  enableMidi?: () => void;
+  disableMidi?: () => void;
 }
 
 const MidiSettingsPanel: React.FC<MidiSettingsPanelProps> = ({
@@ -16,18 +19,23 @@ const MidiSettingsPanel: React.FC<MidiSettingsPanelProps> = ({
   selectedDevice = null,
   setSelectedDevice = () => {},
   error = null,
-  className = ''
+  className = '',
+  enabled = true,
+  enableMidi = () => {},
+  disableMidi = () => {}
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [midiEnabled, setMidiEnabled] = useState(true);
 
   const togglePanel = () => {
     setIsExpanded(!isExpanded);
   };
 
   const handleMidiToggle = () => {
-    setMidiEnabled(!midiEnabled);
-    // TODO: Implement actual MIDI enable/disable logic
+    if (enabled) {
+      disableMidi();
+    } else {
+      enableMidi();
+    }
   };
 
   return (
@@ -75,19 +83,19 @@ const MidiSettingsPanel: React.FC<MidiSettingsPanelProps> = ({
                   <input
                     id="midi-enabled"
                     type="checkbox"
-                    checked={midiEnabled}
+                    checked={enabled}
                     onChange={handleMidiToggle}
                     className="sr-only"
                   />
-                  <div className={`w-11 h-6 rounded-full transition-colors ${midiEnabled ? 'bg-cyan-600' : 'bg-slate-600'}`}>
-                    <div className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${midiEnabled ? 'translate-x-5' : 'translate-x-0'} mt-0.5 ml-0.5`}></div>
+                  <div className={`w-11 h-6 rounded-full transition-colors ${enabled ? 'bg-cyan-600' : 'bg-slate-600'}`}>
+                    <div className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${enabled ? 'translate-x-5' : 'translate-x-0'} mt-0.5 ml-0.5`}></div>
                   </div>
                 </label>
               </div>
             </div>
 
             {/* Device Selection */}
-            {midiEnabled && devices.length > 0 && (
+            {enabled && devices.length > 0 && (
               <div className="mb-4">
                 <label htmlFor="midi-device-universal" className="block text-xs font-medium mb-1">
                   MIDI Input Device
