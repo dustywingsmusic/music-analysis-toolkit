@@ -39,6 +39,14 @@ export const useMidi = (
         octave: e.note.octave 
     };
 
+    console.log('MIDI key pressed:', {
+      noteNumber,
+      noteName: e.note.name,
+      pitchClass,
+      mode,
+      octave: e.note.octave
+    });
+
     if (mode === 'chord') {
       // Clear any pending timeout to extend the chord entry window
       if (chordDetectionTimeout) {
@@ -98,13 +106,16 @@ export const useMidi = (
         if (mode === 'melody' && onMelodyUpdate) {
           // We need to create a new set with the updated pitch class
           const updatedSet = new Set(newSet);
+          console.log('Calling onMelodyUpdate with pitch classes:', Array.from(updatedSet));
           onMelodyUpdate(updatedSet);
+        } else if (mode === 'melody') {
+          console.log('Melody mode but no onMelodyUpdate callback provided');
         }
 
         return newSet;
       });
     }
-  }, [mode, chordDetectionTimeout]);
+  }, [mode, chordDetectionTimeout, onChordDetected, onMelodyUpdate]);
 
   const clearPlayedNotes = useCallback(() => {
     setPlayedNotes([]);

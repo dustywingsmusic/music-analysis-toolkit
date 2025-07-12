@@ -1,33 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import ScaleFinder from './ScaleFinder';
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import MidiDetectionPanel from './MidiDetectionPanel';
 
 interface ReferenceTabProps {
   highlightId?: string | null;
   showDebugInfo?: boolean;
   onShowUnifiedResults?: (results: any, historyId?: string) => void;
+  midiData?: {
+    playedNotes: any[];
+    playedPitchClasses: Set<number>;
+    mode: '7' | '5' | 'melody' | 'chord';
+    setMode: (mode: '7' | '5' | 'melody' | 'chord') => void;
+    clearPlayedNotes: () => void;
+  };
 }
 
 const ReferenceTab: React.FC<ReferenceTabProps> = ({ 
   highlightId, 
   showDebugInfo = false, 
-  onShowUnifiedResults
+  onShowUnifiedResults,
+  midiData
 }) => {
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [midiHighlightId, setMidiHighlightId] = useState<string | null>(null);
 
-  const categories = [
-    { id: 'all', label: 'All Scales & Modes' },
-    { id: 'major', label: 'Major Scale Modes' },
-    { id: 'minor', label: 'Minor Scale Modes' },
-    { id: 'harmonic', label: 'Harmonic Minor Modes' },
-    { id: 'melodic', label: 'Melodic Minor Modes' },
-    { id: 'pentatonic', label: 'Pentatonic Scales' },
-    { id: 'blues', label: 'Blues Scales' },
-    { id: 'exotic', label: 'Exotic Scales' },
-  ];
+
+  // Callback to handle scale highlighting from MIDI detection
+  const handleScaleHighlight = useCallback((scaleId: string | null) => {
+    setMidiHighlightId(scaleId);
+  }, []);
+
+  // Effect to handle melody mode updates
+  useEffect(() => {
+    console.log('🎵 ReferenceTab melody effect triggered:', {
+      mode: midiData?.mode,
+      pitchClassesSize: midiData?.playedPitchClasses?.size || 0,
+      pitchClasses: midiData?.playedPitchClasses ? Array.from(midiData.playedPitchClasses) : []
+    });
+
+    if (midiData?.mode === 'melody' && midiData?.playedPitchClasses && midiData.playedPitchClasses.size > 0) {
+      console.log('🎭 ReferenceTab calling keySuggester.updateMelodySuggestions with:', Array.from(midiData.playedPitchClasses));
+
+      // Import keySuggester dynamically to avoid circular dependencies
+      import('../services/keySuggester').then(keySuggester => {
+        console.log('🚀 keySuggester imported successfully in ReferenceTab');
+        keySuggester.updateMelodySuggestions(midiData.playedPitchClasses);
+      }).catch(error => {
+        console.error('❌ Failed to import keySuggester in ReferenceTab:', error);
+      });
+    }
+  }, [midiData?.mode, midiData?.playedPitchClasses]);
 
   const quickReference = [
     {
@@ -39,7 +60,7 @@ const ReferenceTab: React.FC<ReferenceTabProps> = ({
         { name: 'Lydian', formula: '1 2 3 #4 5 6 7', character: 'Dreamy, floating' },
         { name: 'Mixolydian', formula: '1 2 3 4 5 6 ♭7', character: 'Dominant, bluesy' },
         { name: 'Aeolian (Natural Minor)', formula: '1 2 ♭3 4 5 ♭6 ♭7', character: 'Sad, melancholic' },
-        { name: 'Locrian', formula: '1 ♭2 ♭3 4 ♭5 ♭6 ♭7', character: 'Unstable, diminished' },
+        { name: 'Locrian', formula: '1 ♭2 ♭3 4 ♭5 ♭6 ♭7', character: 'Unstable, diminished, tritone' },
       ]
     },
     {
@@ -63,38 +84,12 @@ const ReferenceTab: React.FC<ReferenceTabProps> = ({
         </p>
       </div>
 
-      <div className="reference-controls">
-        <div className="search-section">
-          <div className="space-y-2">
-            <Label htmlFor="search-scales">Search scales and modes:</Label>
-            <Input
-              id="search-scales"
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by name, notes, or characteristics..."
-            />
-          </div>
-        </div>
+      {/* Always-visible MIDI Detection Panel */}
+      <MidiDetectionPanel 
+        onScaleHighlight={handleScaleHighlight}
+        midiData={midiData}
+      />
 
-        <div className="filter-section">
-          <div className="space-y-2">
-            <Label htmlFor="filter-category">Filter by category:</Label>
-            <Select value={filterCategory} onValueChange={setFilterCategory}>
-              <SelectTrigger id="filter-category">
-                <SelectValue placeholder="Filter by category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </div>
 
       <div className="reference-content">
         <div className="quick-reference">
@@ -124,10 +119,13 @@ const ReferenceTab: React.FC<ReferenceTabProps> = ({
 
           <div className="scale-finder-container">
             <ScaleFinder 
-              initialHighlightId={highlightId || null}
+              initialHighlightId={midiHighlightId || highlightId || null}
               embedded={true}
               showDebugInfo={showDebugInfo}
               onShowUnifiedResults={onShowUnifiedResults}
+              playedNotes={midiData?.playedNotes || []}
+              playedPitchClasses={midiData?.playedPitchClasses || new Set()}
+              midiMode={midiData?.mode || '7'}
             />
           </div>
         </div>

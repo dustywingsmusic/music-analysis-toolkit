@@ -26,6 +26,8 @@ import {generateHighlightId as generateHighlightIdFromMappings, getScaleFamilyFr
 import MappingDebugger from './MappingDebugger';
 import {useUnifiedResults} from "@/hooks/useUnifiedResults.ts";
 import UnifiedResultsPanel from "@/components/UnifiedResultsPanel.tsx";
+import MidiSettingsPanel from './MidiSettingsPanel';
+import {useMidi} from '../hooks/useMidi';
 import {logger} from '../utils/logger';
 
 interface QuestionDrivenMusicToolProps {
@@ -62,6 +64,30 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
 
   // Loading state for async operations
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // MIDI functionality - centralized at top level
+  const handleChordDetected = useCallback((noteNumbers: number[]) => {
+    // This could be used for chord analysis if needed
+    console.log('Chord detected:', noteNumbers);
+  }, []);
+
+  const handleMelodyUpdate = useCallback((pitchClasses: Set<number>) => {
+    // Melody updates are handled by individual components (e.g., ReferenceTab)
+    // This is just a placeholder for potential future global melody analysis
+  }, []);
+
+  const {
+    status: midiStatus,
+    devices: midiDevices,
+    selectedDevice: midiSelectedDevice,
+    setSelectedDevice: setMidiSelectedDevice,
+    playedNotes: midiPlayedNotes,
+    playedPitchClasses: midiPlayedPitchClasses,
+    mode: midiMode,
+    setMode: setMidiMode,
+    clearPlayedNotes: clearMidiPlayedNotes,
+    error: midiError,
+  } = useMidi(handleChordDetected, handleMelodyUpdate);
 
   // App initialization logging
   useEffect(() => {
@@ -825,6 +851,18 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
             highlightId={highlightIdForReference}
             showDebugInfo={showDebugInfo}
             onShowUnifiedResults={showUnifiedResults}
+            midiData={{
+              status: midiStatus,
+              devices: midiDevices,
+              selectedDevice: midiSelectedDevice,
+              setSelectedDevice: setMidiSelectedDevice,
+              playedNotes: midiPlayedNotes,
+              playedPitchClasses: midiPlayedPitchClasses,
+              mode: midiMode,
+              setMode: setMidiMode,
+              clearPlayedNotes: clearMidiPlayedNotes,
+              error: midiError,
+            }}
           />
         );
 
@@ -846,11 +884,18 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
             <h1 className="text-2xl font-bold text-foreground">Music Theory Toolkit</h1>
           </div>
 
-          {/* Right: Navigation */}
-          <div className="flex items-center">
+          {/* Right: Navigation & MIDI Settings */}
+          <div className="flex items-center gap-4">
             <NavigationTabs 
               activeTab={activeTab}
               onTabChange={handleTabChange}
+            />
+            <MidiSettingsPanel 
+              status={midiStatus}
+              devices={midiDevices}
+              selectedDevice={midiSelectedDevice}
+              setSelectedDevice={setMidiSelectedDevice}
+              error={midiError}
             />
             {showDebugInfo && (
               <button 

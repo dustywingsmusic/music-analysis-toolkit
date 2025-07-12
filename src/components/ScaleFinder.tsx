@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useMidi } from '../hooks/useMidi';
 import { allScaleData, NOTES } from '../constants/scales';
 import { ProcessedScale } from '../types';
 import ScaleTable from './ScaleTable';
@@ -17,16 +16,20 @@ interface ScaleFinderProps {
   embedded?: boolean;
   showDebugInfo?: boolean;
   onShowUnifiedResults?: (results: any, historyId?: string) => void;
+  playedNotes?: any[];
+  playedPitchClasses?: Set<number>;
+  midiMode?: '7' | '5' | 'melody' | 'chord';
 }
 
 const ScaleFinder: React.FC<ScaleFinderProps> = ({ 
   initialHighlightId, 
   embedded = false, 
   showDebugInfo = false, 
-  onShowUnifiedResults
+  onShowUnifiedResults,
+  playedNotes = [],
+  playedPitchClasses = new Set(),
+  midiMode = '7'
 }) => {
-  const [baseKey, setBaseKey] = useState<string>("C");
-  const [keyMode, setKeyMode] = useState<'major' | 'minor'>('major');
   const [processedScales, setProcessedScales] = useState<ProcessedScale[]>([]);
   const [midiHighlightedCellId, setMidiHighlightedCellId] = useState<string | null>(null);
   const [hoveredCell, setHoveredCell] = useState<string | null>(null);
@@ -168,59 +171,47 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({
   }, [processedScales]);
 
   // Callback for chord detection
-  const handleChordDetected = useCallback((noteNumbers: number[]) => {
+  useCallback((noteNumbers: number[]) => {
     const detectedChords = findChordMatches(noteNumbers);
     if (detectedChords.length > 0) {
-      keySuggester.updateChordSuggestions(detectedChords, baseKey, keyMode);
+      // Use default values since baseKey and keyMode are now managed by MidiSettingsPanel
+      keySuggester.updateChordSuggestions(detectedChords, 'C', 'major');
     }
-  }, [baseKey, keyMode]);
-
-  // Callback for melody mode
-  const handleMelodyUpdate = useCallback((pitchClasses: Set<number>) => {
-    if (onShowUnifiedResults && pitchClasses.size > 0) {
-      // Generate key suggestions using the same logic as keySuggester
-      const suggestions = generateKeySuggestions(pitchClasses);
-
-      // Create results object for unified results system
-      const results = {
-        method: 'melody',
-        loading: false,
-        error: null,
-        localAnalysis: {
-          suggestions: suggestions,
-          playedNotes: Array.from(pitchClasses).map(pc => NOTES[pc]).join(', '),
-          totalNotes: pitchClasses.size
-        }
-      };
-
-      // Show in unified results
-      onShowUnifiedResults(results);
-    } else {
-      // Fallback to original modal approach if unified results not available
+  }, []);
+// Callback for melody mode
+  useCallback((pitchClasses: Set<number>) => {
+    if (pitchClasses.size > 0) {
+      // Always show the melody overlay for immediate feedback
       keySuggester.updateMelodySuggestions(pitchClasses);
+
+      // Also show in unified results if available
+      if (onShowUnifiedResults) {
+        // Generate key suggestions using the same logic as keySuggester
+        const suggestions = generateKeySuggestions(pitchClasses);
+
+        // Create results object for unified results system
+        const results = {
+          method: 'melody',
+          loading: false,
+          error: null,
+          localAnalysis: {
+            suggestions: suggestions,
+            playedNotes: Array.from(pitchClasses).map(pc => NOTES[pc]).join(', '),
+            totalNotes: pitchClasses.size
+          }
+        };
+
+        // Show in unified results
+        onShowUnifiedResults(results);
+      }
     }
-  }, [onShowUnifiedResults, processedScales]);
+  }, [onShowUnifiedResults, generateKeySuggestions]);
 
-  const { 
-    status, 
-    devices, 
-    selectedDevice, 
-    setSelectedDevice, 
-    playedNotes, 
-    playedPitchClasses,
-    mode: midiMode, 
-    setMode: setMidiMode, 
-    clearPlayedNotes, 
-    error 
-  } = useMidi(handleChordDetected, handleMelodyUpdate);
-
-  // Wrapper for clearPlayedNotes that also hides popup and clears chord sequence
-  const handleClearAll = useCallback(() => {
-    clearPlayedNotes();
+  // Wrapper for clearing that also hides popup and clears chord sequence
+  useCallback(() => {
     keySuggester.hide();
     keySuggester.clearChordSequence();
-  }, [clearPlayedNotes]);
-
+  }, []);
   const highlightedCellId = initialHighlightId || midiHighlightedCellId;
 
   // Effect to scroll to the highlighted cell when it's set via props
@@ -291,11 +282,6 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({
     setProcessedScales(newProcessedScales);
   }, []);
 
-  // Effect to handle mode changes and reset
-  useEffect(() => {
-    handleClearAll();
-    setMidiHighlightedCellId(null);
-  }, [midiMode, handleClearAll]);
 
   // Effect to find scale match when notes change
   useEffect(() => {
@@ -397,9 +383,6 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({
     }
   }, [processedScales, handleHighlightScale]);
 
-
-  const playedNoteNames = playedNotes.map(n => NOTES[n.number % 12]).join(', ');
-
   return (
     <div className={`scale-finder ${embedded ? 'scale-finder--embedded' : ''}`}>
       {/* Suggestion Overlays */}
@@ -494,118 +477,6 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({
           </div>
         </div>
       )}
-
-
-      <div className="card card--blur space-y-4">
-        <div>
-          <p className="text-semibold">MIDI Status: <span className="text-cyan">{status}</span></p>
-          {error && <p className="text-error">Error: {error}</p>}
-        </div>
-
-        {devices.length > 0 && (
-          <div>
-            <label htmlFor="midi-device" className="label">
-              Select MIDI Input
-            </label>
-            <select
-              id="midi-device"
-              value={selectedDevice || ''}
-              onChange={(e) => setSelectedDevice(e.target.value)}
-              className="select-input select-input--half"
-            >
-              <option value="" disabled>Select a device</option>
-              {devices.map(device => (
-                <option key={device.id} value={device.id}>{device.name}</option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        <div>
-          <p className="label mb-2">Detection Mode</p>
-          <div className="radio-group">
-            {(['7', '5', 'melody', 'chord'] as const).map((m, i) => (
-                <>
-                  {i > 0 && <span className="radio-delimiter"> | </span>}
-                  <label key={m} className="radio-label">
-                    <input
-                        type="radio"
-                        name="scale-type"
-                        value={m}
-                        checked={midiMode === m}
-                        onChange={(e) => setMidiMode(e.target.value as typeof midiMode)}
-                        className="radio-input"
-                    />
-                    <span>
-          {m === '7' ? '7-note Scale' :
-              m === '5' ? '5/6-note Scale' :
-                  m === 'melody' ? 'Melody Mode' :
-                      'Chord Mode'}
-        </span>
-                  </label>
-                </>
-            ))}
-          </div>
-        </div>
-
-        {midiMode === 'chord' && (
-            <div className="chord-controls">
-              <div className="mb-4">
-                <label htmlFor="base-key-input" className="label">
-                  Base Key for Chord Progressions
-              </label>
-              <select
-                id="base-key-input"
-                value={baseKey}
-                onChange={(e) => setBaseKey(e.target.value)}
-                className="select-input select-input--half"
-              >
-                {NOTES.map(note => (
-                  <option key={note} value={note}>{note}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="mb-4">
-              <p className="label mb-2">Key Mode</p>
-              <div className="radio-group">
-                <label className="radio-label">
-                  <input
-                    type="radio"
-                    name="key-mode"
-                    value="major"
-                    checked={keyMode === 'major'}
-                    onChange={() => setKeyMode('major')}
-                    className="radio-input"
-                  />
-                  <span>Major</span>
-                </label>
-                <label className="radio-label">
-                  <input
-                    type="radio"
-                    name="key-mode"
-                    value="minor"
-                    checked={keyMode === 'minor'}
-                    onChange={() => setKeyMode('minor')}
-                    className="radio-input"
-                  />
-                  <span>Minor</span>
-                </label>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div className="note-display">
-            <p className="text-semibold">Notes Detected:</p>
-            <div className="note-display__notes">{playedNoteNames}</div>
-            <div className="note-display-actions">
-              <button onClick={handleClearAll} className="btn btn--secondary btn--sm">
-                  Clear
-              </button>
-            </div>
-        </div>
-      </div>
 
       <div className="scale-tables-container">
         {allScaleData.map(scaleGroup => (
