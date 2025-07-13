@@ -121,6 +121,58 @@ The application implements a 4-tab navigation structure that maps directly to us
 - Automatic tab switching with preserved context
 - Results automatically link back to original reference
 
+#### Integrated Music Analysis Sidebar
+**Status**: ✅ Complete - Modal Overlay System Successfully Replaced
+
+**Current Problem**: The existing modal overlay system for MIDI detection, melody suggestions, and unified results creates several UX issues:
+- Modal overlays with backdrop block interaction with reference screen content
+- Disconnected components operate independently without visual or functional cohesion
+- Context switching breaks workflow when suggestions appear as modals
+- Users lose context when exploring scales while getting MIDI feedback
+
+**New Integrated Sidebar Design**: A unified right sidebar that consolidates all music analysis tools into a cohesive, non-blocking interface:
+
+```
+┌─────────────────────┬─────────────────────┐
+│                     │  🎹 MIDI DETECTION  │
+│                     │  ┌─────────────────┐ │
+│   REFERENCE SCREEN  │  │ Mode: [Melody]  │ │
+│                     │  │ Notes: C D E F  │ │
+│   Scale Tables      │  └─────────────────┘ │
+│   & Quick Ref       │                     │
+│                     │  🎵 LIVE SUGGESTIONS│
+│                     │  ┌─────────────────┐ │
+│                     │  │ • C Major       │ │
+│                     │  │ • G Mixolydian  │ │
+│                     │  │ • F Lydian      │ │
+│                     │  └─────────────────┘ │
+│                     │                     │
+│                     │  📊 ANALYSIS RESULTS│
+│                     │  ┌─────────────────┐ │
+│                     │  │ Detailed info   │ │
+│                     │  │ when available  │ │
+│                     │  └─────────────────┘ │
+└─────────────────────┴─────────────────────┘
+```
+
+**Key Features**:
+- **Real-time Scale Highlighting**: MIDI notes highlight matching scales in reference tables without modal interruption
+- **Click-to-Explore**: Suggestion items can be clicked to highlight corresponding scales and scroll table view
+- **Progressive Disclosure**: Sidebar sections expand/collapse based on activity and user engagement
+- **Contextual Integration**: All music analysis tools in one predictable location with continuous context
+- **Responsive Design**: Sidebar collapses to bottom panel on mobile devices
+
+**Implementation Phases**:
+1. **Phase 1**: ✅ Create `IntegratedMusicSidebar` component replacing modal overlay system
+2. **Phase 2**: ✅ Implement real-time integration with scale highlighting and smooth scrolling
+3. **Phase 3**: ✅ Merge unified results panel functionality into sidebar with tabbed interface
+
+**User Experience Benefits**:
+- **Continuous Context**: Users can see suggestions while interacting with scale tables
+- **Spatial Consistency**: All music analysis tools in one predictable location
+- **Reduced Cognitive Load**: No modal switching or context loss during exploration
+- **Enhanced Workflow**: Interface grows more informative as users engage with it
+
 ## UI Structure & Navigation
 
 ### 🎼 Mode Identification Tab
