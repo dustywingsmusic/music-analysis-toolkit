@@ -1,0 +1,86 @@
+/* MIDI Settings Panel Styles */
+.midi-settings-panel {
+  position: relative;
+  z-index: 60;
+}
+
+.midi-status-button {
+  @apply px-3 py-2 bg-slate-800/90 hover:bg-slate-700/90 border border-slate-600 rounded-lg transition-all duration-200;
+  @apply text-slate-200 hover:text-white;
+  @apply backdrop-blur-sm;
+}
+
+.midi-status-button:hover {
+  @apply shadow-lg border-slate-500;
+}
+
+.status-indicator {
+  @apply w-2 h-2 rounded-full;
+}
+
+.status-active {
+  @apply bg-green-400;
+  box-shadow: 0 0 4px rgba(34, 197, 94, 0.5);
+}
+
+.status-inactive {
+  @apply bg-yellow-400;
+  box-shadow: 0 0 4px rgba(251, 191, 36, 0.5);
+}
+
+.status-error {
+  @apply bg-red-400;
+  box-shadow: 0 0 4px rgba(248, 113, 113, 0.5);
+}
+
+.midi-panel-content {
+  @apply absolute top-full right-0 mt-2;
+  @apply w-80 max-w-[90vw];
+  @apply bg-slate-900/95 backdrop-blur-md;
+  @apply border border-slate-600 rounded-lg shadow-xl;
+  @apply animate-in slide-in-from-top-2 duration-200;
+}
+
+.midi-panel-card {
+  @apply p-4;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .midi-panel-content {
+    @apply w-72 right-0;
+  }
+
+  .midi-status-button {
+    @apply px-2 py-1;
+  }
+
+  .midi-status-button span {
+    @apply text-xs;
+  }
+}
+
+/* Animation classes for smooth transitions */
+@keyframes slide-in-from-top {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-in {
+  animation: slide-in-from-top 0.2s ease-out;
+}
+
+.slide-in-from-top-2 {
+  animation: slide-in-from-top 0.2s ease-out;
+}
+
+/* Ensure proper layering */
+.midi-settings-panel .midi-panel-content {
+  z-index: 1000;
+}

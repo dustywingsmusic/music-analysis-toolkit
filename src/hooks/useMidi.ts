@@ -15,6 +15,7 @@ export const useMidi = (
   const [mode, setMode] = useState<'7' | '5' | 'melody' | 'chord'>('7');
   const [chordDetectionTimeout, setChordDetectionTimeout] = useState<NodeJS.Timeout | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [enabled, setEnabled] = useState<boolean>(true);
 
   const refreshDevices = useCallback(() => {
     if (typeof WebMidi !== 'undefined' && WebMidi.enabled) {
@@ -38,6 +39,14 @@ export const useMidi = (
         accidental: e.note.accidental,
         octave: e.note.octave 
     };
+
+    console.log('MIDI key pressed:', {
+      noteNumber,
+      noteName: e.note.name,
+      pitchClass,
+      mode,
+      octave: e.note.octave
+    });
 
     if (mode === 'chord') {
       // Clear any pending timeout to extend the chord entry window
@@ -98,13 +107,16 @@ export const useMidi = (
         if (mode === 'melody' && onMelodyUpdate) {
           // We need to create a new set with the updated pitch class
           const updatedSet = new Set(newSet);
+          console.log('Calling onMelodyUpdate with pitch classes:', Array.from(updatedSet));
           onMelodyUpdate(updatedSet);
+        } else if (mode === 'melody') {
+          console.log('Melody mode but no onMelodyUpdate callback provided');
         }
 
         return newSet;
       });
     }
-  }, [mode, chordDetectionTimeout]);
+  }, [mode, chordDetectionTimeout, onChordDetected, onMelodyUpdate]);
 
   const clearPlayedNotes = useCallback(() => {
     setPlayedNotes([]);
@@ -115,8 +127,31 @@ export const useMidi = (
     }
   }, [chordDetectionTimeout]);
 
+  const enableMidi = useCallback(() => {
+    setEnabled(true);
+  }, []);
+
+  const disableMidi = useCallback(() => {
+    setEnabled(false);
+    // Clear played notes when disabling
+    clearPlayedNotes();
+    // Remove listeners from current device
+    if (typeof WebMidi !== 'undefined' && WebMidi.enabled && selectedDevice) {
+      const input = WebMidi.getInputById(selectedDevice);
+      if (input) {
+        input.removeListener('noteon', handleNoteOn);
+      }
+    }
+    setStatus('Disabled');
+  }, [clearPlayedNotes, selectedDevice, handleNoteOn]);
+
   // Effect to enable WebMidi
   useEffect(() => {
+    if (!enabled) {
+      setStatus('Disabled');
+      return;
+    }
+
     if (typeof WebMidi === 'undefined') {
       setError("WebMidi.js library not found.");
       setStatus("Error");
@@ -136,6 +171,11 @@ export const useMidi = (
           setError(`MIDI Error: ${err.message}`);
           setStatus('Error');
         });
+    } else if (enabled) {
+      // WebMidi is already enabled, just refresh devices and set status
+      setStatus('Enabled');
+      setError(null);
+      refreshDevices();
     }
 
     return () => {
@@ -144,11 +184,11 @@ export const useMidi = (
             WebMidi.removeListener('disconnected', refreshDevices);
         }
     }
-  }, [refreshDevices]);
+  }, [refreshDevices, enabled]);
 
   // Effect to handle device selection and listeners
   useEffect(() => {
-    if (typeof WebMidi === 'undefined' || !WebMidi.enabled || !selectedDevice) {
+    if (!enabled || typeof WebMidi === 'undefined' || !WebMidi.enabled || !selectedDevice) {
       return;
     }
 
@@ -163,7 +203,7 @@ export const useMidi = (
         input.removeListener('noteon', handleNoteOn);
       }
     };
-  }, [selectedDevice, handleNoteOn]);
+  }, [selectedDevice, handleNoteOn, enabled]);
 
   return {
     status,
@@ -176,5 +216,8 @@ export const useMidi = (
     setMode,
     clearPlayedNotes,
     error,
+    enabled,
+    enableMidi,
+    disableMidi,
   };
 };

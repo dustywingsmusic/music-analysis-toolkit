@@ -1,0 +1,58 @@
+/* MIDI Detection Panel Styles - Compact Version */
+.midi-detection-panel {
+  @apply bg-slate-900/95 backdrop-blur-md;
+  @apply border border-slate-600 rounded-lg shadow-lg;
+  @apply mb-3;
+  position: fixed;
+  top: 5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  width: calc(100% - 2rem);
+  max-width: 600px;
+}
+
+.midi-detection-card {
+  @apply p-2;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .midi-detection-panel {
+    top: 4.5rem;
+    width: calc(100% - 1rem);
+  }
+
+  .midi-detection-card {
+    @apply p-2;
+  }
+}
+
+/* Ensure proper contrast and visibility */
+.midi-detection-panel .midi-detection-card h3 {
+  @apply text-cyan-400 font-semibold;
+}
+
+.midi-detection-panel input[type="radio"] {
+  @apply accent-cyan-500;
+}
+
+.midi-detection-panel select {
+  @apply bg-slate-700 border-slate-600 text-slate-200;
+  @apply focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400;
+}
+
+.midi-detection-panel button {
+  @apply bg-slate-600 hover:bg-slate-500 text-slate-200;
+  @apply transition-colors duration-200;
+}
+
+.midi-detection-panel button:hover {
+  @apply bg-slate-500;
+}
+
+/* Notes display styling */
+.midi-detection-panel .min-h-\[20px\] {
+  @apply bg-slate-800 text-slate-300 font-mono;
+  @apply border border-slate-700;
+}

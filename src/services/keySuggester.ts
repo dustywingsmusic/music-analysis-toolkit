@@ -41,6 +41,7 @@ const NOTE_MAP = NOTE_TO_PITCH_CLASS;
 const NOTE_TO_PITCH = NOTE_TO_PITCH_CLASS;
 
 
+
 /**
  * Initializes the key suggester module.
  * @param melodyOverlayId The ID for the melody suggestions overlay.
@@ -62,8 +63,28 @@ export function init(
 
   console.log('Found overlay elements:', !!melodyOverlayElement, !!chordOverlayElement);
 
+  if (melodyOverlayElement) {
+    console.log('Melody overlay element details:', {
+      id: melodyOverlayElement.id,
+      className: melodyOverlayElement.className,
+      tagName: melodyOverlayElement.tagName,
+      parentElement: melodyOverlayElement.parentElement?.tagName
+    });
+  }
+
+  if (chordOverlayElement) {
+    console.log('Chord overlay element details:', {
+      id: chordOverlayElement.id,
+      className: chordOverlayElement.className,
+      tagName: chordOverlayElement.tagName,
+      parentElement: chordOverlayElement.parentElement?.tagName
+    });
+  }
+
   if (!melodyOverlayElement || !chordOverlayElement) {
     console.error('Key Suggester: One or more overlay elements not found.');
+    console.error('Available elements with melody in ID:', document.querySelectorAll('[id*="melody"]'));
+    console.error('Available elements with chord in ID:', document.querySelectorAll('[id*="chord"]'));
     return;
   }
 
@@ -74,6 +95,9 @@ export function init(
     backdropElement.setAttribute('aria-hidden', 'true');
     backdropElement.addEventListener('click', hide);
     document.body.appendChild(backdropElement);
+    console.log('Backdrop element created and added to body');
+  } else {
+    console.log('Backdrop element already exists');
   }
 
   // Add accessibility attributes to overlay elements
@@ -82,6 +106,8 @@ export function init(
 
   // Add keyboard event listener for ESC key
   document.addEventListener('keydown', handleKeyDown);
+
+  console.log('keySuggester initialization complete');
 }
 
 /**
@@ -176,8 +202,12 @@ export function highlightScale(scaleId: string): void {
  * @param overlay The overlay element to show.
  */
 function showModal(overlay: HTMLElement): void {
+  console.log('🚀 === MODAL DISPLAY === showModal called with overlay:', overlay.id || 'unnamed overlay');
+  console.log('showModal called with overlay:', overlay.id || 'unnamed overlay');
+
   // Hide any currently active overlay
   if (activeOverlay && activeOverlay !== overlay) {
+    console.log('Hiding previous overlay');
     hide();
   }
 
@@ -186,27 +216,47 @@ function showModal(overlay: HTMLElement): void {
 
   // Set the active overlay
   activeOverlay = overlay;
+  console.log('Active overlay set');
 
   // Show backdrop
   if (backdropElement) {
     backdropElement.classList.add('visible');
+    console.log('Backdrop visible class added');
+  } else {
+    console.error('Backdrop element not found!');
   }
 
   // Show the overlay with animation
   overlay.style.display = 'block';
+  console.log('Overlay display set to block');
 
   // Force a reflow to ensure the display change takes effect
   overlay.offsetHeight;
+  console.log('Reflow forced');
 
   // Add visible class to trigger animation
   overlay.classList.add('visible');
+  console.log('Overlay visible class added');
+
+  // Debug: Check computed styles
+  const computedStyle = window.getComputedStyle(overlay);
+  console.log('Overlay computed styles:', {
+    display: computedStyle.display,
+    opacity: computedStyle.opacity,
+    transform: computedStyle.transform,
+    zIndex: computedStyle.zIndex,
+    position: computedStyle.position,
+    top: computedStyle.top,
+    left: computedStyle.left
+  });
 
   // Focus the overlay for accessibility
   setTimeout(() => {
     overlay.focus();
+    console.log('Overlay focused');
   }, 50); // Small delay to ensure the element is visible
 
-  console.log('Modal shown:', overlay.id || 'unnamed overlay');
+  console.log('Modal should now be visible');
 }
 
 
@@ -440,14 +490,29 @@ function createDiatonicChordsForKey(rootNote: number, keyMode: 'major' | 'minor'
  * @param playedPitchClasses A set of pitch classes for the melody notes.
  */
 export function updateMelodySuggestions(playedPitchClasses: Set<number>): void {
+  console.log('🎵 === MELODY OVERLAY TRIGGER === updateMelodySuggestions called with', playedPitchClasses.size, 'pitch classes');
   console.log('updateMelodySuggestions called with', playedPitchClasses.size, 'pitch classes');
-  if (chordOverlayElement) chordOverlayElement.style.display = 'none'; // Hide other overlay
-  if (!melodyOverlayElement || playedPitchClasses.size === 0) {
+  console.log('Pitch classes array:', Array.from(playedPitchClasses));
+  console.log('allScales length:', allScales.length);
+
+  if (chordOverlayElement) {
+    chordOverlayElement.style.display = 'none'; // Hide other overlay
+    console.log('Chord overlay hidden');
+  }
+
+  if (!melodyOverlayElement) {
+    console.error('melodyOverlayElement is null in updateMelodySuggestions');
+    return;
+  }
+
+  if (playedPitchClasses.size === 0) {
+    console.log('No pitch classes, hiding modal');
     hide();
     return;
   }
 
   let matches: KeySuggestion[] = [];
+  console.log('Starting scale matching process');
 
   // Find all scales that contain all the played notes (exact matches)
   const exactMatches = allScales.filter((scale) => {
@@ -460,6 +525,8 @@ export function updateMelodySuggestions(playedPitchClasses: Set<number>): void {
     return true;
   });
 
+  console.log('Found', exactMatches.length, 'exact matches');
+
   // Group exact matches by their pitch class sets to find modes of the same parent scale
   const scaleGroups = new Map<string, ProcessedScale[]>();
   exactMatches.forEach((scale) => {
@@ -469,6 +536,8 @@ export function updateMelodySuggestions(playedPitchClasses: Set<number>): void {
     }
     scaleGroups.get(pitchClassKey)!.push(scale);
   });
+
+  console.log('Created', scaleGroups.size, 'scale groups');
 
   // Create suggestions for each group of modes
   scaleGroups.forEach((scales) => {
@@ -481,12 +550,15 @@ export function updateMelodySuggestions(playedPitchClasses: Set<number>): void {
         .map(scale => `${NOTES[scale.rootNote]} ${scale.name}`)
         .join(', ');
 
+      console.log('Generated mode names for group:', modeNames);
+
       if (modeNames) {
         matches.push({
           name: `Possible modes: ${modeNames}`,
           matchCount: matchCount,
           pitchClasses: scales[0].pitchClasses,
         });
+        console.log('Added exact match suggestion');
       }
     }
   });
@@ -539,7 +611,12 @@ export function updateMelodySuggestions(playedPitchClasses: Set<number>): void {
   }
 
   matches.sort((a, b) => b.matchCount - a.matchCount);
-  renderMelodySuggestions(matches.slice(0, 5), playedPitchClasses);
+  console.log('Final matches before rendering:', matches.length);
+  console.log('Matches data:', matches);
+
+  const finalMatches = matches.slice(0, 5);
+  console.log('Calling renderMelodySuggestions with', finalMatches.length, 'matches');
+  renderMelodySuggestions(finalMatches, playedPitchClasses);
 }
 
 /**
@@ -908,13 +985,18 @@ export function updateChordSuggestions(
  * @param playedPitchClasses The set of currently played melody pitch classes.
  */
 function renderMelodySuggestions(suggestions: KeySuggestion[], playedPitchClasses: Set<number>): void {
+  console.log('🎭 === MELODY OVERLAY RENDER === renderMelodySuggestions called with', suggestions.length, 'suggestions');
   console.log('renderMelodySuggestions called with', suggestions.length, 'suggestions');
+  console.log('Suggestions data:', suggestions);
+  console.log('Played pitch classes:', Array.from(playedPitchClasses));
+
   if (!melodyOverlayElement) {
     console.error('melodyOverlayElement is null');
     return;
   }
 
-  melodyOverlayElement.innerHTML = ''; // Clear previous content
+  console.log('melodyOverlayElement found, clearing content');
+  melodyOverlayElement!.innerHTML = ''; // Clear previous content
 
   // Add close button
   const closeButton = document.createElement('span');
@@ -922,19 +1004,19 @@ function renderMelodySuggestions(suggestions: KeySuggestion[], playedPitchClasse
   closeButton.innerHTML = '&times;';
   closeButton.title = 'Close Suggestions';
   closeButton.onclick = hide;
-  melodyOverlayElement.appendChild(closeButton);
+  melodyOverlayElement!.appendChild(closeButton);
 
   // Add title
   const title = document.createElement('h3');
   title.id = 'melody-suggestions-dialog';
   title.textContent = 'Key Suggestions - Melody Mode';
-  melodyOverlayElement.appendChild(title);
+  melodyOverlayElement!.appendChild(title);
 
   if (suggestions.length === 0) {
     const noSuggestionsDiv = document.createElement('div');
     noSuggestionsDiv.className = 'no-suggestions';
     noSuggestionsDiv.textContent = 'No key suggestions available for the current melody.';
-    melodyOverlayElement.appendChild(noSuggestionsDiv);
+    melodyOverlayElement!.appendChild(noSuggestionsDiv);
   } else {
     // Add suggestions
     suggestions.forEach(suggestion => {
@@ -985,12 +1067,12 @@ function renderMelodySuggestions(suggestions: KeySuggestion[], playedPitchClasse
 
       itemDiv.appendChild(header);
       itemDiv.appendChild(notesDiv);
-      melodyOverlayElement.appendChild(itemDiv);
+      melodyOverlayElement!.appendChild(itemDiv);
     });
   }
 
   console.log('Setting melodyOverlayElement display to block');
-  showModal(melodyOverlayElement);
+  showModal(melodyOverlayElement!);
 }
 
 /**
