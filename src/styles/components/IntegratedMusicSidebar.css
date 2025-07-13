@@ -1,0 +1,597 @@
+/* Integrated Music Sidebar Styles */
+.integrated-music-sidebar {
+  position: fixed;
+  top: 50px;
+  right: 0;
+  width: 320px;
+  height: 100vh;
+  background: #1e293b;
+  border-left: 1px solid #475569;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  color: #e2e8f0;
+}
+
+/* Adjust main content to accommodate sidebar */
+.reference-tab {
+  margin-right: 320px;
+  transition: margin-right 0.3s ease;
+}
+
+.reference-content {
+  padding-right: 20px;
+}
+
+/* Sidebar Sections */
+.sidebar-section {
+  border-bottom: 1px solid #334155;
+}
+
+.sidebar-section:last-child {
+  border-bottom: none;
+  flex: 1;
+}
+
+/* Section Headers */
+.sidebar-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #334155;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.sidebar-section-header:hover {
+  background: #475569;
+}
+
+.sidebar-section-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0;
+  color: #e2e8f0;
+}
+
+.sidebar-section-toggle {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+.sidebar-section-toggle:hover {
+  background: #475569;
+  color: #e2e8f0;
+}
+
+/* Section Content */
+.sidebar-section-content {
+  padding: 16px;
+  background: #1e293b;
+}
+
+/* MIDI Detection Panel Integration */
+.sidebar-midi-panel {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  /* Override fixed positioning from midi-detection-panel.css */
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  transform: none !important;
+  z-index: auto !important;
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.sidebar-midi-panel .midi-detection-card {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Enhanced MIDI Detection Styling for Sidebar */
+.sidebar-midi-panel .midi-detection-card h3 {
+  display: none; /* Hide the duplicate title since we have section header */
+}
+
+/* Detection Mode Styling */
+.sidebar-midi-panel .mb-2 {
+  margin-bottom: 12px;
+}
+
+.sidebar-midi-panel .text-xs {
+  font-size: 0.75rem;
+}
+
+.sidebar-midi-panel .font-medium {
+  font-weight: 500;
+  color: #e2e8f0;
+}
+
+.sidebar-midi-panel .grid {
+  display: grid;
+  gap: 6px;
+}
+
+.sidebar-midi-panel .grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.sidebar-midi-panel label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.sidebar-midi-panel label:hover {
+  background: #334155;
+}
+
+.sidebar-midi-panel input[type="radio"] {
+  width: 12px;
+  height: 12px;
+  accent-color: #06b6d4;
+}
+
+/* Chord Mode Settings Styling */
+.sidebar-midi-panel .bg-slate-800 {
+  background: #334155;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.sidebar-midi-panel select {
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 0.75rem;
+  background: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 4px;
+  color: #e2e8f0;
+  transition: border-color 0.2s ease;
+}
+
+.sidebar-midi-panel select:focus {
+  outline: none;
+  border-color: #06b6d4;
+}
+
+.sidebar-midi-panel select option {
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+/* Notes Display Styling */
+.sidebar-midi-panel .min-h-\[18px\] {
+  min-height: 18px;
+  padding: 8px;
+  background: #334155;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  color: #e2e8f0;
+  border: 1px solid #475569;
+}
+
+.sidebar-midi-panel button {
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  background: #475569;
+  color: #e2e8f0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.sidebar-midi-panel button:hover {
+  background: #64748b;
+}
+
+/* Responsive adjustments for MIDI panel */
+@media (max-width: 768px) {
+  .sidebar-midi-panel .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar-midi-panel .bg-slate-800 {
+    padding: 8px;
+  }
+}
+
+/* Temporary highlight effect for scales clicked from sidebar */
+.sidebar-highlighted {
+  background: rgba(6, 182, 212, 0.3) !important;
+  border: 2px solid #06b6d4 !important;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.5) !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Status indicators */
+.sidebar-status-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.sidebar-status-indicator.active {
+  background: #10b981;
+  box-shadow: 0 0 4px rgba(16, 185, 129, 0.5);
+}
+
+.sidebar-status-indicator.inactive {
+  background: #64748b;
+}
+
+.sidebar-status-indicator.detecting {
+  background: #f59e0b;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Suggestions Styling */
+.melody-suggestions,
+.chord-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.suggestion-item {
+  background: #334155;
+  border-radius: 6px;
+  padding: 12px;
+  border-left: 4px solid #06b6d4;
+  transition: all 0.2s ease;
+}
+
+.suggestion-item:hover {
+  background: #475569;
+  transform: translateX(2px);
+}
+
+.suggestion-header {
+  font-weight: 600;
+  color: #e2e8f0;
+  margin-bottom: 4px;
+  font-size: 0.875rem;
+}
+
+.suggestion-confidence {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  margin-bottom: 8px;
+}
+
+.suggestion-scales {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #475569;
+}
+
+.suggestion-scales small {
+  display: block;
+  color: #64748b;
+  margin-bottom: 4px;
+  font-size: 0.75rem;
+}
+
+.scale-link {
+  color: #06b6d4;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 0.75rem;
+  transition: color 0.2s ease;
+}
+
+.scale-link:hover {
+  color: #0891b2;
+}
+
+/* No suggestions/results states */
+.no-suggestions,
+.no-results {
+  color: #64748b;
+  text-align: center;
+  padding: 20px;
+  font-style: italic;
+  font-size: 0.875rem;
+}
+
+/* Analysis Results */
+.analysis-results {
+  color: #e2e8f0;
+}
+
+.analysis-placeholder {
+  color: #94a3b8;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+  font-size: 0.875rem;
+}
+
+/* Enhanced Analysis Results Styling */
+.analysis-loading {
+  text-align: center;
+  padding: 20px;
+  color: #94a3b8;
+}
+
+.loading-indicator {
+  font-size: 1.5rem;
+  animation: pulse 1.5s infinite;
+  margin-bottom: 8px;
+}
+
+.analysis-error {
+  background: #7f1d1d;
+  border: 1px solid #ef4444;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.analysis-error h5 {
+  color: #fca5a5;
+  margin: 0 0 8px 0;
+  font-size: 0.875rem;
+}
+
+.analysis-error p {
+  color: #fecaca;
+  margin: 0;
+  font-size: 0.75rem;
+}
+
+.analysis-primary {
+  background: #334155;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-left: 4px solid #10b981;
+}
+
+.analysis-primary h5 {
+  color: #10b981;
+  margin: 0 0 8px 0;
+  font-size: 0.875rem;
+}
+
+.mode-result {
+  margin-bottom: 8px;
+}
+
+.mode-result strong {
+  color: #e2e8f0;
+  font-size: 1rem;
+}
+
+.confidence {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  margin-left: 8px;
+}
+
+.scale-notes {
+  margin-bottom: 12px;
+}
+
+.scale-notes small {
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+.view-in-tables-btn {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.view-in-tables-btn:hover {
+  background: #059669;
+}
+
+.analysis-explanation {
+  background: #1e293b;
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 12px;
+  border-left: 4px solid #06b6d4;
+}
+
+.analysis-explanation h6 {
+  color: #06b6d4;
+  margin: 0 0 8px 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.analysis-explanation p {
+  color: #cbd5e1;
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.analysis-local {
+  background: #334155;
+  border-radius: 6px;
+  padding: 12px;
+  border-left: 4px solid #f59e0b;
+}
+
+.analysis-local h5 {
+  color: #f59e0b;
+  margin: 0 0 8px 0;
+  font-size: 0.875rem;
+}
+
+.local-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.local-suggestion {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.local-suggestion strong {
+  color: #e2e8f0;
+  font-size: 0.75rem;
+}
+
+.played-notes small {
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .integrated-music-sidebar {
+    width: 280px;
+  }
+}
+
+@media (max-width: 768px) {
+  .integrated-music-sidebar {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 50vh;
+    max-height: 400px;
+    border-left: none;
+    border-top: 1px solid #475569;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .reference-tab {
+    margin-right: 0;
+    margin-bottom: 50vh;
+  }
+
+  .sidebar-section-content {
+    padding: 12px;
+  }
+
+  .suggestion-item {
+    padding: 10px;
+  }
+}
+
+/* Scrollbar Styling */
+.integrated-music-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.integrated-music-sidebar::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+.integrated-music-sidebar::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 3px;
+}
+
+.integrated-music-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Animation for section expansion */
+.sidebar-section-content {
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Focus states for accessibility */
+.sidebar-section-header:focus,
+.sidebar-section-toggle:focus,
+.scale-link:focus {
+  outline: 2px solid #06b6d4;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .integrated-music-sidebar {
+    border-left: 2px solid #ffffff;
+  }
+
+  .sidebar-section {
+    border-bottom: 2px solid #ffffff;
+  }
+
+  .suggestion-item {
+    border-left: 4px solid #ffffff;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .suggestion-item,
+  .sidebar-section-toggle,
+  .scale-link {
+    transition: none;
+  }
+
+  .sidebar-section-content {
+    animation: none;
+  }
+}

@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import ScaleFinder from './ScaleFinder';
-import MidiDetectionPanel from './MidiDetectionPanel';
+import IntegratedMusicSidebar from './IntegratedMusicSidebar';
+import { UnifiedResultsState } from './UnifiedResultsPanel';
+import '../styles/components/IntegratedMusicSidebar.css';
 
 interface ReferenceTabProps {
   highlightId?: string | null;
@@ -13,13 +15,24 @@ interface ReferenceTabProps {
     setMode: (mode: '7' | '5' | 'melody' | 'chord') => void;
     clearPlayedNotes: () => void;
   };
+  // Unified Results Panel integration
+  unifiedResults?: UnifiedResultsState;
+  onSwitchToReference?: (highlightId?: string) => void;
+  onSwitchToReferenceWithHighlight?: (mode: string, tonic: string) => void;
+  onReturnToInput?: (userInputs: any) => void;
+  onDismissAnalysisPanel?: () => void;
 }
 
 const ReferenceTab: React.FC<ReferenceTabProps> = ({ 
   highlightId, 
   showDebugInfo = false, 
   onShowUnifiedResults,
-  midiData
+  midiData,
+  unifiedResults,
+  onSwitchToReference,
+  onSwitchToReferenceWithHighlight,
+  onReturnToInput,
+  onDismissAnalysisPanel
 }) => {
   const [midiHighlightId, setMidiHighlightId] = useState<string | null>(null);
 
@@ -29,26 +42,9 @@ const ReferenceTab: React.FC<ReferenceTabProps> = ({
     setMidiHighlightId(scaleId);
   }, []);
 
-  // Effect to handle melody mode updates
-  useEffect(() => {
-    console.log('🎵 ReferenceTab melody effect triggered:', {
-      mode: midiData?.mode,
-      pitchClassesSize: midiData?.playedPitchClasses?.size || 0,
-      pitchClasses: midiData?.playedPitchClasses ? Array.from(midiData.playedPitchClasses) : []
-    });
-
-    if (midiData?.mode === 'melody' && midiData?.playedPitchClasses && midiData.playedPitchClasses.size > 0) {
-      console.log('🎭 ReferenceTab calling keySuggester.updateMelodySuggestions with:', Array.from(midiData.playedPitchClasses));
-
-      // Import keySuggester dynamically to avoid circular dependencies
-      import('../services/keySuggester').then(keySuggester => {
-        console.log('🚀 keySuggester imported successfully in ReferenceTab');
-        keySuggester.updateMelodySuggestions(midiData.playedPitchClasses);
-      }).catch(error => {
-        console.error('❌ Failed to import keySuggester in ReferenceTab:', error);
-      });
-    }
-  }, [midiData?.mode, midiData?.playedPitchClasses]);
+  // Note: Melody mode updates are now handled by IntegratedMusicSidebar
+  // The sidebar component registers callbacks with keySuggester and handles
+  // melody suggestions directly, eliminating the need for modal overlays
 
   const quickReference = [
     {
@@ -84,12 +80,16 @@ const ReferenceTab: React.FC<ReferenceTabProps> = ({
         </p>
       </div>
 
-      {/* Always-visible MIDI Detection Panel */}
-      <MidiDetectionPanel 
+      {/* Integrated Music Sidebar */}
+      <IntegratedMusicSidebar 
         onScaleHighlight={handleScaleHighlight}
         midiData={midiData}
+        unifiedResults={unifiedResults}
+        onSwitchToReference={onSwitchToReference}
+        onSwitchToReferenceWithHighlight={onSwitchToReferenceWithHighlight}
+        onReturnToInput={onReturnToInput}
+        onDismissAnalysisPanel={onDismissAnalysisPanel}
       />
-
 
       <div className="reference-content">
         <div className="quick-reference">

@@ -4,6 +4,246 @@ import { NOTES } from '../constants/scales';
 import { NOTE_TO_PITCH_CLASS } from '../constants/mappings';
 import { ChordMatch } from './chordLogic';
 
+// Sidebar callback types
+type MelodySuggestionCallback = (suggestions: MelodySuggestion[]) => void;
+type ChordSuggestionCallback = (suggestions: ChordSuggestion[]) => void;
+
+// Sidebar suggestion interfaces
+export interface MelodySuggestion {
+  name: string;
+  pitchClasses: Set<number>;
+  confidence: number;
+  matchCount: number;
+  matchingScales?: Array<{
+    id: string;
+    name?: string;
+  }>;
+}
+
+export interface ChordSuggestion {
+  chord: string;
+  key: string;
+  confidence: number;
+}
+
+// Sidebar callbacks
+let melodySuggestionCallback: MelodySuggestionCallback | null = null;
+let chordSuggestionCallback: ChordSuggestionCallback | null = null;
+
+/**
+ * Registers a callback function to receive melody suggestions for the sidebar.
+ * @param callback Function to call when melody suggestions are updated.
+ */
+export function registerMelodySuggestionCallback(callback: MelodySuggestionCallback | null): void {
+  melodySuggestionCallback = callback;
+}
+
+/**
+ * Registers a callback function to receive chord suggestions for the sidebar.
+ * @param callback Function to call when chord suggestions are updated.
+ */
+export function registerChordSuggestionCallback(callback: ChordSuggestionCallback | null): void {
+  chordSuggestionCallback = callback;
+}
+
+/**
+ * Updates chord suggestions for the sidebar (non-modal approach).
+ * @param playedPitchClasses A set of pitch classes for the chord notes.
+ * @param baseKey The base key for chord analysis.
+ * @param keyMode The key mode (major or minor).
+ */
+export function updateChordSuggestionsForSidebar(
+  playedPitchClasses: Set<number>, 
+  baseKey: string = 'C', 
+  keyMode: 'major' | 'minor' = 'major'
+): void {
+  console.log('🎵 === SIDEBAR CHORD UPDATE === updateChordSuggestionsForSidebar called with', playedPitchClasses.size, 'pitch classes');
+
+  if (!chordSuggestionCallback) {
+    console.log('No chord suggestion callback registered');
+    return;
+  }
+
+  if (playedPitchClasses.size === 0) {
+    console.log('No pitch classes, clearing chord suggestions');
+    chordSuggestionCallback([]);
+    return;
+  }
+
+  // Convert played pitch classes to note numbers for chord detection
+  const noteNumbers = Array.from(playedPitchClasses);
+
+  // Import chord logic dynamically to avoid circular dependencies
+  import('./chordLogic').then(chordLogic => {
+    const detectedChords = chordLogic.findChordMatches(noteNumbers);
+
+    if (detectedChords.length > 0) {
+      const suggestions: ChordSuggestion[] = detectedChords.slice(0, 5).map(chord => ({
+        chord: chord.chordSymbol,
+        key: baseKey,
+        confidence: chord.confidence || 0.8
+      }));
+
+      console.log('Calling chord suggestion callback with', suggestions.length, 'suggestions');
+      chordSuggestionCallback(suggestions);
+    } else {
+      chordSuggestionCallback([]);
+    }
+  }).catch(error => {
+    console.error('Failed to import chord logic:', error);
+    chordSuggestionCallback([]);
+  });
+}
+
+/**
+ * Updates melody suggestions for the sidebar (non-modal approach).
+ * @param playedPitchClasses A set of pitch classes for the melody notes.
+ */
+export function updateMelodySuggestionsForSidebar(playedPitchClasses: Set<number>): void {
+  console.log('🎵 === SIDEBAR MELODY UPDATE === updateMelodySuggestionsForSidebar called with', playedPitchClasses.size, 'pitch classes');
+
+  if (!melodySuggestionCallback) {
+    console.log('No melody suggestion callback registered');
+    return;
+  }
+
+  if (playedPitchClasses.size === 0) {
+    console.log('No pitch classes, clearing suggestions');
+    melodySuggestionCallback([]);
+    return;
+  }
+
+  let suggestions: MelodySuggestion[] = [];
+  console.log('Starting scale matching process for sidebar');
+
+  // Find all scales that contain all the played notes (exact matches)
+  const exactMatches = allScales.filter((scale) => {
+    // Check if all played notes are contained in this scale
+    for (const playedNote of playedPitchClasses) {
+      if (!scale.pitchClasses.has(playedNote)) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  console.log('Found', exactMatches.length, 'exact matches');
+
+  // Group exact matches by their pitch class sets to find modes of the same parent scale
+  const scaleGroups = new Map<string, ProcessedScale[]>();
+  exactMatches.forEach((scale) => {
+    const pitchClassKey = Array.from(scale.pitchClasses).sort().join(',');
+    if (!scaleGroups.has(pitchClassKey)) {
+      scaleGroups.set(pitchClassKey, []);
+    }
+    scaleGroups.get(pitchClassKey)!.push(scale);
+  });
+
+  console.log('Created', scaleGroups.size, 'scale groups');
+
+  // Create suggestions for each group of modes
+  scaleGroups.forEach((scales) => {
+    if (scales.length > 0) {
+      const matchCount = playedPitchClasses.size; // All notes match exactly
+
+      // Create a suggestion showing all modes of this scale group
+      const modeNames = scales
+        .filter(scale => scale.name) // Only include scales with names
+        .map(scale => `${NOTES[scale.rootNote]} ${scale.name}`)
+        .join(', ');
+
+      console.log('Generated mode names for group:', modeNames);
+
+      if (modeNames) {
+        // Find matching scales for the sidebar links
+        const matchingScales = scales
+          .filter(scale => scale.name)
+          .map(scale => ({
+            id: scale.id,
+            name: scale.name
+          }));
+
+        suggestions.push({
+          name: `Possible modes: ${modeNames}`,
+          matchCount: matchCount,
+          pitchClasses: scales[0].pitchClasses,
+          confidence: 1.0, // Perfect match
+          matchingScales: matchingScales
+        });
+        console.log('Added exact match suggestion for sidebar');
+      }
+    }
+  });
+
+  // If no exact matches, find partial matches (scales that contain some of the played notes)
+  if (suggestions.length === 0) {
+    const partialMatches = allScales.filter((scale) => {
+      let matchCount = 0;
+      playedPitchClasses.forEach((playedNote) => {
+        if (scale.pitchClasses.has(playedNote)) {
+          matchCount++;
+        }
+      });
+      return matchCount > 0;
+    });
+
+    // Group partial matches and show the best ones
+    const partialGroups = new Map<string, { scales: ProcessedScale[], matchCount: number }>();
+    partialMatches.forEach((scale) => {
+      let matchCount = 0;
+      playedPitchClasses.forEach((playedNote) => {
+        if (scale.pitchClasses.has(playedNote)) {
+          matchCount++;
+        }
+      });
+
+      const pitchClassKey = Array.from(scale.pitchClasses).sort().join(',');
+      if (!partialGroups.has(pitchClassKey) || partialGroups.get(pitchClassKey)!.matchCount < matchCount) {
+        partialGroups.set(pitchClassKey, { scales: [scale], matchCount });
+      }
+    });
+
+    partialGroups.forEach(({ scales, matchCount }) => {
+      if (scales.length > 0 && matchCount >= Math.ceil(playedPitchClasses.size * 0.6)) {
+        const modeNames = scales
+          .filter(scale => scale.name)
+          .slice(0, 3) // Limit to first 3 modes to avoid clutter
+          .map(scale => `${NOTES[scale.rootNote]} ${scale.name}`)
+          .join(', ');
+
+        if (modeNames) {
+          const confidence = matchCount / playedPitchClasses.size;
+
+          // Find matching scales for the sidebar links
+          const matchingScales = scales
+            .filter(scale => scale.name)
+            .slice(0, 3)
+            .map(scale => ({
+              id: scale.id,
+              name: scale.name
+            }));
+
+          suggestions.push({
+            name: `Partial match (${matchCount}/${playedPitchClasses.size}): ${modeNames}`,
+            matchCount: matchCount,
+            pitchClasses: scales[0].pitchClasses,
+            confidence: confidence,
+            matchingScales: matchingScales
+          });
+        }
+      }
+    });
+  }
+
+  suggestions.sort((a, b) => b.matchCount - a.matchCount);
+  console.log('Final suggestions for sidebar:', suggestions.length);
+  console.log('Suggestions data:', suggestions);
+
+  const finalSuggestions = suggestions.slice(0, 5);
+  console.log('Calling sidebar callback with', finalSuggestions.length, 'suggestions');
+  melodySuggestionCallback(finalSuggestions);
+}
+
 // Interface for key suggestion results
 export interface KeySuggestion {
   name: string;
