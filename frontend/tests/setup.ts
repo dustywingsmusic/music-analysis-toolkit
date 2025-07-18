@@ -2,7 +2,7 @@ import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import { afterEach, beforeAll, beforeEach } from 'vitest';
-import { setupCustomMatchers } from '@utils/custom-vitest-matchers';
+import { setupCustomMatchers } from 'utils/custom-vitest-matchers';
 
 /**
  * Global test setup for Music Modes App

@@ -2,7 +2,7 @@
 backend/__pycache__/
 
 # Node / Vite-cache / builds
-frontend/node_modules/
+node_modules
 frontend/.vite/
 frontend/dist/
 

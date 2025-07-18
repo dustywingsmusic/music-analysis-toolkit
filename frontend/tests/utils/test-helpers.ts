@@ -3,7 +3,7 @@ import React, {ReactElement, ReactNode} from 'react';
 import {vi, expect} from 'vitest';
 import {MockMIDIAccess, MockMIDIInput, setupMIDIMock} from '@mocks/midi-mock';
 import {TEST_CHORDS, TEST_SCALES} from '@fixtures/musical-data';
-import '../config/test-setup';
+import '../setup.ts';
 
 
 /**

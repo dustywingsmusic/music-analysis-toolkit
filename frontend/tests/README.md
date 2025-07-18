@@ -18,7 +18,7 @@ tests/
 ├── config/                   # Test configuration files
 │   ├── playwright.config.ts  # Playwright configuration
 │   ├── vitest.config.mts      # Vitest configuration
-│   └── test-setup.ts         # Global test setup
+│   └── setup.ts         # Global test setup
 ├── fixtures/                 # Test data and fixtures
 │   ├── musical-data.ts       # Musical scales, chords, notes
 │   ├── midi-data.ts          # MIDI test data

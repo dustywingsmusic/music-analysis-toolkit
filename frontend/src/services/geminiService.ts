@@ -18,6 +18,22 @@ const getApiKey = (): string => {
   throw new Error("API key not found. Please set VITE_GEMINI_API_KEY in development or ensure runtime config is available in production.");
 };
 
+// Get model ID from runtime configuration or environment variable
+const getModelId = (): string => {
+  // For production (Docker/Cloud Run), use runtime config
+  if (typeof window !== 'undefined' && (window as any).RUNTIME_CONFIG?.GEMINI_MODEL_ID) {
+    return (window as any).RUNTIME_CONFIG.GEMINI_MODEL_ID;
+  }
+
+  // For development, use environment variable
+  if ((import.meta as any).env.VITE_GEMINI_MODEL_ID) {
+    return (import.meta as any).env.VITE_GEMINI_MODEL_ID;
+  }
+
+  // Fallback to default model ID
+  return "gemini-2.5-flash";
+};
+
 const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
 // --- PROMPT 1: CORE ANALYSIS ---
@@ -218,7 +234,7 @@ const getCoreAnalysis = async (
     // Log the request
     logger.geminiRequest('Core analysis request to Gemini API', {
       function: 'getCoreAnalysis',
-      model: 'gemini-2.5-flash-preview-04-17',
+      model: getModelId(),
       tonic,
       analysisTarget,
       userPrompt,
@@ -226,7 +242,7 @@ const getCoreAnalysis = async (
     });
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-04-17",
+      model: getModelId(),
       contents: userPrompt,
       config: {
         systemInstruction: coreAnalysisSystemInstruction,
@@ -301,14 +317,14 @@ export const getSongExamples = async (allModes: Analysis[]): Promise<SongExample
         // Log the request
         logger.geminiRequest('Song examples request to Gemini API', {
           function: 'getSongExamples',
-          model: 'gemini-2.5-flash-preview-04-17',
+          model: getModelId(),
           modeNames,
           modesCount: modeNames.length,
           temperature: 0.3
         });
 
         const response = await ai.models.generateContent({
-          model: "gemini-2.5-flash-preview-04-17",
+          model: getModelId(),
           contents: prompt,
           config: {
             systemInstruction: { text: songExamplesSystemInstruction.text },
@@ -538,7 +554,7 @@ const discoverModesFromRoot = async (
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-04-17",
+      model: getModelId(),
       contents: userPrompt,
       config: {
         systemInstruction: modeDiscoverySystemInstruction,
@@ -622,7 +638,7 @@ const analyzeChord = async (
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-04-17",
+      model: getModelId(),
       contents: userPrompt,
       config: {
         systemInstruction: harmonyAnalysisSystemInstruction,
@@ -676,7 +692,7 @@ const generateChordsFromMode = async (
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-04-17",
+      model: getModelId(),
       contents: userPrompt,
       config: {
         systemInstruction: harmonyAnalysisSystemInstruction,
@@ -730,7 +746,7 @@ const findChordSubstitutions = async (
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-04-17",
+      model: getModelId(),
       contents: userPrompt,
       config: {
         systemInstruction: harmonyAnalysisSystemInstruction,
@@ -784,7 +800,7 @@ const analyzeChordProgression = async (
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-04-17",
+      model: getModelId(),
       contents: userPrompt,
       config: {
         systemInstruction: harmonyAnalysisSystemInstruction,
