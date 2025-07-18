@@ -153,7 +153,7 @@ export const TEST_CHORDS = {
     // TODO: Implement confidence calculation for chord identification
     expectedCloseness: { min: 40, max: 50 }, // 3 notes out of 7 for heptatonic scale (~43%)
     expectedSuggestions: ['C Ionian', 'G Ionian', 'F Ionian'],
-    expectedChord: { symbol: 'C', type: 'major', root: C4 },
+    expectedChord: { symbol: 'C', type: 'major', root: 0 },
   },
   aMinor: {
     notes: [A4, C4, E4] as number[], // A C E
@@ -161,7 +161,7 @@ export const TEST_CHORDS = {
     // TODO: Implement confidence calculation for chord identification
     expectedCloseness: { min: 40, max: 50 }, // 3 notes out of 7 for heptatonic scale (~43%)
     expectedSuggestions: ['C Ionian', 'G Ionian', 'F Ionian'],
-    expectedChord: { symbol: 'Am', type: 'minor', root: A4 },
+    expectedChord: { symbol: 'Am', type: 'minor', root: 9 },
   },
   cMaj7: {
     notes: [C4, E4, G4, B4] as number[], // C E G B
@@ -169,7 +169,7 @@ export const TEST_CHORDS = {
     // TODO: Implement confidence calculation for 7th chord identification
     expectedCloseness: { min: 55, max: 65 }, // 4 notes out of 7 for heptatonic scale (~57%)
     expectedSuggestions: ['C Ionian', 'G Ionian', 'G♯/A♭ Lydian ♯2'],
-    expectedChord: { symbol: 'Cmaj7', type: 'major7', root: C4 },
+    expectedChord: { symbol: 'Cmaj7', type: 'major7', root: 0 },
   },
   dm7: {
     notes: [D4, F4, A4, C4] as number[], // D F A C
@@ -177,7 +177,7 @@ export const TEST_CHORDS = {
     // TODO: Implement confidence calculation for 7th chord identification
     expectedCloseness: { min: 55, max: 65 }, // 4 notes out of 7 for heptatonic scale (~57%)
     expectedSuggestions: ['D Dorian', 'C Ionian'],
-    expectedChord: { symbol: 'Dm7', type: 'minor7', root: D4 },
+    expectedChord: { symbol: 'Dm7', type: 'minor7', root: 2 },
   },
   g7: {
     notes: [G4, B4, D4, F4] as number[], // G B D F
@@ -185,7 +185,7 @@ export const TEST_CHORDS = {
     // TODO: Implement confidence calculation for 7th chord identification
     expectedCloseness: { min: 55, max: 65 }, // 4 notes out of 7 for heptatonic scale (~57%)
     expectedSuggestions: ['G Mixolydian', 'C Ionian'],
-    expectedChord: { symbol: 'G7', type: 'dominant7', root: G4 },
+    expectedChord: { symbol: 'G7', type: 'dominant7', root: 7 },
   },
   csus2: {
     notes: [C4, D4, G4] as number[], // C D G
@@ -193,7 +193,7 @@ export const TEST_CHORDS = {
     // TODO: Implement confidence calculation for sus chord identification
     expectedCloseness: { min: 40, max: 50 }, // 3 notes out of 7 for heptatonic scale (~43%)
     expectedSuggestions: ['C Ionian', 'G Mixolydian'],
-    expectedChord: { symbol: 'Csus2', type: 'sus2', root: C4 },
+    expectedChord: { symbol: 'Csus2', type: 'sus2', root: 0 },
   },
   csus4: {
     notes: [C4, F4, G4] as number[], // C F G
@@ -201,7 +201,7 @@ export const TEST_CHORDS = {
     // TODO: Implement confidence calculation for sus chord identification
     expectedCloseness: { min: 40, max: 50 }, // 3 notes out of 7 for heptatonic scale (~43%)
     expectedSuggestions: ['C Ionian', 'F Lydian'],
-    expectedChord: { symbol: 'Csus4', type: 'sus4', root: C4 },
+    expectedChord: { symbol: 'Csus4', type: 'sus4', root: 0 },
   },
 } as const;
 
@@ -209,11 +209,11 @@ export const TEST_CHORDS = {
 export const TEST_INVERSIONS = {
   cMajorFirstInversion: {
     notes: [E4, G4, C4] as number[], // E G C (C/E)
-    expectedChord: { symbol: 'C/E', baseChord: 'C major', bassNote: E4, inversion: 'first' },
+    expectedChord: { symbol: 'C/E', baseChord: 'C major', bassNote: 4, inversion: '/E' },
   },
   aMinorFirstInversion: {
     notes: [C4, E4, A4] as number[], // C E A (Am/C)
-    expectedChord: { symbol: 'Am/C', baseChord: 'A minor', bassNote: C4, inversion: 'first' },
+    expectedChord: { symbol: 'Am/C', baseChord: 'A minor', bassNote: 0, inversion: '/C' },
   },
 } as const;
 
