@@ -7,3 +7,4 @@ dist
 .idea/
 .vite
 /test_*
+.DS_store
