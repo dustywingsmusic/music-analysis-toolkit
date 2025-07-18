@@ -11,8 +11,8 @@ frontend/dist/
 .local_docs/
 
 # Env files
-frontend/.env.*
-!.env.*.example
+/.env.local
+/.env.prod
 
 # IDE
 .idea/

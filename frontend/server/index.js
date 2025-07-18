@@ -1,3 +1,18 @@
+/**
+ * @file This file sets up and runs an Express.js server for the Music Theory Toolkit frontend.
+ *
+ * Key functionalities include:
+ * - Serving the static, compiled React application from the 'dist' directory.
+ * - Providing a `/health` endpoint for service health monitoring.
+ * - Offering a `/api/log` endpoint for the client-side application to send logs to the server.
+ * - Conditionally initializing and using Google Cloud Logging for centralized log management,
+ *   primarily for production environments. It falls back to console logging if Cloud Logging is
+ *   unavailable or disabled.
+ * - Handling Cross-Origin Resource Sharing (CORS) to allow requests from different origins,
+ *   which is particularly useful during development.
+ * - Implementing basic error handling and graceful shutdown procedures for process signals
+ *   (SIGTERM, SIGINT).
+ */
 import express from 'express';
 import path from 'path';
 import { Logging } from '@google-cloud/logging';
