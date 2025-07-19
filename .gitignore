@@ -1,5 +1,5 @@
 # ← backend (if any caches)
-backend/__pycache__/
+__pycache__
 
 # Node / Vite-cache / builds
 node_modules

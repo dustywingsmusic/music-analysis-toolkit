@@ -46,6 +46,8 @@ if (isProduction || hasGoogleCloudProject) {
   }
 } else {
   console.log('Cloud Logging disabled in development environment');
+  console.log(`Environment: ${process.env.NODE_ENV || 'BLAH'}`);
+  console.log(`hasGoogleCloudProject: ${hasGoogleCloudProject} || 'BLAH1'}`)
   cloudLoggingEnabled = false;
 }
 
