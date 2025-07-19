@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e  # Exit on any error
 
-echo "Starting deployment process..."
-
 # Load environment variables from .env.prod
 if [ ! -f .env.prod ]; then
   echo "Error: .env.prod file not found!"
@@ -11,64 +9,116 @@ fi
 
 export $(cat .env.prod | xargs)
 
-# Validate required environment variables
-if [ -z "$PROJECT_ID" ]; then
-  echo "Error: PROJECT_ID not set in .env.prod"
+usage() {
+  echo "Usage: $0 {dev|test|deploy-backend|deploy-frontend|deploy-all}"
   exit 1
+}
+
+if [ -z "$1" ]; then
+  usage
 fi
 
-if [ -z "$VITE_GEMINI_API_KEY" ]; then
-  echo "Error: VITE_GEMINI_API_KEY not set in .env.prod"
-  exit 1
-fi
 
-# --- Enable required APIs ---
-echo "Enabling Cloud Run and Cloud Logging APIs..."
-gcloud services enable run.googleapis.com \
-                       logging.googleapis.com \
-                       cloudresourcemanager.googleapis.com \
-                       --project="$PROJECT_ID"
-echo "APIs enabled."
+case "$1" in
+  dev)
+    echo "Starting backend..."
+    uvicorn backend.app.main:app --reload &
+    echo "Starting logging server..."
+    cd frontend
+    npm run dev:server &
+    echo "Starting frontend dev server with proxy..."
+    npm run dev
+    ;;
 
-# --- Server-Side Cloud Logging Setup ---
-# The application now uses server-side logging with service account authentication.
-# Cloud Run automatically provides service account credentials for Cloud Logging.
-echo "Using server-side Cloud Logging with service account authentication"
+  test)
+    npm --prefix frontend run test
+#    cd backend
+#    pip install -r requirements.txt
+#    pytest
+    ;;
 
-echo "Building Docker image..."
-# Build and tag the image
-docker build --platform linux/amd64 -t gcr.io/"$PROJECT_ID"/music-theory-toolkit .
+  deploy-backend)
+    # --- Configuration Variables ---
+    # You could also move these to your .env.prod file
+    GCP_REGION="us-central1"
+    BACKEND_SERVICE_NAME="music-theory-toolkit-backend"
+    BACKEND_IMAGE_NAME="gcr.io/$PROJECT_ID/$BACKEND_SERVICE_NAME"
 
-echo "Pushing image to Google Container Registry..."
-# Push to GCR
-docker push gcr.io/"$PROJECT_ID"/music-theory-toolkit
+    # --- Pre-flight Check ---
+    if [ ! -f backend/Dockerfile ]; then
+      echo "Error: backend/Dockerfile not found!"
+      echo "Please create a Dockerfile for the backend service before deploying."
+      exit 1
+    fi
 
-echo "Managing API key in Secret Manager..."
-# Store API key in Secret Manager
-if gcloud secrets describe gemini-api-key --project="$PROJECT_ID" --quiet >/dev/null 2>&1; then
-  echo "Secret 'gemini-api-key' already exists. Adding new version..."
-  echo "$VITE_GEMINI_API_KEY" | gcloud secrets versions add gemini-api-key --data-file=- --project="$PROJECT_ID" --quiet
-else
-  echo "Creating new secret 'gemini-api-key'..."
-  echo "$VITE_GEMINI_API_KEY" | gcloud secrets create gemini-api-key --replication-policy="automatic" --data-file=- --project="$PROJECT_ID" --quiet
-fi
+    echo "Enabling required Google Cloud services..."
+    gcloud services enable run.googleapis.com \
+                           logging.googleapis.com \
+                           secretmanager.googleapis.com \
+                           cloudbuild.googleapis.com \
+                           --project="$PROJECT_ID"
 
-echo "Deploying to Cloud Run..."
-# Deploy with server-side logging support
-gcloud run deploy music-theory-toolkit \
-  --image gcr.io/"$PROJECT_ID"/music-theory-toolkit \
-  --platform managed \
-  --region us-central1 \
-  --allow-unauthenticated \
-  --port 8080 \
-  --set-secrets GEMINI_API_KEY=gemini-api-key:latest \
-  --set-env-vars GOOGLE_CLOUD_PROJECT="$PROJECT_ID",NODE_ENV=production \
-  --memory 1Gi \
-  --cpu 1 \
-  --max-instances 10 \
-  --timeout 300 \
-  --project="$PROJECT_ID" \
-  --quiet
+    echo "Building and pushing backend Docker image..."
+    gcloud builds submit backend --tag "$BACKEND_IMAGE_NAME" --project="$PROJECT_ID"
 
-echo "Deployment completed successfully!"
-echo "Your application should be available at the URL provided above."
+    echo "Deploying backend to Cloud Run..."
+    gcloud run deploy "$BACKEND_SERVICE_NAME" \
+      --image "$BACKEND_IMAGE_NAME" \
+      --platform managed \
+      --region "$GCP_REGION" \
+      --allow-unauthenticated \
+      --port 8080 \
+      --set-secrets GEMINI_API_KEY=gemini-api-key:latest \
+      --set-env-vars GOOGLE_CLOUD_PROJECT="$PROJECT_ID" \
+      --memory 1Gi \
+      --cpu 1 \
+      --max-instances 10 \
+      --timeout 300 \
+      --project="$PROJECT_ID" \
+      --quiet
+    ;;
+
+  deploy-frontend)
+    # --- Configuration Variables ---
+    GCP_REGION="us-central1"
+    FRONTEND_SERVICE_NAME="music-theory-toolkit-frontend"
+    FRONTEND_IMAGE_NAME="gcr.io/$PROJECT_ID/$FRONTEND_SERVICE_NAME"
+
+    # --- Pre-flight Check ---
+    if [ ! -f frontend/Dockerfile ]; then
+      echo "Error: frontend/Dockerfile not found!"
+      echo "Please create a Dockerfile for the frontend service before deploying."
+      exit 1
+    fi
+
+    echo "Enabling required Google Cloud services..."
+    gcloud services enable run.googleapis.com \
+                           cloudbuild.googleapis.com \
+                           --project="$PROJECT_ID"
+
+    echo "Building and pushing frontend Docker image..."
+    gcloud builds submit frontend --tag "$FRONTEND_IMAGE_NAME" --project="$PROJECT_ID"
+
+    echo "Deploying frontend to Cloud Run..."
+    gcloud run deploy "$FRONTEND_SERVICE_NAME" \
+      --image "$FRONTEND_IMAGE_NAME" \
+      --platform managed \
+      --region "$GCP_REGION" \
+      --allow-unauthenticated \
+      --memory 512Mi \
+      --cpu 1 \
+      --max-instances 5 \
+      --timeout 120 \
+      --project="$PROJECT_ID" \
+      --quiet
+    ;;
+
+  deploy-all)
+    "$0" deploy-backend
+    "$0" deploy-frontend
+    ;;
+
+  *)
+    usage
+    ;;
+esac
