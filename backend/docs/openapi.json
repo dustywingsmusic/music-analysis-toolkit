@@ -1,9 +1,9 @@
 {
-  "openapi": "3.0.0",
+  "openapi": "3.1.0",
   "info": {
-    "title": "Audio Mode Analysis API",
-    "version": "1.1.0",
-    "description": "API for analyzing audio files to determine their musical mode and key signature. It provides a global analysis for the entire file and a detailed local analysis for a specific time segment, distinguishing between the modal tonic and the parent major key signature."
+    "title": "Advanced Audio Mode Analysis API",
+    "version": "2.0.0",
+    "description": "API for analyzing audio files to determine global and local musical context. It distinguishes between full modulations, transient modal shifts, and stable regions using cadence detection and harmonic analysis, providing confidence scores for its conclusions."
   },
   "servers": [
     {
@@ -11,14 +11,14 @@
       "description": "Production server (Google Cloud Run)"
     },
     {
-      "url": "http://localhost:8080",
+      "url": "http://localhost:8000",
       "description": "Local development server"
     }
   ],
   "paths": {
     "/analyze-mode/": {
       "post": {
-        "summary": "Analyze musical mode and key signature of an audio segment",
+        "summary": "Analyze global and local musical context of an audio file",
         "requestBody": {
           "required": true,
           "content": {
@@ -34,22 +34,17 @@
                   "start": {
                     "type": "number",
                     "format": "float",
-                    "description": "Start time in seconds for the segment to analyze. Defaults to 0.0.",
+                    "description": "Start time in seconds for the local segment analysis. Defaults to 0.0.",
                     "default": 0.0
                   },
                   "end": {
                     "type": "number",
                     "format": "float",
-                    "description": "End time in seconds for the segment to analyze. If not provided, analysis goes to the end of the audio.",
+                    "description": "End time in seconds for the local segment analysis. If not provided, analysis goes to the end of the audio.",
                     "nullable": true
                   }
                 },
                 "required": ["audio"]
-              },
-              "encoding": {
-                "audio": {
-                  "contentType": "audio/wav, audio/mpeg, audio/flac"
-                }
               }
             }
           }
@@ -63,148 +58,113 @@
                   "$ref": "#/components/schemas/ModeAnalysisResponse"
                 },
                 "example": {
-                  "duration_seconds": 180.5,
-                  "segment_seconds": 15.2,
-                  "sample_rate": 44100,
-                  "average_chroma": [0.1, 0.1, 0.2, 0.8, 0.2, 0.9, 0.1, 0.8, 0.1, 0.7, 0.1, 0.6],
-                  "chromagram_frames": [
-                    [0.1, 0.1, 0.2, 0.8, 0.2, 0.9, 0.1, 0.8, 0.1, 0.7, 0.1, 0.6]
-                  ],
-                  "frame_count_per_pitch_class": {
-                    "C": 10, "C#": 5, "D": 20, "D#": 150, "E": 25, "F": 180, "F#": 15, "G": 160, "G#": 12, "A": 140, "A#": 8, "B": 120
+                  "global": {
+                    "tonic": "G",
+                    "key_signature": "G minor",
+                    "mode": "Aeolian",
+                    "confidence": 0.92
                   },
-                  "detected_notes": ["C", "D", "D#", "E", "F", "G", "A", "B"],
-                  "suggested_mode": "E Phrygian",
-                  "local_tonic": "E",
-                  "local_key_signature": "C Major",
-                  "parent_tonic": "A",
-                  "parent_key_signature": "C Major",
-                  "match_scores": {
-                    "E Phrygian": 0.95,
-                    "A Minor": 0.88,
-                    "C Major": 0.85
+                  "local": {
+                    "segment_start": 30.0,
+                    "segment_end": 45.0,
+                    "tonic": "C",
+                    "key_signature": "C minor",
+                    "mode": "Aeolian",
+                    "match_score": 0.95,
+                    "region_type": "modal_shift",
+                    "region_confidence": 0.88
+                  },
+                  "analysis": {
+                    "chromagram_summary": [0.8, 0.1, 0.7, 0.9, 0.2, 0.6, 0.1, 0.9, 0.3, 0.5, 0.2, 0.4],
+                    "cadence_detected": true,
+                    "borrowed_tones": ["Ab"],
+                    "cadential_strength": 0.7
                   },
                   "visuals": {
-                    "chromagram_base64": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUg...",
-                    "histogram_base64": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUg..."
+                    "visuals": [
+                      {
+                        "name": "global_chromagram",
+                        "scope": "global",
+                        "image_base64": "data:image/png;base64,iVBORw0KGgoAAA..."
+                      },
+                      {
+                        "name": "local_histogram",
+                        "scope": "local",
+                        "image_base64": "data:image/png;base64,iVBORw0KGgoAAA..."
+                      }
+                    ]
                   }
                 }
               }
             }
           },
-          "400": {
-            "description": "Bad Request - Invalid audio file or parameters."
-          },
-          "500": {
-            "description": "Internal Server Error."
-          }
+          "400": { "description": "Bad Request - Invalid audio file or parameters." },
+          "500": { "description": "Internal Server Error." }
         }
       }
     }
   },
   "components": {
     "schemas": {
+      "GlobalAnalysis": {
+        "type": "object",
+        "properties": {
+          "tonic": {"type": "string", "description": "Root of the parent key."},
+          "key_signature": {"type": "string", "description": "Parent key signature, e.g., 'G minor'."},
+          "mode": {"type": "string", "description": "Parent mode, e.g., 'Aeolian'."},
+          "confidence": {"type": "number", "format": "float", "description": "Confidence score (0–1) for global analysis."}
+        },
+        "required": ["tonic", "key_signature", "mode", "confidence"]
+      },
+      "LocalAnalysis": {
+        "type": "object",
+        "properties": {
+          "segment_start": {"type": "number", "format": "float", "description": "Start time in seconds of the segment."},
+          "segment_end": {"type": "number", "format": "float", "description": "End time in seconds of the segment."},
+          "tonic": {"type": "string", "description": "Root of the local key."},
+          "key_signature": {"type": "string", "description": "Local key signature, e.g., 'C minor'."},
+          "mode": {"type": "string", "description": "Local mode, e.g., 'Aeolian'."},
+          "match_score": {"type": "number", "format": "float", "description": "Similarity score (0–1) for the mode match."},
+          "region_type": {"type": "string", "enum": ["modulation", "modal_shift", "stable"], "description": "Type of region: 'modulation', 'modal_shift', or 'stable'."},
+          "region_confidence": {"type": "number", "format": "float", "description": "Confidence score (0–1) for region_type classification."}
+        },
+        "required": ["segment_start", "segment_end", "tonic", "key_signature", "mode", "match_score", "region_type", "region_confidence"]
+      },
+      "AnalysisDetails": {
+        "type": "object",
+        "properties": {
+          "chromagram_summary": {"type": "array", "items": {"type": "number"}, "minItems": 12, "maxItems": 12, "description": "12-bin average chromagram for the segment."},
+          "cadence_detected": {"type": "boolean", "description": "Whether a cadential pattern was detected in the segment."},
+          "borrowed_tones": {"type": "array", "items": {"type": "string"}, "description": "List of non-diatonic notes detected."},
+          "cadential_strength": {"type": "number", "format": "float", "description": "Measure (0–1) of cadence prominence."}
+        },
+        "required": ["chromagram_summary", "cadence_detected", "borrowed_tones", "cadential_strength"]
+      },
+      "VisualizationItem": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string", "description": "Name of the visualization, e.g., 'global_chromagram'."},
+          "scope": {"type": "string", "enum": ["global", "local"], "description": "The scope of the visualization."},
+          "image_base64": {"type": "string", "description": "Base64 encoded PNG image."}
+        },
+        "required": ["name", "scope", "image_base64"]
+      },
+      "VisualsResponse": {
+        "type": "object",
+        "properties": {
+          "visuals": {"type": "array", "items": {"$ref": "#/components/schemas/VisualizationItem"}, "description": "List of generated visualizations."}
+        },
+        "required": ["visuals"]
+      },
       "ModeAnalysisResponse": {
         "type": "object",
         "properties": {
-          "duration_seconds": {
-            "type": "number",
-            "format": "float",
-            "description": "Total duration of the uploaded audio file in seconds."
-          },
-          "segment_seconds": {
-            "type": "number",
-            "format": "float",
-            "description": "Duration of the analyzed audio segment in seconds."
-          },
-          "sample_rate": {
-            "type": "integer",
-            "description": "Sample rate of the audio in Hz."
-          },
-          "average_chroma": {
-            "type": "array",
-            "items": { "type": "number" },
-            "minItems": 12,
-            "maxItems": 12,
-            "description": "A 12-element array representing the average activation of each pitch class (C, C#, ..., B) across the analyzed segment."
-          },
-          "chromagram_frames": {
-            "type": "array",
-            "items": {
-              "type": "array",
-              "items": { "type": "number" },
-              "minItems": 12,
-              "maxItems": 12
-            },
-            "description": "A list of 12-element arrays, where each inner array represents the pitch class activation for a single frame of the chromagram."
-          },
-          "frame_count_per_pitch_class": {
-            "type": "object",
-            "additionalProperties": { "type": "integer" },
-            "description": "A dictionary mapping each pitch class (e.g., 'C', 'C#') to the number of frames where it had a strong activation."
-          },
-          "detected_notes": {
-            "type": "array",
-            "items": { "type": "string" },
-            "description": "A list of pitch class names that were detected as significantly present in the audio segment."
-          },
-          "suggested_mode": {
-            "type": "string",
-            "description": "The full modal key (e.g., 'E Phrygian') that best matches the analyzed audio segment."
-          },
-          "local_tonic": {
-            "type": "string",
-            "description": "The tonic (root note) of the suggested mode for the segment (e.g., 'E')."
-          },
-          "local_key_signature": {
-            "type": "string",
-            "description": "The parent major key that shares the same notes as the local mode (e.g., 'C Major' for 'E Phrygian'). Represents the key signature."
-          },
-          "parent_tonic": {
-            "type": "string",
-            "description": "The determined tonic (root note) for the entire audio file's primary mode."
-          },
-          "parent_key_signature": {
-            "type": "string",
-            "description": "The parent major key for the entire audio file's primary mode. Represents the overall key signature of the track."
-          },
-          "match_scores": {
-            "type": "object",
-            "additionalProperties": { "type": "number" },
-            "description": "A dictionary of similarity scores for various musical modes, indicating how well each mode matches the audio segment."
-          },
-          "visuals": {
-            "type": "object",
-            "properties": {
-              "chromagram_base64": {
-                "type": "string",
-                "description": "Base64 encoded PNG image of the chromagram plot."
-              },
-              "histogram_base64": {
-                "type": "string",
-                "description": "Base64 encoded PNG image of the average pitch class activation histogram."
-              }
-            },
-            "required": ["chromagram_base64", "histogram_base64"],
-            "description": "Contains base64 encoded strings of generated visualizations."
-          }
+          "global": {"$ref": "#/components/schemas/GlobalAnalysis"},
+          "local": {"$ref": "#/components/schemas/LocalAnalysis"},
+          "analysis": {"$ref": "#/components/schemas/AnalysisDetails"},
+          "visuals": {"$ref": "#/components/schemas/VisualsResponse"}
         },
-        "required": [
-          "duration_seconds",
-          "segment_seconds",
-          "sample_rate",
-          "average_chroma",
-          "chromagram_frames",
-          "frame_count_per_pitch_class",
-          "detected_notes",
-          "suggested_mode",
-          "local_tonic",
-          "local_key_signature",
-          "parent_tonic",
-          "parent_key_signature",
-          "match_scores",
-          "visuals"
-        ]
+        "required": ["global", "local", "analysis", "visuals"]
       }
     }
   }

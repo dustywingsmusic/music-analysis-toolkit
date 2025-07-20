@@ -1,50 +1,63 @@
 import logging
 
-# Configure logging right at the start, before any other imports.
-# This ensures it's set up before any other module (like utils or fastapi) can use it.
-# The format now includes the logger's name for better context.
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(levelname)s:     [%(name)s] %(message)s'
-)
-
 import librosa
 from fastapi import FastAPI, File, Form, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from .models import ModeAnalysisResponse, VisualsResponse
-from .utils import (PITCH_CLASSES, analyze_audio_tonality, get_parent_major_key,
-                    guess_mode, plot_chromagram, plot_histogram)
-
-app = FastAPI(title="Audio Mode Analysis API", version="1.1.0")
-
-# CORS (adjust origins in production)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
-    allow_methods=["*"],  # Allows all methods (GET, POST, etc.)
-    allow_headers=["*"]   # Allows all headers
+from . import utils
+# Import the new models and utility functions
+from .models import (
+    ModeAnalysisResponse,
+    GlobalAnalysis,
+    LocalAnalysis,
+    AnalysisDetails,
+    VisualizationItem,
+    VisualsResponse
 )
 
-@app.post("/analyze-mode/", response_model=ModeAnalysisResponse, summary="Analyze musical mode and key signature of an audio segment")
-async def analyze_mode(
+# Configure logging right at the start
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(levelname)s:     [%(name)s] %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Initialize FastAPI app
+app = FastAPI(
+    title="Advanced Audio Mode Analysis API",
+    version="2.0.0",
+    description="Analyzes audio to determine global and local musical context, distinguishing between modulations and modal shifts."
+)
+
+# Add CORS middleware to allow requests from the frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, you should restrict this to your frontend's domain
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.post(
+    "/analyze-mode/",
+    response_model=ModeAnalysisResponse,
+    summary="Analyze global and local musical context of an audio file"
+)
+async def analyze_mode_endpoint(
     audio: UploadFile = File(..., description="The audio file to analyze (e.g., WAV, MP3)"),
-    start: float = Form(0.0, description="Start time in seconds for the segment to analyze. Defaults to 0.0."),
-    end: float = Form(None, description="End time in seconds for the segment to analyze. If not provided, analysis goes to the end of the audio.")
+    start: float = Form(0.0, description="Start time in seconds for the local segment analysis."),
+    end: float = Form(None, description="End time in seconds for the local segment analysis. If not provided, analysis uses the full audio.")
 ) -> ModeAnalysisResponse:
     """
-    Analyzes an uploaded audio file to determine its musical mode and key signature.
+    Performs a comprehensive musical analysis on an audio file.
 
-    It provides a `parent_key` for the entire file and a more detailed `local_key`
-    and `suggested_mode` for a user-specified time segment.
-
-    - **audio**: Upload an audio file (e.g., .wav, .mp3).
-    - **start**: The starting time in seconds for the detailed analysis segment.
-    - **end**: The ending time in seconds for the segment. If omitted, analysis continues to the end.
-
-    Returns a comprehensive analysis including the parent key, local key, suggested mode,
-    chromagram data, and visualizations for the specified segment.
+    - **Global Analysis**: Determines the overall parent key and mode for the entire file.
+    - **Local Analysis**: Focuses on a specific time segment to find its key and mode.
+    - **Contextual Classification**: Classifies the local segment as a stable region, a temporary 'modal_shift', or a full 'modulation'.
+    - **Detailed Metrics**: Provides supporting data like cadence detection, borrowed tones, and chromagram summaries.
     """
+    logger.info(f"Received analysis request for file: {audio.filename}")
+
     # --- Input Validation ---
     if end is not None and end < start:
         raise HTTPException(
@@ -53,77 +66,106 @@ async def analyze_mode(
         )
 
     # --- Audio Loading ---
-    # Load audio directly from the in-memory file object for efficiency.
-    # This avoids writing to disk.
     try:
-        y, sr_float = librosa.load(audio.file, sr=None)
-        # librosa.load returns sr as a float (e.g., 44100.0).
-        # We cast it to an int for semantic clarity and use within our app.
-        sr = int(sr_float)
+        y, sr = librosa.load(audio.file, sr=None)
+        duration = librosa.get_duration(y=y, sr=sr)
+        logger.info(f"Successfully loaded audio. Duration: {duration:.2f}s, Sample Rate: {sr}Hz")
     except Exception as e:
-        # Catch potential loading errors (e.g., corrupted or unsupported file)
+        logger.error(f"Failed to load audio file: {e}", exc_info=True)
         raise HTTPException(
             status_code=400,
             detail=f"Could not load or process the audio file. Error: {e}"
         )
 
-    # 1. Analyze the ENTIRE file for the parent key
-    parent_key, parent_tonic = analyze_audio_tonality(y, sr)
-    parent_key_signature = get_parent_major_key(parent_key)
-    duration = librosa.get_duration(y=y, sr=sr)
+    # --- Step 1: Global Analysis ---
+    logger.info("Performing global analysis...")
+    global_chroma = librosa.feature.chroma_cqt(y=y, sr=sr)
+    global_avg_chroma = global_chroma.mean(axis=1)
+    global_key_info = utils.find_best_key(global_avg_chroma)
+    global_key_obj = utils.get_key_object(global_key_info["key_signature"])
+    logger.info(f"Global key detected: {global_key_info['key_signature']} with confidence {global_key_info['confidence']:.2f}")
 
-    # 2. Define and analyze the SEGMENT for local details
-    start_sample = int(start * sr)
-    end_sample = int(end * sr) if end is not None else len(y)
+    # --- Step 2: Local Context Analysis ---
+    segment_start_sec = start
+    segment_end_sec = end if end is not None and end <= duration else duration
 
-    # Ensure the segment is within valid bounds
-    start_sample = max(0, start_sample)
-    end_sample = min(len(y), end_sample)
-
+    start_sample = librosa.time_to_samples(segment_start_sec, sr=sr)
+    end_sample = librosa.time_to_samples(segment_end_sec, sr=sr)
     y_segment = y[start_sample:end_sample]
-    segment_seconds = len(y_segment) / sr
 
-    # --- Chromagram extraction for the segment ---
-    chroma = librosa.feature.chroma_cqt(y=y_segment, sr=sr)
-    avg_chroma = chroma.mean(axis=1)
-    chromagram_frames = chroma.T.tolist()
+    logger.info(f"Analyzing local segment from {segment_start_sec:.2f}s to {segment_end_sec:.2f}s.")
 
-    # --- Frame counts per pitch class for the segment ---
-    # Identify strong activations (above 70% of the max in each frame)
-    # Using keepdims=True ensures correct broadcasting for the comparison.
-    strong_activations = chroma > (0.7 * chroma.max(axis=0, keepdims=True))
-    counts = strong_activations.sum(axis=1)
-    frame_count_per_pitch_class = {pc: int(counts[i]) for i, pc in enumerate(PITCH_CLASSES)}
+    if len(y_segment) == 0:
+        raise HTTPException(status_code=400, detail="The specified segment is empty or out of bounds.")
 
-    # --- Detected notes for the segment ---
-    detected_notes = [pc for i, pc in enumerate(PITCH_CLASSES) if counts[i] > 0]
+    local_chroma = librosa.feature.chroma_cqt(y=y_segment, sr=sr)
+    local_avg_chroma = local_chroma.mean(axis=1)
+    local_key_info = utils.find_best_key(local_avg_chroma)
+    local_key_obj = utils.get_key_object(local_key_info["key_signature"])
+    logger.info(f"Local key detected: {local_key_info['key_signature']} with match score {local_key_info['confidence']:.2f}")
 
-    # --- Mode matching for the segment ---
-    local_key, local_tonic, match_scores = guess_mode(avg_chroma)
-    local_key_signature = get_parent_major_key(local_key)
+    # --- Step 3: Shift vs. Modulation Classification ---
+    logger.info("Classifying region type (modulation vs. shift)...")
+    local_cadence_info = utils.detect_cadences(local_chroma, local_key_obj)
+    region_info = utils.classify_region_type(
+        global_key=global_key_obj,
+        local_key=local_key_obj,
+        local_key_confidence=local_key_info["confidence"],
+        local_cadence=local_cadence_info
+    )
+    logger.info(f"Region classified as: {region_info['type']} with confidence {region_info['confidence']:.2f}")
 
-    # --- Visualizations for the segment ---
-    chromagram_base64 = plot_chromagram(chroma, sr)
-    histogram_base64 = plot_histogram(avg_chroma)
+    # --- Step 4 & 5: Assemble Output JSON ---
+    logger.info("Assembling final response.")
 
-    # 3. Construct the final response
+    # Generate visualization plots
+    local_chromagram_plot = utils.plot_chromagram(local_chroma, sr, f"Local Chromagram ({segment_start_sec:.1f}s - {segment_end_sec:.1f}s)")
+    local_histogram_plot = utils.plot_histogram(local_avg_chroma, "Local Pitch Distribution")
+
+    # Build the response object using Pydantic models for validation
+    global_response = GlobalAnalysis(
+        tonic=global_key_info["tonic"],
+        key_signature=global_key_info["key_signature"],
+        mode=global_key_info["mode"],
+        confidence=global_key_info["confidence"]
+    )
+
+    local_response = LocalAnalysis(
+        segment_start=segment_start_sec,
+        segment_end=segment_end_sec,
+        tonic=local_key_info["tonic"],
+        key_signature=local_key_info["key_signature"],
+        mode=local_key_info["mode"],
+        match_score=local_key_info["confidence"],
+        region_type=region_info["type"],
+        region_confidence=region_info["confidence"]
+    )
+
+    analysis_response = AnalysisDetails(
+        chromagram_summary=local_avg_chroma.tolist(),
+        cadence_detected=local_cadence_info["detected"],
+        borrowed_tones=region_info["borrowed"],
+        cadential_strength=local_cadence_info["strength"]
+    )
+
+    visuals_response = VisualsResponse(
+        visuals=[
+            VisualizationItem(
+                name="local_chromagram",
+                scope="local",
+                image_base64=f"data:image/png;base64,{local_chromagram_plot}"
+            ),
+            VisualizationItem(
+                name="local_histogram",
+                scope="local",
+                image_base64=f"data:image/png;base64,{local_histogram_plot}"
+            )
+        ]
+    )
+
     return ModeAnalysisResponse(
-        duration_seconds=duration,
-        segment_seconds=segment_seconds,
-        sample_rate=sr,
-        average_chroma=avg_chroma.tolist(),
-        chromagram_frames=chromagram_frames,
-        frame_count_per_pitch_class=frame_count_per_pitch_class,
-        detected_notes=detected_notes,
-        suggested_mode=local_key,
-        local_tonic=local_tonic,
-        local_key_signature=local_key_signature,
-        parent_key=parent_key,
-        parent_tonic=parent_tonic,
-        parent_key_signature=parent_key_signature,
-        match_scores=match_scores,
-        visuals=VisualsResponse(
-            chromagram_base64=chromagram_base64,
-            histogram_base64=histogram_base64
-        )
+        global_=global_response,
+        local=local_response,
+        analysis=analysis_response,
+        visuals=visuals_response
     )
