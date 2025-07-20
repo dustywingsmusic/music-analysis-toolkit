@@ -70,9 +70,9 @@ case "$1" in
       --port 8080 \
       --set-secrets GEMINI_API_KEY=gemini-api-key:latest \
       --set-env-vars GOOGLE_CLOUD_PROJECT="$PROJECT_ID" \
-      --memory 1Gi \
-      --cpu 1 \
-      --max-instances 10 \
+      --memory 2Gi \
+      --cpu 2 \
+      --max-instances 2 \
       --timeout 300 \
       --project="$PROJECT_ID" \
       --quiet

@@ -2,8 +2,8 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Audio Mode Analysis API",
-    "version": "1.0.0",
-    "description": "API for analyzing audio segments and inferring musical modes."
+    "version": "1.1.0",
+    "description": "API for analyzing audio files to determine their musical mode and key signature. It provides a global analysis for the entire file and a detailed local analysis for a specific time segment, distinguishing between the modal tonic and the parent major key signature."
   },
   "servers": [
     {
@@ -18,7 +18,7 @@
   "paths": {
     "/analyze-mode/": {
       "post": {
-        "summary": "Analyze musical mode of an audio segment",
+        "summary": "Analyze musical mode and key signature of an audio segment",
         "requestBody": {
           "required": true,
           "content": {
@@ -29,27 +29,26 @@
                   "audio": {
                     "type": "string",
                     "format": "binary",
-                    "description": "The audio file to analyze (e.g., WAV, MP3)",
-                    "example": "audio.wav"
+                    "description": "The audio file to analyze (e.g., WAV, MP3)"
                   },
                   "start": {
                     "type": "number",
                     "format": "float",
                     "description": "Start time in seconds for the segment to analyze. Defaults to 0.0.",
-                    "example": 0.0
+                    "default": 0.0
                   },
                   "end": {
                     "type": "number",
                     "format": "float",
                     "description": "End time in seconds for the segment to analyze. If not provided, analysis goes to the end of the audio.",
-                    "example": 10.0
+                    "nullable": true
                   }
                 },
                 "required": ["audio"]
               },
               "encoding": {
                 "audio": {
-                  "contentType": "audio/wav, audio/mpeg"
+                  "contentType": "audio/wav, audio/mpeg, audio/flac"
                 }
               }
             }
@@ -57,56 +56,47 @@
         },
         "responses": {
           "200": {
-            "description": "Mode analysis results",
+            "description": "Successful analysis results.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ModeAnalysisResponse"
                 },
                 "example": {
-                  "duration_seconds": 60.5,
-                  "segment_seconds": 10.0,
-                  "sample_rate": 22050,
-                  "average_chroma": [0.8, 0.1, 0.7, 0.1, 0.9, 0.2, 0.6, 0.1, 0.5, 0.1, 0.4, 0.1],
+                  "duration_seconds": 180.5,
+                  "segment_seconds": 15.2,
+                  "sample_rate": 44100,
+                  "average_chroma": [0.1, 0.1, 0.2, 0.8, 0.2, 0.9, 0.1, 0.8, 0.1, 0.7, 0.1, 0.6],
                   "chromagram_frames": [
-                    [0.7, 0.0, 0.6, 0.0, 0.8, 0.0, 0.5, 0.0, 0.4, 0.0, 0.3, 0.0],
-                    [0.8, 0.1, 0.7, 0.1, 0.9, 0.1, 0.6, 0.1, 0.5, 0.1, 0.4, 0.1]
+                    [0.1, 0.1, 0.2, 0.8, 0.2, 0.9, 0.1, 0.8, 0.1, 0.7, 0.1, 0.6]
                   ],
                   "frame_count_per_pitch_class": {
-                    "C": 120,
-                    "C#": 10,
-                    "D": 100,
-                    "D#": 5,
-                    "E": 150,
-                    "F": 15,
-                    "F#": 90,
-                    "G": 20,
-                    "G#": 80,
-                    "A": 25,
-                    "A#": 70,
-                    "B": 30
+                    "C": 10, "C#": 5, "D": 20, "D#": 150, "E": 25, "F": 180, "F#": 15, "G": 160, "G#": 12, "A": 140, "A#": 8, "B": 120
                   },
-                  "detected_notes": ["C", "D", "E", "F#", "G#", "A#"],
-                  "suggested_mode": "C Major",
-                  "local_key": "C",
+                  "detected_notes": ["C", "D", "D#", "E", "F", "G", "A", "B"],
+                  "suggested_mode": "E Phrygian",
+                  "local_tonic": "E",
+                  "local_key_signature": "C Major",
+                  "parent_tonic": "A",
+                  "parent_key_signature": "C Major",
                   "match_scores": {
-                    "C Major": 0.98,
-                    "G Major": 0.75,
-                    "A Minor": 0.82
+                    "E Phrygian": 0.95,
+                    "A Minor": 0.88,
+                    "C Major": 0.85
                   },
                   "visuals": {
-                    "chromagram_base64": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
-                    "histogram_base64": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+                    "chromagram_base64": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUg...",
+                    "histogram_base64": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUg..."
                   }
                 }
               }
             }
           },
           "400": {
-            "description": "Bad Request - Invalid audio file or parameters"
+            "description": "Bad Request - Invalid audio file or parameters."
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Internal Server Error."
           }
         }
       }
@@ -133,9 +123,7 @@
           },
           "average_chroma": {
             "type": "array",
-            "items": {
-              "type": "number"
-            },
+            "items": { "type": "number" },
             "minItems": 12,
             "maxItems": 12,
             "description": "A 12-element array representing the average activation of each pitch class (C, C#, ..., B) across the analyzed segment."
@@ -144,9 +132,7 @@
             "type": "array",
             "items": {
               "type": "array",
-              "items": {
-                "type": "number"
-              },
+              "items": { "type": "number" },
               "minItems": 12,
               "maxItems": 12
             },
@@ -154,31 +140,37 @@
           },
           "frame_count_per_pitch_class": {
             "type": "object",
-            "additionalProperties": {
-              "type": "integer"
-            },
+            "additionalProperties": { "type": "integer" },
             "description": "A dictionary mapping each pitch class (e.g., 'C', 'C#') to the number of frames where it had a strong activation."
           },
           "detected_notes": {
             "type": "array",
-            "items": {
-              "type": "string"
-            },
+            "items": { "type": "string" },
             "description": "A list of pitch class names that were detected as significantly present in the audio segment."
           },
           "suggested_mode": {
             "type": "string",
-            "description": "The musical mode (e.g., 'C Major', 'A Minor') that best matches the analyzed audio segment based on cosine similarity."
+            "description": "The full modal key (e.g., 'E Phrygian') that best matches the analyzed audio segment."
           },
-          "local_key": {
+          "local_tonic": {
             "type": "string",
-            "description": "The tonic (root note) of the suggested musical mode (e.g., 'C', 'A')."
+            "description": "The tonic (root note) of the suggested mode for the segment (e.g., 'E')."
+          },
+          "local_key_signature": {
+            "type": "string",
+            "description": "The parent major key that shares the same notes as the local mode (e.g., 'C Major' for 'E Phrygian'). Represents the key signature."
+          },
+          "parent_tonic": {
+            "type": "string",
+            "description": "The determined tonic (root note) for the entire audio file's primary mode."
+          },
+          "parent_key_signature": {
+            "type": "string",
+            "description": "The parent major key for the entire audio file's primary mode. Represents the overall key signature of the track."
           },
           "match_scores": {
             "type": "object",
-            "additionalProperties": {
-              "type": "number"
-            },
+            "additionalProperties": { "type": "number" },
             "description": "A dictionary of similarity scores for various musical modes, indicating how well each mode matches the audio segment."
           },
           "visuals": {
@@ -193,6 +185,7 @@
                 "description": "Base64 encoded PNG image of the average pitch class activation histogram."
               }
             },
+            "required": ["chromagram_base64", "histogram_base64"],
             "description": "Contains base64 encoded strings of generated visualizations."
           }
         },
@@ -205,7 +198,10 @@
           "frame_count_per_pitch_class",
           "detected_notes",
           "suggested_mode",
-          "local_key",
+          "local_tonic",
+          "local_key_signature",
+          "parent_tonic",
+          "parent_key_signature",
           "match_scores",
           "visuals"
         ]
