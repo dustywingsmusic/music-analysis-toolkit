@@ -1,7 +1,7 @@
 // This module contains the logic for finding and rendering key/chord suggestions.
-import { ProcessedScale, DiatonicChord } from '../types';
-import { NOTES } from '../constants/scales';
-import { NOTE_TO_PITCH_CLASS } from '../constants/mappings';
+import { ProcessedScale, DiatonicChord } from '@/types';
+import { NOTES } from '@/constants/scales';
+import { NOTE_TO_PITCH_CLASS } from '@/constants/mappings';
 import { ChordMatch } from './chordLogic';
 
 // Sidebar callback types
@@ -116,6 +116,28 @@ export function updateMelodySuggestionsForSidebar(playedPitchClasses: Set<number
   let suggestions: MelodySuggestion[] = [];
   console.log('Starting scale matching process for sidebar');
 
+  // Enhanced 5-6 note analysis with pentatonic/hexatonic prioritization
+  if (playedPitchClasses.size >= 5 && playedPitchClasses.size <= 6) {
+    console.log('🎯 Using enhanced 5-6 note analysis with pentatonic/hexatonic prioritization');
+    const enhancedResult = analyzePentatonicHexatonic(playedPitchClasses);
+    
+    // Convert DetectionSuggestion[] to MelodySuggestion[]
+    const enhancedSuggestions: MelodySuggestion[] = enhancedResult.suggestions.map(suggestion => ({
+      name: suggestion.name,
+      matchCount: suggestion.matchCount,
+      pitchClasses: suggestion.pitchClasses,
+      confidence: suggestion.confidence,
+      matchingScales: suggestion.matchingScales
+    }));
+    
+    console.log('Enhanced analysis found', enhancedSuggestions.length, 'prioritized suggestions');
+    const finalSuggestions = enhancedSuggestions.slice(0, 5);
+    console.log('Calling sidebar callback with', finalSuggestions.length, 'enhanced suggestions');
+    melodySuggestionCallback(finalSuggestions);
+    return;
+  }
+
+  // Original logic for other note counts
   // Find all scales that contain all the played notes (exact matches)
   const exactMatches = allScales.filter((scale) => {
     // Check if all played notes are contained in this scale
@@ -242,6 +264,254 @@ export function updateMelodySuggestionsForSidebar(playedPitchClasses: Set<number
   const finalSuggestions = suggestions.slice(0, 5);
   console.log('Calling sidebar callback with', finalSuggestions.length, 'suggestions');
   melodySuggestionCallback(finalSuggestions);
+}
+
+// Enhanced 5-6 note analysis interfaces and types
+interface DetectionSuggestion extends MelodySuggestion {
+  matchType: 'pentatonic' | 'hexatonic' | 'complete' | 'partial' | 'minimal';
+  priority: number;
+  closeness: number;
+  expectedNotes?: number;
+}
+
+interface UnifiedDetectionResult {
+  suggestions: DetectionSuggestion[];
+  category: 'pentatonic' | 'complete' | 'partial';
+  closeness: number;
+}
+
+type DetectionCategory = 'pentatonic' | 'complete' | 'partial';
+
+/**
+ * Enhanced analysis for 5-6 note input with pentatonic/hexatonic prioritization
+ * @param playedPitchClasses Set of played pitch classes
+ * @returns UnifiedDetectionResult with prioritized suggestions
+ */
+function analyzePentatonicHexatonic(playedPitchClasses: Set<number>): UnifiedDetectionResult {
+  console.log('🎵 Analyzing pentatonic/hexatonic scales with prioritization for', playedPitchClasses.size, 'notes');
+  
+  const suggestions: DetectionSuggestion[] = [];
+  const noteCount = playedPitchClasses.size;
+  
+  // First: Find pentatonic/hexatonic matches (higher priority)
+  const pentatonicMatches = findPentatonicMatches(playedPitchClasses);
+  pentatonicMatches.forEach(match => {
+    suggestions.push({
+      ...match,
+      matchType: 'pentatonic',
+      priority: 1,
+      closeness: calculateCompleteness(noteCount, match.expectedNotes || 5),
+      expectedNotes: 5
+    });
+  });
+  
+  const hexatonicMatches = findHexatonicMatches(playedPitchClasses);
+  hexatonicMatches.forEach(match => {
+    suggestions.push({
+      ...match,
+      matchType: 'hexatonic',
+      priority: 1,
+      closeness: calculateCompleteness(noteCount, match.expectedNotes || 6),
+      expectedNotes: 6
+    });
+  });
+  
+  // Second: Find complete scale matches (lower priority)
+  const completeScaleMatches = findCompleteScaleMatches(playedPitchClasses);
+  completeScaleMatches.forEach(match => {
+    suggestions.push({
+      ...match,
+      matchType: 'complete',
+      priority: 2,
+      closeness: calculateCompleteness(noteCount, 7), // 7-note scales
+      expectedNotes: 7
+    });
+  });
+  
+  // Sort by priority, then by completeness
+  const sortedSuggestions = sortSuggestionsByPriority(suggestions);
+  
+  // Determine category based on best matches
+  let category: DetectionCategory = 'partial';
+  if (pentatonicMatches.length > 0 || hexatonicMatches.length > 0) {
+    category = 'pentatonic';
+  } else if (completeScaleMatches.length > 0) {
+    category = 'complete';
+  }
+  
+  return {
+    suggestions: sortedSuggestions,
+    category,
+    closeness: sortedSuggestions.length > 0 ? sortedSuggestions[0].closeness : 0
+  };
+}
+
+/**
+ * Sort suggestions by priority first, then by completeness
+ */
+function sortSuggestionsByPriority(suggestions: DetectionSuggestion[]): DetectionSuggestion[] {
+  return suggestions.sort((a, b) => {
+    // First: Sort by priority (1 = pentatonic/hexatonic, 2 = complete)
+    if (a.priority !== b.priority) {
+      return a.priority - b.priority;
+    }
+    
+    // Second: Sort by completeness percentage
+    return b.closeness - a.closeness;
+  });
+}
+
+/**
+ * Calculate completeness percentage
+ */
+function calculateCompleteness(playedNotes: number, expectedNotes: number): number {
+  return Math.min(playedNotes / expectedNotes, 1.0);
+}
+
+/**
+ * Find pentatonic scale matches
+ */
+function findPentatonicMatches(playedPitchClasses: Set<number>): MelodySuggestion[] {
+  const matches: MelodySuggestion[] = [];
+  
+  // Filter scales that are pentatonic (5 notes) and contain all played notes
+  const pentatonicScales = allScales.filter(scale => 
+    scale.pitchClasses.size === 5 && 
+    Array.from(playedPitchClasses).every(note => scale.pitchClasses.has(note))
+  );
+  
+  // Group by pitch class sets
+  const scaleGroups = new Map<string, ProcessedScale[]>();
+  pentatonicScales.forEach(scale => {
+    const pitchClassKey = Array.from(scale.pitchClasses).sort().join(',');
+    if (!scaleGroups.has(pitchClassKey)) {
+      scaleGroups.set(pitchClassKey, []);
+    }
+    scaleGroups.get(pitchClassKey)!.push(scale);
+  });
+  
+  scaleGroups.forEach(scales => {
+    if (scales.length > 0) {
+      const modeNames = scales
+        .filter(scale => scale.name)
+        .map(scale => `${NOTES[scale.rootNote]} ${scale.name}`)
+        .join(', ');
+      
+      if (modeNames) {
+        const matchingScales = scales
+          .filter(scale => scale.name)
+          .map(scale => ({ id: scale.id, name: scale.name }));
+        
+        matches.push({
+          name: `Pentatonic: ${modeNames}`,
+          matchCount: playedPitchClasses.size,
+          pitchClasses: scales[0].pitchClasses,
+          confidence: calculateCompleteness(playedPitchClasses.size, 5),
+          matchingScales: matchingScales
+        });
+      }
+    }
+  });
+  
+  return matches;
+}
+
+/**
+ * Find hexatonic scale matches
+ */
+function findHexatonicMatches(playedPitchClasses: Set<number>): MelodySuggestion[] {
+  const matches: MelodySuggestion[] = [];
+  
+  // Filter scales that are hexatonic (6 notes) and contain all played notes
+  const hexatonicScales = allScales.filter(scale => 
+    scale.pitchClasses.size === 6 && 
+    Array.from(playedPitchClasses).every(note => scale.pitchClasses.has(note))
+  );
+  
+  // Group by pitch class sets
+  const scaleGroups = new Map<string, ProcessedScale[]>();
+  hexatonicScales.forEach(scale => {
+    const pitchClassKey = Array.from(scale.pitchClasses).sort().join(',');
+    if (!scaleGroups.has(pitchClassKey)) {
+      scaleGroups.set(pitchClassKey, []);
+    }
+    scaleGroups.get(pitchClassKey)!.push(scale);
+  });
+  
+  scaleGroups.forEach(scales => {
+    if (scales.length > 0) {
+      const modeNames = scales
+        .filter(scale => scale.name)
+        .map(scale => `${NOTES[scale.rootNote]} ${scale.name}`)
+        .join(', ');
+      
+      if (modeNames) {
+        const matchingScales = scales
+          .filter(scale => scale.name)
+          .map(scale => ({ id: scale.id, name: scale.name }));
+        
+        matches.push({
+          name: `Hexatonic: ${modeNames}`,
+          matchCount: playedPitchClasses.size,
+          pitchClasses: scales[0].pitchClasses,
+          confidence: calculateCompleteness(playedPitchClasses.size, 6),
+          matchingScales: matchingScales
+        });
+      }
+    }
+  });
+  
+  return matches;
+}
+
+/**
+ * Find complete scale matches (7+ notes)
+ */
+function findCompleteScaleMatches(playedPitchClasses: Set<number>): MelodySuggestion[] {
+  const matches: MelodySuggestion[] = [];
+  
+  // Filter scales that are 7+ notes and contain all played notes
+  const completeScales = allScales.filter(scale => 
+    scale.pitchClasses.size >= 7 && 
+    Array.from(playedPitchClasses).every(note => scale.pitchClasses.has(note))
+  );
+  
+  // Group by pitch class sets
+  const scaleGroups = new Map<string, ProcessedScale[]>();
+  completeScales.forEach(scale => {
+    const pitchClassKey = Array.from(scale.pitchClasses).sort().join(',');
+    if (!scaleGroups.has(pitchClassKey)) {
+      scaleGroups.set(pitchClassKey, []);
+    }
+    scaleGroups.get(pitchClassKey)!.push(scale);
+  });
+  
+  scaleGroups.forEach(scales => {
+    if (scales.length > 0) {
+      const modeNames = scales
+        .filter(scale => scale.name)
+        .slice(0, 3) // Limit to avoid clutter
+        .map(scale => `${NOTES[scale.rootNote]} ${scale.name}`)
+        .join(', ');
+      
+      if (modeNames) {
+        const matchingScales = scales
+          .filter(scale => scale.name)
+          .slice(0, 3)
+          .map(scale => ({ id: scale.id, name: scale.name }));
+        
+        matches.push({
+          name: `Complete scale (${playedPitchClasses.size}/${scales[0].pitchClasses.size}): ${modeNames}`,
+          matchCount: playedPitchClasses.size,
+          pitchClasses: scales[0].pitchClasses,
+          confidence: calculateCompleteness(playedPitchClasses.size, scales[0].pitchClasses.size),
+          matchingScales: matchingScales
+        });
+      }
+    }
+  });
+  
+  return matches;
 }
 
 // Interface for key suggestion results
