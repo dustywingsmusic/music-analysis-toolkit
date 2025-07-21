@@ -17,13 +17,6 @@ class VisualizationItem(BaseModel):
         description="Base64 encoded PNG image of the visualization."
     )
 
-class VisualsResponse(BaseModel):
-    """Contains the contextualized visualizations for both global and local analyses."""
-    visuals: List[VisualizationItem] = Field(
-        ...,
-        description="List of generated visualizations with contextual metadata."
-    )
-
 # New models for global, local, and analysis details
 class GlobalAnalysis(BaseModel):
     """Overall analysis for the entire audio file."""
@@ -117,7 +110,7 @@ class ModeAnalysisResponse(BaseModel):
         ...,
         description="Detailed harmonic analysis metrics."
     )
-    visuals: VisualsResponse = Field(
+    visuals: List[VisualizationItem] = Field(
         ...,
         description="List of generated visualizations with contextual metadata."
     )

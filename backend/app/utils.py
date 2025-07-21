@@ -6,6 +6,11 @@ from typing import Dict, List, Tuple, Any
 
 import librosa
 import librosa.display
+
+# This MUST be done before importing pyplot
+import matplotlib
+matplotlib.use('Agg')
+
 import matplotlib.pyplot as plt
 import numpy as np
 from music21 import key, pitch, scale
