@@ -1,144 +1,161 @@
+# /Users/samwachtel/PycharmProjects/music_modes_app/backend/app/utils.py
+import logging
 import base64
 from io import BytesIO
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Any
 
+import librosa
 import librosa.display
+
+# This MUST be done before importing pyplot
+import matplotlib
+matplotlib.use('Agg')
+
 import matplotlib.pyplot as plt
 import numpy as np
-from music21 import scale
+from music21 import key, pitch, scale
 
-# Define the standard 12 pitch classes
-PITCH_CLASSES: List[str] = ['C', 'C#', 'D', 'D#', 'E', 'F',
-                            'F#', 'G', 'G#', 'A', 'A#', 'B']
+# --- Constants and Configuration ---
+PITCH_CLASSES: List[str] = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
-def guess_mode(chroma_vector: np.ndarray) -> Tuple[str, str, Dict[str, float]]:
+# Krumhansl-Schmuckler key profiles for correlation
+KS_PROFILES = {
+    'major': [6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88],
+    'minor': [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17]
+}
+
+
+# --- Core Analysis Functions ---
+
+def find_best_key(chroma_vector: np.ndarray) -> Dict[str, Any]:
     """
-    Matches a given chroma vector to known musical scales/modes using cosine similarity.
-
-    Args:
-        chroma_vector (np.ndarray): A 12-element numpy array representing the
-                                    average pitch class activation.
-
-    Returns:
-        Tuple[str, str, Dict[str, float]]: A tuple containing:
-            - best_mode_name (str): The name of the best-matching mode (e.g., "C Major").
-            - local_key (str): The tonic of the best-matching mode (e.g., "C").
-            - match_scores (Dict[str, float]): A dictionary of all tested modes
-                                                and their similarity scores.
+    Finds the best-fitting key for a chroma vector using Krumhansl-Schmuckler profiles.
+    Returns a dictionary with key, mode, tonic, and confidence.
     """
-    match_scores: Dict[str, float] = {}
-    best_score: float = -1.0
-    best_mode: str | None = None
+    if np.linalg.norm(chroma_vector) < 1e-6:
+        return {"key_signature": "N/A", "mode": "N/A", "tonic": "N/A", "confidence": 0.0}
 
-    # Normalize the input chroma vector to unit length
-    # This is crucial for cosine similarity
-    norm_chroma_vector = chroma_vector / np.linalg.norm(chroma_vector)
+    correlations = {}
+    for tonic_pc, tonic_name in enumerate(PITCH_CLASSES):
+        for mode_name, profile_data in KS_PROFILES.items():
+            profile = np.roll(profile_data, tonic_pc)
+            # Calculate Pearson correlation coefficient
+            corr = np.corrcoef(chroma_vector, profile)[0, 1]
+            full_key_name = f"{tonic_name} {mode_name}"
+            correlations[full_key_name] = corr
 
-    # Iterate through all possible tonics (C, C#, D, etc.)
-    for tonic in PITCH_CLASSES:
-        # Iterate through a selection of common musical scales/modes
-        for scale_class in [
-            scale.MajorScale, scale.MinorScale, scale.DorianScale,
-            scale.PhrygianScale, scale.LydianScale, scale.MixolydianScale,
-            scale.LocrianScale
-        ]:
-            try:
-                # Create a scale object for the current tonic and scale type
-                sc = scale_class(tonic)
-                # Get the pitch classes present in this scale over one octave
-                # 'tonic+'1'' and 'tonic+'2'' define the range for pitches
-                pcs_in_scale = [p.pitchClass for p in sc.getPitches(f'{tonic}1', f'{tonic}2')]
+    best_key = max(correlations, key=correlations.get)
+    confidence = correlations[best_key]
 
-                # Create a 12-element vector representing the current scale
-                # 1s indicate notes present in the scale, 0s indicate notes not present
-                scale_vector = np.zeros(12)
-                for pc in pcs_in_scale:
-                    scale_vector[pc] = 1
-                # Normalize the scale vector
-                scale_vector /= np.linalg.norm(scale_vector)
+    # Normalize confidence to be 0-1 for easier interpretation
+    confidence = (confidence + 1) / 2 if not np.isnan(confidence) else 0.0
 
-                # Calculate cosine similarity between the input chroma vector and the scale vector
-                sim = float(np.dot(norm_chroma_vector, scale_vector))
-                # Construct a readable name for the current mode
-                name = f"{tonic} {scale_class.__name__.replace('Scale','')}"
-                # Store the similarity score, rounded for readability
-                match_scores[name] = round(sim, 4)
+    tonic_name, mode_name = best_key.split()
+    mode_map = {'major': 'Ionian', 'minor': 'Aeolian'}
 
-                # Update best_mode if the current score is higher
-                if sim > best_score:
-                    best_score = sim
-                    best_mode = name
-            except Exception:
-                # Catch any potential errors during scale creation or processing
-                # and continue to the next scale
-                continue
+    return {
+        "key_signature": best_key,
+        "mode": mode_map.get(mode_name, mode_name),
+        "tonic": tonic_name,
+        "confidence": round(confidence, 4)
+    }
 
-    # Extract the local key (tonic) from the best-matching mode name
-    local_key = best_mode.split()[0] if best_mode else ""
-    return best_mode, local_key, match_scores
 
-def plot_chromagram(chroma: np.ndarray, sr: int) -> str:
+def detect_cadences(chroma: np.ndarray, key_obj: key.Key) -> Dict[str, Any]:
     """
-    Generates a chromagram plot and returns it as a base64 encoded PNG string.
-
-    Args:
-        chroma (np.ndarray): The chromagram data (e.g., from librosa.feature.chroma_cqt).
-        sr (int): The sample rate of the audio.
-
-    Returns:
-        str: Base64 encoded string of the chromagram plot image.
+    Simplified cadence detector looking for V-I or V-i harmonic prominence.
+    A real implementation would use temporal chord progression analysis.
     """
-    # Create a new figure and axes for the plot
-    fig, ax = plt.subplots(figsize=(8, 4))
-    # Display the chromagram using librosa's display function
-    img = librosa.display.specshow(chroma, y_axis='chroma', x_axis='time', sr=sr, ax=ax, cmap='coolwarm')
-    # Add a color bar to the plot
-    fig.colorbar(img, ax=ax)
-    # Set the title of the plot
-    ax.set_title("Chromagram (CQT)")
-    # Convert the matplotlib figure to a base64 string
-    return fig_to_base64(fig)
+    avg_chroma = chroma.mean(axis=1)
+    if np.linalg.norm(avg_chroma) < 1e-6:
+        return {"detected": False, "strength": 0.0}
 
-def plot_histogram(avg_chroma: np.ndarray) -> str:
+    tonic_pc = key_obj.tonic.pitchClass
+    dominant_pc = (tonic_pc + 7) % 12
+
+    # Check if dominant and tonic are among the top 3 most prominent notes
+    top_indices = np.argsort(avg_chroma)[-3:]
+    is_cadence_like = tonic_pc in top_indices and dominant_pc in top_indices
+
+    if is_cadence_like:
+        # Strength is the combined normalized energy of tonic and dominant
+        strength = (avg_chroma[tonic_pc] + avg_chroma[dominant_pc]) / np.sum(avg_chroma)
+        # Heuristically scale strength to be more intuitive (0-1)
+        strength = min(round(strength * 2.5, 2), 1.0)
+        return {"detected": True, "strength": strength}
+
+    return {"detected": False, "strength": 0.0}
+
+
+def classify_region_type(
+        global_key: key.Key,
+        local_key: key.Key,
+        local_key_confidence: float,
+        local_cadence: Dict
+) -> Dict[str, Any]:
     """
-    Generates a histogram plot of average pitch class activation and returns it
-    as a base64 encoded PNG string.
-
-    Args:
-        avg_chroma (np.ndarray): A 12-element numpy array of average pitch class activations.
-
-    Returns:
-        str: Base64 encoded string of the histogram plot image.
+    Classifies the local segment as a modulation, modal shift, or stable.
     """
-    # Create a new figure and axes for the plot
-    fig, ax = plt.subplots(figsize=(6, 2))
-    # Create a bar chart of average chroma values against pitch class names
-    ax.bar(PITCH_CLASSES, avg_chroma, color='royalblue')
-    # Set the title and Y-axis label
-    ax.set_title("Average Pitch Class Activation")
-    ax.set_ylabel("Intensity")
-    # Convert the matplotlib figure to a base64 string
-    return fig_to_base64(fig)
+    if global_key.name == local_key.name:
+        return {"type": "stable", "confidence": 0.95, "borrowed": []}
+
+    global_pcs = {p.pitchClass for p in global_key.getScale().getPitches()}
+    local_pcs = {p.pitchClass for p in local_key.getScale().getPitches()}
+
+    borrowed_pcs = local_pcs - global_pcs
+    borrowed_notes = [PITCH_CLASSES[pc] for pc in borrowed_pcs]
+
+    # Modulation criteria: new key is strongly established with a cadence.
+    is_modulation = (
+            local_key_confidence > 0.80 and
+            local_cadence["detected"] and
+            local_cadence["strength"] > 0.60
+    )
+
+    if is_modulation:
+        # Confidence is a weighted average of key and cadence confidence
+        confidence = (local_key_confidence * 0.5) + (local_cadence['strength'] * 0.5)
+        return {"type": "modulation", "confidence": round(confidence, 2), "borrowed": borrowed_notes}
+
+    # Otherwise, it's a modal shift (borrowed harmony without a full key change)
+    # Confidence is higher if there are fewer borrowed notes
+    confidence = max(0.5, 1.0 - (len(borrowed_notes) * 0.15))
+    return {"type": "modal_shift", "confidence": round(confidence, 2), "borrowed": borrowed_notes}
+
+
+# --- Helpers and Visualization ---
+
+def get_key_object(key_string: str) -> key.Key:
+    """Helper to create a music21 key object from a string like 'C minor'."""
+    try:
+        tonic, mode = key_string.split()
+        return key.Key(tonic, mode)
+    except (ValueError, AttributeError):
+        # Return a default key if parsing fails
+        return key.Key('C', 'major')
 
 def fig_to_base64(fig) -> str:
-    """
-    Converts a matplotlib figure to a base64 encoded PNG string.
-
-    Args:
-        fig: The matplotlib figure object.
-
-    Returns:
-        str: Base64 encoded string of the PNG image.
-    """
-    # Create a BytesIO buffer to save the figure
+    """Converts a matplotlib figure to a base64 encoded PNG string."""
     buf = BytesIO()
-    # Adjust layout to prevent labels from overlapping
     fig.tight_layout()
-    # Save the figure to the buffer in PNG format
-    fig.savefig(buf, format='png')
-    # Close the figure to free up memory
+    fig.savefig(buf, format='png', bbox_inches='tight')
     plt.close(fig)
-    # Seek to the beginning of the buffer
     buf.seek(0)
-    # Read the buffer content, base64 encode it, and decode to a UTF-8 string
     return base64.b64encode(buf.read()).decode('utf-8')
+
+def plot_chromagram(chroma: np.ndarray, sr: int, title: str) -> str:
+    """Generates a chromagram plot and returns it as a base64 encoded PNG string."""
+    fig, ax = plt.subplots(figsize=(8, 4))
+    img = librosa.display.specshow(chroma, y_axis='chroma', x_axis='time', sr=sr, ax=ax, cmap='coolwarm')
+    fig.colorbar(img, ax=ax)
+    ax.set_title(title)
+    return fig_to_base64(fig)
+
+def plot_histogram(avg_chroma: np.ndarray, title: str) -> str:
+    """Generates a histogram of average pitch class activation."""
+    fig, ax = plt.subplots(figsize=(6, 3))
+    ax.bar(PITCH_CLASSES, avg_chroma, color='royalblue')
+    ax.set_title(title)
+    ax.set_ylabel("Intensity")
+    ax.set_ylim(0, 1)  # Normalize y-axis for consistency
+    return fig_to_base64(fig)

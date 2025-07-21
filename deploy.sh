@@ -67,12 +67,14 @@ case "$1" in
       --platform managed \
       --region "$GCP_REGION" \
       --allow-unauthenticated \
+      --execution-environment gen2 \
       --port 8080 \
       --set-secrets GEMINI_API_KEY=gemini-api-key:latest \
       --set-env-vars GOOGLE_CLOUD_PROJECT="$PROJECT_ID" \
-      --memory 1Gi \
-      --cpu 1 \
-      --max-instances 10 \
+      --memory 4Gi \
+      --cpu 8 \
+      --concurrency=1 \
+      --max-instances 2 \
       --timeout 300 \
       --project="$PROJECT_ID" \
       --quiet

@@ -18,3 +18,7 @@ frontend/dist/
 .idea/
 *.iml
 .DS_store
+
+# Profiler output
+*.dat
+*.png
