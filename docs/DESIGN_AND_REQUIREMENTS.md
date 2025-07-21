@@ -266,6 +266,9 @@ The application implements a 4-tab navigation structure that maps directly to us
 - **Enhanced Integration**: Seamless cross-tab workflows
 - **Extended Reference**: Expanded scale families and exotic modes
 - **Composition Tools**: Mode-based composition assistance
+- **Contextual Instructions & Theory Guides**: Implement in-app tutorials and "how-to" guides.
+    - **Example Topic: "How to Calculate a Mode"**: Explain both the standard "count up" method (e.g., C Major's second degree is D, so D Dorian uses C Major's notes starting from D) and the "mirrored" or "negative harmony" concept.
+    - The mirrored concept explains how the interval pattern of a scale can be inverted downwards from the tonic. For example, the major scale pattern (`W-W-H-W-W-W-H`) mirrored downwards from C results in the C Phrygian mode (`C-Bb-Ab-G-F-Eb-Db`), demonstrating a deeper symmetrical relationship between modes.
 
 ---
 

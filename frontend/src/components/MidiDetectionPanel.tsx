@@ -7,8 +7,10 @@ interface MidiDetectionPanelProps {
   midiData?: {
     playedNotes: any[];
     playedPitchClasses: Set<number>;
-    mode: '7' | '5' | 'melody' | 'chord';
-    setMode: (mode: '7' | '5' | 'melody' | 'chord') => void;
+    detectionEnabled: boolean;  // Consolidated toggle for detection
+    setDetectionEnabled: (enabled: boolean) => void;
+    analysisFocus: 'automatic' | 'complete' | 'pentatonic' | 'chord';  // Analysis focus dropdown
+    setAnalysisFocus: (focus: 'automatic' | 'complete' | 'pentatonic' | 'chord') => void;
     clearPlayedNotes: () => void;
   };
   className?: string;
@@ -19,15 +21,15 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
   midiData,
   className = ''
 }) => {
-  const [baseKey, setBaseKey] = React.useState<string>('C');
-  const [keyMode, setKeyMode] = React.useState<'major' | 'minor'>('major');
   const [processedScales, setProcessedScales] = React.useState<ProcessedScale[]>([]);
 
   // Extract MIDI data from props with defaults
   const playedNotes = midiData?.playedNotes || [];
   const playedPitchClasses = midiData?.playedPitchClasses || new Set();
-  const midiMode = midiData?.mode || '7';
-  const setMidiMode = midiData?.setMode || (() => {});
+  const detectionEnabled = midiData?.detectionEnabled ?? true;
+  const setDetectionEnabled = midiData?.setDetectionEnabled || (() => {});
+  const analysisFocus = midiData?.analysisFocus || 'automatic';
+  const setAnalysisFocus = midiData?.setAnalysisFocus || (() => {});
   const clearPlayedNotes = midiData?.clearPlayedNotes || (() => {});
 
   const playedNoteNames = playedNotes.map(note => {
@@ -78,7 +80,7 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
 
   // Effect to find scale match when notes change
   useEffect(() => {
-    if (midiMode === 'melody' || midiMode === 'chord' || !onScaleHighlight) return;
+    if (!detectionEnabled || analysisFocus === 'chord' || !onScaleHighlight) return;
 
     if (playedPitchClasses.size === 0) {
       onScaleHighlight(null);
@@ -87,8 +89,9 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
 
     const playedCount = playedPitchClasses.size;
     let shouldCheck = false;
-    if (midiMode === '7' && playedCount === 7) shouldCheck = true;
-    if (midiMode === '5' && (playedCount === 5 || playedCount === 6)) shouldCheck = true;
+    if (analysisFocus === 'complete' && playedCount === 7) shouldCheck = true;
+    if (analysisFocus === 'pentatonic' && (playedCount === 5 || playedCount === 6)) shouldCheck = true;
+    if (analysisFocus === 'automatic' && (playedCount === 5 || playedCount === 6 || playedCount === 7)) shouldCheck = true;
 
     if (shouldCheck) {
       const scalesToSearch = processedScales.filter(s => s.pitchClasses.size === playedPitchClasses.size);
@@ -115,86 +118,43 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
         onScaleHighlight(null);
       }
     }
-  }, [playedNotes, playedPitchClasses, midiMode, processedScales, onScaleHighlight]);
+  }, [playedNotes, playedPitchClasses, detectionEnabled, analysisFocus, processedScales, onScaleHighlight]);
 
   return (
     <div className={`midi-detection-panel ${className}`}>
       <div className="midi-detection-card">
         <h3 className="text-xs font-semibold mb-2 text-cyan-400">MIDI Detection</h3>
 
-        {/* Detection Mode */}
+        {/* Detection Toggle */}
         <div className="mb-2">
-          <p className="text-xs font-medium mb-1">Detection Mode</p>
-          <div className="grid grid-cols-2 gap-1 text-xs">
-            {(['7', '5', 'melody', 'chord'] as const).map((m) => (
-              <label key={m} className="flex items-center gap-1 cursor-pointer">
-                <input
-                  type="radio"
-                  name="midi-mode-detection"
-                  value={m}
-                  checked={midiMode === m}
-                  onChange={(e) => setMidiMode(e.target.value as typeof midiMode)}
-                  className="w-3 h-3"
-                />
-                <span className="text-xs">
-                  {m === '7' ? '7-note' :
-                   m === '5' ? '5/6-note' :
-                   m === 'melody' ? 'Melody' :
-                   'Chord'}
-                </span>
-              </label>
-            ))}
-          </div>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={detectionEnabled}
+              onChange={(e) => setDetectionEnabled(e.target.checked)}
+              className="w-3 h-3"
+            />
+            <span className="text-xs font-medium">Enable Detection</span>
+          </label>
         </div>
 
-        {/* Chord Mode Settings */}
-        {midiMode === 'chord' && (
-          <div className="mb-2 p-1.5 bg-slate-800 rounded">
-            <div className="mb-1.5">
-              <label htmlFor="base-key-detection" className="block text-xs font-medium mb-0.5">
-                Base Key
-              </label>
-              <select
-                id="base-key-detection"
-                value={baseKey}
-                onChange={(e) => setBaseKey(e.target.value)}
-                className="w-full px-1.5 py-0.5 text-xs bg-slate-700 border border-slate-600 rounded focus:outline-none focus:border-cyan-400"
-              >
-                {NOTES.map(note => (
-                  <option key={note} value={note}>{note}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <p className="text-xs font-medium mb-0.5">Key Mode</p>
-              <div className="flex gap-1.5">
-                <label className="flex items-center gap-1 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="key-mode-detection"
-                    value="major"
-                    checked={keyMode === 'major'}
-                    onChange={() => setKeyMode('major')}
-                    className="w-3 h-3"
-                  />
-                  <span className="text-xs">Major</span>
-                </label>
-                <label className="flex items-center gap-1 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="key-mode-detection"
-                    value="minor"
-                    checked={keyMode === 'minor'}
-                    onChange={() => setKeyMode('minor')}
-                    className="w-3 h-3"
-                  />
-                  <span className="text-xs">Minor</span>
-                </label>
-              </div>
-            </div>
+        {/* Analysis Focus */}
+        {detectionEnabled && (
+          <div className="mb-2">
+            <p className="text-xs font-medium mb-1">Analysis Focus</p>
+            <select
+              value={analysisFocus}
+              onChange={(e) => setAnalysisFocus(e.target.value as typeof analysisFocus)}
+              className="w-full px-1.5 py-0.5 text-xs bg-slate-700 border border-slate-600 rounded focus:outline-none focus:border-cyan-400"
+            >
+              <option value="automatic">Automatic</option>
+              <option value="complete">Complete (7-note)</option>
+              <option value="pentatonic">Pentatonic (5/6-note)</option>
+              <option value="chord">Chord</option>
+            </select>
           </div>
         )}
+
 
         {/* Notes Display */}
         <div className="mb-0">

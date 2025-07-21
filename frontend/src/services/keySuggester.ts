@@ -14,6 +14,8 @@ export interface MelodySuggestion {
   pitchClasses: Set<number>;
   confidence: number;
   matchCount: number;
+  topModePopularity?: number; // For sorting by mode popularity when matchCounts are equal
+  containsPlayedNoteAsRoot?: boolean; // For tertiary sorting - prioritize suggestions with played note as root
   matchingScales?: Array<{
     id: string;
     name?: string;
@@ -24,6 +26,28 @@ export interface ChordSuggestion {
   chord: string;
   key: string;
   confidence: number;
+  rootName?: string;
+  inversion?: string;
+  bassNote?: number;
+  chordName?: string;
+}
+
+// Unified Detection Interfaces for Consolidation
+export interface DetectionSuggestion {
+  name: string;
+  matchType: 'exact' | 'partial' | 'possible';
+  closeness: number;  // How complete this pattern is (0-1)
+  pitchClasses: Set<number>;
+  matchingScales: Array<{ id: string; name: string }>;
+  topModePopularity?: number; // For sorting by mode popularity when closeness is equal
+  containsPlayedNoteAsRoot?: boolean; // For tertiary sorting - prioritize suggestions with played note as root
+}
+
+export interface UnifiedDetectionResult {
+  suggestions: DetectionSuggestion[];
+  category: 'complete' | 'pentatonic' | 'partial' | 'minimal' | 'none' | 'incomplete';
+  closeness: number;  // How complete the pattern is (0-1)
+  isChordMode?: boolean; // Flag to indicate chord-focused analysis
 }
 
 // Sidebar callbacks
@@ -512,6 +536,183 @@ function findCompleteScaleMatches(playedPitchClasses: Set<number>): MelodySugges
   });
   
   return matches;
+}
+
+/**
+ * Unified detection function that consolidates melody and chord analysis
+ * Automatically adapts analysis based on note count and provides categorized results.
+ */
+export function updateUnifiedDetection(
+  playedPitchClasses: Set<number>,
+  analysisFocus?: 'automatic' | 'complete' | 'pentatonic' | 'chord'
+): UnifiedDetectionResult {
+  console.log('🎯 === UNIFIED DETECTION === updateUnifiedDetection called with', playedPitchClasses.size, 'pitch classes', 'focus:', analysisFocus);
+
+  const noteCount = playedPitchClasses.size;
+
+  // Automatic chord detection: check if the played notes form a chord pattern
+  let isChordMode = analysisFocus === 'chord';
+
+  // If not explicitly in chord mode, check if the notes form a chord pattern
+  if (!isChordMode && noteCount >= 3 && noteCount <= 6) {
+    // Convert pitch classes to note numbers for chord detection
+    const noteNumbers = Array.from(playedPitchClasses).map(pc => pc + 60); // Use middle C octave
+    
+    // Import chord logic dynamically to avoid circular dependencies
+    import('./chordLogic').then(chordLogic => {
+      const detectedChords = chordLogic.findChordMatches(noteNumbers);
+      if (detectedChords.length > 0) {
+        console.log('🎵 Detected chord patterns, switching to chord mode');
+        isChordMode = true;
+      }
+    }).catch(error => {
+      console.error('Failed to import chord logic for detection:', error);
+    });
+  }
+
+  // Handle empty input
+  if (noteCount === 0) {
+    return {
+      suggestions: [],
+      category: 'none',
+      closeness: 0,
+      isChordMode: false
+    };
+  }
+
+  // Enhanced 5-6 note analysis with pentatonic/hexatonic prioritization
+  if (noteCount >= 5 && noteCount <= 6 && analysisFocus !== 'chord') {
+    console.log('🎯 Using enhanced 5-6 note analysis with pentatonic/hexatonic prioritization');
+    
+    const suggestions: DetectionSuggestion[] = [];
+    
+    // First: Find pentatonic/hexatonic matches (higher priority)
+    const pentatonicMatches = findPentatonicMatches(playedPitchClasses);
+    pentatonicMatches.forEach(match => {
+      suggestions.push({
+        name: match.name,
+        matchType: 'exact',
+        closeness: calculateCompleteness(noteCount, 5),
+        pitchClasses: match.pitchClasses,
+        matchingScales: match.matchingScales,
+        topModePopularity: match.topModePopularity,
+        containsPlayedNoteAsRoot: match.containsPlayedNoteAsRoot
+      });
+    });
+    
+    const hexatonicMatches = findHexatonicMatches(playedPitchClasses);
+    hexatonicMatches.forEach(match => {
+      suggestions.push({
+        name: match.name,
+        matchType: 'exact',
+        closeness: calculateCompleteness(noteCount, 6),
+        pitchClasses: match.pitchClasses,
+        matchingScales: match.matchingScales,
+        topModePopularity: match.topModePopularity,
+        containsPlayedNoteAsRoot: match.containsPlayedNoteAsRoot
+      });
+    });
+    
+    // Second: Find complete scale matches (lower priority)
+    const completeScaleMatches = findCompleteScaleMatches(playedPitchClasses);
+    completeScaleMatches.forEach(match => {
+      suggestions.push({
+        name: match.name,
+        matchType: 'partial',
+        closeness: calculateCompleteness(noteCount, 7), // 7-note scales
+        pitchClasses: match.pitchClasses,
+        matchingScales: match.matchingScales,
+        topModePopularity: match.topModePopularity,
+        containsPlayedNoteAsRoot: match.containsPlayedNoteAsRoot
+      });
+    });
+    
+    // Sort by priority, then by completeness
+    const sortedSuggestions = suggestions.sort((a, b) => {
+      // Pentatonic/hexatonic matches first
+      if (a.matchType === 'exact' && b.matchType === 'partial') return -1;
+      if (a.matchType === 'partial' && b.matchType === 'exact') return 1;
+      
+      // Then by completeness
+      return b.closeness - a.closeness;
+    });
+    
+    // Determine category based on best matches
+    let category: 'complete' | 'pentatonic' | 'partial' | 'minimal' | 'none' | 'incomplete' = 'partial';
+    if (pentatonicMatches.length > 0 || hexatonicMatches.length > 0) {
+      category = 'pentatonic';
+    } else if (completeScaleMatches.length > 0) {
+      category = 'complete';
+    }
+    
+    return {
+      suggestions: sortedSuggestions.slice(0, 10), // Limit results
+      category,
+      closeness: sortedSuggestions.length > 0 ? sortedSuggestions[0].closeness : 0,
+      isChordMode: false
+    };
+  }
+
+  // Standard analysis for other note counts
+  const exactMatches = allScales.filter((scale) => {
+    // Check if all played notes are contained in this scale
+    for (const playedNote of playedPitchClasses) {
+      if (!scale.pitchClasses.has(playedNote)) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  // Group exact matches by their pitch class sets
+  const scaleGroups = new Map<string, ProcessedScale[]>();
+  exactMatches.forEach((scale) => {
+    const pitchClassKey = Array.from(scale.pitchClasses).sort().join(',');
+    if (!scaleGroups.has(pitchClassKey)) {
+      scaleGroups.set(pitchClassKey, []);
+    }
+    scaleGroups.get(pitchClassKey)!.push(scale);
+  });
+
+  const suggestions: DetectionSuggestion[] = [];
+  scaleGroups.forEach(scales => {
+    if (scales.length > 0) {
+      const modeNames = scales
+        .filter(scale => scale.name)
+        .map(scale => `${NOTES[scale.rootNote]} ${scale.name}`)
+        .join(', ');
+
+      if (modeNames) {
+        const matchingScales = scales
+          .filter(scale => scale.name)
+          .map(scale => ({ id: scale.id, name: scale.name! }));
+
+        suggestions.push({
+          name: `Possible modes: ${modeNames}`,
+          matchType: 'exact',
+          closeness: 1.0, // Perfect match
+          pitchClasses: scales[0].pitchClasses,
+          matchingScales: matchingScales
+        });
+      }
+    }
+  });
+
+  // Determine category and closeness
+  let category: 'complete' | 'pentatonic' | 'partial' | 'minimal' | 'none' | 'incomplete' = 'none';
+  let closeness = 0;
+
+  if (suggestions.length > 0) {
+    category = noteCount >= 7 ? 'complete' : noteCount >= 5 ? 'pentatonic' : 'partial';
+    closeness = suggestions[0].closeness;
+  }
+
+  return {
+    suggestions: suggestions.slice(0, 10), // Limit results
+    category,
+    closeness,
+    isChordMode
+  };
 }
 
 // Interface for key suggestion results
