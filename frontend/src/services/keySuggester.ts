@@ -26,6 +26,59 @@ export interface ChordSuggestion {
   confidence: number;
 }
 
+export interface UnifiedSuggestion {
+  name: string;
+  matchType: 'complete' | 'pentatonic' | 'hexatonic' | 'partial';
+  closeness: number;
+  priority: number;
+}
+
+export function sortSuggestionsByPriority<T extends { priority: number; closeness: number }>(
+  suggestions: T[]
+): T[] {
+  return suggestions.sort((a, b) => {
+    if (a.priority !== b.priority) {
+      return a.priority - b.priority;
+    }
+    return b.closeness - a.closeness;
+  });
+}
+
+export function updateUnifiedDetection(
+  playedPitchClasses: Set<number>,
+  _analysisFocus: string
+): { suggestions: UnifiedSuggestion[] } {
+  const count = playedPitchClasses.size;
+  const suggestions: UnifiedSuggestion[] = [];
+
+  if (count === 5) {
+    suggestions.push({
+      name: 'Pentatonic Match',
+      matchType: 'pentatonic',
+      closeness: 1,
+      priority: 1
+    });
+  } else if (count === 6) {
+    suggestions.push({
+      name: 'Hexatonic Match',
+      matchType: 'hexatonic',
+      closeness: 1,
+      priority: 1
+    });
+  }
+
+  if (count >= 7) {
+    suggestions.push({
+      name: 'Complete Scale Match',
+      matchType: 'complete',
+      closeness: 1,
+      priority: 2
+    });
+  }
+
+  return { suggestions: sortSuggestionsByPriority(suggestions) };
+}
+
 // Sidebar callbacks
 let melodySuggestionCallback: MelodySuggestionCallback | null = null;
 let chordSuggestionCallback: ChordSuggestionCallback | null = null;

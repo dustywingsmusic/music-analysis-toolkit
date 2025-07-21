@@ -38,6 +38,57 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
   const [melodySuggestions, setMelodySuggestions] = useState<MelodySuggestion[]>([]);
   const [chordSuggestions, setChordSuggestions] = useState<ChordSuggestion[]>([]);
   const [analysisResults, setAnalysisResults] = useState<any>(null);
+  const [viewMode, setViewMode] = useState<'quick' | 'detailed'>('quick');
+  const [userToggled, setUserToggled] = useState(false);
+
+  const renderQuickView = () => {
+    const suggestions = midiData?.mode === 'chord' ? chordSuggestions : melodySuggestions;
+
+    if (!suggestions || suggestions.length === 0) {
+      return (
+        <div className="no-suggestions">Play some notes to see suggestions</div>
+      );
+    }
+
+    return (
+      <div className="quick-mode" data-testid="view-mode" data-mode={viewMode}>
+        <div className="quick-suggestions">
+          {suggestions.slice(0, 3).map((s: any, index: number) => (
+            <div
+              key={index}
+              className="quick-suggestion-item"
+              data-testid={`suggestion-${index}`}
+            >
+              <div className="quick-suggestion-header">
+                <span className="quick-suggestion-name">
+                  {s.name || `${s.chord} in ${s.key}`}
+                </span>
+                {s.confidence !== undefined && (
+                  <span className="quick-completeness">
+                    {Math.round((s.confidence || 0) * 100)}%
+                  </span>
+                )}
+              </div>
+              {s.matchingScales && s.matchingScales.length > 0 && (
+                <button
+                  className="quick-view-tables-btn"
+                  onClick={() => handleScaleHighlight(s.matchingScales[0].id)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleScaleHighlight(s.matchingScales[0].id);
+                    }
+                  }}
+                  aria-label={`View ${s.matchingScales[0].name} in scale tables`}
+                >
+                  View in Tables
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   // Helper function to check if a string is a valid note name
   const isValidNoteName = (str: string): boolean => {
@@ -176,7 +227,6 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
   const [lastHighlightedScale, setLastHighlightedScale] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState({
     midi: true,
-    suggestions: true,
     results: false
   });
 
@@ -221,10 +271,6 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
       console.log('🎵 Sidebar received melody suggestions:', suggestions);
       setMelodySuggestions(suggestions);
 
-      // Auto-expand suggestions section when suggestions are received
-      if (suggestions.length > 0) {
-        setExpandedSections(prev => ({ ...prev, suggestions: true }));
-      }
     });
 
     // Register chord suggestion callback
@@ -232,10 +278,6 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
       console.log('🎵 Sidebar received chord suggestions:', suggestions);
       setChordSuggestions(suggestions);
 
-      // Auto-expand suggestions section when suggestions are received
-      if (suggestions.length > 0) {
-        setExpandedSections(prev => ({ ...prev, suggestions: true }));
-      }
     });
 
     // Cleanup callbacks on unmount
@@ -244,6 +286,17 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
       keySuggester.registerChordSuggestionCallback(null);
     };
   }, []);
+
+  // Adapt view mode based on note count unless user manually toggled
+  useEffect(() => {
+    if (!midiData?.playedPitchClasses) return;
+    if (userToggled) return;
+    if (midiData.playedPitchClasses.size >= 7) {
+      setViewMode('detailed');
+    } else {
+      setViewMode('quick');
+    }
+  }, [midiData?.playedPitchClasses, userToggled]);
 
   // Effect to update suggestions based on MIDI mode and pitch classes
   useEffect(() => {
@@ -296,108 +349,20 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
         )}
       </div>
 
-      {/* Live Suggestions Section */}
-      <div className="sidebar-section">
-        <div 
-          className="sidebar-section-header"
-          onClick={() => toggleSection('suggestions')}
-        >
-          <h3 className="sidebar-section-title">
-            <span 
-              className={`sidebar-status-indicator ${
-                melodySuggestions.length > 0 || chordSuggestions.length > 0
-                  ? 'active' 
-                  : 'inactive'
-              }`}
-            ></span>
-            🎵 Live Suggestions
-            {(melodySuggestions.length > 0 || chordSuggestions.length > 0) && (
-              <span style={{ fontSize: '0.75rem', marginLeft: '8px', color: '#94a3b8' }}>
-                ({melodySuggestions.length + chordSuggestions.length})
-              </span>
-            )}
-          </h3>
-          <button className="sidebar-section-toggle">
-            {expandedSections.suggestions ? '−' : '+'}
-          </button>
-        </div>
 
-        {expandedSections.suggestions && (
-          <div className="sidebar-section-content">
-            {midiData?.mode === 'melody' && melodySuggestions.length > 0 && (
-              <div className="melody-suggestions">
-                {melodySuggestions.map((suggestion, index) => (
-                  <div key={index} className="suggestion-item">
-                    <div className="suggestion-header">
-                      {suggestion.name}
-                    </div>
-                    <div className="suggestion-confidence">
-                      Confidence: {Math.round(suggestion.confidence * 100)}%
-                    </div>
-                    {suggestion.matchingScales && suggestion.matchingScales.length > 0 && (
-                      <div className="suggestion-scales">
-                        <small>Click to view in tables:</small>
-                        {suggestion.matchingScales.slice(0, 3).map((scale, scaleIndex) => (
-                          <span
-                            key={scaleIndex}
-                            className="scale-link"
-                            onClick={() => handleScaleHighlight(scale.id)}
-                          >
-                            {scale.name || `Scale ${scaleIndex + 1}`}
-                            {scaleIndex < Math.min(suggestion.matchingScales!.length - 1, 2) && ', '}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {midiData?.mode === 'chord' && chordSuggestions.length > 0 && (
-              <div className="chord-suggestions">
-                {chordSuggestions.map((suggestion, index) => (
-                  <div key={index} className="suggestion-item">
-                    <div className="suggestion-header">
-                      {suggestion.chord} in {suggestion.key}
-                    </div>
-                    <div className="suggestion-confidence">
-                      Confidence: {Math.round(suggestion.confidence * 100)}%
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {(!midiData?.playedPitchClasses || midiData.playedPitchClasses.size === 0) && (
-              <div className="no-suggestions">
-                Play some notes to see suggestions
-              </div>
-            )}
-
-            {midiData?.playedPitchClasses && midiData.playedPitchClasses.size > 0 && 
-             melodySuggestions.length === 0 && chordSuggestions.length === 0 && (
-              <div className="no-suggestions">
-                No suggestions available for current notes
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Analysis Results Section */}
-      <div className="sidebar-section">
-        <div 
+      {/* Musical Analysis Section */}
+      <div className="sidebar-section" role="region" aria-label="Musical Analysis">
+        <div
           className="sidebar-section-header"
           onClick={() => toggleSection('results')}
         >
           <h3 className="sidebar-section-title">
-            <span 
+            <span
               className={`sidebar-status-indicator ${
                 unifiedResults?.isVisible && unifiedResults?.currentResults ? 'active' : 'inactive'
               }`}
             ></span>
-            📊 Analysis Results
+            🎯 Musical Analysis
           </h3>
           <button className="sidebar-section-toggle">
             {expandedSections.results ? '−' : '+'}
@@ -406,7 +371,28 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
 
         {expandedSections.results && (
           <div className="sidebar-section-content">
-            {renderSidebarResults()}
+            {viewMode === 'quick' ? renderQuickView() : (
+              <div id="analysis-details">{renderSidebarResults()}</div>
+            )}
+            <div className="progressive-disclosure-controls">
+              <button
+                className="toggle-view-mode-btn"
+                onClick={() => {
+                  setViewMode(viewMode === 'quick' ? 'detailed' : 'quick');
+                  setUserToggled(true);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    setViewMode(viewMode === 'quick' ? 'detailed' : 'quick');
+                    setUserToggled(true);
+                  }
+                }}
+                aria-expanded={viewMode === 'detailed'}
+                aria-controls="analysis-details"
+              >
+                {viewMode === 'quick' ? '📊 Show Details' : '📊 Hide Details'}
+              </button>
+            </div>
           </div>
         )}
       </div>

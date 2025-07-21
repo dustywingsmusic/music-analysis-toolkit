@@ -116,6 +116,7 @@ case "$1" in
     ;;
 
   deploy-all)
+    "$0" test
     "$0" deploy-backend
     "$0" deploy-frontend
     ;;

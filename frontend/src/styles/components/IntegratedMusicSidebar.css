@@ -595,3 +595,306 @@
     animation: none;
   }
 }
+
+/* =================================================================
+   PROGRESSIVE DISCLOSURE CONTROLS - CRITICAL MISSING CLASSES
+   ================================================================= */
+
+.progressive-disclosure-controls {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #475569;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: slideDown 0.2s ease-out;
+}
+
+.show-more-btn,
+.toggle-analysis-btn,
+.toggle-options-btn {
+  background: #475569;
+  color: #e2e8f0;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 32px;
+}
+
+.show-more-btn:hover,
+.toggle-analysis-btn:hover,
+.toggle-options-btn:hover {
+  background: #64748b;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.show-more-btn:focus,
+.toggle-analysis-btn:focus,
+.toggle-options-btn:focus {
+  outline: 2px solid #06b6d4;
+  outline-offset: 2px;
+  background: #64748b;
+}
+
+.show-more-btn:active,
+.toggle-analysis-btn:active,
+.toggle-options-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.advanced-options {
+  background: #1e293b;
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 8px;
+  border: 1px solid #334155;
+  animation: slideDown 0.2s ease-out;
+}
+
+.advanced-options .option-label {
+  display: block;
+  color: #cbd5e1;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.advanced-options input[type="range"] {
+  width: 100%;
+  margin-top: 4px;
+  accent-color: #06b6d4;
+}
+
+.advanced-options input[type="range"]:focus {
+  outline: 2px solid #06b6d4;
+  outline-offset: 2px;
+}
+
+/* =================================================================
+   CONSOLIDATED MUSICAL ANALYSIS SECTION
+   ================================================================= */
+
+.unified-detection-results {
+  border: 2px solid #06b6d4;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.1);
+  position: relative;
+}
+
+.unified-detection-results::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #06b6d4, #8b5cf6);
+  border-radius: 6px 6px 0 0;
+}
+
+/* Quick View Mode Styling */
+.quick-mode {
+  background: linear-gradient(135deg, #1e293b 0%, #2d3748 100%);
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #4a5568;
+}
+
+.quick-category-header {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quick-category-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin: 0;
+  flex: 1;
+}
+
+.quick-category-badge {
+  background: #06b6d4;
+  color: #1e293b;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.quick-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.quick-suggestion-item {
+  background: #334155;
+  border-radius: 6px;
+  padding: 10px;
+  border-left: 3px solid #06b6d4;
+  transition: all 0.2s ease;
+}
+
+.quick-suggestion-item:hover {
+  background: #3f4a5a;
+  transform: translateX(2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.quick-suggestion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.quick-suggestion-name {
+  font-weight: 500;
+  color: #e2e8f0;
+  font-size: 0.8rem;
+  flex: 1;
+}
+
+.quick-completeness {
+  font-size: 0.7rem;
+  color: #60a5fa;
+  font-weight: 600;
+  background: #1e3a8a;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 40px;
+  text-align: center;
+}
+
+.quick-view-tables-btn {
+  background: #1e293b;
+  color: #06b6d4;
+  border: 1px solid #06b6d4;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.quick-view-tables-btn:hover {
+  background: #06b6d4;
+  color: #1e293b;
+  transform: translateY(-1px);
+}
+
+.quick-view-tables-btn:focus {
+  outline: 2px solid #06b6d4;
+  outline-offset: 2px;
+}
+
+.toggle-view-mode-btn {
+  width: 100%;
+  background: #475569;
+  color: #e2e8f0;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 36px;
+}
+
+.toggle-view-mode-btn:hover {
+  background: #64748b;
+  transform: translateY(-1px);
+}
+
+.toggle-view-mode-btn:focus {
+  outline: 2px solid #06b6d4;
+  outline-offset: 2px;
+}
+
+/* =================================================================
+   RESPONSIVE DESIGN ENHANCEMENTS
+   ================================================================= */
+
+@media (max-width: 1024px) {
+  .integrated-music-sidebar {
+    width: 280px;
+  }
+
+  .quick-suggestion-item {
+    padding: 8px;
+  }
+
+  .quick-suggestion-name {
+    font-size: 0.75rem;
+  }
+
+  .progressive-disclosure-controls {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 768px) {
+  .match-type-badge {
+    padding: 3px 6px;
+    font-size: 0.65rem;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .integrated-music-sidebar {
+    border-left: 3px solid #ffffff;
+    background: #000000;
+  }
+
+  .sidebar-section {
+    border-bottom: 2px solid #ffffff;
+  }
+
+  .quick-suggestion-item,
+  .suggestion-item {
+    border-left: 4px solid #ffffff;
+    background: #1a1a1a;
+  }
+
+  .match-type-badge {
+    border-width: 2px;
+    font-weight: 700;
+  }
+
+  .sidebar-status-indicator.active {
+    background: #00ff00;
+    box-shadow: 0 0 8px rgba(0, 255, 0, 0.8);
+  }
+
+  .sidebar-status-indicator.detecting {
+    background: #ffff00;
+    box-shadow: 0 0 8px rgba(255, 255, 0, 0.8);
+  }
+}
+
