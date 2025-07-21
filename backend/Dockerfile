@@ -30,4 +30,4 @@ EXPOSE 8080
 # Command to run the application.
 # Use Gunicorn for production instead of Uvicorn's dev server.
 # Command to run the application with a 120-second timeout.
-CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:8080", "--timeout", "120", "app.main:app"]
+CMD ["gunicorn", "-w", "2", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:8080", "--timeout", "120", "app.main:app"]
