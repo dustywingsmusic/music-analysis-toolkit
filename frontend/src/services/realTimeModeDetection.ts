@@ -4,6 +4,7 @@
  */
 
 import { allScaleData, PARENT_KEYS, PITCH_CLASS_NAMES } from '../constants/scales';
+import { getModePopularity } from '../constants/mappings';
 
 // Core Data & State Types
 export interface RealTimeModeState {
@@ -21,6 +22,7 @@ export interface ModeInfo {
   modePitchSet: Set<number>;  // precomputed pitch class set for this mode at rootPitch
   popularity: number;  // lower number = more popular
   modeIndex: number;
+  actualRoot?: number;  // the actual root pitch class for this mode (when considering all possible roots)
 }
 
 export type ScaleFamily = 'Major Scale' | 'Melodic Minor' | 'Harmonic Minor' | 'Harmonic Major' | 'Double Harmonic Major' | 'Major Pentatonic' | 'Blues Scale';
@@ -54,32 +56,6 @@ const buildScaleFamilyIntervals = (): Record<ScaleFamily, number[]> => {
 
 const SCALE_FAMILY_INTERVALS: Record<ScaleFamily, number[]> = buildScaleFamilyIntervals();
 
-// Mode popularity ranking (lower = more popular)
-// Built from legacy system - prioritize common modes
-const buildModePopularityRanking = (): Record<string, number> => {
-  const ranking: Record<string, number> = {};
-  let currentRank = 1;
-  
-  // Most common modes first
-  const commonModes = ['Ionian', 'Aeolian', 'Dorian', 'Mixolydian', 'Major Pentatonic', 'Minor Pentatonic'];
-  commonModes.forEach(mode => {
-    ranking[mode] = currentRank++;
-  });
-  
-  // Add all other modes from legacy system
-  allScaleData.forEach(scale => {
-    const modeNames = scale.commonNames || scale.alternateNames || [];
-    modeNames.forEach(modeName => {
-      if (modeName && !ranking[modeName]) {
-        ranking[modeName] = currentRank++;
-      }
-    });
-  });
-  
-  return ranking;
-};
-
-const MODE_POPULARITY_RANKING: Record<string, number> = buildModePopularityRanking();
 
 // Mode to index mappings for each scale family (from legacy system)
 const buildModeToIndexMappings = (): Record<ScaleFamily, Record<string, number>> => {
@@ -151,16 +127,22 @@ export class RealTimeModeDetector {
    * Precompute every mode's pitch-class set for all root pitches
    */
   private precomputeModePitchSets(): void {
-    for (const [family, intervals] of Object.entries(SCALE_FAMILY_INTERVALS)) {
-      const modes = MODE_TO_INDEX_MAPPINGS[family as ScaleFamily];
+    // Use the correct mode intervals from scale data instead of incorrect rotation
+    for (const scaleData of allScaleData) {
+      const family = scaleData.name as ScaleFamily;
+      const modes = MODE_TO_INDEX_MAPPINGS[family];
+      
+      if (!modes || !scaleData.modeIntervals) continue;
       
       for (const [modeName, modeIndex] of Object.entries(modes)) {
+        // Use the correct mode intervals from scale data
+        const modeIntervals = scaleData.modeIntervals[modeIndex];
+        
+        if (!modeIntervals) continue;
+        
         for (let rootPitch = 0; rootPitch < 12; rootPitch++) {
-          // Rotate intervals by modeIndex
-          const rotated = intervals.slice(modeIndex).concat(intervals.slice(0, modeIndex));
-          
-          // Compute pitch classes for this root
-          const pitchClasses = new Set(rotated.map(interval => (rootPitch + interval) % 12));
+          // Compute pitch classes for this root using correct mode intervals
+          const pitchClasses = new Set(modeIntervals.map(interval => (rootPitch + interval) % 12));
           
           const key = `${family}-${modeName}-${rootPitch}`;
           this.modePitchSets.set(key, pitchClasses);
@@ -192,24 +174,30 @@ export class RealTimeModeDetector {
   }
 
   /**
-   * Compute all modes whose tonic = rootPitch, sorted by popularity
+   * Compute all modes that could contain the played notes, considering all possible roots
+   * This fixes the issue where F G# should suggest F# Locrian (not just F-based modes)
    */
-  private computeOriginalModes(rootPitch: number): ModeInfo[] {
+  private computeOriginalModes(firstNotePitchClass: number): ModeInfo[] {
     const modes: ModeInfo[] = [];
     
-    for (const [family, modeMap] of Object.entries(MODE_TO_INDEX_MAPPINGS)) {
-      for (const [modeName, modeIndex] of Object.entries(modeMap)) {
-        const key = `${family}-${modeName}-${rootPitch}`;
-        const modePitchSet = this.modePitchSets.get(key);
-        
-        if (modePitchSet) {
-          modes.push({
-            family: family as ScaleFamily,
-            name: modeName,
-            modePitchSet,
-            popularity: MODE_POPULARITY_RANKING[modeName] || 999,
-            modeIndex
-          });
+    // Consider all possible roots (0-11), not just the first note played
+    for (let possibleRoot = 0; possibleRoot < 12; possibleRoot++) {
+      for (const [family, modeMap] of Object.entries(MODE_TO_INDEX_MAPPINGS)) {
+        for (const [modeName, modeIndex] of Object.entries(modeMap)) {
+          const key = `${family}-${modeName}-${possibleRoot}`;
+          const modePitchSet = this.modePitchSets.get(key);
+          
+          if (modePitchSet && modePitchSet.has(firstNotePitchClass)) {
+            // Only include modes that contain the first note played
+            modes.push({
+              family: family as ScaleFamily,
+              name: modeName,
+              modePitchSet,
+              popularity: getModePopularity(modeName),
+              modeIndex,
+              actualRoot: possibleRoot // Track the actual root for this mode
+            });
+          }
         }
       }
     }
@@ -318,7 +306,7 @@ export class RealTimeModeDetector {
         const suggestion: ModeSuggestion = {
           family: mode.family,
           name: mode.name,
-          fullName: `${NOTE_NAMES[this.state.rootPitch!]} ${mode.name}`,
+          fullName: `${NOTE_NAMES[mode.actualRoot ?? this.state.rootPitch!]} ${mode.name}`,
           matchCount,
           mismatchCount,
           popularity: mode.popularity
@@ -422,7 +410,7 @@ export class RealTimeModeDetector {
       const suggestion: ModeSuggestion = {
         family: mode.family,
         name: mode.name,
-        fullName: `${NOTE_NAMES[this.state.rootPitch!]} ${mode.name}`,
+        fullName: `${NOTE_NAMES[mode.actualRoot ?? this.state.rootPitch!]} ${mode.name}`,
         matchCount,
         mismatchCount,
         popularity: mode.popularity
@@ -437,10 +425,31 @@ export class RealTimeModeDetector {
     // Sort within each family and take top 3
     for (const [family, modes] of familyGroups) {
       modes.sort((a, b) => {
-        // Sort by matchCount descending, then popularity ascending
+        // Sort by matchCount descending first
         if (a.matchCount !== b.matchCount) {
           return b.matchCount - a.matchCount;
         }
+        
+        // For equal match counts, prioritize modes whose root matches the first note played
+        const firstNotePitchClass = this.state.rootPitch;
+        if (firstNotePitchClass !== null) {
+          const aRootMatchesFirstNote = this.state.candidateModes.find(m => 
+            m.name === a.name && m.family === a.family
+          )?.actualRoot === firstNotePitchClass;
+          
+          const bRootMatchesFirstNote = this.state.candidateModes.find(m => 
+            m.name === b.name && m.family === b.family
+          )?.actualRoot === firstNotePitchClass;
+          
+          if (aRootMatchesFirstNote && !bRootMatchesFirstNote) {
+            return -1; // a comes first
+          }
+          if (!aRootMatchesFirstNote && bRootMatchesFirstNote) {
+            return 1; // b comes first
+          }
+        }
+        
+        // Finally, sort by popularity ascending (lower number = more popular)
         return a.popularity - b.popularity;
       });
       

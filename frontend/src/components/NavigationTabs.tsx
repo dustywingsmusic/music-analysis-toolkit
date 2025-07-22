@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 
 export type TabType = 'identify' | 'discover' | 'harmony' | 'reference';
 

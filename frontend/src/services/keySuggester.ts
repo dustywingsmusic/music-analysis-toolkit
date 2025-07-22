@@ -1,7 +1,7 @@
 // This module contains the logic for finding and rendering key/chord suggestions.
-import { ProcessedScale, DiatonicChord } from '@/types';
-import { NOTES } from '@/constants/scales';
-import { NOTE_TO_PITCH_CLASS } from '@/constants/mappings';
+import { ProcessedScale, DiatonicChord } from '../types';
+import { NOTES } from '../constants/scales';
+import { NOTE_TO_PITCH_CLASS } from '../constants/mappings';
 import { ChordMatch } from './chordLogic';
 
 // Sidebar callback types
