@@ -209,7 +209,7 @@ export class RealTimeModeDetector {
   /**
    * Adding a New Note
    */
-  public addNote(pitchClass: number): ModeDetectionResult {
+  public addNote(pitchClass: number): ModeDetectionResult | null {
     console.log('🎵 Adding note:', NOTE_NAMES[pitchClass]);
     
     // First note - session initialization
@@ -218,10 +218,10 @@ export class RealTimeModeDetector {
       return this.generateResult();
     }
     
-    // If pitchClass already in notesHistory, ignore
+    // If pitchClass already in notesHistory, ignore and return null to prevent infinite loops
     if (this.state.notesHistory.includes(pitchClass)) {
       console.log('🔄 Note already in history, ignoring');
-      return this.generateResult();
+      return null;
     }
     
     // Otherwise append it

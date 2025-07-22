@@ -816,8 +816,12 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
       if (latestNote) {
         const pitchClass = latestNote.number % 12;
         console.log('🎵 Adding note to real-time detector:', pitchClass);
-        currentResult = modeDetector.addNote(pitchClass);
-        setModeDetectionResult(currentResult);
+        const newResult = modeDetector.addNote(pitchClass);
+        // Only update state if we got a valid result (not null for duplicate notes)
+        if (newResult !== null) {
+          currentResult = newResult;
+          setModeDetectionResult(currentResult);
+        }
       }
 
       // Adaptive view mode based on note count and mode state

@@ -15,6 +15,7 @@
  */
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 import { Logging } from '@google-cloud/logging';
 import { fileURLToPath } from 'url';
 
@@ -163,6 +164,22 @@ app.post('/api/log', async (req, res) => {
       details: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
+});
+
+// Serve runtime configuration as JavaScript
+app.get('/config.js', (req, res) => {
+  // Create runtime config from environment variables
+  const runtimeConfig = {
+    GEMINI_API_KEY: process.env.VITE_GEMINI_API_KEY,
+    GEMINI_MODEL_ID: process.env.VITE_GEMINI_MODEL_ID || 'gemini-2.5-flash',
+    GOOGLE_CLOUD_PROJECT: process.env.VITE_GOOGLE_CLOUD_PROJECT
+  };
+  
+  // Generate JavaScript that sets the runtime config
+  const configJs = `window.RUNTIME_CONFIG = ${JSON.stringify(runtimeConfig)};`;
+  
+  res.setHeader('Content-Type', 'application/javascript');
+  res.send(configJs);
 });
 
 // Serve React app for all other routes
