@@ -11,8 +11,10 @@ interface ReferenceTabProps {
   midiData?: {
     playedNotes: any[];
     playedPitchClasses: Set<number>;
-    mode: '7' | '5' | 'melody' | 'chord';
-    setMode: (mode: '7' | '5' | 'melody' | 'chord') => void;
+    detectionEnabled: boolean;  // Consolidated toggle for detection
+    setDetectionEnabled: (enabled: boolean) => void;
+    analysisFocus: 'automatic' | 'complete' | 'pentatonic' | 'chord';  // Analysis focus dropdown
+    setAnalysisFocus: (focus: 'automatic' | 'complete' | 'pentatonic' | 'chord') => void;
     clearPlayedNotes: () => void;
   };
   // Unified Results Panel integration
@@ -125,7 +127,8 @@ const ReferenceTab: React.FC<ReferenceTabProps> = ({
               onShowUnifiedResults={onShowUnifiedResults}
               playedNotes={midiData?.playedNotes || []}
               playedPitchClasses={midiData?.playedPitchClasses || new Set()}
-              midiMode={midiData?.mode || '7'}
+              detectionEnabled={midiData?.detectionEnabled ?? true}
+              analysisFocus={midiData?.analysisFocus || 'automatic'}
             />
           </div>
         </div>

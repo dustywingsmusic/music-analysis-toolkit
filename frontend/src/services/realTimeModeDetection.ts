@@ -1,0 +1,548 @@
+/**
+ * Real-Time Mode Detection Algorithm
+ * Implementation of the algorithm specified in IntegratedMusicSidebarFeatureConsolidation.md
+ */
+
+import { allScaleData, PARENT_KEYS, PITCH_CLASS_NAMES } from '../constants/scales';
+
+// Core Data & State Types
+export interface RealTimeModeState {
+  notesHistory: number[];  // ordered list of unique pitch classes (0–11), ignoring repeats
+  rootPitch: number | null;  // pitch class of the very first note
+  direction: "unknown" | "ascending" | "descending";
+  state: "scale-mode" | "melody-mode";
+  originalModes: ModeInfo[];  // all modes whose tonic = rootPitch, sorted by popularity
+  candidateModes: ModeInfo[];  // subset of originalModes still viable given entered notes
+}
+
+export interface ModeInfo {
+  family: ScaleFamily;
+  name: string;
+  modePitchSet: Set<number>;  // precomputed pitch class set for this mode at rootPitch
+  popularity: number;  // lower number = more popular
+  modeIndex: number;
+}
+
+export type ScaleFamily = 'Major Scale' | 'Melodic Minor' | 'Harmonic Minor' | 'Harmonic Major' | 'Double Harmonic Major' | 'Major Pentatonic' | 'Blues Scale';
+
+export interface ModeDetectionResult {
+  suggestions: ModeSuggestion[];
+  state: "scale-mode" | "melody-mode";
+  showContinueButton: boolean;  // only shown after auto-switch to melody-mode
+  requiresTonicSelection: boolean;  // true when in melody-mode and no root selected
+}
+
+export interface ModeSuggestion {
+  family: ScaleFamily;
+  name: string;
+  fullName: string;  // e.g., "F Ionian"
+  mismatchCount: number;
+  matchCount: number;
+  popularity: number;
+}
+
+// Scale family definitions from legacy system (constants/scales.ts)
+const buildScaleFamilyIntervals = (): Record<ScaleFamily, number[]> => {
+  const intervals: Record<string, number[]> = {};
+  
+  allScaleData.forEach(scale => {
+    intervals[scale.name] = scale.parentScaleIntervals;
+  });
+  
+  return intervals as Record<ScaleFamily, number[]>;
+};
+
+const SCALE_FAMILY_INTERVALS: Record<ScaleFamily, number[]> = buildScaleFamilyIntervals();
+
+// Mode popularity ranking (lower = more popular)
+// Built from legacy system - prioritize common modes
+const buildModePopularityRanking = (): Record<string, number> => {
+  const ranking: Record<string, number> = {};
+  let currentRank = 1;
+  
+  // Most common modes first
+  const commonModes = ['Ionian', 'Aeolian', 'Dorian', 'Mixolydian', 'Major Pentatonic', 'Minor Pentatonic'];
+  commonModes.forEach(mode => {
+    ranking[mode] = currentRank++;
+  });
+  
+  // Add all other modes from legacy system
+  allScaleData.forEach(scale => {
+    const modeNames = scale.commonNames || scale.alternateNames || [];
+    modeNames.forEach(modeName => {
+      if (modeName && !ranking[modeName]) {
+        ranking[modeName] = currentRank++;
+      }
+    });
+  });
+  
+  return ranking;
+};
+
+const MODE_POPULARITY_RANKING: Record<string, number> = buildModePopularityRanking();
+
+// Mode to index mappings for each scale family (from legacy system)
+const buildModeToIndexMappings = (): Record<ScaleFamily, Record<string, number>> => {
+  const mappings: Record<string, Record<string, number>> = {};
+  
+  allScaleData.forEach(scale => {
+    const modeNames = scale.commonNames || scale.alternateNames || [];
+    const familyMappings: Record<string, number> = {};
+    
+    modeNames.forEach((modeName, index) => {
+      if (modeName) {
+        familyMappings[modeName] = index;
+      }
+    });
+    
+    mappings[scale.name] = familyMappings;
+  });
+  
+  return mappings as Record<ScaleFamily, Record<string, number>>;
+};
+
+const MODE_TO_INDEX_MAPPINGS: Record<ScaleFamily, Record<string, number>> = buildModeToIndexMappings();
+
+// Note names for display - using proper enharmonic spellings from legacy system
+const buildNoteNames = (): string[] => {
+  const noteNames: string[] = [];
+  for (let i = 0; i < 12; i++) {
+    noteNames[i] = PARENT_KEYS[i as keyof typeof PARENT_KEYS];
+  }
+  return noteNames;
+};
+
+const NOTE_NAMES = buildNoteNames();
+
+// Function to convert MIDI input to proper enharmonic spelling
+const convertToProperEnharmonic = (pitchClass: number): number => {
+  // This function can be extended to handle context-aware enharmonic conversion
+  // For now, we use the PARENT_KEYS spellings which are already proper
+  return pitchClass;
+};
+
+/**
+ * Real-time mode detection class implementing the specification algorithm
+ */
+export class RealTimeModeDetector {
+  private state: RealTimeModeState;
+  private modePitchSets: Map<string, Set<number>> = new Map();
+
+  constructor() {
+    this.state = this.initializeState();
+    this.precomputeModePitchSets();
+  }
+
+  /**
+   * Initialize state for new session
+   */
+  private initializeState(): RealTimeModeState {
+    return {
+      notesHistory: [],
+      rootPitch: null,
+      direction: "unknown",
+      state: "scale-mode",
+      originalModes: [],
+      candidateModes: []
+    };
+  }
+
+  /**
+   * Precompute every mode's pitch-class set for all root pitches
+   */
+  private precomputeModePitchSets(): void {
+    for (const [family, intervals] of Object.entries(SCALE_FAMILY_INTERVALS)) {
+      const modes = MODE_TO_INDEX_MAPPINGS[family as ScaleFamily];
+      
+      for (const [modeName, modeIndex] of Object.entries(modes)) {
+        for (let rootPitch = 0; rootPitch < 12; rootPitch++) {
+          // Rotate intervals by modeIndex
+          const rotated = intervals.slice(modeIndex).concat(intervals.slice(0, modeIndex));
+          
+          // Compute pitch classes for this root
+          const pitchClasses = new Set(rotated.map(interval => (rootPitch + interval) % 12));
+          
+          const key = `${family}-${modeName}-${rootPitch}`;
+          this.modePitchSets.set(key, pitchClasses);
+        }
+      }
+    }
+  }
+
+  /**
+   * Session Initialization (First Note)
+   */
+  private sessionInitialization(firstNotePitchClass: number): void {
+    console.log('🎵 Session Initialization with first note:', NOTE_NAMES[firstNotePitchClass]);
+    
+    // Clear notesHistory; set direction = "unknown" and state = "scale-mode"
+    this.state.notesHistory = [];
+    this.state.direction = "unknown";
+    this.state.state = "scale-mode";
+    
+    // Append first note's pitch class to notesHistory; set rootPitch
+    this.state.notesHistory.push(firstNotePitchClass);
+    this.state.rootPitch = firstNotePitchClass;
+    
+    // Compute originalModes for that rootPitch and assign to candidateModes
+    this.state.originalModes = this.computeOriginalModes(firstNotePitchClass);
+    this.state.candidateModes = [...this.state.originalModes];
+    
+    console.log('🎯 Initialized with', this.state.candidateModes.length, 'candidate modes');
+  }
+
+  /**
+   * Compute all modes whose tonic = rootPitch, sorted by popularity
+   */
+  private computeOriginalModes(rootPitch: number): ModeInfo[] {
+    const modes: ModeInfo[] = [];
+    
+    for (const [family, modeMap] of Object.entries(MODE_TO_INDEX_MAPPINGS)) {
+      for (const [modeName, modeIndex] of Object.entries(modeMap)) {
+        const key = `${family}-${modeName}-${rootPitch}`;
+        const modePitchSet = this.modePitchSets.get(key);
+        
+        if (modePitchSet) {
+          modes.push({
+            family: family as ScaleFamily,
+            name: modeName,
+            modePitchSet,
+            popularity: MODE_POPULARITY_RANKING[modeName] || 999,
+            modeIndex
+          });
+        }
+      }
+    }
+    
+    // Sort by popularity (lower number = more popular)
+    return modes.sort((a, b) => a.popularity - b.popularity);
+  }
+
+  /**
+   * Adding a New Note
+   */
+  public addNote(pitchClass: number): ModeDetectionResult {
+    console.log('🎵 Adding note:', NOTE_NAMES[pitchClass]);
+    
+    // First note - session initialization
+    if (this.state.notesHistory.length === 0) {
+      this.sessionInitialization(pitchClass);
+      return this.generateResult();
+    }
+    
+    // If pitchClass already in notesHistory, ignore
+    if (this.state.notesHistory.includes(pitchClass)) {
+      console.log('🔄 Note already in history, ignoring');
+      return this.generateResult();
+    }
+    
+    // Otherwise append it
+    const previousPC = this.state.notesHistory[this.state.notesHistory.length - 1];
+    this.state.notesHistory.push(pitchClass);
+    
+    // Determine/Update Direction
+    this.updateDirection(pitchClass, previousPC);
+    
+    // Strict Filtering
+    return this.strictFiltering(pitchClass);
+  }
+
+  /**
+   * Update direction based on new note
+   */
+  private updateDirection(currentPC: number, previousPC: number): void {
+    if (this.state.direction === "unknown") {
+      if (currentPC > previousPC) {
+        this.state.direction = "ascending";
+      } else if (currentPC < previousPC) {
+        this.state.direction = "descending";
+      }
+      // If equal, direction remains unknown
+    } else {
+      // Check if new note reverses order
+      const isAscending = currentPC > previousPC;
+      const isDescending = currentPC < previousPC;
+      
+      if (this.state.direction === "ascending" && isDescending) {
+        this.state.direction = "descending";
+        console.log('🔄 Direction flipped to descending');
+      } else if (this.state.direction === "descending" && isAscending) {
+        this.state.direction = "ascending";
+        console.log('🔄 Direction flipped to ascending');
+      }
+    }
+    
+    console.log('📐 Direction:', this.state.direction);
+  }
+
+  /**
+   * Strict Filtering
+   */
+  private strictFiltering(pitchClass: number): ModeDetectionResult {
+    // Filter candidateModes to those whose modePitchSet contains pitchClass
+    this.state.candidateModes = this.state.candidateModes.filter(mode => 
+      mode.modePitchSet.has(pitchClass)
+    );
+    
+    console.log('🔍 After strict filtering:', this.state.candidateModes.length, 'candidates remain');
+    
+    if (this.state.candidateModes.length > 0) {
+      // Generate suggestions from remaining candidates
+      return this.generateResult();
+    } else {
+      // No strict matches - run Mismatch Handling
+      return this.mismatchHandling();
+    }
+  }
+
+  /**
+   * Mismatch Handling - Show partial matches instead of switching to melody-mode
+   * According to user requirements: "Scale mode should continue to suggest partial matches"
+   */
+  private mismatchHandling(): ModeDetectionResult {
+    console.log('⚠️ No strict matches - showing partial matches with mismatch counts');
+    
+    // Instead of switching to melody-mode, compute partial matches for all original modes
+    const partialMatches: ModeSuggestion[] = [];
+    const notesHistorySet = new Set(this.state.notesHistory);
+    
+    // Group by scale family
+    const familyGroups = new Map<ScaleFamily, ModeSuggestion[]>();
+    
+    for (const mode of this.state.originalModes) {
+      const matchCount = this.calculateMatchCount(notesHistorySet, mode.modePitchSet);
+      const mismatchCount = this.calculateMismatchCount(notesHistorySet, mode.modePitchSet);
+      
+      // Only include modes that have at least some matches
+      if (matchCount > 0) {
+        const suggestion: ModeSuggestion = {
+          family: mode.family,
+          name: mode.name,
+          fullName: `${NOTE_NAMES[this.state.rootPitch!]} ${mode.name}`,
+          matchCount,
+          mismatchCount,
+          popularity: mode.popularity
+        };
+        
+        if (!familyGroups.has(mode.family)) {
+          familyGroups.set(mode.family, []);
+        }
+        familyGroups.get(mode.family)!.push(suggestion);
+      }
+    }
+    
+    // Sort within each family and take top 3
+    for (const [family, modes] of familyGroups) {
+      modes.sort((a, b) => {
+        // Sort by matchCount descending, then mismatchCount ascending, then popularity ascending
+        if (a.matchCount !== b.matchCount) {
+          return b.matchCount - a.matchCount;
+        }
+        if (a.mismatchCount !== b.mismatchCount) {
+          return a.mismatchCount - b.mismatchCount;
+        }
+        return a.popularity - b.popularity;
+      });
+      
+      // Take top 3 in each family
+      partialMatches.push(...modes.slice(0, 3));
+    }
+    
+    // Only switch to melody-mode if we detect true melodic patterns
+    // For now, stay in scale-mode and show partial matches
+    // TODO: Add gap analysis for detecting true melodic patterns
+    const shouldSwitchToMelodyMode = this.detectMelodicPattern();
+    
+    if (shouldSwitchToMelodyMode) {
+      console.log('🎭 Detected melodic pattern - switching to melody-mode');
+      this.state.state = "melody-mode";
+      return {
+        suggestions: [],
+        state: this.state.state,
+        showContinueButton: true,
+        requiresTonicSelection: false
+      };
+    }
+    
+    console.log('🎼 Staying in scale-mode with', partialMatches.length, 'partial matches');
+    
+    return {
+      suggestions: partialMatches,
+      state: this.state.state, // Stay in scale-mode
+      showContinueButton: false,
+      requiresTonicSelection: false
+    };
+  }
+  
+  /**
+   * Detect if the current note sequence looks like a melody rather than a scale
+   * Only switch to melody-mode for true melodic patterns with gaps inconsistent with scales
+   */
+  private detectMelodicPattern(): boolean {
+    // TODO: Implement proper melodic pattern detection
+    // For now, never auto-switch to melody-mode based on scale mismatches
+    // Only manual switching should trigger melody-mode
+    
+    // Potential future logic:
+    // - Check for large gaps (> 4 semitones) that are inconsistent with pentatonic/blues
+    // - Check for non-scalar patterns (e.g., arpeggiated patterns)
+    // - Check for rhythmic patterns that suggest melody vs scale practice
+    
+    return false; // Never auto-switch for now
+  }
+
+  /**
+   * Generate result with current candidate modes
+   */
+  private generateResult(): ModeDetectionResult {
+    const suggestions = this.generateSuggestions();
+    
+    return {
+      suggestions,
+      state: this.state.state,
+      showContinueButton: this.state.state === "melody-mode",
+      requiresTonicSelection: this.state.state === "melody-mode" && this.state.rootPitch === null
+    };
+  }
+
+  /**
+   * Generate suggestions from candidate modes
+   */
+  private generateSuggestions(): ModeSuggestion[] {
+    const suggestions: ModeSuggestion[] = [];
+    const notesHistorySet = new Set(this.state.notesHistory);
+    
+    // Group by scale family
+    const familyGroups = new Map<ScaleFamily, ModeSuggestion[]>();
+    
+    for (const mode of this.state.candidateModes) {
+      const matchCount = this.calculateMatchCount(notesHistorySet, mode.modePitchSet);
+      const mismatchCount = this.calculateMismatchCount(notesHistorySet, mode.modePitchSet);
+      
+      const suggestion: ModeSuggestion = {
+        family: mode.family,
+        name: mode.name,
+        fullName: `${NOTE_NAMES[this.state.rootPitch!]} ${mode.name}`,
+        matchCount,
+        mismatchCount,
+        popularity: mode.popularity
+      };
+      
+      if (!familyGroups.has(mode.family)) {
+        familyGroups.set(mode.family, []);
+      }
+      familyGroups.get(mode.family)!.push(suggestion);
+    }
+    
+    // Sort within each family and take top 3
+    for (const [family, modes] of familyGroups) {
+      modes.sort((a, b) => {
+        // Sort by matchCount descending, then popularity ascending
+        if (a.matchCount !== b.matchCount) {
+          return b.matchCount - a.matchCount;
+        }
+        return a.popularity - b.popularity;
+      });
+      
+      // Take top 3 in each family
+      suggestions.push(...modes.slice(0, 3));
+    }
+    
+    return suggestions;
+  }
+
+  /**
+   * Calculate match count between played notes and mode
+   */
+  private calculateMatchCount(notesHistory: Set<number>, modePitchSet: Set<number>): number {
+    let count = 0;
+    for (const note of notesHistory) {
+      if (modePitchSet.has(note)) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  /**
+   * Calculate mismatch count
+   */
+  private calculateMismatchCount(notesHistory: Set<number>, modePitchSet: Set<number>): number {
+    let count = 0;
+    for (const note of notesHistory) {
+      if (!modePitchSet.has(note)) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  /**
+   * Manual Override: Continue Scale-Mode
+   */
+  public continueScaleMode(): ModeDetectionResult {
+    console.log('🔄 Manual override: Continue Scale-Mode');
+    
+    // Clear notesHistory; reset direction = "unknown"
+    this.state.notesHistory = [];
+    this.state.direction = "unknown";
+    this.state.state = "scale-mode";
+    
+    // Recompute candidateModes from existing rootPitch
+    if (this.state.rootPitch !== null) {
+      this.state.originalModes = this.computeOriginalModes(this.state.rootPitch);
+      this.state.candidateModes = [...this.state.originalModes];
+    }
+    
+    return this.generateResult();
+  }
+
+  /**
+   * Manual Enter Melody-Mode
+   */
+  public enterMelodyMode(): ModeDetectionResult {
+    console.log('🎭 Manual: Enter Melody-Mode');
+    
+    // Clear notesHistory and clear rootPitch
+    this.state.notesHistory = [];
+    this.state.rootPitch = null;
+    this.state.direction = "unknown";
+    this.state.state = "melody-mode";
+    this.state.originalModes = [];
+    this.state.candidateModes = [];
+    
+    return {
+      suggestions: [],
+      state: this.state.state,
+      showContinueButton: false,
+      requiresTonicSelection: true  // Requires user to pick a fresh tonic
+    };
+  }
+
+  /**
+   * Set new root pitch (for melody mode)
+   */
+  public setRootPitch(pitchClass: number): ModeDetectionResult {
+    console.log('🎯 Setting root pitch to:', NOTE_NAMES[pitchClass]);
+    
+    this.state.rootPitch = pitchClass;
+    this.state.originalModes = this.computeOriginalModes(pitchClass);
+    this.state.candidateModes = [...this.state.originalModes];
+    
+    return this.generateResult();
+  }
+
+  /**
+   * Reset the detector
+   */
+  public reset(): void {
+    this.state = this.initializeState();
+  }
+
+  /**
+   * Get current state (for debugging)
+   */
+  public getState(): RealTimeModeState {
+    return { ...this.state };
+  }
+}

@@ -4,6 +4,7 @@ import * as keySuggester from '../services/keySuggester';
 import {updateUnifiedDetection} from '../services/keySuggester';
 import {UnifiedResultsState} from './UnifiedResultsPanel';
 import {parseTonicAndMode, extractTonicFromAnalysis} from '../utils/music';
+import {RealTimeModeDetector, ModeDetectionResult, ModeSuggestion, ScaleFamily} from '../services/realTimeModeDetection';
 
 interface IntegratedMusicSidebarProps {
   midiData?: {
@@ -56,6 +57,13 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
   
   const [unifiedDetectionResults, setUnifiedDetectionResults] = useState<UnifiedDetectionResult | null>(null);
   
+  // Real-time mode detection state
+  const [modeDetector] = useState(() => new RealTimeModeDetector());
+  const [modeDetectionResult, setModeDetectionResult] = useState<ModeDetectionResult | null>(null);
+  const [expandedFamilies, setExpandedFamilies] = useState<Set<ScaleFamily>>(
+    new Set(['Major Scale', 'Melodic Minor']) // Default-expand larger families
+  );
+  
   // Progressive disclosure state management
   const [viewMode, setViewMode] = useState<'quick' | 'detailed'>('quick');
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
@@ -94,6 +102,34 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
     setShowAdvancedOptions(prev => !prev);
   };
 
+  // Real-time mode detection functions
+  const handleContinueScaleMode = () => {
+    const result = modeDetector.continueScaleMode();
+    setModeDetectionResult(result);
+  };
+
+  const handleEnterMelodyMode = () => {
+    const result = modeDetector.enterMelodyMode();
+    setModeDetectionResult(result);
+  };
+
+  const handleSetRootPitch = (pitchClass: number) => {
+    const result = modeDetector.setRootPitch(pitchClass);
+    setModeDetectionResult(result);
+  };
+
+  const toggleFamilyExpansion = (family: ScaleFamily) => {
+    setExpandedFamilies(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(family)) {
+        newSet.delete(family);
+      } else {
+        newSet.add(family);
+      }
+      return newSet;
+    });
+  };
+
   // Adaptive behavior based on note count
   const getAdaptiveViewMode = (noteCount: number): 'quick' | 'detailed' => {
     if (noteCount >= 7) {
@@ -106,6 +142,181 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
   const isValidNoteName = (str: string): boolean => {
     const notePattern = /^[A-G][#b♭]?$/;
     return notePattern.test(str);
+  };
+
+  // Note names for root picker
+  const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+  // Render real-time mode detection results
+  const renderModeDetectionResults = () => {
+    if (!modeDetectionResult) {
+      return (
+        <div className="no-results">
+          Play some notes to see mode suggestions
+        </div>
+      );
+    }
+
+    const { suggestions, state, showContinueButton, requiresTonicSelection } = modeDetectionResult;
+
+    return (
+      <div className="mode-detection-results">
+        {/* Mode State Indicator */}
+        <div className="mode-state-indicator">
+          <span className={`mode-badge ${state === 'scale-mode' ? 'scale-mode' : 'melody-mode'}`}>
+            {state === 'scale-mode' ? '🎼 Scale Mode' : '🎭 Melody Mode'}
+          </span>
+        </div>
+
+        {/* Manual Override Buttons */}
+        <div className="mode-controls">
+          {showContinueButton && (
+            <button 
+              className="continue-scale-mode-btn"
+              onClick={handleContinueScaleMode}
+              aria-label="Continue in scale mode"
+            >
+              Continue Scale-Mode
+            </button>
+          )}
+          <button 
+            className="enter-melody-mode-btn"
+            onClick={handleEnterMelodyMode}
+            aria-label="Enter melody mode"
+          >
+            Enter Melody-Mode
+          </button>
+        </div>
+
+        {/* Root Picker (when needed) */}
+        {requiresTonicSelection && (
+          <div className="root-picker">
+            <h6>Please select a tonic:</h6>
+            <div className="root-picker-buttons">
+              {NOTE_NAMES.map((noteName, pitchClass) => (
+                <button
+                  key={pitchClass}
+                  className="root-picker-btn"
+                  onClick={() => handleSetRootPitch(pitchClass)}
+                  aria-label={`Set root to ${noteName}`}
+                >
+                  {noteName}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Grouped Suggestions */}
+        {suggestions.length > 0 && (
+          <div className="grouped-suggestions">
+            {renderGroupedSuggestions(suggestions)}
+          </div>
+        )}
+
+        {/* No suggestions message for melody mode */}
+        {state === 'melody-mode' && suggestions.length === 0 && !requiresTonicSelection && (
+          <div className="melody-mode-message">
+            <p>Notes don't fit any scale—Switched to Melody Mode.</p>
+            <p>Please select a tonic or continue in scale mode.</p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Render grouped suggestions by scale family
+  const renderGroupedSuggestions = (suggestions: ModeSuggestion[]) => {
+    // Group suggestions by family
+    const familyGroups = new Map<ScaleFamily, ModeSuggestion[]>();
+    
+    suggestions.forEach(suggestion => {
+      if (!familyGroups.has(suggestion.family)) {
+        familyGroups.set(suggestion.family, []);
+      }
+      familyGroups.get(suggestion.family)!.push(suggestion);
+    });
+
+    // Define family order and display names (updated for legacy system)
+    const familyOrder: ScaleFamily[] = [
+      'Major Scale', 
+      'Melodic Minor', 
+      'Harmonic Minor', 
+      'Harmonic Major', 
+      'Double Harmonic Major', 
+      'Major Pentatonic', 
+      'Blues Scale'
+    ];
+    const familyDisplayNames: Record<ScaleFamily, string> = {
+      'Major Scale': 'Major Modes',
+      'Melodic Minor': 'Melodic Minor Modes', 
+      'Harmonic Minor': 'Harmonic Minor Modes',
+      'Harmonic Major': 'Harmonic Major Modes',
+      'Double Harmonic Major': 'Double Harmonic Major Modes',
+      'Major Pentatonic': 'Pentatonic Modes',
+      'Blues Scale': 'Blues Modes'
+    };
+
+    return (
+      <div className="family-groups">
+        {familyOrder.map(family => {
+          const familySuggestions = familyGroups.get(family);
+          if (!familySuggestions || familySuggestions.length === 0) return null;
+
+          const isExpanded = expandedFamilies.has(family);
+
+          return (
+            <div key={family} className="family-group">
+              <div 
+                className="family-header"
+                onClick={() => toggleFamilyExpansion(family)}
+                role="button"
+                tabIndex={0}
+                aria-expanded={isExpanded}
+                aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${familyDisplayNames[family]}`}
+              >
+                <h6 className="family-title">
+                  <span className="family-icon">{isExpanded ? '▼' : '▶'}</span>
+                  {familyDisplayNames[family]}
+                </h6>
+                <span className="family-count">({familySuggestions.length})</span>
+              </div>
+
+              {isExpanded && (
+                <div className="family-suggestions">
+                  {familySuggestions.map((suggestion, index) => (
+                    <div key={`${family}-${index}`} className="suggestion-item">
+                      <div className="suggestion-header">
+                        <span className="suggestion-name">• {suggestion.fullName}</span>
+                        <span className="suggestion-mismatch">
+                          [{suggestion.mismatchCount} {suggestion.mismatchCount === 1 ? 'mismatch' : 'mismatches'}]
+                        </span>
+                      </div>
+                      {onSwitchToReferenceWithHighlight && (
+                        <button
+                          className="preview-btn"
+                          onClick={() => {
+                            // Extract tonic and mode from fullName
+                            const parts = suggestion.fullName.split(' ');
+                            const tonic = parts[0];
+                            const mode = parts.slice(1).join(' ');
+                            onSwitchToReferenceWithHighlight(mode, tonic);
+                          }}
+                          aria-label={`Preview ${suggestion.fullName} scale`}
+                          title="👁️ Preview scale"
+                        >
+                          👁️
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
   };
 
   // Render debugging information display
@@ -176,10 +387,43 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
   // Render consolidated musical analysis content for sidebar
   const renderSidebarResults = () => {
     const hasUnifiedResults = unifiedResults?.isVisible && unifiedResults?.currentResults;
-    const hasUnifiedDetection = unifiedDetectionResults && unifiedDetectionResults.suggestions.length > 0;
+    const hasModeDetection = modeDetectionResult && (modeDetectionResult.suggestions.length > 0 || modeDetectionResult.state === 'melody-mode');
     const hasChordSuggestions = chordSuggestions.length > 0;
 
-    if (!hasUnifiedResults && !hasUnifiedDetection && !hasChordSuggestions) {
+    // Prioritize real-time mode detection over legacy unified detection
+    if (hasModeDetection) {
+      return (
+        <div className="consolidated-analysis">
+          {/* Real-time Mode Detection Results */}
+          <div className="mode-detection-section">
+            <h5>Real-time Mode Detection</h5>
+            {renderModeDetectionResults()}
+          </div>
+
+          {/* Chord Suggestions Section (if any) */}
+          {hasChordSuggestions && (
+            <div className="chord-suggestions-section">
+              <h5>Chord Analysis</h5>
+              <div className="chord-suggestions">
+                {chordSuggestions.map((suggestion, index) => (
+                  <div key={index} className="suggestion-item">
+                    <div className="suggestion-header">
+                      {suggestion.chord} in {suggestion.key}
+                    </div>
+                    <div className="suggestion-confidence">
+                      Confidence: {Math.round(suggestion.confidence * 100)}%
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Fallback to legacy unified results if no mode detection
+    if (!hasUnifiedResults && !hasChordSuggestions) {
       return (
         <div className="no-results">
           {(!midiData?.playedPitchClasses || midiData.playedPitchClasses.size === 0) 
@@ -463,7 +707,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
     midi: true,
     unifiedDetection: true,  // Phase 2: New unified detection results section
     suggestions: true,
-    results: false
+    results: true  // Musical Analysis section expanded by default
   });
 
   // Toggle section expansion
@@ -531,65 +775,90 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
     };
   }, []);
 
-  // Effect to update suggestions and unified detection results based on MIDI data
+  // Effect to update suggestions and mode detection results based on MIDI data
   useEffect(() => {
-    if (!midiData?.playedPitchClasses || midiData.playedPitchClasses.size === 0) {
+    if (!midiData?.playedNotes || midiData.playedNotes.length === 0) {
       setChordSuggestions([]);
       setUnifiedDetectionResults(null);
+      setModeDetectionResult(null);
       setViewMode('quick'); // Reset to quick view
+      modeDetector.reset(); // Reset the mode detector
       return;
     }
 
     if (!midiData.detectionEnabled) {
       setChordSuggestions([]);
       setUnifiedDetectionResults(null);
+      setModeDetectionResult(null);
+      modeDetector.reset();
       return;
     }
 
-    const noteCount = midiData.playedPitchClasses.size;
-
-    // Adaptive view mode based on note count
-    if (noteCount >= 7) {
-      setViewMode('detailed'); // Auto-expand for complex input
-    } else {
-      setViewMode('quick'); // Default to quick view
-    }
-
     // Automatically show sidebar on MIDI input as per requirements
-    if (midiData.playedPitchClasses.size > 0 && midiData.detectionEnabled) {
+    if (midiData.playedNotes.length > 0 && midiData.detectionEnabled) {
       setIsVisible(true);
     }
 
-    // Update unified detection results for consolidated display
-    const detectionResult = updateUnifiedDetection(midiData.playedPitchClasses, midiData.analysisFocus);
-    setUnifiedDetectionResults(detectionResult);
+    // Use real-time mode detection for sequential note analysis
+    if (midiData.analysisFocus !== 'chord') {
+      console.log('🎵 Processing notes with real-time mode detection');
+      
+      // Reset detector if this is a new session (no current result)
+      if (!modeDetectionResult) {
+        modeDetector.reset();
+      }
 
-    // Capture debugging information for unified detection results
-    const playedNotesArray = Array.from(midiData.playedPitchClasses);
-    const noteNames = ['C', 'C♯/D♭', 'D', 'D♯/E♭', 'E', 'F', 'F♯/G♭', 'G', 'G♯/A♭', 'A', 'A♯/B♭', 'B'];
-    const playedNoteNames = playedNotesArray.map(pc => noteNames[pc]).join(', ');
+      // Process each note sequentially
+      let currentResult = modeDetectionResult;
+      
+      // Get the latest note that was added
+      const latestNote = midiData.playedNotes[midiData.playedNotes.length - 1];
+      if (latestNote) {
+        const pitchClass = latestNote.number % 12;
+        console.log('🎵 Adding note to real-time detector:', pitchClass);
+        currentResult = modeDetector.addNote(pitchClass);
+        setModeDetectionResult(currentResult);
+      }
 
-    const sortingDetails = detectionResult.suggestions.map((suggestion, index) => ({
-      name: suggestion.name,
-      matchCount: Math.round(suggestion.closeness * 100), // Use closeness as match count equivalent
-      topModePopularity: suggestion.topModePopularity || 999,
-      containsPlayedNoteAsRoot: suggestion.containsPlayedNoteAsRoot || false,
-      finalRank: index + 1
-    }));
+      // Adaptive view mode based on note count and mode state
+      const noteCount = midiData.playedNotes.length;
+      if (currentResult?.state === 'melody-mode' || noteCount >= 7) {
+        setViewMode('detailed'); // Auto-expand for melody mode or complex input
+      } else {
+        setViewMode('quick'); // Default to quick view
+      }
 
-    setDebugInfo({
-      suggestions: [], // Legacy field, kept for compatibility
-      timestamp: new Date().toLocaleTimeString(),
-      playedNotes: playedNoteNames,
-      sortingDetails: sortingDetails
-    });
+      // Update debugging information
+      const playedNoteNames = midiData.playedNotes.map(note => 
+        `${note.name}${note.accidental || ''}${note.octave}`
+      ).join(', ');
+
+      const sortingDetails = currentResult?.suggestions.map((suggestion, index) => ({
+        name: suggestion.fullName,
+        matchCount: suggestion.matchCount,
+        topModePopularity: suggestion.popularity,
+        containsPlayedNoteAsRoot: true, // All suggestions are based on the root pitch
+        finalRank: index + 1
+      })) || [];
+
+      setDebugInfo({
+        suggestions: [], // Legacy field, kept for compatibility
+        timestamp: new Date().toLocaleTimeString(),
+        playedNotes: playedNoteNames,
+        sortingDetails: sortingDetails
+      });
+    }
 
     // Update chord suggestions if in chord focus mode
-    if (midiData.analysisFocus === 'chord') {
+    if (midiData.analysisFocus === 'chord' && midiData.playedPitchClasses) {
       console.log('🎵 Sidebar calling updateChordSuggestionsForSidebar');
       keySuggester.updateChordSuggestionsForSidebar(midiData.playedPitchClasses);
+      
+      // Also update legacy unified detection for chord mode
+      const detectionResult = updateUnifiedDetection(midiData.playedPitchClasses, midiData.analysisFocus);
+      setUnifiedDetectionResults(detectionResult);
     }
-  }, [midiData?.detectionEnabled, midiData?.analysisFocus, midiData?.playedPitchClasses]);
+  }, [midiData?.detectionEnabled, midiData?.analysisFocus, midiData?.playedNotes, modeDetector, modeDetectionResult]);
 
   // Adaptive behavior effect - automatically adjust view mode based on note count
   useEffect(() => {
@@ -684,6 +953,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
                 <span 
                   className={`sidebar-status-indicator ${
                     (unifiedResults?.isVisible && unifiedResults?.currentResults) || 
+                    (modeDetectionResult && (modeDetectionResult.suggestions.length > 0 || modeDetectionResult.state === 'melody-mode')) ||
                     (unifiedDetectionResults && unifiedDetectionResults.suggestions.length > 0) || 
                     chordSuggestions.length > 0
                       ? 'active' 
@@ -691,9 +961,23 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
                   }`}
                 ></span>
                 🎯 Musical Analysis
-                {((unifiedDetectionResults && unifiedDetectionResults.suggestions.length > 0) || chordSuggestions.length > 0) && (
+                {/* Show count and mode state */}
+                {(modeDetectionResult || unifiedDetectionResults || chordSuggestions.length > 0) && (
                   <span style={{ fontSize: '0.75rem', marginLeft: '8px', color: '#94a3b8' }}>
-                    ({(unifiedDetectionResults?.suggestions.length || 0) + chordSuggestions.length})
+                    {modeDetectionResult && (
+                      <>
+                        ({modeDetectionResult.suggestions.length} suggestions)
+                        {modeDetectionResult.state === 'melody-mode' && (
+                          <span style={{ marginLeft: '4px', color: '#f97316' }}>🎭</span>
+                        )}
+                        {modeDetectionResult.state === 'scale-mode' && (
+                          <span style={{ marginLeft: '4px', color: '#10b981' }}>🎼</span>
+                        )}
+                      </>
+                    )}
+                    {!modeDetectionResult && ((unifiedDetectionResults?.suggestions.length || 0) + chordSuggestions.length > 0) && (
+                      <>({(unifiedDetectionResults?.suggestions.length || 0) + chordSuggestions.length})</>
+                    )}
                   </span>
                 )}
               </h3>

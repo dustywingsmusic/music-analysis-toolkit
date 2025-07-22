@@ -12,7 +12,8 @@ export const useMidi = (
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
   const [playedNotes, setPlayedNotes] = useState<NotePlayed[]>([]);
   const [playedPitchClasses, setPlayedPitchClasses] = useState<Set<number>>(new Set());
-  const [mode, setMode] = useState<'7' | '5' | 'melody' | 'chord'>('7');
+  const [detectionEnabled, setDetectionEnabled] = useState<boolean>(true);
+  const [analysisFocus, setAnalysisFocus] = useState<'automatic' | 'complete' | 'pentatonic' | 'chord'>('automatic');
   const [chordDetectionTimeout, setChordDetectionTimeout] = useState<NodeJS.Timeout | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [enabled, setEnabled] = useState<boolean>(true);
@@ -44,11 +45,12 @@ export const useMidi = (
       noteNumber,
       noteName: e.note.name,
       pitchClass,
-      mode,
+      detectionEnabled,
+      analysisFocus,
       octave: e.note.octave
     });
 
-    if (mode === 'chord') {
+    if (analysisFocus === 'chord') {
       // Clear any pending timeout to extend the chord entry window
       if (chordDetectionTimeout) {
         clearTimeout(chordDetectionTimeout);
@@ -103,20 +105,20 @@ export const useMidi = (
         const newSet = new Set(prev);
         newSet.add(pitchClass);
 
-        // If in melody mode, call the onMelodyUpdate callback
-        if (mode === 'melody' && onMelodyUpdate) {
+        // If detection enabled and not in chord mode, call the onMelodyUpdate callback
+        if (detectionEnabled && analysisFocus !== 'chord' && onMelodyUpdate) {
           // We need to create a new set with the updated pitch class
           const updatedSet = new Set(newSet);
           console.log('Calling onMelodyUpdate with pitch classes:', Array.from(updatedSet));
           onMelodyUpdate(updatedSet);
-        } else if (mode === 'melody') {
-          console.log('Melody mode but no onMelodyUpdate callback provided');
+        } else if (detectionEnabled && analysisFocus !== 'chord') {
+          console.log('Melody analysis enabled but no onMelodyUpdate callback provided');
         }
 
         return newSet;
       });
     }
-  }, [mode, chordDetectionTimeout, onChordDetected, onMelodyUpdate]);
+  }, [detectionEnabled, analysisFocus, chordDetectionTimeout, onChordDetected, onMelodyUpdate]);
 
   const clearPlayedNotes = useCallback(() => {
     setPlayedNotes([]);
@@ -212,8 +214,10 @@ export const useMidi = (
     setSelectedDevice,
     playedNotes,
     playedPitchClasses,
-    mode,
-    setMode,
+    detectionEnabled,
+    setDetectionEnabled,
+    analysisFocus,
+    setAnalysisFocus,
     clearPlayedNotes,
     error,
     enabled,
