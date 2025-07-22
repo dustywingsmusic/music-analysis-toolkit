@@ -109,3 +109,116 @@ export const getChromaticScaleWithEnharmonics = (tonic: string): string[] => {
         "B",
     ];
 };
+
+// Constants for note validation and conversion
+const PITCH_CLASS_RANGE = { MIN: 0, MAX: 11 };
+const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'] as const;
+
+/**
+ * Validates if a string is a valid note name
+ * @param str The string to validate
+ * @returns true if the string is a valid note name
+ */
+export const isValidNoteName = (str: string): boolean => {
+  if (!str || typeof str !== 'string') return false;
+  // Valid note names: A, B, C, D, E, F, G with optional sharps (#) or flats (b/♭)
+  const notePattern = /^[A-G][#b♭]?$/;
+  return notePattern.test(str);
+};
+
+/**
+ * Validates if a number is a valid pitch class (0-11)
+ * @param pitch The number to validate
+ * @returns true if the number is a valid pitch class
+ */
+export const isValidPitchClass = (pitch: number): boolean => {
+  return Number.isInteger(pitch) && pitch >= PITCH_CLASS_RANGE.MIN && pitch <= PITCH_CLASS_RANGE.MAX;
+};
+
+/**
+ * Safely converts a pitch class number to a note name
+ * @param pitch The pitch class number (0-11)
+ * @returns The note name, or 'C' as fallback for invalid input
+ */
+export const safeGetNoteName = (pitch: number): string => {
+  if (!isValidPitchClass(pitch)) {
+    console.warn(`Invalid pitch class: ${pitch}. Using C as fallback.`);
+    return 'C';
+  }
+  return NOTE_NAMES[pitch];
+};
+
+/**
+ * Normalizes a note name by converting ASCII sharp to Unicode and removing slash notation
+ * @param name The note name to normalize
+ * @returns The normalized note name
+ */
+export const normalizeNoteName = (name: string): string => {
+  if (!name || typeof name !== 'string') return '';
+  // Convert ASCII sharp to Unicode sharp and extract first part before "/"
+  return name.replace('#', '♯').split('/')[0];
+};
+
+/**
+ * Safely parses a comma-separated string of played notes
+ * @param playedNotes The string containing played notes
+ * @returns Array of trimmed note names
+ */
+export const safeParsePlayedNotes = (playedNotes: string): string[] => {
+  if (!playedNotes || typeof playedNotes !== 'string') return [];
+  return playedNotes.split(', ').map(note => note.trim()).filter(note => note.length > 0);
+};
+
+/**
+ * Parses a full mode string into tonic and mode components
+ * @param fullMode The full mode string (e.g., "F Ionian" or "Ionian")
+ * @param fallbackTonic Optional fallback tonic if none found in the string
+ * @returns Object with tonic and mode properties
+ */
+export const parseTonicAndMode = (fullMode: string, fallbackTonic?: string): { tonic: string; mode: string } => {
+  if (!fullMode || typeof fullMode !== 'string') {
+    return { tonic: fallbackTonic || 'C', mode: 'Major' };
+  }
+  
+  const parts = fullMode.split(' ');
+  
+  // Check if we have both tonic and mode, or just mode
+  if (parts.length > 1 && isValidNoteName(parts[0])) {
+    // Format: "F Ionian" - first part is a valid note name (tonic), rest is mode
+    return {
+      tonic: parts[0],
+      mode: parts.slice(1).join(' ')
+    };
+  } else {
+    // Format: "Ionian" or "Blues Mode II" - no valid note name at start
+    return {
+      tonic: fallbackTonic || 'C',
+      mode: fullMode
+    };
+  }
+};
+
+/**
+ * Extracts tonic from analysis data with fallback logic
+ * @param analysis The analysis object
+ * @param localAnalysis Optional local analysis data for fallback
+ * @returns The extracted tonic note
+ */
+export const extractTonicFromAnalysis = (analysis: any, localAnalysis?: { suggestedTonic?: string }): string => {
+  // Try to get tonic from scale notes first (first note is the mode root)
+  if (analysis?.notes && Array.isArray(analysis.notes) && analysis.notes.length > 0) {
+    return analysis.notes[0];
+  }
+  
+  if (analysis?.scale && typeof analysis.scale === 'string') {
+    // Parse scale string to get first note
+    const scaleNotes = analysis.scale.trim().split(/\s+/);
+    if (scaleNotes.length > 0) {
+      return scaleNotes[0];
+    }
+  }
+  
+  return analysis?.parentScaleRootNote ||
+         localAnalysis?.suggestedTonic ||
+         'F';
+};

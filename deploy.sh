@@ -107,6 +107,8 @@ case "$1" in
       --platform managed \
       --region "$GCP_REGION" \
       --allow-unauthenticated \
+      --set-secrets VITE_GEMINI_API_KEY=gemini-api-key:latest \
+      --set-env-vars VITE_GOOGLE_CLOUD_PROJECT="$PROJECT_ID",VITE_GEMINI_MODEL_ID="$VITE_GEMINI_MODEL_ID" \
       --memory 512Mi \
       --cpu 1 \
       --max-instances 5 \

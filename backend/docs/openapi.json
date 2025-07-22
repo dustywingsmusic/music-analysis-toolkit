@@ -38,13 +38,21 @@
                     "default": 0.0
                   },
                   "end": {
-                    "type": "number",
-                    "format": "float",
-                    "description": "End time in seconds for the local segment analysis. If not provided, analysis goes to the end of the audio.",
-                    "nullable": true
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "End time in seconds for the local segment analysis. If not provided, analysis goes to the end of the audio."
                   }
                 },
-                "required": ["audio"]
+                "required": [
+                  "audio"
+                ]
               }
             }
           }
@@ -56,50 +64,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ModeAnalysisResponse"
-                },
-                "example": {
-                  "global": {
-                    "tonic": "G",
-                    "key_signature": "G minor",
-                    "mode": "Aeolian",
-                    "confidence": 0.92
-                  },
-                  "local": {
-                    "segment_start": 30.0,
-                    "segment_end": 45.0,
-                    "tonic": "C",
-                    "key_signature": "C minor",
-                    "mode": "Aeolian",
-                    "match_score": 0.95,
-                    "region_type": "modal_shift",
-                    "region_confidence": 0.88
-                  },
-                  "analysis": {
-                    "chromagram_summary": [0.8, 0.1, 0.7, 0.9, 0.2, 0.6, 0.1, 0.9, 0.3, 0.5, 0.2, 0.4],
-                    "cadence_detected": true,
-                    "borrowed_tones": ["Ab"],
-                    "cadential_strength": 0.7
-                  },
-                  "visuals": {
-                    "visuals": [
-                      {
-                        "name": "global_chromagram",
-                        "scope": "global",
-                        "image_base64": "data:image/png;base64,iVBORw0KGgoAAA..."
-                      },
-                      {
-                        "name": "local_histogram",
-                        "scope": "local",
-                        "image_base64": "data:image/png;base64,iVBORw0KGgoAAA..."
-                      }
-                    ]
-                  }
                 }
               }
             }
           },
-          "400": { "description": "Bad Request - Invalid audio file or parameters." },
-          "500": { "description": "Internal Server Error." }
+          "400": {
+            "description": "Bad Request - Invalid audio file or parameters."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
         }
       }
     }
@@ -109,62 +83,226 @@
       "GlobalAnalysis": {
         "type": "object",
         "properties": {
-          "tonic": {"type": "string", "description": "Root of the parent key."},
-          "key_signature": {"type": "string", "description": "Parent key signature, e.g., 'G minor'."},
-          "mode": {"type": "string", "description": "Parent mode, e.g., 'Aeolian'."},
-          "confidence": {"type": "number", "format": "float", "description": "Confidence score (0–1) for global analysis."}
+          "tonic": {
+            "type": "string",
+            "description": "Root of the parent key."
+          },
+          "key_signature": {
+            "type": "string",
+            "description": "Parent key signature, e.g., 'G minor'."
+          },
+          "mode": {
+            "type": "string",
+            "description": "Parent mode, e.g., 'Aeolian'."
+          },
+          "confidence": {
+            "type": "number",
+            "format": "float",
+            "description": "Confidence score (0–1) for global analysis."
+          }
         },
-        "required": ["tonic", "key_signature", "mode", "confidence"]
+        "required": [
+          "tonic",
+          "key_signature",
+          "mode",
+          "confidence"
+        ]
       },
       "LocalAnalysis": {
         "type": "object",
         "properties": {
-          "segment_start": {"type": "number", "format": "float", "description": "Start time in seconds of the segment."},
-          "segment_end": {"type": "number", "format": "float", "description": "End time in seconds of the segment."},
-          "tonic": {"type": "string", "description": "Root of the local key."},
-          "key_signature": {"type": "string", "description": "Local key signature, e.g., 'C minor'."},
-          "mode": {"type": "string", "description": "Local mode, e.g., 'Aeolian'."},
-          "match_score": {"type": "number", "format": "float", "description": "Similarity score (0–1) for the mode match."},
-          "region_type": {"type": "string", "enum": ["modulation", "modal_shift", "stable"], "description": "Type of region: 'modulation', 'modal_shift', or 'stable'."},
-          "region_confidence": {"type": "number", "format": "float", "description": "Confidence score (0–1) for region_type classification."}
+          "segment_start": {
+            "type": "number",
+            "format": "float",
+            "description": "Start time in seconds of the segment."
+          },
+          "segment_end": {
+            "type": "number",
+            "format": "float",
+            "description": "End time in seconds of the segment."
+          },
+          "tonic": {
+            "type": "string",
+            "description": "Root of the local key."
+          },
+          "key_signature": {
+            "type": "string",
+            "description": "Local key signature, e.g., 'C minor'."
+          },
+          "mode": {
+            "type": "string",
+            "description": "Local mode, e.g., 'Aeolian'."
+          },
+          "match_score": {
+            "type": "number",
+            "format": "float",
+            "description": "Similarity score (0–1) for the mode match."
+          },
+          "region_type": {
+            "type": "string",
+            "enum": [
+              "modulation",
+              "modal_shift",
+              "stable"
+            ],
+            "description": "Type of region: 'modulation', 'modal_shift', or 'stable'."
+          },
+          "region_confidence": {
+            "type": "number",
+            "format": "float",
+            "description": "Confidence score (0–1) for region_type classification."
+          }
         },
-        "required": ["segment_start", "segment_end", "tonic", "key_signature", "mode", "match_score", "region_type", "region_confidence"]
+        "required": [
+          "segment_start",
+          "segment_end",
+          "tonic",
+          "key_signature",
+          "mode",
+          "match_score",
+          "region_type",
+          "region_confidence"
+        ]
       },
       "AnalysisDetails": {
         "type": "object",
         "properties": {
-          "chromagram_summary": {"type": "array", "items": {"type": "number"}, "minItems": 12, "maxItems": 12, "description": "12-bin average chromagram for the segment."},
-          "cadence_detected": {"type": "boolean", "description": "Whether a cadential pattern was detected in the segment."},
-          "borrowed_tones": {"type": "array", "items": {"type": "string"}, "description": "List of non-diatonic notes detected."},
-          "cadential_strength": {"type": "number", "format": "float", "description": "Measure (0–1) of cadence prominence."}
+          "chromagram_summary": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 12,
+            "maxItems": 12,
+            "description": "12-bin average chromagram for the segment."
+          },
+          "cadence_detected": {
+            "type": "boolean",
+            "description": "Whether a cadential pattern was detected in the segment."
+          },
+          "borrowed_tones": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of non-diatonic notes detected."
+          },
+          "cadential_strength": {
+            "type": "number",
+            "format": "float",
+            "description": "Measure (0–1) of cadence prominence."
+          }
         },
-        "required": ["chromagram_summary", "cadence_detected", "borrowed_tones", "cadential_strength"]
+        "required": [
+          "chromagram_summary",
+          "cadence_detected",
+          "borrowed_tones",
+          "cadential_strength"
+        ]
       },
       "VisualizationItem": {
         "type": "object",
         "properties": {
-          "name": {"type": "string", "description": "Name of the visualization, e.g., 'global_chromagram'."},
-          "scope": {"type": "string", "enum": ["global", "local"], "description": "The scope of the visualization."},
-          "image_base64": {"type": "string", "description": "Base64 encoded PNG image."}
+          "name": {
+            "type": "string",
+            "description": "Name of the visualization, e.g., 'global_chromagram'."
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "global",
+              "local"
+            ],
+            "description": "The scope of the visualization."
+          },
+          "image_base64": {
+            "type": "string",
+            "description": "Base64 encoded PNG image."
+          }
         },
-        "required": ["name", "scope", "image_base64"]
-      },
-      "VisualsResponse": {
-        "type": "object",
-        "properties": {
-          "visuals": {"type": "array", "items": {"$ref": "#/components/schemas/VisualizationItem"}, "description": "List of generated visualizations."}
-        },
-        "required": ["visuals"]
+        "required": [
+          "name",
+          "scope",
+          "image_base64"
+        ]
       },
       "ModeAnalysisResponse": {
         "type": "object",
         "properties": {
-          "global": {"$ref": "#/components/schemas/GlobalAnalysis"},
-          "local": {"$ref": "#/components/schemas/LocalAnalysis"},
-          "analysis": {"$ref": "#/components/schemas/AnalysisDetails"},
-          "visuals": {"$ref": "#/components/schemas/VisualsResponse"}
+          "global": {
+            "$ref": "#/components/schemas/GlobalAnalysis"
+          },
+          "local": {
+            "$ref": "#/components/schemas/LocalAnalysis"
+          },
+          "analysis": {
+            "$ref": "#/components/schemas/AnalysisDetails"
+          },
+          "visuals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VisualizationItem"
+            },
+            "description": "List of generated visualizations with contextual metadata."
+          }
         },
-        "required": ["global", "local", "analysis", "visuals"]
+        "required": [
+          "global",
+          "local",
+          "analysis",
+          "visuals"
+        ],
+        "example": {
+          "global": {
+            "tonic": "G",
+            "key_signature": "G minor",
+            "mode": "Aeolian",
+            "confidence": 0.92
+          },
+          "local": {
+            "segment_start": 30,
+            "segment_end": 45,
+            "tonic": "C",
+            "key_signature": "C minor",
+            "mode": "Aeolian",
+            "match_score": 0.95,
+            "region_type": "modal_shift",
+            "region_confidence": 0.88
+          },
+          "analysis": {
+            "chromagram_summary": [
+              0.8,
+              0.1,
+              0.7,
+              0.9,
+              0.2,
+              0.6,
+              0.1,
+              0.9,
+              0.3,
+              0.5,
+              0.2,
+              0.4
+            ],
+            "cadence_detected": true,
+            "borrowed_tones": [
+              "Ab"
+            ],
+            "cadential_strength": 0.7
+          },
+          "visuals": [
+            {
+              "name": "local_chromagram",
+              "scope": "local",
+              "image_base64": "data:image/png;base64,iVBORw0KGgoAAA..."
+            },
+            {
+              "name": "local_histogram",
+              "scope": "local",
+              "image_base64": "data:image/png;base64,iVBORw0KGgoAAA..."
+            }
+          ]
+        }
       }
     }
   }

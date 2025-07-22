@@ -19,16 +19,16 @@ import ModeDiscoveryTab from './ModeDiscoveryTab';
 import HarmonyTab from './HarmonyTab';
 import ReferenceTab from './ReferenceTab';
 import ChordAnalyzer from './ChordAnalyzer';
-import {analyzeHarmony, analyzeMusic, discoverModes, getSongExamples} from '../services/geminiService';
-import {buildModesFromRoot, isValidRootNote, ModeFromRoot} from '../services/scaleDataService';
-import {allScaleData, NOTES, PARENT_KEY_INDICES} from '../constants/scales';
+import {analyzeHarmony, analyzeMusic, discoverModes, getSongExamples} from '@/services/geminiService';
+import {buildModesFromRoot, isValidRootNote, ModeFromRoot} from '@/services/scaleDataService';
+import {allScaleData, NOTES, PARENT_KEY_INDICES} from '@/constants/scales';
 import {generateHighlightId as generateHighlightIdFromMappings, getScaleFamilyFromMode} from '../constants/mappings';
 import MappingDebugger from './MappingDebugger';
-import {useUnifiedResults} from "@/hooks/useUnifiedResults.ts";
-import UnifiedResultsPanel from "@/components/UnifiedResultsPanel.tsx";
+import {useUnifiedResults} from "@/hooks/useUnifiedResults";
+import UnifiedResultsPanel from "@/components/UnifiedResultsPanel";
 import MidiSettingsPanel from './MidiSettingsPanel';
-import {useMidi} from '../hooks/useMidi';
-import {logger} from '../utils/logger';
+import {useMidi} from '@/hooks/useMidi';
+import {logger} from '@/utils/logger';
 
 interface QuestionDrivenMusicToolProps {
   showDebugInfo: boolean;
@@ -83,8 +83,10 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
     setSelectedDevice: setMidiSelectedDevice,
     playedNotes: midiPlayedNotes,
     playedPitchClasses: midiPlayedPitchClasses,
-    mode: midiMode,
-    setMode: setMidiMode,
+    detectionEnabled: midiDetectionEnabled,
+    setDetectionEnabled: setMidiDetectionEnabled,
+    analysisFocus: midiAnalysisFocus,
+    setAnalysisFocus: setMidiAnalysisFocus,
     clearPlayedNotes: clearMidiPlayedNotes,
     error: midiError,
     enabled: midiEnabled,
@@ -344,19 +346,6 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
           throw new Error(`Unknown analysis method: ${method}`);
       }
 
-      // Create user inputs object for history
-      const userInputs = {
-        method,
-        inputData: data,
-        rawInputs: {
-          originalInput: method === 'melody' ? data.notes : 
-                        method === 'scale' ? data.notes :
-                        method === 'progression' ? data.chords : 
-                        JSON.stringify(data),
-          analysisType: method,
-          timestamp: Date.now()
-        }
-      };
 
       // Show results
       showUnifiedResultsWithLegacy(analysisResult);
@@ -370,20 +359,6 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
         timestamp: Date.now()
       };
 
-      // Create user inputs object for error case
-      const userInputs = {
-        method,
-        inputData: data,
-        rawInputs: {
-          originalInput: method === 'melody' ? data.notes : 
-                        method === 'scale' ? data.notes :
-                        method === 'progression' ? data.chords : 
-                        JSON.stringify(data),
-          analysisType: method,
-          timestamp: Date.now(),
-          error: true
-        }
-      };
 
       // Show error results
       showUnifiedResultsWithLegacy(errorResult);
@@ -402,20 +377,6 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
       currentTab: activeTab
     });
 
-    // Create user inputs object for discovery
-    const userInputs = {
-      method,
-      inputData: data,
-      rawInputs: {
-        originalInput: method === 'root' ? data.rootNote :
-                      method === 'notes' ? data.notes?.join(' ') :
-                      method === 'compare' ? `${data.mode1} vs ${data.mode2}` :
-                      method === 'explore' ? data.rootNote :
-                      JSON.stringify(data),
-        discoveryType: method,
-        timestamp: Date.now()
-      }
-    };
 
     // Show loading state
     setIsLoading(true);
@@ -501,20 +462,6 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
   const handleHarmonyRequest = useCallback(async (method: string, data: any) => {
     console.log('Harmony request:', method, data);
 
-    // Create user inputs object for harmony
-    const userInputs = {
-      method,
-      inputData: data,
-      rawInputs: {
-        originalInput: method === 'analyze' ? data.chord :
-                      method === 'generate' ? data.mode :
-                      method === 'substitute' ? data.chord :
-                      method === 'progression' ? data.progression :
-                      JSON.stringify(data),
-        harmonyType: method,
-        timestamp: Date.now()
-      }
-    };
 
     // Show loading state
     setIsLoading(true);
@@ -668,18 +615,6 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
     const data = { rootNote: mode.notes[0] }; // Use the first note as root
     const method = 'root';
 
-    // Create user inputs object for deeper analysis
-    const userInputs = {
-      method,
-      inputData: data,
-      rawInputs: {
-        originalInput: `${mode.name} mode analysis`,
-        discoveryType: 'deeper-analysis',
-        selectedMode: mode,
-        timestamp: Date.now()
-      }
-    };
-
     // Show loading state
     setIsLoading(true);
 
@@ -695,10 +630,12 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
           mode: mode.name,
           notes: mode.notes,
           formula: mode.formula,
-          characteristics: mode.character || 'Unique modal character',
-          tonic: mode.notes[0],
           key: `${mode.notes[0]} ${mode.name}`,
-          confidence: 1.0
+          explanation: mode.character || 'Unique modal character',
+          intervals: mode.intervals || [],
+          tableId: mode.tableId || '',
+          modeIndex: mode.modeIndex || 0,
+          parentScaleRootNote: mode.notes[0]
         }];
 
         // Call getSongExamples with the mode analysis
@@ -753,17 +690,6 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
       rootNote: mode.notes[0]
     };
 
-    // Create user inputs object for mode analysis
-    const userInputs = {
-      method: 'mode-analysis',
-      inputData: data,
-      rawInputs: {
-        originalInput: `${mode.name} in ${mode.notes[0]}`,
-        analysisType: 'mode-specific',
-        selectedMode: mode,
-        timestamp: Date.now()
-      }
-    };
 
     // Show loading state in unified results
     const loadingResult = { 
@@ -861,8 +787,10 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
               setSelectedDevice: setMidiSelectedDevice,
               playedNotes: midiPlayedNotes,
               playedPitchClasses: midiPlayedPitchClasses,
-              mode: midiMode,
-              setMode: setMidiMode,
+              detectionEnabled: midiDetectionEnabled,
+              setDetectionEnabled: setMidiDetectionEnabled,
+              analysisFocus: midiAnalysisFocus,
+              setAnalysisFocus: setMidiAnalysisFocus,
               clearPlayedNotes: clearMidiPlayedNotes,
               error: midiError,
             }}

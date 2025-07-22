@@ -235,6 +235,108 @@ export const MODE_TO_INDEX_MAPPINGS: { [scaleName: string]: { [modeName: string]
   }
 };
 
+/**
+ * Mode popularity ranking from most to least common
+ * Used for Quick View suggestions with 1-2 notes
+ * Order: Ionian (major), Aeolian (natural minor), Mixolydian, Dorian, Lydian, Phrygian, Locrian
+ */
+export const MODE_POPULARITY_RANKING: { [modeName: string]: number } = {
+  // Major Scale modes (most common scale family)
+  'Ionian': 1,           // Most common - major scale
+  'Aeolian': 2,          // Second most common - natural minor
+  'Mixolydian': 3,       // Third most common
+  'Dorian': 4,           // Fourth most common
+  'Lydian': 5,           // Fifth most common
+  'Phrygian': 6,         // Sixth most common
+  'Locrian': 7,          // Least common
+  
+  // Aliases for common modes
+  'Natural Minor': 2,    // Same as Aeolian
+  'Minor': 2,            // Same as Aeolian
+  
+  // Other scale families get lower priority (higher numbers)
+  'Harmonic Minor': 8,
+  'Melodic Minor': 9,
+  'Jazz Minor': 9,
+  'Harmonic Major': 10,
+  'Double Harmonic': 11,
+  'Byzantine': 11,
+  'Major Pentatonic': 12,
+  'Minor Pentatonic': 13,
+  'Blues Scale': 14,
+  
+  // Modified modes get even lower priority
+  'Dorian ♭2': 15,
+  'Dorian b2': 15,
+  'Lydian Augmented': 16,
+  'Lydian Dominant': 17,
+  'Mixolydian ♭6': 18,
+  'Mixolydian b6': 18,
+  'Locrian ♮2': 19,
+  'Locrian n2': 19,
+  'Altered': 20,
+  'Locrian ♮6': 21,
+  'Locrian n6': 21,
+  'Ionian ♯5': 22,
+  'Ionian #5': 22,
+  'Ukrainian Dorian': 23,
+  'Dorian ♯4': 23,
+  'Dorian #4': 23,
+  'Phrygian Dominant': 24,
+  'Lydian ♯2': 25,
+  'Lydian #2': 25,
+  'Super-Locrian': 26,
+  'Dorian ♭5': 27,
+  'Dorian b5': 27,
+  'Phrygian ♭4': 28,
+  'Phrygian b4': 28,
+  'Lydian ♭3': 29,
+  'Lydian b3': 29,
+  'Mixolydian ♭2': 30,
+  'Mixolydian b2': 30,
+  'Lydian Aug ♯2': 31,
+  'Lydian Aug #2': 31,
+  'Locrian ♭7♭5': 32,
+  'Locrian b7b5': 32,
+  'Lydian ♯2 ♯6': 33,
+  'Lydian #2 #6': 33,
+  'Ultraphrygian': 34,
+  'Hungarian Minor': 35,
+  'Oriental': 36,
+  'Ionian Aug ♯2': 37,
+  'Ionian Aug #2': 37,
+  'Ultra-Locrian': 38,
+  'Suspended': 39,
+  'Jue': 40,
+  'Zhi': 41,
+  'Blues Mode II': 42,
+  'Blues Mode III': 43,
+  'Blues Mode IV': 44,
+  'Blues Mode V': 45,
+  'Blues Mode VI': 46
+};
+
+/**
+ * Get the popularity ranking for a mode (lower number = more popular)
+ * @param modeName The name of the mode
+ * @returns The popularity ranking (1 = most popular, higher numbers = less popular)
+ */
+export function getModePopularity(modeName: string): number {
+  // Try exact match first
+  if (MODE_POPULARITY_RANKING[modeName] !== undefined) {
+    return MODE_POPULARITY_RANKING[modeName];
+  }
+  
+  // Try base mode name
+  const baseModeName = extractBaseModeFromName(modeName);
+  if (MODE_POPULARITY_RANKING[baseModeName] !== undefined) {
+    return MODE_POPULARITY_RANKING[baseModeName];
+  }
+  
+  // Default to very low priority for unknown modes
+  return 999;
+}
+
 // ============================================================================
 // UTILITY FUNCTIONS
 // ============================================================================

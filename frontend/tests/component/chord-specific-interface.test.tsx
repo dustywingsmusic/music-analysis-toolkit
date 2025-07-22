@@ -8,6 +8,12 @@ vi.mock('../../src/services/keySuggester', () => ({
   registerChordSuggestionCallback: vi.fn(),
   updateMelodySuggestionsForSidebar: vi.fn(),
   updateChordSuggestionsForSidebar: vi.fn(),
+  updateUnifiedDetection: vi.fn(() => ({
+    suggestions: [],
+    category: 'none',
+    closeness: 0,
+    isChordMode: false
+  })),
 }));
 
 describe('Chord-Specific Interface Adjustments', () => {
@@ -145,6 +151,6 @@ describe('Chord-Specific Interface Adjustments', () => {
 
     // Verify that the component renders without errors
     expect(screen.getByText('🎹 MIDI Detection')).toBeInTheDocument();
-    expect(screen.getByText('🎵 Live Suggestions')).toBeInTheDocument();
+    expect(screen.getByText('🎯 Musical Analysis')).toBeInTheDocument();
   });
 });

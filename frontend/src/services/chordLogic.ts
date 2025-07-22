@@ -46,6 +46,7 @@ export function findChordMatches(noteNumbers: number[]): ChordMatch[] {
     }
 
     // Convert to pitch classes and remove duplicates
+    // Pitch classes are from C to B (C = 0, C# = 1, ..., B = 11) and then sorted. So midi note 60 = 0, 61 = 1, etc.
     const pitchClasses = [...new Set(noteNumbers.map(note => note % 12))];
     pitchClasses.sort((a, b) => a - b);
 

@@ -12,8 +12,8 @@
 
 import React from 'react';
 import {TabType} from './NavigationTabs';
-import {Button} from '@/components/ui/button';
-import {Badge} from '@/components/ui/badge';
+import {Button} from './ui/button';
+import {Badge} from './ui/badge';
 import ScaleGrid from './reference/ScaleGrid';
 import {ModeFromRoot} from '../services/scaleDataService';
 
