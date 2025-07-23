@@ -63,6 +63,8 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
   // Real-time mode detection state
   const [modeDetector] = useState(() => new RealTimeModeDetector());
   const [modeDetectionResult, setModeDetectionResult] = useState<ModeDetectionResult | null>(null);
+  const [rootPitch, setRootPitch] = useState<number | null>(null);
+  const [rootLocked, setRootLocked] = useState(false);
   const [expandedFamilies, setExpandedFamilies] = useState<Set<ScaleFamily>>(
     new Set(['Major Scale', 'Melodic Minor']) // Default-expand larger families
   );
@@ -127,6 +129,20 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
     trackInteraction(`Root Picker - Select ${noteName}`, 'Music Analysis');
     const result = modeDetector.setRootPitch(pitchClass);
     setModeDetectionResult(result);
+    setRootPitch(pitchClass);
+    setRootLocked(true);
+  };
+
+  const handleResetRoot = () => {
+    const state = modeDetector.getState();
+    if (state.notesHistory.length > 0) {
+      const lowest = Math.min(...state.notesHistory);
+      const result = modeDetector.setRootPitch(lowest);
+      setModeDetectionResult(result);
+      setRootPitch(lowest);
+    }
+    setRootLocked(false);
+    trackInteraction('Root Reset - Reset to Lowest Note', 'Music Analysis');
   };
 
   const toggleFamilyExpansion = (family: ScaleFamily) => {
@@ -837,6 +853,17 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
         }
       }
 
+      const state = modeDetector.getState();
+      if (rootLocked) {
+        if (rootPitch !== null && state.rootPitch !== rootPitch) {
+          const override = modeDetector.setRootPitch(rootPitch);
+          currentResult = override;
+          setModeDetectionResult(currentResult);
+        }
+      } else {
+        setRootPitch(state.rootPitch);
+      }
+
       // Adaptive view mode based on note count and mode state
       const noteCount = midiData.playedNotes.length;
       if (currentResult?.state === 'melody-mode' || noteCount >= 7) {
@@ -960,6 +987,10 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
                   midiData={midiData}
                   onScaleHighlight={onScaleHighlight}
                   className="sidebar-midi-panel"
+                  currentRoot={rootPitch}
+                  onRootSelect={handleSetRootPitch}
+                  onResetRoot={handleResetRoot}
+                  rootLocked={rootLocked}
                 />
               </div>
             )}

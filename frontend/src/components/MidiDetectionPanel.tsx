@@ -16,12 +16,20 @@ interface MidiDetectionPanelProps {
     resetMidiConnection?: () => Promise<void>;
   };
   className?: string;
+  currentRoot?: number | null;
+  onRootSelect?: (pitchClass: number) => void;
+  onResetRoot?: () => void;
+  rootLocked?: boolean;
 }
 
 const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
   onScaleHighlight,
   midiData,
-  className = ''
+  className = '',
+  currentRoot,
+  onRootSelect,
+  onResetRoot,
+  rootLocked = false
 }) => {
   const [processedScales, setProcessedScales] = React.useState<ProcessedScale[]>([]);
 
@@ -34,10 +42,6 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
   const setAnalysisFocus = midiData?.setAnalysisFocus || (() => {});
   const clearPlayedNotes = midiData?.clearPlayedNotes || (() => {});
 
-  const playedNoteNames = playedNotes.map(note => {
-    const noteName = note.accidental ? `${note.name}${note.accidental}` : note.name;
-    return `${noteName}${note.octave}`;
-  }).join(' ');
 
   const handleClearAll = () => {
     clearPlayedNotes();
@@ -163,15 +167,15 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
           <div className="flex justify-between items-center mb-1">
             <p className="text-xs font-medium">Notes Detected:</p>
             <div className="flex gap-1">
-              <button 
-                onClick={handleClearAll} 
+              <button
+                onClick={handleClearAll}
                 className="px-1.5 py-0.5 text-xs bg-slate-600 hover:bg-slate-500 rounded transition-colors"
               >
                 Clear
               </button>
               {midiData?.resetMidiConnection && (
-                <button 
-                  onClick={() => midiData.resetMidiConnection?.()} 
+                <button
+                  onClick={() => midiData.resetMidiConnection?.()}
                   className="px-1.5 py-0.5 text-xs bg-yellow-600 hover:bg-yellow-500 rounded transition-colors"
                   title="Reset MIDI Connection"
                 >
@@ -180,8 +184,37 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
               )}
             </div>
           </div>
-          <div className="min-h-[18px] p-1.5 bg-slate-800 rounded text-xs font-mono">
-            {playedNoteNames || 'No notes detected'}
+          <div className="min-h-[18px] p-1.5 bg-slate-800 rounded text-xs font-mono flex flex-wrap gap-1 items-center">
+            {playedNotes.length > 0 ? (
+              <>
+                {playedNotes.map((note, idx) => {
+                  const noteName = note.accidental ? `${note.name}${note.accidental}` : note.name;
+                  const display = `${noteName}${note.octave}`;
+                  const pitchClass = note.number % 12;
+                  const isRoot = pitchClass === currentRoot;
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => onRootSelect && onRootSelect(pitchClass)}
+                      className={`px-1 rounded ${isRoot ? 'bg-cyan-600 text-black' : 'bg-slate-700 text-slate-200'}`}
+                      title="Set as tonic"
+                    >
+                      {display}
+                    </button>
+                  );
+                })}
+                {rootLocked && (
+                  <button
+                    onClick={onResetRoot}
+                    className="ml-1 px-1.5 py-0.5 rounded bg-slate-600 hover:bg-slate-500"
+                  >
+                    Reset to Lowest Note
+                  </button>
+                )}
+              </>
+            ) : (
+              'No notes detected'
+            )}
           </div>
         </div>
       </div>
