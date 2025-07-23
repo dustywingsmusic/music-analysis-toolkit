@@ -138,6 +138,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
     if (state.notesHistory.length > 0) {
       const lowest = Math.min(...state.notesHistory);
       const result = modeDetector.setRootPitch(lowest);
+      modeDetector.unlockRootOverride();
       setModeDetectionResult(result);
       setRootPitch(lowest);
     }
@@ -844,9 +845,8 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
       const latestNote = midiData.playedNotes[midiData.playedNotes.length - 1];
       if (latestNote) {
         const pitchClass = latestNote.number % 12;
-        const midiNumber = latestNote.number;
         console.log('🎵 Adding note to real-time detector:', pitchClass);
-        const newResult = modeDetector.addNote(pitchClass, midiNumber);
+        const newResult = modeDetector.addNote(latestNote.number, pitchClass);
         // Only update state if we got a valid result (not null for duplicate notes)
         if (newResult !== null) {
           currentResult = newResult;
