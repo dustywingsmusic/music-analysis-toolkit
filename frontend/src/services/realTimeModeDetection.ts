@@ -89,11 +89,12 @@ const MODE_ORDER: Record<ScaleFamily, string[]> = Object.fromEntries(
   })
 ) as Record<ScaleFamily, string[]>;
 
-// Note names for display - using proper enharmonic spellings from legacy system
+// Note names for display - prefer spellings used in scale tables
 const buildNoteNames = (): string[] => {
   const noteNames: string[] = [];
   for (let i = 0; i < 12; i++) {
-    noteNames[i] = PARENT_KEYS[i as keyof typeof PARENT_KEYS];
+    const entry = PITCH_CLASS_NAMES[i as keyof typeof PITCH_CLASS_NAMES];
+    noteNames[i] = entry?.normal ?? PARENT_KEYS[i as keyof typeof PARENT_KEYS];
   }
   return noteNames;
 };
