@@ -1,4 +1,5 @@
 import { allScaleData, NOTES, PARENT_KEY_INDICES } from '../constants/scales';
+import { getChromaticScaleWithEnharmonics } from '../utils/music';
 
 export interface ModeFromRoot {
   id: string;
@@ -27,6 +28,8 @@ export const buildModesFromRoot = (rootNote: string): ModeFromRoot[] => {
     throw new Error(`Invalid root note: ${rootNote}. Valid notes are: ${NOTES.join(', ')}`);
   }
 
+  const pitchNames = getChromaticScaleWithEnharmonics(rootNote);
+
   const modes: ModeFromRoot[] = [];
 
   // Process each scale family
@@ -35,18 +38,17 @@ export const buildModesFromRoot = (rootNote: string): ModeFromRoot[] => {
       // Calculate the parent scale root that would produce this mode from our root
       // The mode starts at intervals[0] (which should be 0), so we need to find
       // what parent scale root would put this mode at our desired root note
-      const modeStartInterval = intervals[0]; // Should be 0 for properly defined modes
-      
-      // Generate the mode notes starting from rootNote
+
+      // Generate the mode notes starting from rootNote using proper enharmonics
       const modeNotes = intervals.map(interval => {
         const noteIndex = (rootPitchClass + interval) % 12;
-        return NOTES[noteIndex];
+        return pitchNames[noteIndex];
       });
 
       // Calculate parent scale root note
       // If this is mode index N of a scale, the parent scale root is N semitones below our root
       const parentScaleRootIndex = (rootPitchClass - modeIndex + 12) % 12;
-      const parentScaleRootNote = NOTES[parentScaleRootIndex];
+      const parentScaleRootNote = pitchNames[parentScaleRootIndex];
 
       // Get mode name from headers (skip first header which is usually "Mode / Scale Degree")
       const modeName = scaleFamily.headers[modeIndex + 1] || `Mode ${modeIndex + 1}`;
