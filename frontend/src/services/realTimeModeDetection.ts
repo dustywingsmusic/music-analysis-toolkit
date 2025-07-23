@@ -106,7 +106,6 @@ export class RealTimeModeDetector {
 
   constructor() {
     this.state = this.initializeState();
-    this.precomputeModePitchSets();
   }
 
   /**
@@ -124,29 +123,26 @@ export class RealTimeModeDetector {
   }
 
   /**
-   * Precompute every mode's pitch-class set for all root pitches
+   * Precompute every mode's pitch-class set for the current root pitch
    */
-  private precomputeModePitchSets(): void {
-    // Use the correct mode intervals from scale data instead of incorrect rotation
+  private precomputeModePitchSets(rootPitch: number): void {
+    this.modePitchSets.clear();
     for (const scaleData of allScaleData) {
       const family = scaleData.name as ScaleFamily;
       const modes = MODE_TO_INDEX_MAPPINGS[family];
-      
+
       if (!modes || !scaleData.modeIntervals) continue;
-      
+
       for (const [modeName, modeIndex] of Object.entries(modes)) {
-        // Use the correct mode intervals from scale data
         const modeIntervals = scaleData.modeIntervals[modeIndex];
-        
+
         if (!modeIntervals) continue;
-        
-        for (let rootPitch = 0; rootPitch < 12; rootPitch++) {
-          // Compute pitch classes for this root using correct mode intervals
-          const pitchClasses = new Set(modeIntervals.map(interval => (rootPitch + interval) % 12));
-          
-          const key = `${family}-${modeName}-${rootPitch}`;
-          this.modePitchSets.set(key, pitchClasses);
-        }
+
+        const pitchClasses = new Set(
+          modeIntervals.map(interval => (rootPitch + interval) % 12)
+        );
+        const key = `${family}-${modeName}-${rootPitch}`;
+        this.modePitchSets.set(key, pitchClasses);
       }
     }
   }
@@ -165,9 +161,10 @@ export class RealTimeModeDetector {
     // Append first note's pitch class to notesHistory; set rootPitch
     this.state.notesHistory.push(firstNotePitchClass);
     this.state.rootPitch = firstNotePitchClass;
-    
-    // Compute originalModes for that rootPitch and assign to candidateModes
-    this.state.originalModes = this.computeOriginalModes(firstNotePitchClass);
+
+    // Precompute pitch sets and compute modes for this root
+    this.precomputeModePitchSets(this.state.rootPitch);
+    this.state.originalModes = this.computeOriginalModes(this.state.rootPitch);
     this.state.candidateModes = [...this.state.originalModes];
     
     console.log('🎯 Initialized with', this.state.candidateModes.length, 'candidate modes');
@@ -177,33 +174,43 @@ export class RealTimeModeDetector {
    * Compute all modes that could contain the played notes, considering all possible roots
    * This fixes the issue where F G# should suggest F# Locrian (not just F-based modes)
    */
-  private computeOriginalModes(firstNotePitchClass: number): ModeInfo[] {
+  private computeOriginalModes(rootPitch: number): ModeInfo[] {
     const modes: ModeInfo[] = [];
-    
-    // Consider all possible roots (0-11), not just the first note played
-    for (let possibleRoot = 0; possibleRoot < 12; possibleRoot++) {
-      for (const [family, modeMap] of Object.entries(MODE_TO_INDEX_MAPPINGS)) {
-        for (const [modeName, modeIndex] of Object.entries(modeMap)) {
-          const key = `${family}-${modeName}-${possibleRoot}`;
-          const modePitchSet = this.modePitchSets.get(key);
-          
-          if (modePitchSet && modePitchSet.has(firstNotePitchClass)) {
-            // Only include modes that contain the first note played
-            modes.push({
-              family: family as ScaleFamily,
-              name: modeName,
-              modePitchSet,
-              popularity: getModePopularity(modeName),
-              modeIndex,
-              actualRoot: possibleRoot // Track the actual root for this mode
-            });
-          }
+
+    for (const [family, modeMap] of Object.entries(MODE_TO_INDEX_MAPPINGS)) {
+      for (const [modeName, modeIndex] of Object.entries(modeMap)) {
+        const key = `${family}-${modeName}-${rootPitch}`;
+        const modePitchSet = this.modePitchSets.get(key);
+
+        if (modePitchSet) {
+          modes.push({
+            family: family as ScaleFamily,
+            name: modeName,
+            modePitchSet,
+            popularity: getModePopularity(modeName),
+            modeIndex,
+            actualRoot: rootPitch
+          });
         }
       }
     }
-    
-    // Sort by popularity (lower number = more popular)
+
     return modes.sort((a, b) => a.popularity - b.popularity);
+  }
+
+  /**
+   * Recompute original and candidate modes for the current root using all noted pitches
+   */
+  private recomputeCandidateModes(): void {
+    if (this.state.rootPitch === null) {
+      return;
+    }
+    this.precomputeModePitchSets(this.state.rootPitch);
+    this.state.originalModes = this.computeOriginalModes(this.state.rootPitch);
+    const notesSet = new Set(this.state.notesHistory);
+    this.state.candidateModes = this.state.originalModes.filter(mode =>
+      [...notesSet].every(pc => mode.modePitchSet.has(pc))
+    );
   }
 
   /**
@@ -227,10 +234,17 @@ export class RealTimeModeDetector {
     // Otherwise append it
     const previousPC = this.state.notesHistory[this.state.notesHistory.length - 1];
     this.state.notesHistory.push(pitchClass);
-    
+
     // Determine/Update Direction
     this.updateDirection(pitchClass, previousPC);
-    
+
+    // Update root pitch if this is the lowest pitch seen so far
+    if (this.state.rootPitch === null || pitchClass < this.state.rootPitch) {
+      this.state.rootPitch = pitchClass;
+      this.recomputeCandidateModes();
+      return this.generateResult();
+    }
+
     // Strict Filtering
     return this.strictFiltering(pitchClass);
   }
@@ -499,8 +513,7 @@ export class RealTimeModeDetector {
     
     // Recompute candidateModes from existing rootPitch
     if (this.state.rootPitch !== null) {
-      this.state.originalModes = this.computeOriginalModes(this.state.rootPitch);
-      this.state.candidateModes = [...this.state.originalModes];
+      this.recomputeCandidateModes();
     }
     
     return this.generateResult();
@@ -533,10 +546,9 @@ export class RealTimeModeDetector {
    */
   public setRootPitch(pitchClass: number): ModeDetectionResult {
     console.log('🎯 Setting root pitch to:', NOTE_NAMES[pitchClass]);
-    
+
     this.state.rootPitch = pitchClass;
-    this.state.originalModes = this.computeOriginalModes(pitchClass);
-    this.state.candidateModes = [...this.state.originalModes];
+    this.recomputeCandidateModes();
     
     return this.generateResult();
   }
