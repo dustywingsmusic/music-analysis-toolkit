@@ -56,3 +56,12 @@
   @apply bg-slate-800 text-slate-300 font-mono;
   @apply border border-slate-700;
 }
+
+/* Note buttons */
+.midi-detection-panel .note-button {
+  @apply px-1 rounded bg-slate-700 text-slate-200;
+}
+
+.midi-detection-panel .note-button.root-note {
+  @apply bg-cyan-600 text-black;
+}

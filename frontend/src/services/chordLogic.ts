@@ -74,7 +74,7 @@ export function findChordMatches(noteNumbers: number[]): ChordMatch[] {
                 const confidence = calculateConfidence(intervals, templateIntervals);
                 
                 // Check for inversion
-                const bassNote = Math.min(...noteNumbers) % 12;
+                const bassNote = noteNumbers[0] % 12;
                 const inversion = bassNote !== rootPitch ? `/${noteNames[bassNote]}` : '';
 
                 matches.push({
