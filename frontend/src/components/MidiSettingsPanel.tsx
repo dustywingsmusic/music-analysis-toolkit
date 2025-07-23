@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { MidiDevice } from '../types';
+import { trackInteraction } from '../utils/tracking';
 
 interface MidiSettingsPanelProps {
   status?: string;
@@ -27,7 +28,10 @@ const MidiSettingsPanel: React.FC<MidiSettingsPanelProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
 
   const togglePanel = () => {
-    setIsExpanded(!isExpanded);
+    const newState = !isExpanded;
+    // Track panel toggle
+    trackInteraction(`MIDI Settings Panel - ${newState ? 'Open' : 'Close'}`, 'Navigation');
+    setIsExpanded(newState);
   };
 
   const handleMidiToggle = () => {

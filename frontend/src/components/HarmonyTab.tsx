@@ -4,6 +4,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { trackInteraction } from '../utils/tracking';
 
 type HarmonyMethod = 'analyze' | 'generate' | 'substitute' | 'progression';
 
@@ -259,7 +260,10 @@ const HarmonyTab: React.FC<HarmonyTabProps> = ({ onHarmonyRequest, hasResults = 
           {methods.map((method) => (
             <button
               key={method.id}
-              onClick={() => setActiveMethod(method.id)}
+              onClick={() => {
+                trackInteraction(`Method Selector - ${method.label}`, 'Navigation');
+                setActiveMethod(method.id);
+              }}
               className={`method-selector__card ${
                 activeMethod === method.id ? 'method-selector__card--active' : ''
               } method-selector__card--${method.status}`}

@@ -150,7 +150,7 @@ describe('Chord-Specific Interface Adjustments', () => {
     // expect(screen.getByText('Confidence')).toBeInTheDocument();
 
     // Verify that the component renders without errors
-    expect(screen.getByText('🎹 MIDI Detection')).toBeInTheDocument();
+    expect(screen.getByText('🎹 Live Input Analysis')).toBeInTheDocument();
     expect(screen.getByText('🎯 Musical Analysis')).toBeInTheDocument();
   });
 });

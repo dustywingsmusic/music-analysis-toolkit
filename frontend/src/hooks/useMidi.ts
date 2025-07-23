@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { MidiDevice, NotePlayed } from '../types';
+import { trackMidiInput } from '../utils/tracking';
 
 declare const WebMidi: any;
 
@@ -49,6 +50,9 @@ export const useMidi = (
       analysisFocus,
       octave: e.note.octave
     });
+
+    // Track MIDI input
+    trackMidiInput(`Note ${e.note.name}${e.note.octave} - ${analysisFocus} mode`, noteNumber);
 
     if (analysisFocus === 'chord') {
       // Clear any pending timeout to extend the chord entry window
@@ -147,6 +151,51 @@ export const useMidi = (
     setStatus('Disabled');
   }, [clearPlayedNotes, selectedDevice, handleNoteOn]);
 
+  // Force cleanup method for comprehensive MIDI port cleanup
+  const forceCleanup = useCallback(() => {
+    if (typeof WebMidi !== 'undefined' && WebMidi.enabled) {
+      // Remove all listeners from all inputs
+      WebMidi.inputs.forEach((input: any) => {
+        input.removeListener('noteon');
+        input.removeListener('noteoff');
+        input.removeListener('controlchange');
+      });
+      
+      // Clear timeouts
+      if (chordDetectionTimeout) {
+        clearTimeout(chordDetectionTimeout);
+        setChordDetectionTimeout(null);
+      }
+      
+      // Clear state
+      setPlayedNotes([]);
+      setPlayedPitchClasses(new Set());
+      setStatus('Cleaned up');
+    }
+  }, [chordDetectionTimeout]);
+
+  // Reset MIDI connection method for error recovery
+  const resetMidiConnection = useCallback(async () => {
+    try {
+      // Force cleanup
+      forceCleanup();
+      
+      // Disable and re-enable WebMidi
+      if (typeof WebMidi !== 'undefined' && WebMidi.enabled) {
+        await WebMidi.disable();
+        await new Promise(resolve => setTimeout(resolve, 100)); // Brief pause
+        await WebMidi.enable({ sysex: false });
+        refreshDevices();
+      }
+      
+      setError(null);
+      setStatus('Reset complete');
+    } catch (err: any) {
+      setError(`Reset failed: ${err.message}`);
+      setStatus('Reset failed');
+    }
+  }, [forceCleanup, refreshDevices]);
+
   // Effect to enable WebMidi
   useEffect(() => {
     if (!enabled) {
@@ -188,6 +237,63 @@ export const useMidi = (
     }
   }, [refreshDevices, enabled]);
 
+  // Effect to handle browser/tab closure cleanup
+  useEffect(() => {
+    if (!enabled || typeof WebMidi === 'undefined') {
+      return;
+    }
+
+    const handleBeforeUnload = () => {
+      // Force cleanup of all MIDI connections
+      if (WebMidi.enabled) {
+        // Remove all listeners from all inputs
+        WebMidi.inputs.forEach((input: any) => {
+          input.removeListener('noteon');
+          input.removeListener('noteoff');
+          input.removeListener('controlchange');
+        });
+        
+        // Clear any pending timeouts
+        if (chordDetectionTimeout) {
+          clearTimeout(chordDetectionTimeout);
+        }
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // Tab is being hidden/switched - temporarily disable to prevent issues
+        handleBeforeUnload();
+      } else {
+        // Tab is visible again - re-establish connections if needed
+        if (WebMidi.enabled && selectedDevice) {
+          const input = WebMidi.getInputById(selectedDevice);
+          if (input) {
+            input.addListener('noteon', handleNoteOn);
+          }
+        }
+      }
+    };
+
+    const handlePageHide = () => {
+      // Page is being unloaded (more reliable than beforeunload)
+      handleBeforeUnload();
+    };
+
+    // Add event listeners for various cleanup scenarios
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('pagehide', handlePageHide);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Cleanup function
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('pagehide', handlePageHide);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      handleBeforeUnload(); // Ensure cleanup on component unmount
+    };
+  }, [enabled, selectedDevice, handleNoteOn, chordDetectionTimeout]);
+
   // Effect to handle device selection and listeners
   useEffect(() => {
     if (!enabled || typeof WebMidi === 'undefined' || !WebMidi.enabled || !selectedDevice) {
@@ -196,13 +302,27 @@ export const useMidi = (
 
     const input = WebMidi.getInputById(selectedDevice);
     if (input) {
+      // Remove any existing listeners first (prevent duplicates)
+      input.removeListener('noteon', handleNoteOn);
+      input.removeListener('noteoff'); // Add noteoff cleanup too
+      
+      // Add the listener
       input.addListener('noteon', handleNoteOn);
       setStatus(`Listening on: ${input.name}`);
     }
 
     return () => {
       if (input) {
+        // More comprehensive cleanup
         input.removeListener('noteon', handleNoteOn);
+        input.removeListener('noteoff');
+        input.removeListener('controlchange');
+        
+        // Clear any device-specific state
+        if (chordDetectionTimeout) {
+          clearTimeout(chordDetectionTimeout);
+          setChordDetectionTimeout(null);
+        }
       }
     };
   }, [selectedDevice, handleNoteOn, enabled]);
@@ -223,5 +343,7 @@ export const useMidi = (
     enabled,
     enableMidi,
     disableMidi,
+    forceCleanup,
+    resetMidiConnection,
   };
 };

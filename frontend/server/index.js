@@ -166,17 +166,25 @@ app.post('/api/log', async (req, res) => {
   }
 });
 
-// Serve runtime configuration as JavaScript
+// Serve runtime configuration as JavaScript ES module
 app.get('/config.js', (req, res) => {
   // Create runtime config from environment variables
   const runtimeConfig = {
     GEMINI_API_KEY: process.env.VITE_GEMINI_API_KEY,
     GEMINI_MODEL_ID: process.env.VITE_GEMINI_MODEL_ID || 'gemini-2.5-flash',
-    GOOGLE_CLOUD_PROJECT: process.env.VITE_GOOGLE_CLOUD_PROJECT
+    GOOGLE_CLOUD_PROJECT: process.env.VITE_GOOGLE_CLOUD_PROJECT,
+    GTAG_ID: process.env.VITE_GTAG_ID
   };
   
-  // Generate JavaScript that sets the runtime config
-  const configJs = `window.RUNTIME_CONFIG = ${JSON.stringify(runtimeConfig)};`;
+  // Generate ES module that exports the runtime config and sets global variable for backward compatibility
+  const configJs = `
+// Set global variable for backward compatibility
+window.RUNTIME_CONFIG = ${JSON.stringify(runtimeConfig)};
+
+// Export as ES module
+export default ${JSON.stringify(runtimeConfig)};
+export const RUNTIME_CONFIG = ${JSON.stringify(runtimeConfig)};
+`;
   
   res.setHeader('Content-Type', 'application/javascript');
   res.send(configJs);

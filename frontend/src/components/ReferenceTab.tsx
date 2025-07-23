@@ -16,6 +16,8 @@ interface ReferenceTabProps {
     analysisFocus: 'automatic' | 'complete' | 'pentatonic' | 'chord';  // Analysis focus dropdown
     setAnalysisFocus: (focus: 'automatic' | 'complete' | 'pentatonic' | 'chord') => void;
     clearPlayedNotes: () => void;
+    forceCleanup?: () => void;
+    resetMidiConnection?: () => Promise<void>;
   };
   // Unified Results Panel integration
   unifiedResults?: UnifiedResultsState;

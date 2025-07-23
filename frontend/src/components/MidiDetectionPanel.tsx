@@ -12,6 +12,8 @@ interface MidiDetectionPanelProps {
     analysisFocus: 'automatic' | 'complete' | 'pentatonic' | 'chord';  // Analysis focus dropdown
     setAnalysisFocus: (focus: 'automatic' | 'complete' | 'pentatonic' | 'chord') => void;
     clearPlayedNotes: () => void;
+    forceCleanup?: () => void;
+    resetMidiConnection?: () => Promise<void>;
   };
   className?: string;
 }
@@ -123,7 +125,7 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
   return (
     <div className={`midi-detection-panel ${className}`}>
       <div className="midi-detection-card">
-        <h3 className="text-xs font-semibold mb-2 text-cyan-400">MIDI Detection</h3>
+        <h3 className="text-xs font-semibold mb-2 text-cyan-400">Live Input Analysis</h3>
 
         {/* Detection Toggle */}
         <div className="mb-2">
@@ -160,12 +162,23 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
         <div className="mb-0">
           <div className="flex justify-between items-center mb-1">
             <p className="text-xs font-medium">Notes Detected:</p>
-            <button 
-              onClick={handleClearAll} 
-              className="px-1.5 py-0.5 text-xs bg-slate-600 hover:bg-slate-500 rounded transition-colors"
-            >
-              Clear
-            </button>
+            <div className="flex gap-1">
+              <button 
+                onClick={handleClearAll} 
+                className="px-1.5 py-0.5 text-xs bg-slate-600 hover:bg-slate-500 rounded transition-colors"
+              >
+                Clear
+              </button>
+              {midiData?.resetMidiConnection && (
+                <button 
+                  onClick={() => midiData.resetMidiConnection?.()} 
+                  className="px-1.5 py-0.5 text-xs bg-yellow-600 hover:bg-yellow-500 rounded transition-colors"
+                  title="Reset MIDI Connection"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
           </div>
           <div className="min-h-[18px] p-1.5 bg-slate-800 rounded text-xs font-mono">
             {playedNoteNames || 'No notes detected'}

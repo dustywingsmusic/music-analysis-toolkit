@@ -2,7 +2,7 @@
 import { ProcessedScale, DiatonicChord } from '../types';
 import { NOTES } from '../constants/scales';
 import { NOTE_TO_PITCH_CLASS } from '../constants/mappings';
-import { ChordMatch } from './chordLogic';
+import { ChordMatch, findChordMatches } from './chordLogic';
 
 // Sidebar callback types
 type MelodySuggestionCallback = (suggestions: MelodySuggestion[]) => void;
@@ -97,26 +97,21 @@ export function updateChordSuggestionsForSidebar(
   // Convert played pitch classes to note numbers for chord detection
   const noteNumbers = Array.from(playedPitchClasses);
 
-  // Import chord logic dynamically to avoid circular dependencies
-  import('./chordLogic').then(chordLogic => {
-    const detectedChords = chordLogic.findChordMatches(noteNumbers);
+  // Use statically imported chord logic
+  const detectedChords = findChordMatches(noteNumbers);
 
-    if (detectedChords.length > 0) {
-      const suggestions: ChordSuggestion[] = detectedChords.slice(0, 5).map(chord => ({
-        chord: chord.chordSymbol,
-        key: baseKey,
-        confidence: chord.confidence || 0.8
-      }));
+  if (detectedChords.length > 0) {
+    const suggestions: ChordSuggestion[] = detectedChords.slice(0, 5).map(chord => ({
+      chord: chord.chordSymbol,
+      key: baseKey,
+      confidence: chord.confidence || 0.8
+    }));
 
-      console.log('Calling chord suggestion callback with', suggestions.length, 'suggestions');
-      chordSuggestionCallback(suggestions);
-    } else {
-      chordSuggestionCallback([]);
-    }
-  }).catch(error => {
-    console.error('Failed to import chord logic:', error);
+    console.log('Calling chord suggestion callback with', suggestions.length, 'suggestions');
+    chordSuggestionCallback(suggestions);
+  } else {
     chordSuggestionCallback([]);
-  });
+  }
 }
 
 /**
@@ -558,16 +553,12 @@ export function updateUnifiedDetection(
     // Convert pitch classes to note numbers for chord detection
     const noteNumbers = Array.from(playedPitchClasses).map(pc => pc + 60); // Use middle C octave
     
-    // Import chord logic dynamically to avoid circular dependencies
-    import('./chordLogic').then(chordLogic => {
-      const detectedChords = chordLogic.findChordMatches(noteNumbers);
-      if (detectedChords.length > 0) {
-        console.log('🎵 Detected chord patterns, switching to chord mode');
-        isChordMode = true;
-      }
-    }).catch(error => {
-      console.error('Failed to import chord logic for detection:', error);
-    });
+    // Use statically imported chord logic
+    const detectedChords = findChordMatches(noteNumbers);
+    if (detectedChords.length > 0) {
+      console.log('🎵 Detected chord patterns, switching to chord mode');
+      isChordMode = true;
+    }
   }
 
   // Handle empty input

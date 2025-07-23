@@ -92,6 +92,8 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
     enabled: midiEnabled,
     enableMidi,
     disableMidi,
+    forceCleanup,
+    resetMidiConnection,
   } = useMidi(handleChordDetected, handleMelodyUpdate);
 
   // App initialization logging
@@ -793,6 +795,8 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
               setAnalysisFocus: setMidiAnalysisFocus,
               clearPlayedNotes: clearMidiPlayedNotes,
               error: midiError,
+              forceCleanup,
+              resetMidiConnection,
             }}
           />
         );
@@ -808,7 +812,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
     <div className="flex flex-col min-h-screen">
       {/* Header Section */}
       <header className="bg-background border-b border-border p-4 shadow-lg z-10">
-        <div className="container mx-auto flex justify-between items-center">
+        <div className="w-full px-4 sm:px-6 lg:px-8 flex justify-between items-center">
           {/* Left: Title */}
           <div className="flex items-center gap-3">
             <span className="text-3xl animate-pulse">🎶</span>

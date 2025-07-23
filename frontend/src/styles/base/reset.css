@@ -4,7 +4,17 @@
   @apply border-border;
 }
 
+/* Remove borders from page-level containers to eliminate visual boundaries */
+body,
+html,
+#root,
+.app-container {
+  border: none !important;
+}
+
 body {
   font-family: "Inter", sans-serif;
   @apply bg-background text-foreground;
+  margin: 0;
+  padding: 0;
 }

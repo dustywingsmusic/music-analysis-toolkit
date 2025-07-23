@@ -1,5 +1,6 @@
 import React from 'react';
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
+import { trackNavClick } from '../utils/tracking';
 
 export type TabType = 'identify' | 'discover' | 'harmony' | 'reference';
 
@@ -40,8 +41,18 @@ const NavigationTabs: React.FC<NavigationTabsProps> = ({ activeTab, onTabChange 
     },
   ];
 
+  const handleTabChange = (tab: TabType) => {
+    // Track navigation click
+    const selectedTab = tabs.find(t => t.id === tab);
+    if (selectedTab) {
+      trackNavClick(`Main Navigation - ${selectedTab.title}`);
+    }
+    // Call original handler
+    onTabChange(tab);
+  };
+
   return (
-    <Tabs value={activeTab} onValueChange={onTabChange}>
+    <Tabs value={activeTab} onValueChange={handleTabChange}>
       <TabsList className="grid w-full grid-cols-4 bg-background border-border">
         {tabs.map((tab) => (
           <TabsTrigger 

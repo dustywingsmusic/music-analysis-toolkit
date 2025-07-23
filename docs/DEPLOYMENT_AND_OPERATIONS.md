@@ -273,12 +273,12 @@ npm run dev:server
 
 ```dockerfile
 # Build stage: Creates the React dist files
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 COPY . .
 RUN npm run build
 
 # Production stage: Sets up the server
-FROM node:18-alpine
+FROM node:20-alpine
 COPY --from=builder /app/dist ./dist  # React build
 COPY server ./server                   # Express server
 COPY package*.json ./

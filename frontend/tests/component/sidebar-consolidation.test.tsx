@@ -416,7 +416,7 @@ describe('Sidebar Consolidation Integration Tests', () => {
       );
 
       // Should show main sidebar sections
-      expect(screen.getByText('🎹 MIDI Detection')).toBeInTheDocument();
+      expect(screen.getByText('🎹 Live Input Analysis')).toBeInTheDocument();
       expect(screen.getByText('🎯 Musical Analysis')).toBeInTheDocument();
     });
   });

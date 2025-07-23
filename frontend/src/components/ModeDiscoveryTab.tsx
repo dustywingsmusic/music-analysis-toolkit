@@ -4,6 +4,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { buildModesFromRoot, isValidRootNote, ModeFromRoot } from '../services/scaleDataService';
 import ScaleGrid from './reference/ScaleGrid';
+import { trackInteraction } from '../utils/tracking';
 
 type DiscoveryMethod = 'root' | 'notes' | 'compare' | 'explore';
 
@@ -69,6 +70,15 @@ const ModeDiscoveryTab: React.FC<ModeDiscoveryTabProps> = ({ onDiscoveryRequest,
   ];
 
   const handleDiscover = () => {
+    // Track discovery action based on method
+    const methodLabels = {
+      'root': 'Build from Root',
+      'notes': 'Find by Notes',
+      'compare': 'Compare Modes',
+      'explore': 'Explore Relationships'
+    };
+    trackInteraction(`${methodLabels[activeMethod]} - Get Deeper Analysis`, 'Music Analysis');
+    
     let data;
     switch (activeMethod) {
       case 'root':
@@ -130,7 +140,10 @@ const ModeDiscoveryTab: React.FC<ModeDiscoveryTabProps> = ({ onDiscoveryRequest,
               {notes.map((note) => (
                 <button
                   key={note}
-                  onClick={() => handleNoteSelect(note)}
+                  onClick={() => {
+                    trackInteraction(`Note Selector - Root Note ${note}`, 'Music Input');
+                    handleNoteSelect(note);
+                  }}
                   className={`note-selector__note ${
                     rootNote === note ? 'note-selector__note--active' : ''
                   }`}
@@ -153,7 +166,10 @@ const ModeDiscoveryTab: React.FC<ModeDiscoveryTabProps> = ({ onDiscoveryRequest,
               {notes.map((note) => (
                 <button
                   key={note}
-                  onClick={() => toggleNote(note)}
+                  onClick={() => {
+                    trackInteraction(`Note Selector - Multi Note ${note}`, 'Music Input');
+                    toggleNote(note);
+                  }}
                   className={`note-selector__note ${
                     selectedNotes.includes(note) ? 'note-selector__note--active' : ''
                   }`}
@@ -216,7 +232,10 @@ const ModeDiscoveryTab: React.FC<ModeDiscoveryTabProps> = ({ onDiscoveryRequest,
               {notes.map((note) => (
                 <button
                   key={note}
-                  onClick={() => setRootNote(note)}
+                  onClick={() => {
+                    trackInteraction(`Note Selector - Exploration Note ${note}`, 'Music Input');
+                    setRootNote(note);
+                  }}
                   className={`note-selector__note ${
                     rootNote === note ? 'note-selector__note--active' : ''
                   }`}
@@ -250,7 +269,10 @@ const ModeDiscoveryTab: React.FC<ModeDiscoveryTabProps> = ({ onDiscoveryRequest,
           {methods.map((method) => (
             <button
               key={method.id}
-              onClick={() => setActiveMethod(method.id)}
+              onClick={() => {
+                trackInteraction(`Method Selector - ${method.label}`, 'Navigation');
+                setActiveMethod(method.id);
+              }}
               className={`method-selector__card ${
                 activeMethod === method.id ? 'method-selector__card--active' : ''
               } method-selector__card--${method.status}`}
@@ -299,6 +321,7 @@ const ModeDiscoveryTab: React.FC<ModeDiscoveryTabProps> = ({ onDiscoveryRequest,
                 <ScaleGrid
                   modes={inlineResults}
                   onModeSelect={(mode) => {
+                    trackInteraction(`Build from Root - Select Mode ${mode.name}`, 'Music Analysis');
                     if (onDeeperAnalysis) {
                       setLoadingModeId(mode.id);
                       onDeeperAnalysis(mode);

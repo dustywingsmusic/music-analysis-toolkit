@@ -32,9 +32,19 @@ export default defineConfig(({ mode }) => {
           '@utils': path.resolve(__dirname, './tests/utils/'),
         }
       },
+      build: {
+        rollupOptions: {
+          external: ['/config.js']
+        }
+      },
       server: {
         proxy: {
           '/api': {
+            target: 'http://localhost:8080',
+            changeOrigin: true,
+            secure: false
+          },
+          '/config.js': {
             target: 'http://localhost:8080',
             changeOrigin: true,
             secure: false

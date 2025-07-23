@@ -140,7 +140,7 @@
 
   /* ReferenceTab Component */
   .reference-tab {
-    @apply w-full max-w-6xl mx-auto space-y-6;
+    @apply w-full space-y-6;
   }
 
   .tab-header {
