@@ -79,6 +79,16 @@ const buildModeToIndexMappings = (): Record<ScaleFamily, Record<string, number>>
 
 const MODE_TO_INDEX_MAPPINGS: Record<ScaleFamily, Record<string, number>> = buildModeToIndexMappings();
 
+// Precompute ordered mode lists for each family based on mapping indices
+const MODE_ORDER: Record<ScaleFamily, string[]> = Object.fromEntries(
+  Object.entries(MODE_TO_INDEX_MAPPINGS).map(([family, mapping]) => {
+    const ordered = Object.entries(mapping)
+      .sort((a, b) => a[1] - b[1])
+      .map(([name]) => name);
+    return [family, ordered];
+  })
+) as Record<ScaleFamily, string[]>;
+
 // Note names for display - using proper enharmonic spellings from legacy system
 const buildNoteNames = (): string[] => {
   const noteNames: string[] = [];
@@ -436,38 +446,15 @@ export class RealTimeModeDetector {
       familyGroups.get(mode.family)!.push(suggestion);
     }
     
-    // Sort within each family and take top 3
+    // Sort within each family based on MODE_ORDER and take top 3
     for (const [family, modes] of familyGroups) {
+      const order = MODE_ORDER[family];
       modes.sort((a, b) => {
-        // Sort by matchCount descending first
-        if (a.matchCount !== b.matchCount) {
-          return b.matchCount - a.matchCount;
-        }
-        
-        // For equal match counts, prioritize modes whose root matches the first note played
-        const firstNotePitchClass = this.state.rootPitch;
-        if (firstNotePitchClass !== null) {
-          const aRootMatchesFirstNote = this.state.candidateModes.find(m => 
-            m.name === a.name && m.family === a.family
-          )?.actualRoot === firstNotePitchClass;
-          
-          const bRootMatchesFirstNote = this.state.candidateModes.find(m => 
-            m.name === b.name && m.family === b.family
-          )?.actualRoot === firstNotePitchClass;
-          
-          if (aRootMatchesFirstNote && !bRootMatchesFirstNote) {
-            return -1; // a comes first
-          }
-          if (!aRootMatchesFirstNote && bRootMatchesFirstNote) {
-            return 1; // b comes first
-          }
-        }
-        
-        // Finally, sort by popularity ascending (lower number = more popular)
-        return a.popularity - b.popularity;
+        const indexA = order.indexOf(a.name);
+        const indexB = order.indexOf(b.name);
+        return indexA - indexB;
       });
-      
-      // Take top 3 in each family
+
       suggestions.push(...modes.slice(0, 3));
     }
     
