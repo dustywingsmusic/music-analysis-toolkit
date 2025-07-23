@@ -4,6 +4,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { logger } from '../utils/logger';
+import { trackInteraction } from '../utils/tracking';
 
 export type IdentificationMethod = 'melody' | 'scale' | 'progression' | 'audio';
 
@@ -359,6 +360,9 @@ const ModeIdentificationTab: React.FC<ModeIdentificationTabProps> = ({
             <button
               key={method.id}
               onClick={() => {
+                // Track method selection
+                trackInteraction(`Method Selector - ${method.label}`, 'Navigation');
+                
                 // Log method switching from direct selection
                 if (method.id !== activeMethod) {
                   logger.webClick('User switched identification method via direct selection', {

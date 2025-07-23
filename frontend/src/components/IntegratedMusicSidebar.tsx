@@ -1,5 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import MidiDetectionPanel from './MidiDetectionPanel';
+import { trackInteraction, trackNavClick } from '../utils/tracking';
 import * as keySuggester from '../services/keySuggester';
 import {updateUnifiedDetection} from '../services/keySuggester';
 import {UnifiedResultsState} from './UnifiedResultsPanel';
@@ -97,25 +98,33 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
 
   // Progressive disclosure toggle functions
   const toggleViewMode = () => {
+    const newMode = viewMode === 'quick' ? 'detailed' : 'quick';
+    trackNavClick(`Sidebar - Switch to ${newMode} view`);
     setViewMode(prev => prev === 'quick' ? 'detailed' : 'quick');
   };
 
   const toggleAdvancedOptions = () => {
+    const newState = !showAdvancedOptions;
+    trackInteraction(`Sidebar - ${newState ? 'Show' : 'Hide'} Advanced Options`, 'Navigation');
     setShowAdvancedOptions(prev => !prev);
   };
 
   // Real-time mode detection functions
   const handleContinueScaleMode = () => {
+    trackInteraction('Continue Scale Mode', 'Music Analysis');
     const result = modeDetector.continueScaleMode();
     setModeDetectionResult(result);
   };
 
   const handleEnterMelodyMode = () => {
+    trackInteraction('Enter Melody Mode', 'Music Analysis');
     const result = modeDetector.enterMelodyMode();
     setModeDetectionResult(result);
   };
 
   const handleSetRootPitch = (pitchClass: number) => {
+    const noteName = NOTE_NAMES[pitchClass];
+    trackInteraction(`Root Picker - Select ${noteName}`, 'Music Analysis');
     const result = modeDetector.setRootPitch(pitchClass);
     setModeDetectionResult(result);
   };
@@ -123,11 +132,13 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
   const toggleFamilyExpansion = (family: ScaleFamily) => {
     setExpandedFamilies(prev => {
       const newSet = new Set(prev);
+      const isExpanding = !newSet.has(family);
       if (newSet.has(family)) {
         newSet.delete(family);
       } else {
         newSet.add(family);
       }
+      trackInteraction(`Family Group - ${isExpanding ? 'Expand' : 'Collapse'} ${family}`, 'Navigation');
       return newSet;
     });
   };
@@ -884,7 +895,12 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
 
   // Manual toggle function for sidebar visibility
   const toggleSidebarVisibility = () => {
-    setIsVisible(prev => !prev);
+    setIsVisible(prev => {
+      const newState = !prev;
+      // Track sidebar toggle
+      trackInteraction(`Sidebar Toggle - ${newState ? 'Expand' : 'Close'}`, 'Navigation');
+      return newState;
+    });
   };
 
   return (

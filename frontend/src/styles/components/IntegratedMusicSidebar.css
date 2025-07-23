@@ -15,10 +15,9 @@
   color: #e2e8f0;
 }
 
-/* Adjust main content to accommodate sidebar */
+/* Main content styling for reference tab - sidebar uses fixed positioning */
 .reference-tab {
-  margin-right: 320px;
-  transition: margin-right 0.3s ease;
+  /* Removed margin-right: 320px as sidebar uses fixed positioning and doesn't require content adjustment */
 }
 
 .reference-content {
@@ -513,8 +512,7 @@
   }
 
   .reference-tab {
-    margin-right: 0;
-    margin-bottom: 50vh;
+    /* Mobile styles removed - sidebar uses fixed positioning */
   }
 
   .sidebar-section-content {

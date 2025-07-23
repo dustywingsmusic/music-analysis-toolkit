@@ -7,6 +7,7 @@ import LoadingSpinner from './LoadingSpinner';
 import ToggleSwitch from './ToggleSwitch';
 import { getChromaticScaleWithEnharmonics } from '../utils/music';
 import DebugInfoDisplay from './DebugInfoDisplay';
+import { trackToolUsage, trackInteraction } from '../utils/tracking';
 
 interface ChordAnalyzerProps {
   onSwitchToFinder: (id: string) => void;
@@ -37,6 +38,9 @@ const ChordAnalyzer: React.FC<ChordAnalyzerProps> = ({ onSwitchToFinder, showDeb
   }, [analysisResult, onAnalysisStateChange]);
 
   const handleNoteSelect = (note: string) => {
+    const isCurrentlySelected = selectedNotes[note];
+    const action = isCurrentlySelected ? 'Deselect' : 'Select';
+    trackInteraction(`Note Selector - ${action} ${note}`, 'Music Input');
     setSelectedNotes(prev => ({ ...prev, [note]: !prev[note] }));
   };
 
@@ -45,6 +49,11 @@ const ChordAnalyzer: React.FC<ChordAnalyzerProps> = ({ onSwitchToFinder, showDeb
   }, [selectedNotes]);
 
   const handleAnalyze = useCallback(async () => {
+    // Track tool usage
+    const toolType = isScaleMode ? 'Scale Analyzer' : 'Chord Analyzer';
+    const analysisInput = isScaleMode ? `${tonic} with ${getSelectedNoteArray().length} notes` : `${tonic} ${chord}`;
+    trackToolUsage(toolType, `Analyze - ${analysisInput}`);
+
     setError(null);
     setAnalysisResult(null);
     setDebugInfo(null);
@@ -88,6 +97,10 @@ const ChordAnalyzer: React.FC<ChordAnalyzerProps> = ({ onSwitchToFinder, showDeb
   }, [tonic, chord, isScaleMode, getSelectedNoteArray]);
 
   const handleReset = useCallback(() => {
+    // Track reset action
+    const toolType = isScaleMode ? 'Scale Analyzer' : 'Chord Analyzer';
+    trackInteraction(`${toolType} - Reset`, 'Tools');
+
     setAnalysisResult(null);
     setError(null);
     setDebugInfo(null);
@@ -95,6 +108,13 @@ const ChordAnalyzer: React.FC<ChordAnalyzerProps> = ({ onSwitchToFinder, showDeb
         setSelectedNotes({});
     }
   }, [isScaleMode]);
+
+  const handleToggleMode = useCallback((newMode: boolean) => {
+    // Track mode toggle
+    const newModeLabel = newMode ? 'Scale Mode' : 'Chord Mode';
+    trackInteraction(`Switch to ${newModeLabel}`, 'Tools');
+    setIsScaleMode(newMode);
+  }, []);
 
   return (
     <div className={`chord-analyzer ${compact ? 'chord-analyzer--compact' : ''}`}>
@@ -106,7 +126,7 @@ const ChordAnalyzer: React.FC<ChordAnalyzerProps> = ({ onSwitchToFinder, showDeb
                 labelLeft="Chord"
                 labelRight="Scale"
                 value={isScaleMode}
-                onChange={setIsScaleMode}
+                onChange={handleToggleMode}
             />
         </div>
 

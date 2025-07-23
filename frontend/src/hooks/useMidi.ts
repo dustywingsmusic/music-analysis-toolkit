@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { MidiDevice, NotePlayed } from '../types';
+import { trackMidiInput } from '../utils/tracking';
 
 declare const WebMidi: any;
 
@@ -49,6 +50,9 @@ export const useMidi = (
       analysisFocus,
       octave: e.note.octave
     });
+
+    // Track MIDI input
+    trackMidiInput(`Note ${e.note.name}${e.note.octave} - ${analysisFocus} mode`, noteNumber);
 
     if (analysisFocus === 'chord') {
       // Clear any pending timeout to extend the chord entry window
