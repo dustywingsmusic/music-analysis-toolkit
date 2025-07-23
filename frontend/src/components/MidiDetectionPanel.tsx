@@ -196,7 +196,7 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
                     <button
                       key={idx}
                       onClick={() => onRootSelect && onRootSelect(pitchClass)}
-                      className={`px-1 rounded ${isRoot ? 'bg-cyan-600 text-black' : 'bg-slate-700 text-slate-200'}`}
+                      className={`note-button${isRoot ? ' root-note' : ''}`}
                       title="Set as tonic"
                     >
                       {display}
