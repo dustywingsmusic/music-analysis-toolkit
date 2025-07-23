@@ -92,6 +92,8 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
     enabled: midiEnabled,
     enableMidi,
     disableMidi,
+    forceCleanup,
+    resetMidiConnection,
   } = useMidi(handleChordDetected, handleMelodyUpdate);
 
   // App initialization logging
@@ -793,6 +795,8 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
               setAnalysisFocus: setMidiAnalysisFocus,
               clearPlayedNotes: clearMidiPlayedNotes,
               error: midiError,
+              forceCleanup,
+              resetMidiConnection,
             }}
           />
         );

@@ -56,7 +56,7 @@ export function findChordMatches(noteNumbers: number[]): ChordMatch[] {
     for (let rootPitch of pitchClasses) {
         // Calculate intervals from this root
         const intervals = pitchClasses.map(pc => (pc - rootPitch + 12) % 12);
-        intervals.sort((a, b) => a - b);
+        // intervals.sort((a, b) => a - b);
 
         // Check against each chord template
         for (let chordType in chordTemplates) {

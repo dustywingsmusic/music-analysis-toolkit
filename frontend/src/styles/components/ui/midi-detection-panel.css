@@ -1,4 +1,4 @@
-/* MIDI Detection Panel Styles - Compact Version */
+/* Live Input Analysis Panel Styles - Compact Version */
 .midi-detection-panel {
   @apply bg-slate-900/95 backdrop-blur-md;
   @apply border border-slate-600 rounded-lg shadow-lg;

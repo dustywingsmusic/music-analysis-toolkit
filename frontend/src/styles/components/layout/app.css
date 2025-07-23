@@ -74,7 +74,7 @@
   }
 
   .main-panel {
-    @apply flex-1 min-w-0;
+    @apply flex-1 min-w-0 max-w-7xl mx-auto;
   }
 
   /* Adjust main panel when sidebar is visible to prevent overlap */
@@ -202,7 +202,7 @@
 
   /* Tab Content Wrapper - creates layout for tab content and results */
   .tab-content-wrapper {
-    @apply space-y-6;
+    @apply space-y-6 max-w-7xl mx-auto;
   }
 
   /* Tab with Results Layout */

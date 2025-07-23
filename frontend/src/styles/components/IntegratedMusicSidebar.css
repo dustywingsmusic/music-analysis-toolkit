@@ -85,7 +85,7 @@
   background: #1e293b;
 }
 
-/* MIDI Detection Panel Integration */
+/* Live Input Analysis Panel Integration */
 .sidebar-midi-panel {
   margin: 0;
   padding: 0;
@@ -109,7 +109,7 @@
   margin: 0;
 }
 
-/* Enhanced MIDI Detection Styling for Sidebar */
+/* Enhanced Live Input Analysis Styling for Sidebar */
 .sidebar-midi-panel .midi-detection-card h3 {
   display: none; /* Hide the duplicate title since we have section header */
 }

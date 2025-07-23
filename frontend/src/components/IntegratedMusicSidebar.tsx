@@ -15,6 +15,8 @@ interface IntegratedMusicSidebarProps {
     analysisFocus: 'automatic' | 'complete' | 'pentatonic' | 'chord';  // Analysis focus dropdown
     setAnalysisFocus: (focus: 'automatic' | 'complete' | 'pentatonic' | 'chord') => void;
     clearPlayedNotes: () => void;
+    forceCleanup?: () => void;
+    resetMidiConnection?: () => Promise<void>;
   };
   onScaleHighlight?: (scaleId: string | null) => void;
   className?: string;
@@ -929,7 +931,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
                       : 'inactive'
                   }`}
                 ></span>
-                🎹 MIDI Detection
+                🎹 Live Input Analysis
               </h3>
               <button className="sidebar-section-toggle">
                 {expandedSections.midi ? '−' : '+'}
