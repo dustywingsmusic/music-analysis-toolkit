@@ -12,7 +12,7 @@ export interface RealTimeModeState {
   rootPitch: number | null;  // pitch class of the very first note
   lowestMidiNote: number | null; // actual lowest MIDI note played
   direction: "unknown" | "ascending" | "descending";
-  state: "scale-mode" | "melody-mode";
+  state: "scale-mode";
   originalModes: ModeInfo[];  // all modes whose tonic = rootPitch, sorted by popularity
   candidateModes: ModeInfo[];  // subset of originalModes still viable given entered notes
 }
@@ -30,9 +30,7 @@ export type ScaleFamily = 'Major Scale' | 'Melodic Minor' | 'Harmonic Minor' | '
 
 export interface ModeDetectionResult {
   suggestions: ModeSuggestion[];
-  state: "scale-mode" | "melody-mode";
-  showContinueButton: boolean;  // only shown after auto-switch to melody-mode
-  requiresTonicSelection: boolean;  // true when in melody-mode and no root selected
+  state: "scale-mode";
 }
 
 export interface ModeSuggestion {
@@ -372,47 +370,12 @@ export class RealTimeModeDetector {
       partialMatches.push(...modes.slice(0, 3));
     }
     
-    // Only switch to melody-mode if we detect true melodic patterns
-    // For now, stay in scale-mode and show partial matches
-    // TODO: Add gap analysis for detecting true melodic patterns
-    const shouldSwitchToMelodyMode = this.detectMelodicPattern();
-    
-    if (shouldSwitchToMelodyMode) {
-      console.log('🎭 Detected melodic pattern - switching to melody-mode');
-      this.state.state = "melody-mode";
-      return {
-        suggestions: [],
-        state: this.state.state,
-        showContinueButton: true,
-        requiresTonicSelection: false
-      };
-    }
-    
-    console.log('🎼 Staying in scale-mode with', partialMatches.length, 'partial matches');
-    
+    console.log('🎼 Partial matches', partialMatches.length);
+
     return {
       suggestions: partialMatches,
-      state: this.state.state, // Stay in scale-mode
-      showContinueButton: false,
-      requiresTonicSelection: false
+      state: this.state.state
     };
-  }
-  
-  /**
-   * Detect if the current note sequence looks like a melody rather than a scale
-   * Only switch to melody-mode for true melodic patterns with gaps inconsistent with scales
-   */
-  private detectMelodicPattern(): boolean {
-    // TODO: Implement proper melodic pattern detection
-    // For now, never auto-switch to melody-mode based on scale mismatches
-    // Only manual switching should trigger melody-mode
-    
-    // Potential future logic:
-    // - Check for large gaps (> 4 semitones) that are inconsistent with pentatonic/blues
-    // - Check for non-scalar patterns (e.g., arpeggiated patterns)
-    // - Check for rhythmic patterns that suggest melody vs scale practice
-    
-    return false; // Never auto-switch for now
   }
 
   /**
@@ -420,12 +383,10 @@ export class RealTimeModeDetector {
    */
   private generateResult(): ModeDetectionResult {
     const suggestions = this.generateSuggestions();
-    
+
     return {
       suggestions,
-      state: this.state.state,
-      showContinueButton: this.state.state === "melody-mode",
-      requiresTonicSelection: this.state.state === "melody-mode" && this.state.rootPitch === null
+      state: this.state.state
     };
   }
 
@@ -499,50 +460,10 @@ export class RealTimeModeDetector {
     return count;
   }
 
-  /**
-   * Manual Override: Continue Scale-Mode
-   */
-  public continueScaleMode(): ModeDetectionResult {
-    console.log('🔄 Manual override: Continue Scale-Mode');
-    
-    // Clear notesHistory; reset direction = "unknown"
-    this.state.notesHistory = [];
-    this.state.direction = "unknown";
-    this.state.state = "scale-mode";
-    
-    // Recompute candidateModes from existing rootPitch
-    if (this.state.rootPitch !== null) {
-      this.recomputeCandidateModes();
-    }
-    
-    return this.generateResult();
-  }
+
 
   /**
-   * Manual Enter Melody-Mode
-   */
-  public enterMelodyMode(): ModeDetectionResult {
-    console.log('🎭 Manual: Enter Melody-Mode');
-    
-    // Clear notesHistory and clear rootPitch
-    this.state.notesHistory = [];
-    this.state.rootPitch = null;
-    this.state.direction = "unknown";
-    this.state.state = "melody-mode";
-    this.state.originalModes = [];
-    this.state.candidateModes = [];
-    this.manualRootOverride = false;
-    
-    return {
-      suggestions: [],
-      state: this.state.state,
-      showContinueButton: false,
-      requiresTonicSelection: true  // Requires user to pick a fresh tonic
-    };
-  }
-
-  /**
-   * Set new root pitch (for melody mode)
+   * Set a new root pitch and recompute suggestions
    */
   public setRootPitch(pitchClass: number): ModeDetectionResult {
     console.log('🎯 Setting root pitch to:', NOTE_NAMES[pitchClass]);

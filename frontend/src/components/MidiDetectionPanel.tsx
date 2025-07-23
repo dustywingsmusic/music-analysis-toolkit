@@ -20,6 +20,7 @@ interface MidiDetectionPanelProps {
   onRootSelect?: (pitchClass: number) => void;
   onResetRoot?: () => void;
   rootLocked?: boolean;
+  historyPitchClasses?: number[];
 }
 
 const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
@@ -29,7 +30,8 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
   currentRoot,
   onRootSelect,
   onResetRoot,
-  rootLocked = false
+  rootLocked = false,
+  historyPitchClasses = []
 }) => {
   const [processedScales, setProcessedScales] = React.useState<ProcessedScale[]>([]);
 
@@ -185,24 +187,38 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
             </div>
           </div>
           <div className="min-h-[18px] p-1.5 bg-slate-800 rounded text-xs font-mono flex flex-wrap gap-1 items-center">
-            {playedNotes.length > 0 ? (
+            {(historyPitchClasses.length > 0 || playedNotes.length > 0) ? (
               <>
-                {playedNotes.map((note, idx) => {
-                  const noteName = note.accidental ? `${note.name}${note.accidental}` : note.name;
-                  const display = `${noteName}${note.octave}`;
-                  const pitchClass = note.number % 12;
-                  const isRoot = pitchClass === currentRoot;
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => onRootSelect && onRootSelect(pitchClass)}
-                      className={`note-button${isRoot ? ' root-note' : ''}`}
-                      title="Set as tonic"
-                    >
-                      {display}
-                    </button>
-                  );
-                })}
+                {(historyPitchClasses.length > 0 ? historyPitchClasses.map((pc, idx) => {
+                    const display = NOTES[pc];
+                    const pitchClass = pc;
+                    const isRoot = pitchClass === currentRoot;
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => onRootSelect && onRootSelect(pitchClass)}
+                        className={`note-button${isRoot ? ' root-note' : ''}`}
+                        title="Set as tonic"
+                      >
+                        {display}
+                      </button>
+                    );
+                  }) : playedNotes.map((note, idx) => {
+                    const noteName = note.accidental ? `${note.name}${note.accidental}` : note.name;
+                    const display = `${noteName}${note.octave}`;
+                    const pitchClass = note.number % 12;
+                    const isRoot = pitchClass === currentRoot;
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => onRootSelect && onRootSelect(pitchClass)}
+                        className={`note-button${isRoot ? ' root-note' : ''}`}
+                        title="Set as tonic"
+                      >
+                        {display}
+                      </button>
+                    );
+                  }))}
                 {rootLocked && (
                   <button
                     onClick={onResetRoot}

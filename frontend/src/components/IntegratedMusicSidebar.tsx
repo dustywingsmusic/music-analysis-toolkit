@@ -65,6 +65,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
   const [modeDetectionResult, setModeDetectionResult] = useState<ModeDetectionResult | null>(null);
   const [rootPitch, setRootPitch] = useState<number | null>(null);
   const [rootLocked, setRootLocked] = useState(false);
+  const [notesHistory, setNotesHistory] = useState<number[]>([]);
   const [expandedFamilies, setExpandedFamilies] = useState<Set<ScaleFamily>>(
     new Set(['Major Scale', 'Melodic Minor']) // Default-expand larger families
   );
@@ -112,17 +113,6 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
   };
 
   // Real-time mode detection functions
-  const handleContinueScaleMode = () => {
-    trackInteraction('Continue Scale Mode', 'Music Analysis');
-    const result = modeDetector.continueScaleMode();
-    setModeDetectionResult(result);
-  };
-
-  const handleEnterMelodyMode = () => {
-    trackInteraction('Enter Melody Mode', 'Music Analysis');
-    const result = modeDetector.enterMelodyMode();
-    setModeDetectionResult(result);
-  };
 
   const handleSetRootPitch = (pitchClass: number) => {
     const noteName = NOTE_NAMES[pitchClass];
@@ -187,55 +177,11 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
       );
     }
 
-    const { suggestions, state, showContinueButton, requiresTonicSelection } = modeDetectionResult;
+    const { suggestions } = modeDetectionResult;
 
     return (
       <div className="mode-detection-results">
-        {/* Mode State Indicator */}
-        <div className="mode-state-indicator">
-          <span className={`mode-badge ${state === 'scale-mode' ? 'scale-mode' : 'melody-mode'}`}>
-            {state === 'scale-mode' ? '🎼 Scale Mode' : '🎭 Melody Mode'}
-          </span>
-        </div>
 
-        {/* Manual Override Buttons */}
-        <div className="mode-controls">
-          {showContinueButton && (
-            <button 
-              className="continue-scale-mode-btn"
-              onClick={handleContinueScaleMode}
-              aria-label="Continue in scale mode"
-            >
-              Continue Scale-Mode
-            </button>
-          )}
-          <button 
-            className="enter-melody-mode-btn"
-            onClick={handleEnterMelodyMode}
-            aria-label="Enter melody mode"
-          >
-            Enter Melody-Mode
-          </button>
-        </div>
-
-        {/* Root Picker (when needed) */}
-        {requiresTonicSelection && (
-          <div className="root-picker">
-            <h6>Please select a tonic:</h6>
-            <div className="root-picker-buttons">
-              {NOTE_NAMES.map((noteName, pitchClass) => (
-                <button
-                  key={pitchClass}
-                  className="root-picker-btn"
-                  onClick={() => handleSetRootPitch(pitchClass)}
-                  aria-label={`Set root to ${noteName}`}
-                >
-                  {noteName}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Grouped Suggestions */}
         {suggestions.length > 0 && (
@@ -244,13 +190,6 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
           </div>
         )}
 
-        {/* No suggestions message for melody mode */}
-        {state === 'melody-mode' && suggestions.length === 0 && !requiresTonicSelection && (
-          <div className="melody-mode-message">
-            <p>Notes don't fit any scale—Switched to Melody Mode.</p>
-            <p>Please select a tonic or continue in scale mode.</p>
-          </div>
-        )}
       </div>
     );
   };
@@ -417,7 +356,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
   // Render consolidated musical analysis content for sidebar
   const renderSidebarResults = () => {
     const hasUnifiedResults = unifiedResults?.isVisible && unifiedResults?.currentResults;
-    const hasModeDetection = modeDetectionResult && (modeDetectionResult.suggestions.length > 0 || modeDetectionResult.state === 'melody-mode');
+    const hasModeDetection = modeDetectionResult && modeDetectionResult.suggestions.length > 0;
     const hasChordSuggestions = chordSuggestions.length > 0;
 
     // Prioritize real-time mode detection over legacy unified detection
@@ -864,10 +803,11 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
       } else {
         setRootPitch(state.rootPitch);
       }
+      setNotesHistory(state.notesHistory);
 
       // Adaptive view mode based on note count and mode state
       const noteCount = midiData.playedNotes.length;
-      if (currentResult?.state === 'melody-mode' || noteCount >= 7) {
+      if (noteCount >= 7) {
         setViewMode('detailed'); // Auto-expand for melody mode or complex input
       } else {
         setViewMode('quick'); // Default to quick view
@@ -992,6 +932,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
                   onRootSelect={handleSetRootPitch}
                   onResetRoot={handleResetRoot}
                   rootLocked={rootLocked}
+                  historyPitchClasses={notesHistory}
                 />
               </div>
             )}
@@ -1006,11 +947,11 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
               <h3 className="sidebar-section-title">
                 <span 
                   className={`sidebar-status-indicator ${
-                    (unifiedResults?.isVisible && unifiedResults?.currentResults) || 
-                    (modeDetectionResult && (modeDetectionResult.suggestions.length > 0 || modeDetectionResult.state === 'melody-mode')) ||
-                    (unifiedDetectionResults && unifiedDetectionResults.suggestions.length > 0) || 
+                    (unifiedResults?.isVisible && unifiedResults?.currentResults) ||
+                    (modeDetectionResult && modeDetectionResult.suggestions.length > 0) ||
+                    (unifiedDetectionResults && unifiedDetectionResults.suggestions.length > 0) ||
                     chordSuggestions.length > 0
-                      ? 'active' 
+                      ? 'active'
                       : 'inactive'
                   }`}
                 ></span>
@@ -1019,15 +960,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
                 {(modeDetectionResult || unifiedDetectionResults || chordSuggestions.length > 0) && (
                   <span style={{ fontSize: '0.75rem', marginLeft: '8px', color: '#94a3b8' }}>
                     {modeDetectionResult && (
-                      <>
-                        ({modeDetectionResult.suggestions.length} suggestions)
-                        {modeDetectionResult.state === 'melody-mode' && (
-                          <span style={{ marginLeft: '4px', color: '#f97316' }}>🎭</span>
-                        )}
-                        {modeDetectionResult.state === 'scale-mode' && (
-                          <span style={{ marginLeft: '4px', color: '#10b981' }}>🎼</span>
-                        )}
-                      </>
+                      <>({modeDetectionResult.suggestions.length} suggestions)</>
                     )}
                     {!modeDetectionResult && ((unifiedDetectionResults?.suggestions.length || 0) + chordSuggestions.length > 0) && (
                       <>({(unifiedDetectionResults?.suggestions.length || 0) + chordSuggestions.length})</>
