@@ -162,10 +162,12 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
     return (
       <div className="mode-detection-results">
 
-
         {/* Grouped Suggestions */}
         {suggestions.length > 0 && (
           <div className="grouped-suggestions">
+            <small className="family-note">
+              Showing top three suggestions from each family
+            </small>
             {renderGroupedSuggestions(suggestions)}
           </div>
         )}

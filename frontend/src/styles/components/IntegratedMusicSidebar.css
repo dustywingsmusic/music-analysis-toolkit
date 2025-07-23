@@ -793,6 +793,13 @@
   margin-top: 16px;
 }
 
+.family-note {
+  display: block;
+  margin-bottom: 8px;
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
 .family-groups {
   display: flex;
   flex-direction: column;
