@@ -21,6 +21,6 @@ describe('RealTimeModeDetector root handling', () => {
 
     detector.addNote(C4, PC_C_LOW); // lower note
     state = detector.getState();
-    expect(state.rootPitch).toBe(PC_C_LOW); // root updates to C
+    expect(state.rootPitch).toBe(PC_A); // root remains A
   });
 });

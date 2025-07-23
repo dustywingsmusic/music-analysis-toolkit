@@ -7,10 +7,6 @@ interface MidiDetectionPanelProps {
   midiData?: {
     playedNotes: any[];
     playedPitchClasses: Set<number>;
-    detectionEnabled: boolean;  // Consolidated toggle for detection
-    setDetectionEnabled: (enabled: boolean) => void;
-    analysisFocus: 'automatic' | 'complete' | 'pentatonic' | 'chord';  // Analysis focus dropdown
-    setAnalysisFocus: (focus: 'automatic' | 'complete' | 'pentatonic' | 'chord') => void;
     clearPlayedNotes: () => void;
     forceCleanup?: () => void;
     resetMidiConnection?: () => Promise<void>;
@@ -38,10 +34,6 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
   // Extract MIDI data from props with defaults
   const playedNotes = midiData?.playedNotes || [];
   const playedPitchClasses = midiData?.playedPitchClasses || new Set();
-  const detectionEnabled = midiData?.detectionEnabled ?? true;
-  const setDetectionEnabled = midiData?.setDetectionEnabled || (() => {});
-  const analysisFocus = midiData?.analysisFocus || 'automatic';
-  const setAnalysisFocus = midiData?.setAnalysisFocus || (() => {});
   const clearPlayedNotes = midiData?.clearPlayedNotes || (() => {});
 
 
@@ -88,7 +80,7 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
 
   // Effect to find scale match when notes change
   useEffect(() => {
-    if (!detectionEnabled || analysisFocus === 'chord' || !onScaleHighlight) return;
+    if (!onScaleHighlight) return;
 
     if (playedPitchClasses.size === 0) {
       onScaleHighlight(null);
@@ -96,12 +88,7 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
     }
 
     const playedCount = playedPitchClasses.size;
-    let shouldCheck = false;
-    if (analysisFocus === 'complete' && playedCount === 7) shouldCheck = true;
-    if (analysisFocus === 'pentatonic' && (playedCount === 5 || playedCount === 6)) shouldCheck = true;
-    if (analysisFocus === 'automatic' && (playedCount === 5 || playedCount === 6 || playedCount === 7)) shouldCheck = true;
-
-    if (shouldCheck) {
+    if (playedCount >= 5 && playedCount <= 7) {
       const scalesToSearch = processedScales.filter(s => s.pitchClasses.size === playedPitchClasses.size);
 
       // Find all scales that contain the exact same pitch classes
@@ -126,42 +113,14 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
         onScaleHighlight(null);
       }
     }
-  }, [playedNotes, playedPitchClasses, detectionEnabled, analysisFocus, processedScales, onScaleHighlight]);
+  }, [playedNotes, playedPitchClasses, processedScales, onScaleHighlight]);
 
   return (
     <div className={`midi-detection-panel ${className}`}>
       <div className="midi-detection-card">
         <h3 className="text-xs font-semibold mb-2 text-cyan-400">Live Input Analysis</h3>
 
-        {/* Detection Toggle */}
-        <div className="mb-2">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={detectionEnabled}
-              onChange={(e) => setDetectionEnabled(e.target.checked)}
-              className="w-3 h-3"
-            />
-            <span className="text-xs font-medium">Enable Detection</span>
-          </label>
-        </div>
 
-        {/* Analysis Focus */}
-        {detectionEnabled && (
-          <div className="mb-2">
-            <p className="text-xs font-medium mb-1">Analysis Focus</p>
-            <select
-              value={analysisFocus}
-              onChange={(e) => setAnalysisFocus(e.target.value as typeof analysisFocus)}
-              className="w-full px-1.5 py-0.5 text-xs bg-slate-700 border border-slate-600 rounded focus:outline-none focus:border-cyan-400"
-            >
-              <option value="automatic">Automatic</option>
-              <option value="complete">Complete (7-note)</option>
-              <option value="pentatonic">Pentatonic (5/6-note)</option>
-              <option value="chord">Chord</option>
-            </select>
-          </div>
-        )}
 
 
         {/* Notes Display */}

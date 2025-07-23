@@ -11,10 +11,6 @@ interface IntegratedMusicSidebarProps {
   midiData?: {
     playedNotes: any[];
     playedPitchClasses: Set<number>;
-    detectionEnabled: boolean;  // Consolidated toggle for detection
-    setDetectionEnabled: (enabled: boolean) => void;
-    analysisFocus: 'automatic' | 'complete' | 'pentatonic' | 'chord';  // Analysis focus dropdown
-    setAnalysisFocus: (focus: 'automatic' | 'complete' | 'pentatonic' | 'chord') => void;
     clearPlayedNotes: () => void;
     forceCleanup?: () => void;
     resetMidiConnection?: () => Promise<void>;
@@ -755,21 +751,12 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
       return;
     }
 
-    if (!midiData.detectionEnabled) {
-      setChordSuggestions([]);
-      setUnifiedDetectionResults(null);
-      setModeDetectionResult(null);
-      modeDetector.reset();
-      return;
-    }
-
-    // Automatically show sidebar on MIDI input as per requirements
-    if (midiData.playedNotes.length > 0 && midiData.detectionEnabled) {
+    // Automatically show sidebar on MIDI input
+    if (midiData.playedNotes.length > 0) {
       setIsVisible(true);
     }
 
     // Use real-time mode detection for sequential note analysis
-    if (midiData.analysisFocus !== 'chord') {
       console.log('🎵 Processing notes with real-time mode detection');
       
       // Reset detector if this is a new session (no current result)
@@ -832,18 +819,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
         playedNotes: playedNoteNames,
         sortingDetails: sortingDetails
       });
-    }
-
-    // Update chord suggestions if in chord focus mode
-    if (midiData.analysisFocus === 'chord' && midiData.playedPitchClasses) {
-      console.log('🎵 Sidebar calling updateChordSuggestionsForSidebar');
-      keySuggester.updateChordSuggestionsForSidebar(midiData.playedPitchClasses);
-      
-      // Also update legacy unified detection for chord mode
-      const detectionResult = updateUnifiedDetection(midiData.playedPitchClasses, midiData.analysisFocus);
-      setUnifiedDetectionResults(detectionResult);
-    }
-  }, [midiData?.detectionEnabled, midiData?.analysisFocus, midiData?.playedNotes, modeDetector, modeDetectionResult]);
+  }, [midiData?.playedNotes, modeDetector, modeDetectionResult]);
 
   // Adaptive behavior effect - automatically adjust view mode based on note count
   useEffect(() => {
