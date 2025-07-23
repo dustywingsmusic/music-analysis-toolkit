@@ -10,6 +10,7 @@ import { getModePopularity } from '../constants/mappings';
 export interface RealTimeModeState {
   notesHistory: number[];  // ordered list of unique pitch classes (0–11), ignoring repeats
   rootPitch: number | null;  // pitch class of the very first note
+  lowestPitch: number | null; // lowest pitch class observed
   lowestMidiNote: number | null; // actual lowest MIDI note played
   direction: "unknown" | "ascending" | "descending";
   state: "scale-mode";
@@ -127,6 +128,7 @@ export class RealTimeModeDetector {
     return {
       notesHistory: [],
       rootPitch: null,
+      lowestPitch: null,
       lowestMidiNote: null,
       direction: "unknown",
       state: "scale-mode",
@@ -174,6 +176,7 @@ export class RealTimeModeDetector {
     // Append first note's pitch class to notesHistory; set rootPitch
     this.state.notesHistory.push(firstNotePitchClass);
     this.state.rootPitch = firstNotePitchClass;
+    this.state.lowestPitch = firstNotePitchClass;
     this.state.lowestMidiNote = noteNumber;
 
     // Precompute pitch sets and compute modes for this root
@@ -252,19 +255,19 @@ export class RealTimeModeDetector {
     // Determine/Update Direction
     this.updateDirection(pitchClass, previousPC);
 
-    // Update root pitch if this is the lowest MIDI note seen so far
-    if (
-      this.state.lowestMidiNote === null ||
-      (noteNumber < this.state.lowestMidiNote && !this.manualRootOverride)
-    ) {
-      if (this.state.lowestMidiNote === null || noteNumber < this.state.lowestMidiNote) {
-        this.state.lowestMidiNote = noteNumber;
-        if (!this.manualRootOverride) {
-          this.state.rootPitch = noteNumber % 12;
-        }
+    // Track lowest MIDI note for informational purposes
+    if (this.state.lowestMidiNote === null || noteNumber < this.state.lowestMidiNote) {
+      this.state.lowestMidiNote = noteNumber;
+    }
+
+    // Update lowest pitch class and adjust root if not manually overridden
+    if (this.state.lowestPitch === null || pitchClass < this.state.lowestPitch) {
+      this.state.lowestPitch = pitchClass;
+      if (!this.manualRootOverride) {
+        this.state.rootPitch = this.state.lowestPitch;
+        this.recomputeCandidateModes();
+        return this.generateResult();
       }
-      this.recomputeCandidateModes();
-      return this.generateResult();
     }
 
     // Strict Filtering
