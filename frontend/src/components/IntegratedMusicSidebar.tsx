@@ -224,23 +224,23 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
                   <div key={`${family}-${index}`} className="suggestion-item">
                     <div className="suggestion-header">
                       <span className="suggestion-name">• {suggestion.fullName}</span>
+                      <span className="suggestion-notes"> {suggestion.notes.join(' ')}</span>
                       <span className="suggestion-mismatch">
                         [{suggestion.mismatchCount} {suggestion.mismatchCount === 1 ? 'mismatch' : 'mismatches'}]
                       </span>
                     </div>
                     {onSwitchToReferenceWithHighlight && (
                       <button
-                        className="preview-btn"
+                        className="preview-btn preview-link"
                         onClick={() => {
                           const parts = suggestion.fullName.split(' ');
                           const tonic = parts[0];
                           const mode = parts.slice(1).join(' ');
                           onSwitchToReferenceWithHighlight(mode, tonic);
                         }}
-                        aria-label={`Preview ${suggestion.fullName} scale`}
-                        title="👁️ Preview scale"
+                        aria-label={`View ${suggestion.fullName} scale`}
                       >
-                        👁️
+                        View
                       </button>
                     )}
                   </div>

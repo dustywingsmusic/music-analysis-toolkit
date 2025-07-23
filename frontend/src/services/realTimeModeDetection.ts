@@ -40,6 +40,7 @@ export interface ModeSuggestion {
   mismatchCount: number;
   matchCount: number;
   popularity: number;
+  notes: string[];
 }
 
 // Scale family definitions from legacy system (constants/scales.ts)
@@ -337,13 +338,20 @@ export class RealTimeModeDetector {
       
       // Only include modes that have at least some matches
       if (matchCount > 0) {
+        const root = mode.actualRoot ?? this.state.rootPitch!;
+        const familyData = allScaleData.find(s => s.name === mode.family);
+        const notes = familyData
+          ? familyData.modeIntervals[mode.modeIndex].map(i => NOTE_NAMES[(root + i) % 12])
+          : Array.from(mode.modePitchSet).map(pc => NOTE_NAMES[pc]).sort();
+
         const suggestion: ModeSuggestion = {
           family: mode.family,
           name: mode.name,
-          fullName: `${NOTE_NAMES[mode.actualRoot ?? this.state.rootPitch!]} ${mode.name}`,
+          fullName: `${NOTE_NAMES[root]} ${mode.name}`,
           matchCount,
           mismatchCount,
-          popularity: mode.popularity
+          popularity: mode.popularity,
+          notes
         };
         
         if (!familyGroups.has(mode.family)) {
@@ -403,14 +411,21 @@ export class RealTimeModeDetector {
     for (const mode of this.state.candidateModes) {
       const matchCount = this.calculateMatchCount(notesHistorySet, mode.modePitchSet);
       const mismatchCount = this.calculateMismatchCount(notesHistorySet, mode.modePitchSet);
-      
+
+      const root = mode.actualRoot ?? this.state.rootPitch!;
+      const familyData = allScaleData.find(s => s.name === mode.family);
+      const notes = familyData
+        ? familyData.modeIntervals[mode.modeIndex].map(i => NOTE_NAMES[(root + i) % 12])
+        : Array.from(mode.modePitchSet).map(pc => NOTE_NAMES[pc]).sort();
+
       const suggestion: ModeSuggestion = {
         family: mode.family,
         name: mode.name,
-        fullName: `${NOTE_NAMES[mode.actualRoot ?? this.state.rootPitch!]} ${mode.name}`,
+        fullName: `${NOTE_NAMES[root]} ${mode.name}`,
         matchCount,
         mismatchCount,
-        popularity: mode.popularity
+        popularity: mode.popularity,
+        notes
       };
       
       if (!familyGroups.has(mode.family)) {
