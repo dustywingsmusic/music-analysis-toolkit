@@ -34,7 +34,15 @@ const getModelId = (): string => {
   return "gemini-2.5-flash";
 };
 
-const ai = new GoogleGenAI({ apiKey: getApiKey() });
+// Lazy initialization to ensure runtime config is loaded
+let ai: GoogleGenAI | null = null;
+
+const getAI = (): GoogleGenAI => {
+  if (!ai) {
+    ai = new GoogleGenAI({ apiKey: getApiKey() });
+  }
+  return ai;
+};
 
 // --- PROMPT 1: CORE ANALYSIS ---
 
@@ -241,7 +249,7 @@ const getCoreAnalysis = async (
       temperature: 0.1
     });
 
-    const response = await ai.models.generateContent({
+    const response = await getAI().models.generateContent({
       model: getModelId(),
       contents: userPrompt,
       config: {
@@ -323,7 +331,7 @@ export const getSongExamples = async (allModes: Analysis[]): Promise<SongExample
           temperature: 0.3
         });
 
-        const response = await ai.models.generateContent({
+        const response = await getAI().models.generateContent({
           model: getModelId(),
           contents: prompt,
           config: {
@@ -553,7 +561,7 @@ const discoverModesFromRoot = async (
   };
 
   try {
-    const response = await ai.models.generateContent({
+    const response = await getAI().models.generateContent({
       model: getModelId(),
       contents: userPrompt,
       config: {
@@ -637,7 +645,7 @@ const analyzeChord = async (
   };
 
   try {
-    const response = await ai.models.generateContent({
+    const response = await getAI().models.generateContent({
       model: getModelId(),
       contents: userPrompt,
       config: {
@@ -691,7 +699,7 @@ const generateChordsFromMode = async (
   };
 
   try {
-    const response = await ai.models.generateContent({
+    const response = await getAI().models.generateContent({
       model: getModelId(),
       contents: userPrompt,
       config: {
@@ -745,7 +753,7 @@ const findChordSubstitutions = async (
   };
 
   try {
-    const response = await ai.models.generateContent({
+    const response = await getAI().models.generateContent({
       model: getModelId(),
       contents: userPrompt,
       config: {
@@ -799,7 +807,7 @@ const analyzeChordProgression = async (
   };
 
   try {
-    const response = await ai.models.generateContent({
+    const response = await getAI().models.generateContent({
       model: getModelId(),
       contents: userPrompt,
       config: {
