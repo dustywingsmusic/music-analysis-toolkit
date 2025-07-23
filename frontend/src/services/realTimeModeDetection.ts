@@ -10,6 +10,7 @@ import { getModePopularity } from '../constants/mappings';
 export interface RealTimeModeState {
   notesHistory: number[];  // ordered list of unique pitch classes (0–11), ignoring repeats
   rootPitch: number | null;  // pitch class of the very first note
+  lowestMidi: number | null; // actual lowest MIDI note played
   direction: "unknown" | "ascending" | "descending";
   state: "scale-mode" | "melody-mode";
   originalModes: ModeInfo[];  // all modes whose tonic = rootPitch, sorted by popularity
@@ -125,6 +126,7 @@ export class RealTimeModeDetector {
     return {
       notesHistory: [],
       rootPitch: null,
+      lowestMidi: null,
       direction: "unknown",
       state: "scale-mode",
       originalModes: [],
@@ -160,7 +162,7 @@ export class RealTimeModeDetector {
   /**
    * Session Initialization (First Note)
    */
-  private sessionInitialization(firstNotePitchClass: number): void {
+  private sessionInitialization(firstNotePitchClass: number, midiNumber?: number): void {
     console.log('🎵 Session Initialization with first note:', NOTE_NAMES[firstNotePitchClass]);
     
     // Clear notesHistory; set direction = "unknown" and state = "scale-mode"
@@ -171,6 +173,7 @@ export class RealTimeModeDetector {
     // Append first note's pitch class to notesHistory; set rootPitch
     this.state.notesHistory.push(firstNotePitchClass);
     this.state.rootPitch = firstNotePitchClass;
+    this.state.lowestMidi = midiNumber ?? null;
 
     // Precompute pitch sets and compute modes for this root
     this.precomputeModePitchSets(this.state.rootPitch);
@@ -226,12 +229,12 @@ export class RealTimeModeDetector {
   /**
    * Adding a New Note
    */
-  public addNote(pitchClass: number): ModeDetectionResult | null {
+  public addNote(pitchClass: number, midiNumber?: number): ModeDetectionResult | null {
     console.log('🎵 Adding note:', NOTE_NAMES[pitchClass]);
     
     // First note - session initialization
     if (this.state.notesHistory.length === 0) {
-      this.sessionInitialization(pitchClass);
+      this.sessionInitialization(pitchClass, midiNumber);
       return this.generateResult();
     }
     
@@ -248,8 +251,12 @@ export class RealTimeModeDetector {
     // Determine/Update Direction
     this.updateDirection(pitchClass, previousPC);
 
-    // Update root pitch if this is the lowest pitch seen so far
-    if (this.state.rootPitch === null || pitchClass < this.state.rootPitch) {
+    // Update root pitch if this is the lowest MIDI note seen so far
+    if (
+      midiNumber !== undefined &&
+      (this.state.lowestMidi === null || midiNumber < this.state.lowestMidi)
+    ) {
+      this.state.lowestMidi = midiNumber;
       this.state.rootPitch = pitchClass;
       this.recomputeCandidateModes();
       return this.generateResult();
@@ -535,6 +542,7 @@ export class RealTimeModeDetector {
     console.log('🎯 Setting root pitch to:', NOTE_NAMES[pitchClass]);
 
     this.state.rootPitch = pitchClass;
+    this.state.lowestMidi = null;
     this.recomputeCandidateModes();
     
     return this.generateResult();
