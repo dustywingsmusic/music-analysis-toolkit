@@ -799,31 +799,6 @@
   gap: 8px;
 }
 
-.family-group {
-  border: 1px solid #334155;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.family-header {
-  background: #334155;
-  padding: 8px 12px;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: background-color 0.2s ease;
-}
-
-.family-header:hover {
-  background: #475569;
-}
-
-.family-header:focus {
-  outline: 2px solid #06b6d4;
-  outline-offset: -2px;
-}
-
 .family-title {
   margin: 0;
   font-size: 0.75rem;
@@ -832,12 +807,6 @@
   display: flex;
   align-items: center;
   gap: 6px;
-}
-
-.family-icon {
-  font-size: 0.625rem;
-  color: #94a3b8;
-  transition: transform 0.2s ease;
 }
 
 .family-count {
@@ -918,18 +887,3 @@
   color: #cbd5e1;
 }
 
-/* Animation for family expansion */
-.family-suggestions {
-  animation: slideDown 0.2s ease-out;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    max-height: 0;
-  }
-  to {
-    opacity: 1;
-    max-height: 200px;
-  }
-}

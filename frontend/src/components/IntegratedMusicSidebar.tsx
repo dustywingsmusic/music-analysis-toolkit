@@ -62,9 +62,6 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
   const [rootPitch, setRootPitch] = useState<number | null>(null);
   const [rootLocked, setRootLocked] = useState(false);
   const [notesHistory, setNotesHistory] = useState<number[]>([]);
-  const [expandedFamilies, setExpandedFamilies] = useState<Set<ScaleFamily>>(
-    new Set(['Major Scale', 'Melodic Minor']) // Default-expand larger families
-  );
   
   // Progressive disclosure state management
   const [viewMode, setViewMode] = useState<'quick' | 'detailed'>('quick');
@@ -132,19 +129,6 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
     trackInteraction('Root Reset - Reset to Lowest Note', 'Music Analysis');
   };
 
-  const toggleFamilyExpansion = (family: ScaleFamily) => {
-    setExpandedFamilies(prev => {
-      const newSet = new Set(prev);
-      const isExpanding = !newSet.has(family);
-      if (newSet.has(family)) {
-        newSet.delete(family);
-      } else {
-        newSet.add(family);
-      }
-      trackInteraction(`Family Group - ${isExpanding ? 'Expand' : 'Collapse'} ${family}`, 'Navigation');
-      return newSet;
-    });
-  };
 
   // Adaptive behavior based on note count
   const getAdaptiveViewMode = (noteCount: number): 'quick' | 'detailed' => {
@@ -228,55 +212,38 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
           const familySuggestions = familyGroups.get(family);
           if (!familySuggestions || familySuggestions.length === 0) return null;
 
-          const isExpanded = expandedFamilies.has(family);
-
           return (
-            <div key={family} className="family-group">
-              <div 
-                className="family-header"
-                onClick={() => toggleFamilyExpansion(family)}
-                role="button"
-                tabIndex={0}
-                aria-expanded={isExpanded}
-                aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${familyDisplayNames[family]}`}
-              >
-                <h6 className="family-title">
-                  <span className="family-icon">{isExpanded ? '▼' : '▶'}</span>
-                  {familyDisplayNames[family]}
-                </h6>
-                <span className="family-count">({familySuggestions.length})</span>
-              </div>
-
-              {isExpanded && (
-                <div className="family-suggestions">
-                  {familySuggestions.map((suggestion, index) => (
-                    <div key={`${family}-${index}`} className="suggestion-item">
-                      <div className="suggestion-header">
-                        <span className="suggestion-name">• {suggestion.fullName}</span>
-                        <span className="suggestion-mismatch">
-                          [{suggestion.mismatchCount} {suggestion.mismatchCount === 1 ? 'mismatch' : 'mismatches'}]
-                        </span>
-                      </div>
-                      {onSwitchToReferenceWithHighlight && (
-                        <button
-                          className="preview-btn"
-                          onClick={() => {
-                            // Extract tonic and mode from fullName
-                            const parts = suggestion.fullName.split(' ');
-                            const tonic = parts[0];
-                            const mode = parts.slice(1).join(' ');
-                            onSwitchToReferenceWithHighlight(mode, tonic);
-                          }}
-                          aria-label={`Preview ${suggestion.fullName} scale`}
-                          title="👁️ Preview scale"
-                        >
-                          👁️
-                        </button>
-                      )}
+            <div key={family}>
+              <h6 className="family-title">
+                {familyDisplayNames[family]} <span className="family-count">({familySuggestions.length})</span>
+              </h6>
+              <div className="family-suggestions">
+                {familySuggestions.map((suggestion, index) => (
+                  <div key={`${family}-${index}`} className="suggestion-item">
+                    <div className="suggestion-header">
+                      <span className="suggestion-name">• {suggestion.fullName}</span>
+                      <span className="suggestion-mismatch">
+                        [{suggestion.mismatchCount} {suggestion.mismatchCount === 1 ? 'mismatch' : 'mismatches'}]
+                      </span>
                     </div>
-                  ))}
-                </div>
-              )}
+                    {onSwitchToReferenceWithHighlight && (
+                      <button
+                        className="preview-btn"
+                        onClick={() => {
+                          const parts = suggestion.fullName.split(' ');
+                          const tonic = parts[0];
+                          const mode = parts.slice(1).join(' ');
+                          onSwitchToReferenceWithHighlight(mode, tonic);
+                        }}
+                        aria-label={`Preview ${suggestion.fullName} scale`}
+                        title="👁️ Preview scale"
+                      >
+                        👁️
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           );
         })}
