@@ -1,4 +1,5 @@
 import { allScaleData, NOTES, PARENT_KEY_INDICES } from '../constants/scales';
+import { getChromaticScaleWithEnharmonics, generateScaleFromIntervals } from '../utils/music';
 
 export interface ModeFromRoot {
   id: string;
@@ -35,18 +36,15 @@ export const buildModesFromRoot = (rootNote: string): ModeFromRoot[] => {
       // Calculate the parent scale root that would produce this mode from our root
       // The mode starts at intervals[0] (which should be 0), so we need to find
       // what parent scale root would put this mode at our desired root note
-      const modeStartInterval = intervals[0]; // Should be 0 for properly defined modes
-      
-      // Generate the mode notes starting from rootNote
-      const modeNotes = intervals.map(interval => {
-        const noteIndex = (rootPitchClass + interval) % 12;
-        return NOTES[noteIndex];
-      });
+
+      // Generate the mode notes starting from rootNote using context-aware enharmonics
+      const modeNotes = generateScaleFromIntervals(rootPitchClass, rootNote, intervals);
 
       // Calculate parent scale root note
       // If this is mode index N of a scale, the parent scale root is N semitones below our root
+      const pitchNames = getChromaticScaleWithEnharmonics(rootNote);
       const parentScaleRootIndex = (rootPitchClass - modeIndex + 12) % 12;
-      const parentScaleRootNote = NOTES[parentScaleRootIndex];
+      const parentScaleRootNote = pitchNames[parentScaleRootIndex];
 
       // Get mode name from headers (skip first header which is usually "Mode / Scale Degree")
       const modeName = scaleFamily.headers[modeIndex + 1] || `Mode ${modeIndex + 1}`;
@@ -74,7 +72,15 @@ export const buildModesFromRoot = (rootNote: string): ModeFromRoot[] => {
   // Sort modes by scale family importance and then by mode index
   return modes.sort((a, b) => {
     // Prioritize major scale modes, then melodic minor, then others
-    const scaleOrder = ['Major Scale', 'Melodic Minor', 'Harmonic Minor', 'Harmonic Major'];
+    const scaleOrder = [
+      'Major Scale',
+      'Melodic Minor',
+      'Harmonic Minor',
+      'Harmonic Major',
+      'Double Harmonic Major',
+      'Major Pentatonic',
+      'Blues Scale'
+    ];
     const aOrder = scaleOrder.indexOf(a.parentScaleName);
     const bOrder = scaleOrder.indexOf(b.parentScaleName);
     

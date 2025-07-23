@@ -51,6 +51,32 @@ export const generateDiatonicScale = (rootPitchClass: number, rootName: string, 
     return scaleNotes;
 };
 
+/**
+ * Generates note names for an arbitrary scale based on absolute intervals.
+ * This preserves correct enharmonic spelling by using the expected letter
+ * sequence derived from the root note.
+ *
+ * @param rootPitchClass The pitch class of the root note
+ * @param rootName The spelled root note name (e.g., "C", "F♯")
+ * @param intervals Absolute pitch class offsets from the root
+ * @returns Array of note names for the scale
+ */
+export const generateScaleFromIntervals = (
+  rootPitchClass: number,
+  rootName: string,
+  intervals: number[]
+): string[] => {
+  if (intervals.length === 0) return [];
+
+  // Convert absolute offsets to an interval pattern between consecutive notes
+  const intervalPattern: number[] = [];
+  for (let i = 1; i < intervals.length; i++) {
+    intervalPattern.push((intervals[i] - intervals[i - 1] + 12) % 12);
+  }
+
+  return generateDiatonicScale(rootPitchClass, rootName, intervalPattern);
+};
+
 const majorScalePattern = allScaleData.find(s => s.tableId === 'major-scale-modes')?.parentScaleIntervalPattern; 
 // Natural minor scale (Aeolian) step pattern: W-H-W-W-H-W-W
 const minorScalePattern = [2, 1, 2, 2, 1, 2]; 
