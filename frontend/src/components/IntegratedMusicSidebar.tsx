@@ -193,12 +193,22 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
     const familyOrder: ScaleFamily[] = allScaleData.map(sf => sf.name as ScaleFamily);
     const familyDisplayNames: Record<ScaleFamily, string> = {
       'Major Scale': 'Major Modes',
-      'Melodic Minor': 'Melodic Minor Modes', 
+      'Melodic Minor': 'Melodic Minor Modes',
       'Harmonic Minor': 'Harmonic Minor Modes',
       'Harmonic Major': 'Harmonic Major Modes',
       'Double Harmonic Major': 'Double Harmonic Major Modes',
       'Major Pentatonic': 'Pentatonic Modes',
       'Blues Scale': 'Blues Modes'
+    };
+
+    const familyColors: Record<ScaleFamily, string> = {
+      'Major Scale': 'var(--chart-1)',
+      'Melodic Minor': 'var(--chart-2)',
+      'Harmonic Minor': 'var(--chart-3)',
+      'Harmonic Major': 'var(--chart-4)',
+      'Double Harmonic Major': 'var(--chart-5)',
+      'Major Pentatonic': 'var(--sidebar-primary)',
+      'Blues Scale': 'var(--sidebar-accent)'
     };
 
     return (
@@ -208,9 +218,13 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
           if (!familySuggestions || familySuggestions.length === 0) return null;
 
           return (
-            <div key={family}>
-              <h6 className="family-title">
-                {familyDisplayNames[family]} <span className="family-count">({familySuggestions.length})</span>
+            <div key={family} className="family-group">
+              <h6
+                className="family-header"
+                style={{ color: familyColors[family] }}
+              >
+                {familyDisplayNames[family]}{' '}
+                <span className="family-count">({familySuggestions.length})</span>
               </h6>
               <div className="family-suggestions">
                 {familySuggestions.map((suggestion, index) => (
