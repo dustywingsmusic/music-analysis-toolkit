@@ -778,10 +778,11 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
 
       case 'reference':
         return (
-          <ReferenceTab 
+          <ReferenceTab
             highlightId={highlightIdForReference}
             showDebugInfo={showDebugInfo}
             onShowUnifiedResults={showUnifiedResults}
+            onSwitchToReferenceWithHighlight={handleSwitchToReferenceWithHighlight}
             midiData={{
               status: midiStatus,
               devices: midiDevices,
