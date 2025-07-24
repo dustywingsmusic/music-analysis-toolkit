@@ -73,8 +73,8 @@ export const buildModesFromRoot = (rootNote: string): ModeFromRoot[] => {
 
   // Sort modes by scale family importance and then by mode index
   return modes.sort((a, b) => {
-    // Prioritize major scale modes, then melodic minor, then others
-    const scaleOrder = ['Major Scale', 'Melodic Minor', 'Harmonic Minor', 'Harmonic Major'];
+    // Prioritize the scale families as they appear in allScaleData
+    const scaleOrder = allScaleData.map(sf => sf.name);
     const aOrder = scaleOrder.indexOf(a.parentScaleName);
     const bOrder = scaleOrder.indexOf(b.parentScaleName);
     
