@@ -660,69 +660,6 @@
   padding: 12px;
 }
 
-.mode-state-indicator {
-  margin-bottom: 12px;
-  text-align: center;
-}
-
-.mode-badge {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 16px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.mode-badge.scale-mode {
-  background: #065f46;
-  color: #d1fae5;
-  border: 1px solid #10b981;
-}
-
-.mode-badge.melody-mode {
-  background: #7c2d12;
-  color: #fed7aa;
-  border: 1px solid #f97316;
-}
-
-/* Manual Override Controls */
-.mode-controls {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-  justify-content: center;
-}
-
-.continue-scale-mode-btn,
-.enter-melody-mode-btn {
-  background: #475569;
-  color: #e2e8f0;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-weight: 500;
-}
-
-.continue-scale-mode-btn:hover {
-  background: #10b981;
-  transform: translateY(-1px);
-}
-
-.enter-melody-mode-btn:hover {
-  background: #f97316;
-  transform: translateY(-1px);
-}
-
-.continue-scale-mode-btn:focus,
-.enter-melody-mode-btn:focus {
-  outline: 2px solid #06b6d4;
-  outline-offset: 2px;
-}
 
 /* Root Picker */
 .root-picker {
@@ -769,24 +706,6 @@
 }
 
 /* Melody Mode Message */
-.melody-mode-message {
-  background: #7c2d12;
-  border: 1px solid #f97316;
-  border-radius: 6px;
-  padding: 12px;
-  margin-bottom: 16px;
-}
-
-.melody-mode-message p {
-  margin: 0 0 8px 0;
-  color: #fed7aa;
-  font-size: 0.75rem;
-  line-height: 1.4;
-}
-
-.melody-mode-message p:last-child {
-  margin-bottom: 0;
-}
 
 /* Grouped Suggestions */
 .grouped-suggestions {
@@ -806,11 +725,16 @@
   gap: 8px;
 }
 
-.family-title {
+.family-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.family-header {
   margin: 0;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #e2e8f0;
   display: flex;
   align-items: center;
   gap: 6px;
