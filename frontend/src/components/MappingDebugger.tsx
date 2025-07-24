@@ -8,6 +8,7 @@ import {
   SCALE_TO_TABLE_ID,
   validateMappings
 } from '../constants/mappings';
+import { trackInteraction } from '../utils/tracking';
 
 interface MappingDebuggerProps {
   isVisible: boolean;
@@ -56,7 +57,10 @@ Highlight ID: ${highlightId || 'null (failed to generate)'}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-cyan-300">Mapping System Debugger</h2>
           <button
-            onClick={onClose}
+            onClick={() => {
+              trackInteraction('Mapping Debugger - Close', 'Debug Tools');
+              onClose();
+            }}
             className="text-gray-400 hover:text-white text-xl"
           >
             ×
@@ -138,7 +142,10 @@ Highlight ID: ${highlightId || 'null (failed to generate)'}
               </div>
             </div>
             <button
-              onClick={handleTestMapping}
+              onClick={() => {
+                trackInteraction('Mapping Debugger - Test Mapping', 'Debug Tools');
+                handleTestMapping();
+              }}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm"
             >
               Test Mapping

@@ -16,6 +16,7 @@ import {Button} from './ui/button';
 import {Badge} from './ui/badge';
 import ScaleGrid from './reference/ScaleGrid';
 import {ModeFromRoot} from '../services/scaleDataService';
+import { trackInteraction } from '../utils/tracking';
 
 
 export interface DisplayPosition {
@@ -194,7 +195,10 @@ const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
                           <p>
                             <strong>Mode:</strong> {mode}
                             <Button 
-                              onClick={() => onSwitchToReferenceWithHighlight(mode, tonic)}
+                              onClick={() => {
+                                trackInteraction(`View in Tables - Primary Analysis - ${mode} ${tonic}`, 'Navigation');
+                                onSwitchToReferenceWithHighlight(mode, tonic);
+                              }}
                               variant="link"
                               size="sm"
                               className="ml-2"
@@ -267,7 +271,10 @@ const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
                             <p>
                               <strong>Mode:</strong> {mode}
                               <Button 
-                                onClick={() => onSwitchToReferenceWithHighlight(mode, tonic)}
+                                onClick={() => {
+                                  trackInteraction(`View in Tables - Alternative Analysis - ${mode} ${tonic}`, 'Navigation');
+                                  onSwitchToReferenceWithHighlight(mode, tonic);
+                                }}
                                 variant="link"
                                 size="sm"
                                 className="ml-2"
@@ -394,7 +401,10 @@ const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
                                 }
                                 return (
                                   <Button 
-                                    onClick={() => onSwitchToReferenceWithHighlight(modeName, tonic)}
+                                    onClick={() => {
+                                      trackInteraction(`View in Tables - Discovery Analysis - ${modeName} ${tonic}`, 'Navigation');
+                                      onSwitchToReferenceWithHighlight(modeName, tonic);
+                                    }}
                                     variant="link"
                                     size="sm"
                                     className="ml-2"

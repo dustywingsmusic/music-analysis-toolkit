@@ -246,7 +246,10 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
                         {onSwitchToReferenceWithHighlight && (
                           <button
                             className="preview-btn preview-link"
-                            onClick={() => onSwitchToReferenceWithHighlight(mode, tonic)}
+                            onClick={() => {
+                              trackInteraction(`View in Tables - Mode Detection - ${suggestion.fullName}`, 'Navigation');
+                              onSwitchToReferenceWithHighlight(mode, tonic);
+                            }}
                             aria-label={`View ${suggestion.fullName} scale`}
                           >
                             View in Tables
@@ -448,7 +451,10 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
                   {onSwitchToReferenceWithHighlight && (
                     <button 
                       className="view-in-tables-btn"
-                      onClick={() => onSwitchToReferenceWithHighlight(mode, tonic)}
+                      onClick={() => {
+                        trackInteraction(`View in Tables - Analysis Results - ${mode} ${tonic}`, 'Navigation');
+                        onSwitchToReferenceWithHighlight(mode, tonic);
+                      }}
                     >
                       View in Tables
                     </button>
@@ -541,7 +547,10 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
                         <div className="suggestion-scales">
                           <button
                             className="scale-link"
-                            onClick={() => handleScaleHighlight(suggestion.matchingScales[0].id)}
+                            onClick={() => {
+                              trackInteraction(`View in Tables - Quick View - ${suggestion.matchingScales[0].name}`, 'Navigation');
+                              handleScaleHighlight(suggestion.matchingScales[0].id);
+                            }}
                             aria-label={`View ${suggestion.matchingScales[0].name} in tables`}
                           >
                             View in Tables
@@ -585,7 +594,10 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
                             <span
                               key={scaleIndex}
                               className="scale-link"
-                              onClick={() => handleScaleHighlight(scale.id)}
+                              onClick={() => {
+                                trackInteraction(`View in Tables - Scale Link - ${scale.name || `Scale ${scaleIndex + 1}`}`, 'Navigation');
+                                handleScaleHighlight(scale.id);
+                              }}
                             >
                               {scale.name || `Scale ${scaleIndex + 1}`}
                               {scaleIndex < Math.min(suggestion.matchingScales.length - 1, 2) && ', '}
