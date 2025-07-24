@@ -1,12 +1,15 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import MidiDetectionPanel from './MidiDetectionPanel';
-import { trackInteraction, trackNavClick } from '../utils/tracking';
+import {trackInteraction, trackNavClick} from '../utils/tracking';
 import * as keySuggester from '../services/keySuggester';
-import {updateUnifiedDetection} from '../services/keySuggester';
 import {UnifiedResultsState} from './UnifiedResultsPanel';
-import {parseTonicAndMode, extractTonicFromAnalysis} from '../utils/music';
-import {RealTimeModeDetector, ModeDetectionResult, ModeSuggestion, ScaleFamily} from '../services/realTimeModeDetection';
-import { allScaleData } from '../constants/scales';
+import {
+  ModeDetectionResult,
+  ModeSuggestion,
+  RealTimeModeDetector,
+  ScaleFamily
+} from '../services/realTimeModeDetection';
+import {allScaleData} from '../constants/scales';
 
 interface IntegratedMusicSidebarProps {
   midiData?: {
@@ -246,7 +249,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
                             onClick={() => onSwitchToReferenceWithHighlight(mode, tonic)}
                             aria-label={`View ${suggestion.fullName} scale`}
                           >
-                            View
+                            View in Tables
                           </button>
                         )}
                       </div>
