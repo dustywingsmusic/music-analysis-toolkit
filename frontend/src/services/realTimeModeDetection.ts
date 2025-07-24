@@ -4,6 +4,7 @@
  */
 
 import { allScaleData, PARENT_KEYS, PITCH_CLASS_NAMES } from '../constants/scales';
+import { generateScaleFromIntervals } from '../utils/music';
 import { getModePopularity } from '../constants/mappings';
 
 // Core Data & State Types
@@ -101,6 +102,19 @@ const buildNoteNames = (): string[] => {
 };
 
 const NOTE_NAMES = buildNoteNames();
+
+// Helper to generate mode notes with proper enharmonic spelling based on
+// the parent scale's key signature
+const getModeNotes = (
+  root: number,
+  family: ScaleFamily,
+  modeIndex: number
+): string[] => {
+  const familyData = allScaleData.find(s => s.name === family);
+  if (!familyData) return [];
+  const rootName = PARENT_KEYS[root as keyof typeof PARENT_KEYS];
+  return generateScaleFromIntervals(root, rootName, familyData.modeIntervals[modeIndex]);
+};
 
 // Function to convert MIDI input to proper enharmonic spelling
 const convertToProperEnharmonic = (pitchClass: number): number => {
@@ -343,15 +357,12 @@ export class RealTimeModeDetector {
       // Only include modes that have at least some matches
       if (matchCount > 0) {
         const root = mode.actualRoot ?? this.state.rootPitch!;
-        const familyData = allScaleData.find(s => s.name === mode.family);
-        const notes = familyData
-          ? familyData.modeIntervals[mode.modeIndex].map(i => NOTE_NAMES[(root + i) % 12])
-          : Array.from(mode.modePitchSet).map(pc => NOTE_NAMES[pc]).sort();
+        const notes = getModeNotes(root, mode.family, mode.modeIndex);
 
         const suggestion: ModeSuggestion = {
           family: mode.family,
           name: mode.name,
-          fullName: `${NOTE_NAMES[root]} ${mode.name}`,
+          fullName: `${PARENT_KEYS[root as keyof typeof PARENT_KEYS]} ${mode.name}`,
           matchCount,
           mismatchCount,
           popularity: mode.popularity,
@@ -417,15 +428,12 @@ export class RealTimeModeDetector {
       const mismatchCount = this.calculateMismatchCount(notesHistorySet, mode.modePitchSet);
 
       const root = mode.actualRoot ?? this.state.rootPitch!;
-      const familyData = allScaleData.find(s => s.name === mode.family);
-      const notes = familyData
-        ? familyData.modeIntervals[mode.modeIndex].map(i => NOTE_NAMES[(root + i) % 12])
-        : Array.from(mode.modePitchSet).map(pc => NOTE_NAMES[pc]).sort();
+      const notes = getModeNotes(root, mode.family, mode.modeIndex);
 
       const suggestion: ModeSuggestion = {
         family: mode.family,
         name: mode.name,
-        fullName: `${NOTE_NAMES[root]} ${mode.name}`,
+        fullName: `${PARENT_KEYS[root as keyof typeof PARENT_KEYS]} ${mode.name}`,
         matchCount,
         mismatchCount,
         popularity: mode.popularity,
