@@ -22,3 +22,6 @@ frontend/dist/
 # Profiler output
 *.dat
 *.png
+
+.venv
+venv

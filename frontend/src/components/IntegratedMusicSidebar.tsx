@@ -1,12 +1,15 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import MidiDetectionPanel from './MidiDetectionPanel';
-import { trackInteraction, trackNavClick } from '../utils/tracking';
+import {trackInteraction, trackNavClick} from '../utils/tracking';
 import * as keySuggester from '../services/keySuggester';
-import {updateUnifiedDetection} from '../services/keySuggester';
 import {UnifiedResultsState} from './UnifiedResultsPanel';
-import {parseTonicAndMode, extractTonicFromAnalysis} from '../utils/music';
-import {RealTimeModeDetector, ModeDetectionResult, ModeSuggestion, ScaleFamily} from '../services/realTimeModeDetection';
-import { allScaleData } from '../constants/scales';
+import {
+  ModeDetectionResult,
+  ModeSuggestion,
+  RealTimeModeDetector,
+  ScaleFamily
+} from '../services/realTimeModeDetection';
+import {allScaleData} from '../constants/scales';
 
 interface IntegratedMusicSidebarProps {
   midiData?: {
@@ -227,31 +230,32 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
                 <span className="family-count">({familySuggestions.length})</span>
               </h6>
               <div className="family-suggestions">
-                {familySuggestions.map((suggestion, index) => (
-                  <div key={`${family}-${index}`} className="suggestion-item">
-                    <div className="suggestion-header">
-                      <span className="suggestion-name">• {suggestion.fullName}</span>
-                      <span className="suggestion-notes"> {suggestion.notes.join(' ')}</span>
-                      <span className="suggestion-mismatch">
-                        [{suggestion.mismatchCount} {suggestion.mismatchCount === 1 ? 'mismatch' : 'mismatches'}]
-                      </span>
+                {familySuggestions.map((suggestion, index) => {
+                  const parts = suggestion.fullName.split(' ');
+                  const tonic = parts[0];
+                  const mode = parts.slice(1).join(' ');
+
+                  return (
+                    <div key={`${family}-${index}`} className="suggestion-item">
+                      <div className="suggestion-header">
+                        <span className="suggestion-name">• {suggestion.fullName}</span>
+                        <span className="suggestion-notes"> {suggestion.notes.join(' ')}</span>
+                        <span className="suggestion-mismatch">
+                          [{suggestion.mismatchCount} {suggestion.mismatchCount === 1 ? 'mismatch' : 'mismatches'}]
+                        </span>
+                        {onSwitchToReferenceWithHighlight && (
+                          <button
+                            className="preview-btn preview-link"
+                            onClick={() => onSwitchToReferenceWithHighlight(mode, tonic)}
+                            aria-label={`View ${suggestion.fullName} scale`}
+                          >
+                            View in Tables
+                          </button>
+                        )}
+                      </div>
                     </div>
-                    {onSwitchToReferenceWithHighlight && (
-                      <button
-                        className="preview-btn preview-link"
-                        onClick={() => {
-                          const parts = suggestion.fullName.split(' ');
-                          const tonic = parts[0];
-                          const mode = parts.slice(1).join(' ');
-                          onSwitchToReferenceWithHighlight(mode, tonic);
-                        }}
-                        aria-label={`View ${suggestion.fullName} scale`}
-                      >
-                        View
-                      </button>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           );
