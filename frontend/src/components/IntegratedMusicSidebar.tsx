@@ -6,6 +6,7 @@ import {updateUnifiedDetection} from '../services/keySuggester';
 import {UnifiedResultsState} from './UnifiedResultsPanel';
 import {parseTonicAndMode, extractTonicFromAnalysis} from '../utils/music';
 import {RealTimeModeDetector, ModeDetectionResult, ModeSuggestion, ScaleFamily} from '../services/realTimeModeDetection';
+import { allScaleData } from '../constants/scales';
 
 interface IntegratedMusicSidebarProps {
   midiData?: {
@@ -189,15 +190,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
     });
 
     // Define family order and display names (updated for legacy system)
-    const familyOrder: ScaleFamily[] = [
-      'Major Scale', 
-      'Melodic Minor', 
-      'Harmonic Minor', 
-      'Harmonic Major', 
-      'Double Harmonic Major', 
-      'Major Pentatonic', 
-      'Blues Scale'
-    ];
+    const familyOrder: ScaleFamily[] = allScaleData.map(sf => sf.name as ScaleFamily);
     const familyDisplayNames: Record<ScaleFamily, string> = {
       'Major Scale': 'Major Modes',
       'Melodic Minor': 'Melodic Minor Modes', 
