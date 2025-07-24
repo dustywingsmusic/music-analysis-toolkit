@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { NOTES, allScaleData } from '../constants/scales';
 import { ProcessedScale } from '../types';
+import { trackInteraction } from '../utils/tracking';
 
 interface MidiDetectionPanelProps {
   onScaleHighlight?: (scaleId: string | null) => void;
@@ -38,6 +39,7 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
 
 
   const handleClearAll = () => {
+    trackInteraction('MIDI Detection Panel - Clear All', 'MIDI');
     clearPlayedNotes();
     if (onScaleHighlight) {
       onScaleHighlight(null);
@@ -136,7 +138,10 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
               </button>
               {midiData?.resetMidiConnection && (
                 <button
-                  onClick={() => midiData.resetMidiConnection?.()}
+                  onClick={() => {
+                    trackInteraction('MIDI Detection Panel - Reset Connection', 'MIDI');
+                    midiData.resetMidiConnection?.();
+                  }}
                   className="px-1.5 py-0.5 text-xs bg-yellow-600 hover:bg-yellow-500 rounded transition-colors"
                   title="Reset MIDI Connection"
                 >
@@ -155,7 +160,10 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
                     return (
                       <button
                         key={idx}
-                        onClick={() => onRootSelect && onRootSelect(pitchClass)}
+                        onClick={() => {
+                          trackInteraction(`MIDI Detection Panel - Set Root ${NOTES[pitchClass]}`, 'Music Analysis');
+                          onRootSelect && onRootSelect(pitchClass);
+                        }}
                         className={`note-button${isRoot ? ' root-note' : ''}`}
                         title="Set as tonic"
                       >
@@ -170,7 +178,10 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
                     return (
                       <button
                         key={idx}
-                        onClick={() => onRootSelect && onRootSelect(pitchClass)}
+                        onClick={() => {
+                          trackInteraction(`MIDI Detection Panel - Set Root ${NOTES[pitchClass]}`, 'Music Analysis');
+                          onRootSelect && onRootSelect(pitchClass);
+                        }}
                         className={`note-button${isRoot ? ' root-note' : ''}`}
                         title="Set as tonic"
                       >
@@ -180,7 +191,10 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
                   }))}
                 {rootLocked && (
                   <button
-                    onClick={onResetRoot}
+                    onClick={() => {
+                      trackInteraction('MIDI Detection Panel - Reset to Lowest Note', 'Music Analysis');
+                      onResetRoot && onResetRoot();
+                    }}
                     className="ml-1 px-1.5 py-0.5 rounded bg-slate-600 hover:bg-slate-500"
                   >
                     Reset to Lowest Note

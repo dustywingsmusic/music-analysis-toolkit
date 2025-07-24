@@ -29,6 +29,7 @@ import UnifiedResultsPanel from "@/components/UnifiedResultsPanel";
 import MidiSettingsPanel from './MidiSettingsPanel';
 import {useMidi} from '@/hooks/useMidi';
 import {logger} from '@/utils/logger';
+import { trackInteraction } from '../utils/tracking';
 
 interface QuestionDrivenMusicToolProps {
   showDebugInfo: boolean;
@@ -838,7 +839,10 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
             />
             {showDebugInfo && (
               <button 
-                onClick={() => setShowMappingDebugger(true)}
+                onClick={() => {
+                  trackInteraction('Question Driven Tool - Show Mapping Debugger', 'Debug Tools');
+                  setShowMappingDebugger(true);
+                }}
                 className="text-muted-foreground hover:text-foreground transition-colors duration-200"
                 title="Open Mapping System Debugger"
               >
@@ -880,7 +884,10 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
       {!unifiedResults.isVisible && unifiedResults.currentResults && (
         <div className="analysis-toggle-fab">
           <button 
-            onClick={() => showUnifiedResults(unifiedResults.currentResults)}
+            onClick={() => {
+              trackInteraction('Question Driven Tool - Show Analysis Results', 'Navigation');
+              showUnifiedResults(unifiedResults.currentResults);
+            }}
             className="analysis-toggle-fab__btn"
             title="Show Analysis Results"
             aria-label="Show analysis results panel"

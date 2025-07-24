@@ -3,6 +3,7 @@ import { ProcessedScale, DiatonicChord } from '../types';
 import { NOTES } from '../constants/scales';
 import { NOTE_TO_PITCH_CLASS } from '../constants/mappings';
 import { ChordMatch, findChordMatches } from './chordLogic';
+import { trackInteraction } from '../utils/tracking';
 
 // Sidebar callback types
 type MelodySuggestionCallback = (suggestions: MelodySuggestion[]) => void;
@@ -1756,7 +1757,10 @@ function renderMelodySuggestions(suggestions: KeySuggestion[], playedPitchClasse
           const linkSpan = document.createElement('span');
           linkSpan.className = 'scale-link';
           linkSpan.textContent = scale.name || `Scale ${index + 1}`;
-          linkSpan.onclick = () => highlightScale(scale.id);
+          linkSpan.onclick = () => {
+            trackInteraction(`View in Tables - Melody Suggestions - ${scale.name || `Scale ${index + 1}`}`, 'Navigation');
+            highlightScale(scale.id);
+          };
           scaleLinksDiv.appendChild(linkSpan);
 
           if (index < Math.min(matchingScales.length - 1, 2)) {
