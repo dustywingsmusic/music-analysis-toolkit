@@ -19,6 +19,135 @@ A FastAPI application for analyzing audio files to infer musical modes, key sign
 - **Confidence Scoring**: Provides confidence scores for both the global key analysis and the local region classification, allowing for more reliable downstream use.
 - **Detailed Harmonic Analysis**: Reports on non-diatonic "borrowed tones" and the measured strength of any detected cadences.
 
+## Algorithm Description
+
+The audio analysis system employs a sophisticated multi-stage pipeline that combines signal processing, music theory, and statistical analysis to determine musical keys, modes, and harmonic relationships. The algorithm is designed for both efficiency and accuracy, using memory-optimized streaming for large files while maintaining high precision in key detection.
+
+### Core Algorithm Pipeline
+
+#### 1. Audio Preprocessing
+- **File Handling**: Audio files are temporarily stored and processed using the `soundfile` library for robust format support
+- **Channel Reduction**: Multi-channel audio is converted to mono by averaging across channels
+- **Sample Rate Preservation**: Original sample rates are maintained throughout analysis to preserve frequency accuracy
+
+#### 2. Chromagram Extraction
+The system uses **Constant-Q Transform (CQT)** chromagrams via librosa for pitch class analysis:
+- **CQT Advantages**: Better frequency resolution in lower registers compared to FFT-based methods
+- **12-Bin Chromagram**: Each bin represents one of the 12 pitch classes (C, C#, D, D#, E, F, F#, G, G#, A, A#, B)
+- **Temporal Averaging**: Chromagram features are averaged across time frames to create pitch class profiles
+
+#### 3. Global Key Analysis (Memory-Efficient Streaming)
+For analyzing the entire audio file:
+```
+Algorithm: Streaming Global Analysis
+1. Initialize weighted_chroma_sum = zeros(12)
+2. Set chunk_size = sample_rate × 5 seconds
+3. For each audio chunk:
+   a. Extract mono audio: y_chunk = mean(stereo_channels)
+   b. Apply padding if chunk < minimum_samples
+   c. Compute chromagram: chroma = chroma_cqt(y_chunk)
+   d. Accumulate: weighted_chroma_sum += sum(chroma, axis=time)
+   e. Track total_frames += chroma.shape[time_axis]
+4. Calculate final average: global_chroma = weighted_chroma_sum / total_frames
+5. Apply key detection algorithm to global_chroma
+```
+
+#### 4. Local Segment Analysis (Hybrid Approach)
+For analyzing specific time segments:
+- **Small Segments** (< threshold): Direct in-memory processing for speed
+- **Large Segments** (≥ threshold): Streaming analysis to manage memory usage
+- **Segment Extraction**: Precise sample-level timing using `librosa.time_to_samples()`
+
+#### 5. Key Detection (Krumhansl-Schmuckler Algorithm)
+The core key detection uses established music cognition research:
+
+```
+Algorithm: K-S Key Detection
+Input: chroma_vector (12-dimensional pitch class profile)
+1. For each possible tonic (0-11):
+   For each mode (major, minor):
+     a. Get K-S profile for this key
+     b. Rotate profile to match tonic: profile = roll(base_profile, tonic)
+     c. Calculate Pearson correlation: r = corrcoef(chroma_vector, profile)
+     d. Store correlation score
+2. Select key with maximum correlation
+3. Normalize confidence: confidence = (correlation + 1) / 2
+4. Map mode: major → Ionian, minor → Aeolian
+```
+
+**Krumhansl-Schmuckler Profiles** (empirically derived from music cognition studies):
+- **Major**: [6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88]
+- **Minor**: [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17]
+
+#### 6. Cadence Detection
+Identifies dominant-tonic relationships that suggest cadential motion:
+
+```
+Algorithm: Cadence Detection
+Input: chromagram, key_object
+1. Calculate average pitch class activation: avg_chroma = mean(chromagram, axis=time)
+2. Determine tonic and dominant pitch classes:
+   tonic_pc = key.tonic.pitch_class
+   dominant_pc = (tonic_pc + 7) % 12
+3. Find top 3 most prominent pitch classes
+4. Check if both tonic AND dominant are in top 3
+5. If cadence detected:
+   strength = (avg_chroma[tonic] + avg_chroma[dominant]) / sum(avg_chroma)
+   strength = min(strength × 2.5, 1.0)  # Heuristic scaling
+```
+
+#### 7. Harmonic Region Classification
+Distinguishes between different types of harmonic relationships:
+
+```
+Algorithm: Region Classification
+Input: global_key, local_key, local_confidence, cadence_info
+1. If global_key == local_key:
+   Return "stable" (confidence = 0.95)
+2. Calculate borrowed pitch classes:
+   global_pcs = set(global_key.scale.pitch_classes)
+   local_pcs = set(local_key.scale.pitch_classes)
+   borrowed_pcs = local_pcs - global_pcs
+3. Determine modulation vs modal shift:
+   If (local_confidence > 0.80 AND cadence_detected AND cadence_strength > 0.60):
+     Return "modulation" with weighted confidence
+   Else:
+     Return "modal_shift" with confidence based on borrowed note count
+```
+
+### Mathematical Foundations
+
+#### Pearson Correlation for Key Detection
+The system uses Pearson correlation coefficient to measure similarity between observed pitch class distributions and theoretical key profiles:
+
+```
+r = Σ[(xi - x̄)(yi - ȳ)] / √[Σ(xi - x̄)² × Σ(yi - ȳ)²]
+```
+Where:
+- `xi` = observed pitch class activation
+- `yi` = theoretical K-S profile value
+- `x̄, ȳ` = respective means
+
+#### Confidence Normalization
+Correlation values (-1 to +1) are normalized to intuitive confidence scores (0 to 1):
+```
+confidence = (correlation + 1) / 2
+```
+
+#### Memory Optimization
+For large files, the system uses streaming weighted averages instead of concatenating arrays:
+```
+final_average = Σ(chunk_sums) / Σ(frame_counts)
+```
+This approach maintains O(1) memory usage regardless of file size.
+
+### Performance Characteristics
+- **Memory Usage**: O(1) for global analysis regardless of file size
+- **Time Complexity**: O(n) where n is audio duration
+- **Minimum Segment Length**: ~0.1 seconds (determined by CQT requirements)
+- **Chunk Size**: 5 seconds (optimized for memory/accuracy trade-off)
+- **Streaming Threshold**: Configurable based on available memory
+
 ## Setup Instructions
 1. Clone the repository:
    ```bash
