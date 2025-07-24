@@ -64,7 +64,6 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
   const [modeDetector] = useState(() => new RealTimeModeDetector());
   const [modeDetectionResult, setModeDetectionResult] = useState<ModeDetectionResult | null>(null);
   const [rootPitch, setRootPitch] = useState<number | null>(null);
-  const [rootLocked, setRootLocked] = useState(false);
   const [notesHistory, setNotesHistory] = useState<number[]>([]);
   
   // Progressive disclosure state management
@@ -117,20 +116,6 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
     const result = modeDetector.setRootPitch(pitchClass);
     setModeDetectionResult(result);
     setRootPitch(pitchClass);
-    setRootLocked(true);
-  };
-
-  const handleResetRoot = () => {
-    const state = modeDetector.getState();
-    if (state.notesHistory.length > 0) {
-      const lowest = Math.min(...state.notesHistory);
-      const result = modeDetector.setRootPitch(lowest);
-      modeDetector.unlockRootOverride();
-      setModeDetectionResult(result);
-      setRootPitch(lowest);
-    }
-    setRootLocked(false);
-    trackInteraction('Root Reset - Reset to Lowest Note', 'Music Analysis');
   };
 
 
@@ -761,15 +746,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
       }
 
       const state = modeDetector.getState();
-      if (rootLocked) {
-        if (rootPitch !== null && state.rootPitch !== rootPitch) {
-          const override = modeDetector.setRootPitch(rootPitch);
-          currentResult = override;
-          setModeDetectionResult(currentResult);
-        }
-      } else {
-        setRootPitch(state.rootPitch);
-      }
+      setRootPitch(state.rootPitch);
       setNotesHistory(state.notesHistory);
 
       // Adaptive view mode based on note count and mode state
@@ -886,8 +863,6 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
                   className="sidebar-midi-panel"
                   currentRoot={rootPitch}
                   onRootSelect={handleSetRootPitch}
-                  onResetRoot={handleResetRoot}
-                  rootLocked={rootLocked}
                   historyPitchClasses={notesHistory}
                 />
               </div>

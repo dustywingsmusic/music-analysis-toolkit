@@ -14,8 +14,6 @@ interface MidiDetectionPanelProps {
   className?: string;
   currentRoot?: number | null;
   onRootSelect?: (pitchClass: number) => void;
-  onResetRoot?: () => void;
-  rootLocked?: boolean;
   historyPitchClasses?: number[];
 }
 
@@ -25,8 +23,6 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
   className = '',
   currentRoot,
   onRootSelect,
-  onResetRoot,
-  rootLocked = false,
   historyPitchClasses = []
 }) => {
   const [processedScales, setProcessedScales] = React.useState<ProcessedScale[]>([]);
@@ -178,14 +174,6 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
                       </button>
                     );
                   }))}
-                {rootLocked && (
-                  <button
-                    onClick={onResetRoot}
-                    className="ml-1 px-1.5 py-0.5 rounded bg-slate-600 hover:bg-slate-500"
-                  >
-                    Reset to Lowest Note
-                  </button>
-                )}
               </>
             ) : (
               'No notes detected'
