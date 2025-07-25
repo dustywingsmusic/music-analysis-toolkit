@@ -188,7 +188,14 @@ def _run_local_analysis(filepath: str, sr: int, duration: float, start_time: flo
     return local_key_info, local_key_obj, local_chroma, segment_start_sec, segment_end_sec
 
 
-def _perform_analysis(filepath: str, start_time: float, end_time: Optional[float]) -> ModeAnalysisResponse:
+def _perform_analysis(
+    filepath: str,
+    start_time: float,
+    end_time: Optional[float],
+    *,
+    enable_harmonic_suppression: bool = False,
+    harmonic_threshold: float = 0.3,
+) -> ModeAnalysisResponse:
     """Core analysis pipeline, orchestrating global, local, and classification steps."""
     with sf.SoundFile(filepath, 'r') as f:
         sr = f.samplerate
@@ -199,8 +206,18 @@ def _perform_analysis(filepath: str, start_time: float, end_time: Optional[float
     global_key_info, global_key_obj = _run_global_analysis(filepath, sr)
 
     # --- Step 2: Local Analysis ---
-    local_key_info, local_key_obj, local_chroma, seg_start, seg_end = _run_local_analysis(filepath, sr, duration,
-                                                                                          start_time, end_time)
+    local_key_info, local_key_obj, local_chroma, seg_start, seg_end = _run_local_analysis(
+        filepath, sr, duration, start_time, end_time
+    )
+
+    avg_vector = local_chroma.mean(axis=1)
+    if enable_harmonic_suppression:
+        logger.info(
+            f"Applying harmonic suppression with threshold {harmonic_threshold:.2f}"
+        )
+        avg_vector = utils.suppress_harmonics(avg_vector, threshold=harmonic_threshold)
+        local_key_info = utils.find_best_key(avg_vector)
+        local_key_obj = utils.get_key_object(local_key_info["key_signature"])
 
     # --- Step 3: Classification ---
     logger.info("Classifying region type (modulation vs. shift)...")
@@ -215,9 +232,10 @@ def _perform_analysis(filepath: str, start_time: float, end_time: Optional[float
 
     # --- Step 4 & 5: Assemble Output ---
     logger.info("Assembling final response.")
-    local_chromagram_plot = utils.plot_chromagram(local_chroma, sr,
-                                                  f"Local Chromagram ({seg_start:.1f}s - {seg_end:.1f}s)")
-    local_histogram_plot = utils.plot_histogram(local_chroma.mean(axis=1), "Local Pitch Distribution")
+    local_chromagram_plot = utils.plot_chromagram(
+        local_chroma, sr, f"Local Chromagram ({seg_start:.1f}s - {seg_end:.1f}s)"
+    )
+    local_histogram_plot = utils.plot_histogram(avg_vector, "Local Pitch Distribution")
 
     return ModeAnalysisResponse(
         global_=GlobalAnalysis(**global_key_info),
@@ -228,7 +246,7 @@ def _perform_analysis(filepath: str, start_time: float, end_time: Optional[float
             region_type=region_info["type"], region_confidence=region_info["confidence"]
         ),
         analysis=AnalysisDetails(
-            chromagram_summary=local_chroma.mean(axis=1).tolist(),
+            chromagram_summary=avg_vector.tolist(),
             cadence_detected=local_cadence_info["detected"],
             borrowed_tones=region_info["borrowed"],
             cadential_strength=local_cadence_info["strength"]
@@ -247,8 +265,18 @@ def _perform_analysis(filepath: str, start_time: float, end_time: Optional[float
 async def analyze_mode_endpoint(
         audio: UploadFile = File(..., description="The audio file to analyze (e.g., WAV, MP3)"),
         start: float = Form(0.0, description="Start time in seconds for the local segment analysis."),
-        end: Optional[float] = Form(None,
-                                    description="End time in seconds for the local segment analysis. If not provided, analysis uses the full audio.")
+        end: Optional[float] = Form(
+            None,
+            description="End time in seconds for the local segment analysis. If not provided, analysis uses the full audio."
+        ),
+        enable_harmonic_suppression: bool = Form(
+            False,
+            description="Reduce harmonic spillover when computing pitch profiles."
+        ),
+        harmonic_threshold: float = Form(
+            0.3,
+            description="Threshold for harmonic suppression when enabled."
+        ),
 ) -> ModeAnalysisResponse:
     """Endpoint to handle audio upload and trigger the analysis pipeline."""
     logger.info(f"Received analysis request for file: {audio.filename}")
@@ -269,7 +297,9 @@ async def analyze_mode_endpoint(
         return _perform_analysis(
             filepath=temp_audio_filepath,
             start_time=start,
-            end_time=end
+            end_time=end,
+            enable_harmonic_suppression=enable_harmonic_suppression,
+            harmonic_threshold=harmonic_threshold,
         )
 
     except ValueError as e:

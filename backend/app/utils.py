@@ -159,3 +159,38 @@ def plot_histogram(avg_chroma: np.ndarray, title: str) -> str:
     ax.set_ylabel("Intensity")
     ax.set_ylim(0, 1)  # Normalize y-axis for consistency
     return fig_to_base64(fig)
+
+
+def suppress_harmonics(chroma_vector: np.ndarray, threshold: float = 0.3) -> np.ndarray:
+    """Attenuate energy in bins that likely stem from harmonic overtones.
+
+    The function assumes ``chroma_vector`` is a 12 element array representing the
+    aggregate intensity of each pitch class.  For pitch classes whose intensity
+    exceeds ``threshold``, a fraction of that energy is subtracted from the bin a
+    perfect fifth above (``+7`` semitones), which is where the strongest
+    harmonic partial typically falls.
+
+    Parameters
+    ----------
+    chroma_vector:
+        1‑D numpy array of length 12 containing pitch class intensities.
+    threshold:
+        Values above this level are treated as fundamentals whose harmonics
+        should be suppressed.
+
+    Returns
+    -------
+    np.ndarray
+        A new chroma vector with harmonic spillover reduced.
+    """
+    if chroma_vector.ndim != 1 or chroma_vector.size != 12:
+        raise ValueError("chroma_vector must be a 1D array with 12 elements")
+
+    suppressed = chroma_vector.astype(float).copy()
+    for pc, value in enumerate(chroma_vector):
+        if value > threshold:
+            fifth_idx = (pc + 7) % 12
+            reduction = value * threshold
+            suppressed[fifth_idx] = max(0.0, suppressed[fifth_idx] - reduction)
+
+    return suppressed
