@@ -87,6 +87,38 @@ def detect_cadences(chroma: np.ndarray, key_obj: key.Key) -> Dict[str, Any]:
     return {"detected": False, "strength": 0.0}
 
 
+def suppress_harmonics(chroma_vector: np.ndarray, threshold: float = 0.3) -> np.ndarray:
+    """Attenuate harmonic intervals like perfect fifths in a chroma vector.
+
+    Parameters
+    ----------
+    chroma_vector : np.ndarray
+        12-element pitch class intensity vector.
+    threshold : float, optional
+        Minimum amplitude required for a note to suppress its harmonics.
+
+    Returns
+    -------
+    np.ndarray
+        New chroma vector with harmonic energies reduced.
+    """
+
+    if chroma_vector.shape != (12,):
+        raise ValueError("chroma_vector must have length 12")
+
+    suppressed = chroma_vector.astype(float).copy()
+    harmonic_offsets = [7]  # perfect fifth
+
+    for pc, magnitude in enumerate(chroma_vector):
+        if magnitude > threshold:
+            for offset in harmonic_offsets:
+                harmonic_pc = (pc + offset) % 12
+                if harmonic_pc != pc:
+                    suppressed[harmonic_pc] *= 0.5
+
+    return suppressed
+
+
 def classify_region_type(
         global_key: key.Key,
         local_key: key.Key,

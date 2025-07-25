@@ -67,7 +67,12 @@ app.add_middleware(
 )
 
 
-def _run_global_analysis(filepath: str, sr: int) -> Tuple[Dict[str, Any], key.Key]:
+def _run_global_analysis(
+    filepath: str,
+    sr: int,
+    apply_suppression: bool,
+    suppression_threshold: float,
+) -> Tuple[Dict[str, Any], key.Key]:
     """Performs streaming analysis to find the global key using a memory-efficient weighted average."""
     logger.info("Performing global analysis via memory-efficient streaming...")
 
@@ -101,6 +106,10 @@ def _run_global_analysis(filepath: str, sr: int) -> Tuple[Dict[str, Any], key.Ke
 
     # Calculate the final average chroma vector
     global_avg_chroma = weighted_chroma_sum / total_frames
+    if apply_suppression:
+        global_avg_chroma = utils.suppress_harmonics(
+            global_avg_chroma, threshold=suppression_threshold
+        )
     # --- End of Optimization ---
 
     global_key_info = utils.find_best_key(global_avg_chroma)
@@ -110,8 +119,15 @@ def _run_global_analysis(filepath: str, sr: int) -> Tuple[Dict[str, Any], key.Ke
     return global_key_info, global_key_obj
 
 
-def _run_local_analysis(filepath: str, sr: int, duration: float, start_time: float, end_time: Optional[float]) -> Tuple[
-    Dict[str, Any], key.Key, np.ndarray, float, float]:
+def _run_local_analysis(
+    filepath: str,
+    sr: int,
+    duration: float,
+    start_time: float,
+    end_time: Optional[float],
+    apply_suppression: bool,
+    suppression_threshold: float,
+) -> Tuple[Dict[str, Any], key.Key, np.ndarray, float, float]:
     """
     Reads and analyzes a specific time segment of the audio.
     Uses a hybrid approach: direct read for short segments, streaming for long ones.
@@ -181,14 +197,26 @@ def _run_local_analysis(filepath: str, sr: int, duration: float, start_time: flo
             local_chroma = librosa.feature.chroma_cqt(y=y_segment, sr=sr)
 
     # --- Continue with the rest of the analysis ---
-    local_key_info = utils.find_best_key(local_chroma.mean(axis=1))
+    local_avg_chroma = local_chroma.mean(axis=1)
+    if apply_suppression:
+        local_avg_chroma = utils.suppress_harmonics(
+            local_avg_chroma,
+            threshold=suppression_threshold,
+        )
+    local_key_info = utils.find_best_key(local_avg_chroma)
     local_key_obj = utils.get_key_object(local_key_info["key_signature"])
     logger.info(
         f"Local key detected: {local_key_info['key_signature']} with match score {local_key_info['confidence']:.2f}")
     return local_key_info, local_key_obj, local_chroma, segment_start_sec, segment_end_sec
 
 
-def _perform_analysis(filepath: str, start_time: float, end_time: Optional[float]) -> ModeAnalysisResponse:
+def _perform_analysis(
+    filepath: str,
+    start_time: float,
+    end_time: Optional[float],
+    apply_suppression: bool,
+    suppression_threshold: float,
+) -> ModeAnalysisResponse:
     """Core analysis pipeline, orchestrating global, local, and classification steps."""
     with sf.SoundFile(filepath, 'r') as f:
         sr = f.samplerate
@@ -196,11 +224,23 @@ def _perform_analysis(filepath: str, start_time: float, end_time: Optional[float
     logger.info(f"Successfully opened audio. Duration: {duration:.2f}s, Sample Rate: {sr}Hz")
 
     # --- Step 1: Global Analysis ---
-    global_key_info, global_key_obj = _run_global_analysis(filepath, sr)
+    global_key_info, global_key_obj = _run_global_analysis(
+        filepath,
+        sr,
+        apply_suppression,
+        suppression_threshold,
+    )
 
     # --- Step 2: Local Analysis ---
-    local_key_info, local_key_obj, local_chroma, seg_start, seg_end = _run_local_analysis(filepath, sr, duration,
-                                                                                          start_time, end_time)
+    local_key_info, local_key_obj, local_chroma, seg_start, seg_end = _run_local_analysis(
+        filepath,
+        sr,
+        duration,
+        start_time,
+        end_time,
+        apply_suppression,
+        suppression_threshold,
+    )
 
     # --- Step 3: Classification ---
     logger.info("Classifying region type (modulation vs. shift)...")
@@ -215,9 +255,18 @@ def _perform_analysis(filepath: str, start_time: float, end_time: Optional[float
 
     # --- Step 4 & 5: Assemble Output ---
     logger.info("Assembling final response.")
-    local_chromagram_plot = utils.plot_chromagram(local_chroma, sr,
-                                                  f"Local Chromagram ({seg_start:.1f}s - {seg_end:.1f}s)")
-    local_histogram_plot = utils.plot_histogram(local_chroma.mean(axis=1), "Local Pitch Distribution")
+    local_chromagram_plot = utils.plot_chromagram(
+        local_chroma,
+        sr,
+        f"Local Chromagram ({seg_start:.1f}s - {seg_end:.1f}s)",
+    )
+    hist_vector = local_chroma.mean(axis=1)
+    if apply_suppression:
+        hist_vector = utils.suppress_harmonics(
+            hist_vector,
+            threshold=suppression_threshold,
+        )
+    local_histogram_plot = utils.plot_histogram(hist_vector, "Local Pitch Distribution")
 
     return ModeAnalysisResponse(
         global_=GlobalAnalysis(**global_key_info),
@@ -228,7 +277,7 @@ def _perform_analysis(filepath: str, start_time: float, end_time: Optional[float
             region_type=region_info["type"], region_confidence=region_info["confidence"]
         ),
         analysis=AnalysisDetails(
-            chromagram_summary=local_chroma.mean(axis=1).tolist(),
+            chromagram_summary=hist_vector.tolist(),
             cadence_detected=local_cadence_info["detected"],
             borrowed_tones=region_info["borrowed"],
             cadential_strength=local_cadence_info["strength"]
@@ -247,8 +296,18 @@ def _perform_analysis(filepath: str, start_time: float, end_time: Optional[float
 async def analyze_mode_endpoint(
         audio: UploadFile = File(..., description="The audio file to analyze (e.g., WAV, MP3)"),
         start: float = Form(0.0, description="Start time in seconds for the local segment analysis."),
-        end: Optional[float] = Form(None,
-                                    description="End time in seconds for the local segment analysis. If not provided, analysis uses the full audio.")
+        end: Optional[float] = Form(
+            None,
+            description="End time in seconds for the local segment analysis. If not provided, analysis uses the full audio."
+        ),
+        suppress_harmonics_flag: bool = Form(
+            True,
+            description="Whether to attenuate harmonic intervals before key detection."
+        ),
+        harmonic_threshold: float = Form(
+            0.3,
+            description="Amplitude threshold for harmonic suppression."
+        ),
 ) -> ModeAnalysisResponse:
     """Endpoint to handle audio upload and trigger the analysis pipeline."""
     logger.info(f"Received analysis request for file: {audio.filename}")
@@ -269,7 +328,9 @@ async def analyze_mode_endpoint(
         return _perform_analysis(
             filepath=temp_audio_filepath,
             start_time=start,
-            end_time=end
+            end_time=end,
+            apply_suppression=suppress_harmonics_flag,
+            suppression_threshold=harmonic_threshold,
         )
 
     except ValueError as e:
@@ -285,3 +346,4 @@ async def analyze_mode_endpoint(
         if temp_audio_filepath and os.path.exists(temp_audio_filepath):
             os.remove(temp_audio_filepath)
             logger.info(f"Cleaned up temporary file: {temp_audio_filepath}")
+
