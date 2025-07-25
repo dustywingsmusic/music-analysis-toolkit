@@ -79,7 +79,7 @@ def _run_global_analysis(
     # --- Memory Optimization: Calculate a weighted average on the fly ---
     # This avoids building a large list of arrays and a costly concatenation.
     weighted_chroma_sum = np.zeros(12, dtype=np.float32)
-    total_frames = 0
+    total_onset_weight = 0.0
 
     chunk_size = sr * 5  # 5-second chunks
     with sf.SoundFile(filepath, 'r') as f:
@@ -95,17 +95,23 @@ def _run_global_analysis(
                     y_chunk = np.pad(y_chunk, (0, pad_width), 'constant')
 
                 chunk_chroma = librosa.feature.chroma_cqt(y=y_chunk, sr=sr)
+                onset_env = librosa.onset.onset_strength(
+                    y=y_chunk, sr=sr, hop_length=512
+                )
 
-                # Add the sum of this chunk's chroma features to the total
-                weighted_chroma_sum += np.sum(chunk_chroma, axis=1)
-                total_frames += chunk_chroma.shape[1]
+                weighted_chunk = chunk_chroma * onset_env[np.newaxis, :]
+                weighted_chroma_sum += np.sum(weighted_chunk, axis=1)
+                total_onset_weight += np.sum(onset_env)
 
-    if total_frames == 0:
+    if total_onset_weight == 0:
         raise ValueError(
             f"Audio file is too short for analysis. Minimum duration is ~{MIN_SAMPLES_FOR_CQT / sr:.2f} seconds.")
 
     # Calculate the final average chroma vector
-    global_avg_chroma = weighted_chroma_sum / total_frames
+    if total_onset_weight == 0:
+        global_avg_chroma = weighted_chroma_sum
+    else:
+        global_avg_chroma = weighted_chroma_sum / total_onset_weight
     if apply_suppression:
         global_avg_chroma = utils.suppress_harmonics(
             global_avg_chroma, threshold=suppression_threshold
@@ -151,6 +157,7 @@ def _run_local_analysis(
     if segment_duration_sec > LOCAL_ANALYSIS_STREAMING_THRESHOLD_S:
         logger.info(f"Local segment is large. Using memory-efficient streaming.")
         local_chroma_list = []
+        onset_env_list = []
         chunk_size = sr * 5
 
         with sf.SoundFile(filepath, 'r') as f:
@@ -176,12 +183,17 @@ def _run_local_analysis(
                         y_chunk = np.pad(y_chunk, (0, pad_width), 'constant')
 
                     chunk_chroma = librosa.feature.chroma_cqt(y=y_chunk, sr=sr)
+                    chunk_onset = librosa.onset.onset_strength(
+                        y=y_chunk, sr=sr, hop_length=512
+                    )
                     local_chroma_list.append(chunk_chroma)
+                    onset_env_list.append(chunk_onset)
 
         if not local_chroma_list:
             raise ValueError("Could not process the large local segment.")
 
         local_chroma = np.concatenate(local_chroma_list, axis=1)
+        onset_env = np.concatenate(onset_env_list)
     else:
         logger.info(f"Local segment is small. Using direct in-memory analysis for speed.")
         with sf.SoundFile(filepath, 'r') as f:
@@ -195,9 +207,13 @@ def _run_local_analysis(
                     f"The selected audio segment is too short for analysis. Please select a segment longer than {MIN_SAMPLES_FOR_CQT / sr:.2f} seconds.")
 
             local_chroma = librosa.feature.chroma_cqt(y=y_segment, sr=sr)
+            onset_env = librosa.onset.onset_strength(
+                y=y_segment, sr=sr, hop_length=512
+            )
 
     # --- Continue with the rest of the analysis ---
-    local_avg_chroma = local_chroma.mean(axis=1)
+    weighted_local = local_chroma * onset_env[np.newaxis, :]
+    local_avg_chroma = weighted_local.sum(axis=1) / np.sum(onset_env)
     if apply_suppression:
         local_avg_chroma = utils.suppress_harmonics(
             local_avg_chroma,
