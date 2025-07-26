@@ -16,6 +16,7 @@ interface MidiDetectionPanelProps {
   currentRoot?: number | null;
   onRootSelect?: (pitchClass: number) => void;
   onResetRoot?: () => void;
+  onClearAll?: () => void;
   rootLocked?: boolean;
   historyPitchClasses?: number[];
 }
@@ -27,6 +28,7 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
   currentRoot,
   onRootSelect,
   onResetRoot,
+  onClearAll,
   rootLocked = false,
   historyPitchClasses = []
 }) => {
@@ -43,6 +45,10 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
     clearPlayedNotes();
     if (onScaleHighlight) {
       onScaleHighlight(null);
+    }
+    // Reset all state to match the behavior when no notes are played
+    if (onClearAll) {
+      onClearAll();
     }
   };
 

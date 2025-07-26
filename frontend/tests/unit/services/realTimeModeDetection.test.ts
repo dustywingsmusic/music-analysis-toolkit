@@ -19,7 +19,7 @@ const PC_C = C5 % 12;
 const PC_C_LOW = C4 % 12;
 
 describe('RealTimeModeDetector root handling', () => {
-  it('defaults rootPitch to the lowest pitch class', () => {
+  it('defaults rootPitch to the lowest MIDI note', () => {
     const detector = new RealTimeModeDetector();
 
     detector.addNote(A4, PC_A); // first note sets root to A
@@ -27,15 +27,15 @@ describe('RealTimeModeDetector root handling', () => {
     expect(state.rootPitch).toBe(PC_A);
     expect(state.lowestPitch).toBe(PC_A);
 
-    detector.addNote(C5, PC_C); // higher octave note with lower pitch class
+    detector.addNote(C5, PC_C); // higher octave note - root should NOT change (C5 > A4)
     state = detector.getState();
-    expect(state.rootPitch).toBe(PC_C); // root updates to C
-    expect(state.lowestPitch).toBe(PC_C);
+    expect(state.rootPitch).toBe(PC_A); // root stays A (A4 is lower than C5)
+    expect(state.lowestPitch).toBe(PC_A);
 
-    detector.addNote(C4, PC_C_LOW); // lower note same pitch class
+    detector.addNote(C4, PC_C_LOW); // lower MIDI note - root should change to C
     state = detector.getState();
-    expect(state.rootPitch).toBe(PC_C); // root stays C
-    expect(state.lowestPitch).toBe(PC_C);
+    expect(state.rootPitch).toBe(PC_C); // root updates to C (C4 is lower than A4)
+    expect(state.lowestPitch).toBe(PC_A); // lowestPitch tracks first occurrence
   });
 });
 
