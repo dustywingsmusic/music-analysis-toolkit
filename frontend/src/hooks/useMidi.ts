@@ -64,7 +64,7 @@ export const useMidi = (
         setPlayedPitchClasses(new Set());
       }
 
-      // Add note if pitch class not already present
+      // Add note if pitch class not already present (for chord mode)
       setPlayedNotes(prev => {
         const existingPitchClasses = new Set(prev.map(n => n.number % 12));
         if (existingPitchClasses.has(pitchClass)) return prev;
@@ -98,10 +98,11 @@ export const useMidi = (
 
       setChordDetectionTimeout(timeout);
     } else {
-      // For melody and scale modes
+      // For melody and scale modes - allow different octaves of same pitch class
       setPlayedNotes(prev => {
-        const existingPitchClasses = new Set(prev.map(n => n.number % 12));
-        if (existingPitchClasses.has(pitchClass)) return prev;
+        // Check if this exact MIDI note number already exists
+        const existingMidiNumbers = new Set(prev.map(n => n.number));
+        if (existingMidiNumbers.has(noteNumber)) return prev;
         return [...prev, newNote];
       });
 

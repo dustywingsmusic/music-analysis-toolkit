@@ -245,7 +245,111 @@ export class RealTimeModeDetector {
   }
 
   /**
+   * Check if a pitch class is already in the notes history
+   */
+  private isPitchClassInHistory(pitchClass: number): boolean {
+    return this.state.notesHistory.includes(pitchClass);
+  }
+
+  /**
+   * Check if the given MIDI note number is lower than the current lowest
+   */
+  private isLowestMidiNote(noteNumber: number): boolean {
+    return this.state.lowestMidiNote === null || noteNumber < this.state.lowestMidiNote;
+  }
+
+  /**
+   * Update the lowest MIDI note if the given note is lower
+   */
+  private updateLowestMidiNote(noteNumber: number): boolean {
+    if (this.isLowestMidiNote(noteNumber)) {
+      this.state.lowestMidiNote = noteNumber;
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Consolidated logic for updating root pitch based on lowest MIDI note
+   * Used by both handleExistingPitchClass and addNewPitchClass
+   * 
+   * @param noteNumber - The MIDI note number to check
+   * @param pitchClass - The pitch class to potentially set as root
+   * @param allowManualOverride - Whether to update root when manual override is set
+   * @returns ModeDetectionResult if root was updated, null otherwise
+   */
+  private updateRootFromLowestMidiNote(noteNumber: number, pitchClass: number, allowManualOverride: boolean = false): ModeDetectionResult | null {
+    // Update lowest MIDI note and check if it changed
+    const isLowerMidiNote = this.updateLowestMidiNote(noteNumber);
+    
+    if (isLowerMidiNote) {
+      console.log('📉 Found lower MIDI note for pitch class', pitchClass);
+    }
+
+    // Different logic based on context:
+    // - For existing pitch classes: Update root if (lower MIDI note OR manual root override)
+    // - For new pitch classes: Update root if (lower MIDI note AND NOT manual root override)
+    const shouldUpdateRoot = allowManualOverride 
+      ? (isLowerMidiNote || this.manualRootOverride)  // handleExistingPitchClass behavior
+      : (isLowerMidiNote && !this.manualRootOverride); // addNewPitchClass behavior
+
+    if (shouldUpdateRoot) {
+      const reason = allowManualOverride && this.manualRootOverride && !isLowerMidiNote
+        ? 'manual root override' 
+        : 'lower MIDI note';
+      console.log('🎯 Updating root pitch due to:', reason);
+      
+      this.state.rootPitch = pitchClass;
+      this.recomputeCandidateModes();
+      return this.generateResult();
+    }
+
+    return null; // No root update needed
+  }
+
+  /**
+   * Handle processing of a pitch class that already exists in history
+   * Updates root if a lower MIDI note is found OR if there's a manual root override
+   */
+  private handleExistingPitchClass(noteNumber: number, pitchClass: number): ModeDetectionResult | null {
+    console.log('🔄 Note already in history, checking if it has a lower MIDI number');
+
+    // Use consolidated root update logic with manual override allowed
+    return this.updateRootFromLowestMidiNote(noteNumber, pitchClass, true);
+  }
+
+  /**
+   * Add a new pitch class to the notes history and update related state
+   */
+  private addNewPitchClass(noteNumber: number, pitchClass: number): ModeDetectionResult {
+    const previousPC = this.state.notesHistory[this.state.notesHistory.length - 1];
+    
+    // Add the pitch class to history
+    this.state.notesHistory.push(pitchClass);
+
+    // Update direction based on the new note
+    this.updateDirection(pitchClass, previousPC);
+
+    // Use consolidated root update logic - check if root was updated
+    const rootUpdateResult = this.updateRootFromLowestMidiNote(noteNumber, pitchClass);
+    
+    // If root was updated, return the result immediately
+    if (rootUpdateResult !== null) {
+      return rootUpdateResult;
+    }
+
+    // If no root update occurred, apply strict filtering with the new note
+    return this.strictFiltering(pitchClass);
+  }
+
+  /**
    * Adding a New Note
+   * 
+   * Logic flow:
+   * 1. Check if note class is already in notesHistory
+   * 2. If no: add it to history and process
+   * 3. If yes: don't add to history, but check if MIDI note number is lower
+   * 4. If MIDI note is lower: update lowestMidiNote and potentially root
    */
   public addNote(noteNumber: number, pitchClass: number): ModeDetectionResult | null {
     console.log('🎵 Adding note:', NOTE_NAMES[pitchClass]);
@@ -256,36 +360,13 @@ export class RealTimeModeDetector {
       return this.generateResult();
     }
     
-    // If pitchClass already in notesHistory, ignore and return null to prevent infinite loops
-    if (this.state.notesHistory.includes(pitchClass)) {
-      console.log('🔄 Note already in history, ignoring');
-      return null;
+    // Check if pitch class is already in history BEFORE making any changes
+    if (this.isPitchClassInHistory(pitchClass)) {
+      return this.handleExistingPitchClass(noteNumber, pitchClass);
     }
     
-    // Otherwise append it
-    const previousPC = this.state.notesHistory[this.state.notesHistory.length - 1];
-    this.state.notesHistory.push(pitchClass);
-
-    // Determine/Update Direction
-    this.updateDirection(pitchClass, previousPC);
-
-    // Track lowest MIDI note for informational purposes
-    if (this.state.lowestMidiNote === null || noteNumber < this.state.lowestMidiNote) {
-      this.state.lowestMidiNote = noteNumber;
-    }
-
-    // Update lowest pitch class and adjust root if not manually overridden
-    if (this.state.lowestPitch === null || pitchClass < this.state.lowestPitch) {
-      this.state.lowestPitch = pitchClass;
-      if (!this.manualRootOverride) {
-        this.state.rootPitch = this.state.lowestPitch;
-        this.recomputeCandidateModes();
-        return this.generateResult();
-      }
-    }
-
-    // Strict Filtering
-    return this.strictFiltering(pitchClass);
+    // Add new pitch class to history and process
+    return this.addNewPitchClass(noteNumber, pitchClass);
   }
 
   /**
@@ -496,7 +577,8 @@ export class RealTimeModeDetector {
     console.log('🎯 Setting root pitch to:', NOTE_NAMES[pitchClass]);
 
     this.state.rootPitch = pitchClass;
-    this.state.lowestMidiNote = null;
+    // Preserve lowestMidiNote for "Reset to Lowest Note" functionality
+    // this.state.lowestMidiNote = null; // Removed - this was breaking the reset functionality
     this.manualRootOverride = true;
     this.recomputeCandidateModes();
 

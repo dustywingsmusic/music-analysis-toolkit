@@ -61,7 +61,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
   const [unifiedDetectionResults, setUnifiedDetectionResults] = useState<UnifiedDetectionResult | null>(null);
   
   // Real-time mode detection state
-  const [modeDetector] = useState(() => new RealTimeModeDetector());
+  const [modeDetector, setModeDetector] = useState(() => new RealTimeModeDetector());
   const [modeDetectionResult, setModeDetectionResult] = useState<ModeDetectionResult | null>(null);
   const [rootPitch, setRootPitch] = useState<number | null>(null);
   const [rootLocked, setRootLocked] = useState(false);
@@ -122,15 +122,29 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
 
   const handleResetRoot = () => {
     const state = modeDetector.getState();
-    if (state.notesHistory.length > 0) {
-      const lowest = Math.min(...state.notesHistory);
-      const result = modeDetector.setRootPitch(lowest);
+    if (state.lowestMidiNote !== null) {
+      const lowestPitchClass = state.lowestMidiNote % 12;
+      const result = modeDetector.setRootPitch(lowestPitchClass);
       modeDetector.unlockRootOverride();
       setModeDetectionResult(result);
-      setRootPitch(lowest);
+      setRootPitch(lowestPitchClass);
     }
     setRootLocked(false);
     trackInteraction('Root Reset - Reset to Lowest Note', 'Music Analysis');
+  };
+
+  const handleClearAll = () => {
+    // Reset all state to match the behavior when no notes are played (like in useEffect lines 736-744)
+    setChordSuggestions([]);
+    setUnifiedDetectionResults(null);
+    setModeDetectionResult(null);
+    setViewMode('quick');
+    setRootPitch(null);
+    setRootLocked(false);
+    setNotesHistory([]);
+    // Create a completely new modeDetector instance to ensure no lingering state
+    setModeDetector(new RealTimeModeDetector());
+    trackInteraction('MIDI Detection Panel - Complete Clear All', 'MIDI');
   };
 
 
@@ -732,6 +746,9 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
     };
   }, []);
 
+  // Track processed notes to prevent duplicate processing
+  const [processedNotes, setProcessedNotes] = useState<Set<string>>(new Set());
+
   // Effect to update suggestions and mode detection results based on MIDI data
   useEffect(() => {
     if (!midiData?.playedNotes || midiData.playedNotes.length === 0) {
@@ -739,6 +756,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
       setUnifiedDetectionResults(null);
       setModeDetectionResult(null);
       setViewMode('quick'); // Reset to quick view
+      setProcessedNotes(new Set()); // Clear processed notes tracking
       modeDetector.reset(); // Reset the mode detector
       return;
     }
@@ -749,69 +767,81 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
     }
 
     // Use real-time mode detection for sequential note analysis
-      console.log('🎵 Processing notes with real-time mode detection');
+    console.log('🎵 Processing notes with real-time mode detection');
+    
+    // Process only new notes that haven't been processed yet
+    let currentResult = modeDetectionResult;
+    let hasNewNotes = false;
+    
+    // Create a key for each note to track uniqueness (MIDI number + timestamp or index)
+    const newProcessedNotes = new Set(processedNotes);
+    
+    midiData.playedNotes.forEach((note, index) => {
+      const noteKey = `${note.number}-${index}`; // Use index to ensure uniqueness
       
-      // Reset detector if this is a new session (no current result)
-      if (!modeDetectionResult) {
-        modeDetector.reset();
-      }
-
-      // Process each note sequentially
-      let currentResult = modeDetectionResult;
-      
-      // Get the latest note that was added
-      const latestNote = midiData.playedNotes[midiData.playedNotes.length - 1];
-      if (latestNote) {
-        const pitchClass = latestNote.number % 12;
-        console.log('🎵 Adding note to real-time detector:', pitchClass);
-        const newResult = modeDetector.addNote(latestNote.number, pitchClass);
-        // Only update state if we got a valid result (not null for duplicate notes)
+      if (!newProcessedNotes.has(noteKey)) {
+        const pitchClass = note.number % 12;
+        console.log('🎵 Adding new note to real-time detector:', pitchClass, 'MIDI:', note.number);
+        
+        const newResult = modeDetector.addNote(note.number, pitchClass);
+        // Only update result if we got a valid result (not null for duplicate pitch classes)
         if (newResult !== null) {
           currentResult = newResult;
-          setModeDetectionResult(currentResult);
+          hasNewNotes = true;
         }
+        
+        newProcessedNotes.add(noteKey);
       }
+    });
 
-      const state = modeDetector.getState();
-      if (rootLocked) {
-        if (rootPitch !== null && state.rootPitch !== rootPitch) {
-          const override = modeDetector.setRootPitch(rootPitch);
-          currentResult = override;
-          setModeDetectionResult(currentResult);
-        }
-      } else {
-        setRootPitch(state.rootPitch);
+    // Update processed notes tracking
+    setProcessedNotes(newProcessedNotes);
+    
+    // Update mode detection result only if we processed new notes
+    if (hasNewNotes && currentResult) {
+      setModeDetectionResult(currentResult);
+    }
+
+    // Update state from detector
+    const state = modeDetector.getState();
+    if (rootLocked) {
+      if (rootPitch !== null && state.rootPitch !== rootPitch) {
+        const override = modeDetector.setRootPitch(rootPitch);
+        setModeDetectionResult(override);
       }
-      setNotesHistory(state.notesHistory);
+    } else {
+      setRootPitch(state.rootPitch);
+    }
+    setNotesHistory(state.notesHistory);
 
-      // Adaptive view mode based on note count and mode state
-      const noteCount = midiData.playedNotes.length;
-      if (noteCount >= 7) {
-        setViewMode('detailed'); // Auto-expand for melody mode or complex input
-      } else {
-        setViewMode('quick'); // Default to quick view
-      }
+    // Adaptive view mode based on note count and mode state
+    const noteCount = midiData.playedNotes.length;
+    if (noteCount >= 7) {
+      setViewMode('detailed'); // Auto-expand for melody mode or complex input
+    } else {
+      setViewMode('quick'); // Default to quick view
+    }
 
-      // Update debugging information
-      const playedNoteNames = midiData.playedNotes.map(note => 
-        `${note.name}${note.accidental || ''}${note.octave}`
-      ).join(', ');
+    // Update debugging information
+    const playedNoteNames = midiData.playedNotes.map(note => 
+      `${note.name}${note.accidental || ''}${note.octave}`
+    ).join(', ');
 
-      const sortingDetails = currentResult?.suggestions.map((suggestion, index) => ({
-        name: suggestion.fullName,
-        matchCount: suggestion.matchCount,
-        topModePopularity: suggestion.popularity,
-        containsPlayedNoteAsRoot: true, // All suggestions are based on the root pitch
-        finalRank: index + 1
-      })) || [];
+    const sortingDetails = currentResult?.suggestions.map((suggestion, index) => ({
+      name: suggestion.fullName,
+      matchCount: suggestion.matchCount,
+      topModePopularity: suggestion.popularity,
+      containsPlayedNoteAsRoot: true, // All suggestions are based on the root pitch
+      finalRank: index + 1
+    })) || [];
 
-      setDebugInfo({
-        suggestions: [], // Legacy field, kept for compatibility
-        timestamp: new Date().toLocaleTimeString(),
-        playedNotes: playedNoteNames,
-        sortingDetails: sortingDetails
-      });
-  }, [midiData?.playedNotes, modeDetector, modeDetectionResult]);
+    setDebugInfo({
+      suggestions: [], // Legacy field, kept for compatibility
+      timestamp: new Date().toLocaleTimeString(),
+      playedNotes: playedNoteNames,
+      sortingDetails: sortingDetails
+    });
+  }, [midiData?.playedNotes, modeDetector]); // Removed modeDetectionResult to break dependency cycle
 
   // Adaptive behavior effect - automatically adjust view mode based on note count
   useEffect(() => {
@@ -899,6 +929,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
                   currentRoot={rootPitch}
                   onRootSelect={handleSetRootPitch}
                   onResetRoot={handleResetRoot}
+                  onClearAll={handleClearAll}
                   rootLocked={rootLocked}
                   historyPitchClasses={notesHistory}
                 />
