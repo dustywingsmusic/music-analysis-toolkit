@@ -197,7 +197,7 @@ export const safeParsePlayedNotes = (playedNotes: string): string[] => {
 
 /**
  * Parses a full mode string into tonic and mode components
- * @param fullMode The full mode string (e.g., "F Ionian" or "Ionian")
+ * @param fullMode The full mode string (e.g., "F Ionian", "Ionian", or "Double Harmonic Major Modes Db Ultra-Locrian")
  * @param fallbackTonic Optional fallback tonic if none found in the string
  * @returns Object with tonic and mode properties
  */
@@ -207,6 +207,39 @@ export const parseTonicAndMode = (fullMode: string, fallbackTonic?: string): { t
   }
   
   const parts = fullMode.split(' ');
+  
+  // Handle "Scale Family + Modes + Root + Mode Name" format
+  // e.g., "Double Harmonic Major Modes Db Ultra-Locrian"
+  if (parts.includes('Modes')) {
+    const modesIndex = parts.indexOf('Modes');
+    const scaleFamilyParts = parts.slice(0, modesIndex);
+    const afterModesParts = parts.slice(modesIndex + 1);
+    
+    // Find the root note (should be a valid note name)
+    let rootNote = null;
+    let modeNameParts = [];
+    
+    for (let i = 0; i < afterModesParts.length; i++) {
+      if (isValidNoteName(afterModesParts[i])) {
+        rootNote = afterModesParts[i];
+        modeNameParts = afterModesParts.slice(i + 1);
+        break;
+      }
+    }
+    
+    if (rootNote && modeNameParts.length > 0) {
+      return {
+        tonic: rootNote,
+        mode: modeNameParts.join(' ')
+      };
+    }
+    
+    // Fallback if parsing fails
+    return {
+      tonic: fallbackTonic || 'C',
+      mode: fullMode
+    };
+  }
   
   // Check if we have both tonic and mode, or just mode
   if (parts.length > 1 && isValidNoteName(parts[0])) {
