@@ -1,13 +1,18 @@
 import React, {useState, useEffect} from 'react';
 import QuestionDrivenMusicTool from './components/QuestionDrivenMusicTool';
+import { CookieConsent } from './components/CookieConsent';
+import { AnalyticsManager } from './utils/analyticsManager';
 
 declare const WebMidi: any;
 
 const App: React.FC = () => {
   const [showDebugInfo] = useState<boolean>(false);
 
-  // Application-level MIDI cleanup for additional safety
+  // Application-level MIDI cleanup and Analytics initialization
   useEffect(() => {
+    // Initialize Analytics Manager
+    AnalyticsManager.initialize();
+
     const handleAppCleanup = () => {
       // Global MIDI cleanup
       if (typeof WebMidi !== 'undefined' && WebMidi.enabled) {
@@ -30,6 +35,10 @@ const App: React.FC = () => {
   return (
     <div id="app-container" className="app-container">
       <QuestionDrivenMusicTool showDebugInfo={showDebugInfo} />
+      <CookieConsent
+        onAccept={() => AnalyticsManager.grantConsent()}
+        onDecline={() => AnalyticsManager.revokeConsent()}
+      />
     </div>
   );
 };

@@ -1,7 +1,12 @@
 /**
- * Google Analytics tracking utilities
- * Provides functions for tracking user interactions with gtag
+ * Google Analytics tracking utilities with Advanced Consent Mode
+ * 
+ * In Advanced Consent Mode, Google Analytics is always loaded and configured.
+ * When consent is denied, GA automatically sends cookieless pings instead of full events.
+ * This enables behavioral modeling while respecting user privacy choices.
  */
+
+import { AnalyticsManager } from './analyticsManager';
 
 // Declare gtag function for TypeScript
 declare global {
@@ -16,6 +21,8 @@ declare global {
  */
 export function trackNavClick(label: string): void {
   if (typeof window !== 'undefined' && window.gtag) {
+    // In Advanced Consent Mode, always send events to GA
+    // GA will handle consent internally (full event vs cookieless ping)
     window.gtag('event', 'navigation_click', {
       event_category: 'Navigation',
       event_label: label
