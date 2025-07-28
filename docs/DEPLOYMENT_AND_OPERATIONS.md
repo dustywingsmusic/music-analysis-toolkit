@@ -16,6 +16,9 @@
 
 The Music Theory Toolkit uses a modern deployment architecture with Google Cloud Run hosting a Node.js/Express server that serves the React application and provides logging capabilities. This document covers the complete deployment and operational procedures.
 
+### 🎯 Architecture Evolution Notice
+**Important**: The application is undergoing a major evolution to integrate Reference section analysis capabilities with main features. This will improve theoretical accuracy and reduce AI dependency. Monitor deployment performance during the Music Theory Integration phases. See [Music Theory Integration Roadmap](MUSIC_THEORY_INTEGRATION_ROADMAP.md) for implementation timeline.
+
 ### Architecture Summary
 - **Frontend**: React SPA built with Vite
 - **Server**: Express.js for static serving and API endpoints

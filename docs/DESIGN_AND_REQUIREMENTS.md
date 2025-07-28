@@ -21,6 +21,9 @@ The application follows a user-centric, question-driven interface that directly 
 - "What chords work together?" → Chords & Harmony
 - "Show me scale references" → Reference Tables
 
+### 🎯 Enhanced Design Evolution
+**Critical Update**: Based on music theory validation analysis, the application is evolving to integrate the sophisticated Reference section capabilities with all analysis features. This will create **interconnected learning workflows** that bridge analysis results with comprehensive reference materials, providing both theoretical accuracy and educational continuity. See [Music Theory Integration Roadmap](MUSIC_THEORY_INTEGRATION_ROADMAP.md) for implementation details.
+
 ## User Use Cases
 
 The application supports 28 specific use cases organized into 6 main categories:
@@ -49,14 +52,14 @@ The application supports 28 specific use cases organized into 6 main categories:
 
 ### 🎵 Harmony & Chord Usage  
 **Purpose**: "I want to use modes in writing or analyzing chords."
-**Implementation Status**: ✅ Partially Complete - Modal Chord Analysis working
+**Implementation Status**: 🚨 **CRITICAL REDESIGN REQUIRED** - Current chord progression analysis has theoretical accuracy issues
 **UI Location**: 🎵 Harmony Tab + 🎼 Mode Identification Tab
 
 11. **What chords can I use in this mode?** → 🎵 Harmony → **Mode to Chords** 🔄 Coming Soon
 12. **What chords can I substitute for [chord X] in this key or mode?** → 🎵 Harmony → **Chord Analysis** 🔄 Coming Soon
-13. **Which mode works over a specific chord or progression?** → 🎼 Mode Identification → **Chord Progression** ✅ Working
+13. **Which mode works over a specific chord or progression?** → 🎼 Mode Identification → **Chord Progression** 🚨 **NEEDS REDESIGN** - Over-reliance on AI, missing modal vs. tonal distinction
 14. **Can I use modal interchange here? From which modes?** → 🎵 Harmony → **Modal Interchange** 🔄 Coming Soon
-15. **What chords in this progression are modal and what are their modes?** → 🎵 Harmony → **Modal Chord Analysis** ✅ Working
+15. **What chords in this progression are modal and what are their modes?** → 🎵 Harmony → **Modal Chord Analysis** 🚨 **NEEDS REDESIGN** - Lacks proper Roman numeral analysis and borrowed chord detection
 
 ### 🧠 Theory Clarification  
 **Purpose**: "I want to understand how modes work."
@@ -249,26 +252,40 @@ The application implements a 4-tab navigation structure that maps directly to us
 
 ## Feature Status
 
-### Completed Features ✅
-- **Mode Identification**: Melody, Scale, and Chord Progression analysis
-- **Mode Discovery**: Build from Root with Two-Stage Flow
+### ✅ Completed Features (Theoretically Sound)
 - **Reference Materials**: Quick Reference Cards, Interactive Scale Tables, MIDI Playback
-- **Modal Chord Analysis**: Working chord progression analysis
+- **Local Analysis Engine**: Chord templates (`chordLogic.ts`), real-time mode detection, scale database
 - **Enhanced UI**: Question-driven navigation with 4-tab structure
+- **MIDI Integration**: Real-time input processing with theoretical accuracy
 
-### In Development 🔄
-- **Audio Analysis**: MIDI and audio input for mode identification
-- **Advanced Mode Discovery**: Find by Notes, Compare Modes, Explore Relationships
-- **Harmony Tools**: Mode to Chords, Chord Analysis, Modal Interchange
+### 🚨 Features Requiring Critical Redesign
+- **Chord Progression Analysis**: Over-reliance on AI without theoretical validation
+- **Modal Context Detection**: Missing distinction between borrowed chords and true modal progressions
+- **Roman Numeral Analysis**: Incomplete implementation, lacks functional harmony understanding
+- **Mode Identification**: Some AI-dependent features need local algorithm integration
 
-### Future Enhancements 🔮
-- **Advanced Analysis**: Multi-modal comparison workflows
-- **Enhanced Integration**: Seamless cross-tab workflows
-- **Extended Reference**: Expanded scale families and exotic modes
-- **Composition Tools**: Mode-based composition assistance
-- **Contextual Instructions & Theory Guides**: Implement in-app tutorials and "how-to" guides.
-    - **Example Topic: "How to Calculate a Mode"**: Explain both the standard "count up" method (e.g., C Major's second degree is D, so D Dorian uses C Major's notes starting from D) and the "mirrored" or "negative harmony" concept.
-    - The mirrored concept explains how the interval pattern of a scale can be inverted downwards from the tonic. For example, the major scale pattern (`W-W-H-W-W-W-H`) mirrored downwards from C results in the C Phrygian mode (`C-Bb-Ab-G-F-Eb-Db`), demonstrating a deeper symmetrical relationship between modes.
+### 🔄 Prioritized Redesign Timeline (Based on Integration Roadmap)
+
+#### Phase 1: Foundation Integration (Immediate - 2-4 weeks)
+- **Chord Progression Analysis Redesign**: Use existing chord templates instead of AI
+- **Shared Analysis Context**: Unified state management across all tabs
+- **Cross-Feature Navigation**: Extend "View in Tables" pattern to all features
+
+#### Phase 2: Enhanced Theoretical Foundation (4-8 weeks)
+- **Modal Context Analysis System**: Local detection of characteristic modal movements
+- **Roman Numeral Analysis Engine**: Proper functional harmony without AI dependency
+- **Enhanced Chord Templates**: Extended harmony and modal-specific chord support
+
+#### Phase 3: Educational Integration (8-16 weeks)
+- **Progressive Learning Paths**: Adaptive complexity based on Reference section patterns
+- **Cross-Modal Educational Connections**: Leverage existing scale relationship data
+- **AI-Enhanced Explanations**: Use AI for context while local analysis provides foundation
+
+### 🔮 Future Enhancements (After Integration Complete)
+- **Advanced Composition Tools**: Mode-based composition assistance with theoretical accuracy
+- **Extended Scale Families**: Additional exotic modes validated against music theory
+- **Performance Integration**: Real-time analysis for live performance applications
+- **Educational Tutorials**: In-app theory guides with validated examples
 
 ---
 
