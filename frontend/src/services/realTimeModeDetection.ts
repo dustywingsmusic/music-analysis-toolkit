@@ -96,7 +96,7 @@ const buildNoteNames = (): string[] => {
   const noteNames: string[] = [];
   for (let i = 0; i < 12; i++) {
     const entry = PITCH_CLASS_NAMES[i as keyof typeof PITCH_CLASS_NAMES];
-    noteNames[i] = entry?.normal ?? PARENT_KEYS[i as keyof typeof PARENT_KEYS];
+    noteNames[i] = entry?.normal ?? PARENT_KEYS[i as keyof typeof PARENT_KEYS] ?? 'C';
   }
   return noteNames;
 };
@@ -112,8 +112,12 @@ const getModeNotes = (
 ): string[] => {
   const familyData = allScaleData.find(s => s.name === family);
   if (!familyData) return [];
-  const rootName = PARENT_KEYS[root as keyof typeof PARENT_KEYS];
-  return generateScaleFromIntervals(root, rootName, familyData.modeIntervals[modeIndex]);
+  
+  // Ensure root is within valid range and get a valid note name
+  const normalizedRoot = ((root % 12) + 12) % 12; // Normalize to 0-11 range
+  const rootName = PARENT_KEYS[normalizedRoot as keyof typeof PARENT_KEYS] || 'C';
+  
+  return generateScaleFromIntervals(normalizedRoot, rootName, familyData.modeIntervals[modeIndex]);
 };
 
 // Function to convert MIDI input to proper enharmonic spelling
@@ -440,10 +444,13 @@ export class RealTimeModeDetector {
         const root = mode.actualRoot ?? this.state.rootPitch!;
         const notes = getModeNotes(root, mode.family, mode.modeIndex);
 
+        const normalizedRoot = ((root % 12) + 12) % 12;
+        const rootName = PARENT_KEYS[normalizedRoot as keyof typeof PARENT_KEYS] || 'C';
+        
         const suggestion: ModeSuggestion = {
           family: mode.family,
           name: mode.name,
-          fullName: `${PARENT_KEYS[root as keyof typeof PARENT_KEYS]} ${mode.name}`,
+          fullName: `${rootName} ${mode.name}`,
           matchCount,
           mismatchCount,
           popularity: mode.popularity,
@@ -511,10 +518,13 @@ export class RealTimeModeDetector {
       const root = mode.actualRoot ?? this.state.rootPitch!;
       const notes = getModeNotes(root, mode.family, mode.modeIndex);
 
+      const normalizedRoot = ((root % 12) + 12) % 12;
+      const rootName = PARENT_KEYS[normalizedRoot as keyof typeof PARENT_KEYS] || 'C';
+
       const suggestion: ModeSuggestion = {
         family: mode.family,
         name: mode.name,
-        fullName: `${PARENT_KEYS[root as keyof typeof PARENT_KEYS]} ${mode.name}`,
+        fullName: `${rootName} ${mode.name}`,
         matchCount,
         mismatchCount,
         popularity: mode.popularity,

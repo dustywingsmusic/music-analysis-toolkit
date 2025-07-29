@@ -13,10 +13,10 @@
  */
 
 import React, {useCallback, useEffect, useState} from 'react';
-import NavigationTabs, {TabType} from './NavigationTabs';
+import EnhancedNavigationTabs, {TabType} from './EnhancedNavigationTabs';
 import ModeIdentificationTab, {IdentificationMethod} from './ModeIdentificationTab';
 import ModeDiscoveryTab from './ModeDiscoveryTab';
-import HarmonyTab from './HarmonyTab';
+import EnhancedHarmonyTab from './EnhancedHarmonyTab';
 import ReferenceTab from './ReferenceTab';
 import ChordAnalyzer from './ChordAnalyzer';
 import {analyzeHarmony, analyzeMusic, discoverModes, getSongExamples} from '@/services/geminiService';
@@ -30,6 +30,9 @@ import MidiSettingsPanel from './MidiSettingsPanel';
 import {useMidi} from '@/hooks/useMidi';
 import {logger} from '@/utils/logger';
 import { trackInteraction } from '../utils/tracking';
+import { useAnalysis, useAnalysisActions } from '../contexts/AnalysisContext';
+import IntegrationTestPanel from './IntegrationTestPanel';
+import NavigationDebugger from './NavigationDebugger';
 
 interface QuestionDrivenMusicToolProps {
   showDebugInfo: boolean;
@@ -37,17 +40,20 @@ interface QuestionDrivenMusicToolProps {
 
 
 const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showDebugInfo }) => {
-  const [activeTab, setActiveTab] = useState<TabType>('identify');
   const [highlightIdForReference, setHighlightIdForReference] = useState<string | null>(null);
 
-  // Use the unified results hook
+  // Use enhanced analysis context
+  const { state } = useAnalysis();
+  const { navigateToReference, completeLocalAnalysis, navigateToTab } = useAnalysisActions();
+
+  // Use the unified results hook for backward compatibility
   const {
     unifiedResults,
     setUnifiedResults,
     showUnifiedResults,
     dismissAnalysisPanel,
     updateDisplayPosition
-  } = useUnifiedResults(activeTab);
+  } = useUnifiedResults(state.activeTab);
 
   // Legacy compatibility - keep for backward compatibility during transition
   const [analysisResults, setAnalysisResults] = useState<any>(null);
@@ -101,7 +107,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
   useEffect(() => {
     logger.appInit('Music Theory Toolkit initialized', {
       component: 'QuestionDrivenMusicTool',
-      initialTab: activeTab,
+      initialTab: state.activeTab,
       showDebugInfo,
       timestamp: Date.now()
     });
@@ -213,22 +219,19 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
 
   const handleTabChange = useCallback((tab: TabType) => {
     // Log tab navigation
-    logger.webClick('User navigated to tab', {
+    logger.webClick('Enhanced User navigated to tab', {
       component: 'QuestionDrivenMusicTool',
       action: 'tab_change',
-      previousTab: activeTab,
+      previousTab: state.activeTab,
       newTab: tab,
-      hasVisibleResults: unifiedResults.isVisible
+      hasVisibleResults: unifiedResults.isVisible,
+      hasAnalysisContext: !!state.currentAnalysis
     });
 
-    setActiveTab(tab);
-    // With unified results system, results persist across tabs
-    // Only clear results if explicitly requested or going to reference with no results
-    if (tab === 'reference' && !unifiedResults.isVisible) {
-      // Don't change results visibility when going to reference
-    }
-    // Results remain visible and accessible across all tabs
-  }, [activeTab, unifiedResults.isVisible]);
+    // The EnhancedNavigationTabs handles context updates
+    // Legacy tab change tracking for compatibility
+    trackInteraction(`Tab Navigation - ${tab}`, 'Navigation');
+  }, [state.activeTab, unifiedResults.isVisible, state.currentAnalysis]);
 
   const handleAnalysisRequest = useCallback(async (method: string, data: any) => {
     console.log('Analysis request:', method, data);
@@ -239,7 +242,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
       action: 'analysis_request',
       method,
       dataKeys: Object.keys(data),
-      currentTab: activeTab
+      currentTab: state.activeTab
     });
 
     // Show loading state in unified results
@@ -377,7 +380,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
       action: 'discovery_request',
       method,
       dataKeys: Object.keys(data),
-      currentTab: activeTab
+      currentTab: state.activeTab
     });
 
 
@@ -563,7 +566,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
     if (finalHighlightId) {
       setHighlightIdForReference(finalHighlightId);
     }
-    setActiveTab('reference');
+    navigateToTab('reference');
   }, [analysisResults]);
 
   const handleReturnToInput = useCallback((userInputs: any) => {
@@ -596,7 +599,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
       });
 
       // Switch to identify tab
-      setActiveTab('identify');
+      navigateToTab('identify');
     }
   }, []);
 
@@ -610,7 +613,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
     if (highlightId) {
       setHighlightIdForReference(highlightId);
     }
-    setActiveTab('reference');
+    navigateToTab('reference');
   }, []);
 
   const handleDeeperAnalysis = useCallback(async (mode: ModeFromRoot) => {
@@ -741,10 +744,10 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
       // Show error results
       showUnifiedResultsWithLegacy(errorResult);
     }
-  }, [showUnifiedResultsWithLegacy, activeTab]);
+  }, [showUnifiedResultsWithLegacy, state.activeTab]);
 
   const renderTabContent = () => {
-    switch (activeTab) {
+    switch (state.activeTab) {
       case 'identify':
         return (
           <ModeIdentificationTab 
@@ -770,10 +773,9 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
 
       case 'harmony':
         return (
-          <HarmonyTab 
-            onHarmonyRequest={handleHarmonyRequest}
-            hasResults={unifiedResults.isVisible}
-            isLoading={isLoading}
+          <EnhancedHarmonyTab 
+            hasResults={!!state.currentAnalysis}
+            onSwitchToReferenceWithHighlight={handleSwitchToReferenceWithHighlight}
           />
         );
 
@@ -823,8 +825,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
 
           {/* Right: Navigation & MIDI Settings */}
           <div className="flex items-center gap-4">
-            <NavigationTabs 
-              activeTab={activeTab}
+            <EnhancedNavigationTabs 
               onTabChange={handleTabChange}
             />
             <MidiSettingsPanel 
@@ -899,16 +900,21 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
         </div>
       )}
 
-      {/* Legacy chord analyzer for backward compatibility - hidden by default */}
+      {/* Phase 1 Integration Test Panel */}
       {showDebugInfo && (
-        <div className="debug-panel">
-          <h3>Debug: Legacy Chord Analyzer</h3>
-          <ChordAnalyzer 
-            onSwitchToFinder={handleSwitchToReference}
-            showDebugInfo={showDebugInfo}
-            compact={true}
-            onAnalysisStateChange={() => {}}
-          />
+        <div className="debug-panel space-y-4">
+          <NavigationDebugger />
+          <IntegrationTestPanel />
+          
+          <div className="legacy-debug">
+            <h3>Debug: Legacy Chord Analyzer</h3>
+            <ChordAnalyzer 
+              onSwitchToFinder={handleSwitchToReference}
+              showDebugInfo={showDebugInfo}
+              compact={true}
+              onAnalysisStateChange={() => {}}
+            />
+          </div>
         </div>
       )}
 
