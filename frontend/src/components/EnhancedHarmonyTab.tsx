@@ -1,7 +1,13 @@
 /**
  * Enhanced Harmony Tab
- * Implements the Music Theory Integration Roadmap Phase 1
- * Uses local analysis first with AI enhancement
+ * Implements Comprehensive Music Theory Analysis with Functional-First Approach
+ * 
+ * UI Hierarchy:
+ * 1. Functional Analysis (PRIMARY) - Roman numerals, chord functions, cadences
+ * 2. Modal Enhancement (SECONDARY) - When modal characteristics detected
+ * 3. Chromatic Analysis (ADVANCED) - Secondary dominants, borrowed chords
+ * 
+ * Progressive Disclosure: Simple → Advanced for educational value
  */
 
 import React, { useState } from 'react';
@@ -11,10 +17,13 @@ import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Badge } from "./ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
+import { ChevronDownIcon, ChevronRightIcon, BookOpenIcon, TrendingUpIcon, SparklesIcon } from "lucide-react";
 import { trackInteraction } from '../utils/tracking';
 import { useAnalysis, useAnalysisActions } from '../contexts/AnalysisContext';
-import { analyzeChordProgression } from '../services/hybridAnalysisService';
-import { LocalChordAnalysis } from '../services/localChordProgressionAnalysis';
+import { ComprehensiveAnalysisEngine, ComprehensiveAnalysisResult } from '../services/comprehensiveAnalysisService';
+import { FunctionalChordAnalysis } from '../services/functionalHarmonyAnalysis';
+import DualLensAnalysisPanel from './DualLensAnalysisPanel';
 
 type HarmonyMethod = 'analyze' | 'generate' | 'substitute' | 'progression';
 
@@ -30,9 +39,18 @@ const EnhancedHarmonyTab: React.FC<EnhancedHarmonyTabProps> = ({
   const [activeMethod, setActiveMethod] = useState<HarmonyMethod>('progression');
   const [progressionInput, setProgressionInput] = useState<string>('');
   const [knownKey, setKnownKey] = useState<string>('');
+  const [comprehensiveResult, setComprehensiveResult] = useState<ComprehensiveAnalysisResult | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  
+  // UI State for progressive disclosure
+  const [showModalEnhancement, setShowModalEnhancement] = useState(false);
+  const [showChromaticAnalysis, setShowChromaticAnalysis] = useState(false);
 
-  const { state } = useAnalysis();
-  const { startAnalysis, completeLocalAnalysis, completeAIEnhancement, navigateToReference, setError } = useAnalysisActions();
+  const { startAnalysis, navigateToReference } = useAnalysisActions();
+  
+  // Initialize comprehensive analysis engine
+  const [analysisEngine] = useState(() => new ComprehensiveAnalysisEngine());
 
   const methods = [
     { 
@@ -58,8 +76,8 @@ const EnhancedHarmonyTab: React.FC<EnhancedHarmonyTabProps> = ({
     },
     { 
       id: 'progression' as HarmonyMethod, 
-      label: 'Modal Chord Analysis', 
-      description: 'Enhanced analysis with local music theory algorithms',
+      label: 'Comprehensive Analysis', 
+      description: 'Functional harmony with modal and chromatic enhancements',
       status: 'enhanced',
       statusLabel: 'Enhanced ✨'
     },
@@ -72,29 +90,35 @@ const EnhancedHarmonyTab: React.FC<EnhancedHarmonyTabProps> = ({
     }
 
     try {
-      // Start analysis using unified context
+      setIsAnalyzing(true);
+      setAnalysisError(null);
+      
+      // Perform comprehensive analysis
+      const result = await analysisEngine.analyzeComprehensively(
+        progressionInput, 
+        knownKey.trim() || undefined
+      );
+      
+      setComprehensiveResult(result);
+      
+      // Auto-expand sections based on analysis content
+      if (result.modal) {
+        setShowModalEnhancement(true);
+      }
+      if (result.chromatic) {
+        setShowChromaticAnalysis(true);
+      }
+      
+      // Update legacy context for compatibility
       startAnalysis('chord_progression', progressionInput);
       
-      // Perform hybrid analysis
-      const analysisResult = await analyzeChordProgression(progressionInput, {
-        useLocalFirst: state.preferences.useLocalAnalysisFirst,
-        enableAIEnhancement: state.preferences.enableAIEnhancement,
-        enableCrossValidation: state.preferences.enableCrossValidation,
-        knownKey: knownKey.trim() || undefined
-      });
-
-      // Update context with results
-      completeLocalAnalysis(analysisResult.localResult);
-      
-      if (analysisResult.aiEnhancement) {
-        completeAIEnhancement(analysisResult.aiEnhancement);
-      }
-
-      trackInteraction('Enhanced Chord Progression Analysis', 'Analysis');
+      trackInteraction('Comprehensive Chord Progression Analysis', 'Analysis');
       
     } catch (error) {
       console.error('Analysis failed:', error);
-      setError(error instanceof Error ? error.message : 'Analysis failed');
+      setAnalysisError(error instanceof Error ? error.message : 'Analysis failed');
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
@@ -105,219 +129,172 @@ const EnhancedHarmonyTab: React.FC<EnhancedHarmonyTabProps> = ({
       navigateToReference(mode, tonic, 'chord_progression_analysis');
     }
   };
+  
+  const formatChordFunction = (func: string): string => {
+    const functionLabels: Record<string, string> = {
+      'tonic': 'Tonic (T)',
+      'predominant': 'Predominant (PD)', 
+      'dominant': 'Dominant (D)',
+      'subdominant': 'Subdominant (S)',
+      'leading_tone': 'Leading Tone (LT)',
+      'chromatic': 'Chromatic'
+    };
+    return functionLabels[func] || func;
+  };
+  
+  const getProgressionTypeDescription = (type: string): string => {
+    const descriptions: Record<string, string> = {
+      'authentic_cadence': 'Features strong V-I authentic cadences',
+      'plagal_cadence': 'Features IV-I plagal cadences ("Amen" cadence)',
+      'deceptive_cadence': 'Features V-vi deceptive cadences',
+      'half_cadence': 'Ends on dominant harmony (half cadence)',
+      'circle_of_fifths': 'Follows circle of fifths harmonic sequence',
+      'jazz_standard': 'ii-V-I jazz progression pattern',
+      'blues_progression': 'I-IV-V blues harmonic structure',
+      'modal_progression': 'Emphasizes modal scale relationships',
+      'chromatic_sequence': 'Uses chromatic harmonic sequences',
+      'other': 'Mixed or unique harmonic progression'
+    };
+    return descriptions[type] || type.replace('_', ' ');
+  };
 
-  const renderEnhancedResults = () => {
-    if (!state.currentAnalysis?.results.chordProgression) {
+  const renderComprehensiveResults = () => {
+    if (!comprehensiveResult) {
       return null;
     }
 
-    const chordProgressionResult = state.currentAnalysis.results.chordProgression;
-    const analysis = chordProgressionResult.localAnalysis;
-    const alternatives = chordProgressionResult.alternativeInterpretations;
-    const aiEnhancement = state.aiEnhancement;
-    const crossValidation = state.crossValidation;
-
     return (
-      <div className="enhanced-results-panel space-y-4">
-        {/* Local Analysis Results */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              Local Analysis Results
-              <Badge variant="outline" className="bg-green-50 text-green-700">
-                {(analysis.confidence * 100).toFixed(0)}% Confidence
-              </Badge>
-            </CardTitle>
-            <CardDescription>
-              Theoretically accurate analysis using local music theory algorithms
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div>
-                <strong>Key Center:</strong> {analysis.keyCenter}
-                <Button
-                  variant="link"
-                  size="sm"
-                  className="ml-2 p-0 h-auto"
-                  onClick={() => handleViewInTables(analysis.overallMode, analysis.keyCenter.split(' ')[0])}
-                >
-                  View in Tables →
-                </Button>
-              </div>
-              <div><strong>Overall Mode:</strong> {analysis.overallMode}</div>
-              
-              {/* Chord-by-chord analysis */}
-              <div>
-                <strong>Chord Analysis:</strong>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                  {analysis.chords.map((chord: LocalChordAnalysis, index: number) => (
-                    <div key={index} className="border rounded p-2 text-sm">
-                      <div className="font-medium">{chord.chordSymbol}</div>
-                      <div className="text-gray-600">
-                        {chord.romanNumeral} - {chord.function}
-                        {chord.isModal && <Badge variant="secondary" className="ml-1">Modal</Badge>}
+      <div className="comprehensive-results-panel space-y-6">
+        {/* New Dual-Lens Analysis Panel */}
+        <DualLensAnalysisPanel 
+          result={comprehensiveResult}
+          onViewInTables={handleViewInTables}
+        />
+        
+        {/* TERTIARY: Chromatic Analysis (Advanced) - Keep as-is for now */}
+        {comprehensiveResult.chromatic && (
+          <Collapsible open={showChromaticAnalysis} onOpenChange={setShowChromaticAnalysis}>
+            <Card className="border-2 border-orange-200 bg-orange-50/30">
+              <CollapsibleTrigger asChild>
+                <CardHeader className="cursor-pointer hover:bg-orange-50/50 transition-colors">
+                  <CardTitle className="flex items-center gap-3 text-lg">
+                    {showChromaticAnalysis ? (
+                      <ChevronDownIcon className="h-5 w-5 text-orange-600" />
+                    ) : (
+                      <ChevronRightIcon className="h-5 w-5 text-orange-600" />
+                    )}
+                    <TrendingUpIcon className="h-5 w-5 text-orange-600" />
+                    Chromatic Harmony Analysis
+                    <Badge variant="outline" className="bg-orange-100 text-orange-800">
+                      Advanced
+                    </Badge>
+                    <Badge variant="outline" className="text-xs">
+                      Click to {showChromaticAnalysis ? 'collapse' : 'expand'}
+                    </Badge>
+                  </CardTitle>
+                  <CardDescription>
+                    Advanced harmonic techniques: secondary dominants, borrowed chords, and chromatic mediants
+                  </CardDescription>
+                </CardHeader>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <CardContent className="space-y-4">
+                  {/* Secondary Dominants */}
+                  {comprehensiveResult.chromatic.secondaryDominants.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold mb-2">Secondary Dominants</h4>
+                      <div className="space-y-2">
+                        {comprehensiveResult.chromatic.secondaryDominants.map((secondary, index) => (
+                          <div key={index} className="p-3 bg-card rounded border">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="font-medium">{secondary.chord} ({secondary.romanNumeral})</span>
+                              <Badge variant="outline" className="bg-orange-100 text-orange-700">
+                                → {secondary.target}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{secondary.explanation}</p>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Modal analysis */}
-              {analysis.modalChords.length > 0 && (
-                <div>
-                  <strong>Modal Elements:</strong>
-                  <div className="text-sm text-gray-700 mt-1">
-                    {analysis.modalInterchange}
-                  </div>
-                </div>
-              )}
-              
-              {/* Analysis explanation */}
-              {analysis.explanation && (
-                <div>
-                  <strong>Analysis Method:</strong>
-                  <div className="text-sm text-gray-700 mt-1">
-                    {analysis.explanation}
-                  </div>
-                </div>
-              )}
+                  )}
+                  
+                  {/* Borrowed Chords */}
+                  {comprehensiveResult.chromatic.borrowedChords.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold mb-2">Borrowed Chords</h4>
+                      <div className="space-y-2">
+                        {comprehensiveResult.chromatic.borrowedChords.map((borrowed, index) => (
+                          <div key={index} className="p-3 bg-card rounded border">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="font-medium">{borrowed.chord} ({borrowed.romanNumeral})</span>
+                              <Badge variant="outline" className="bg-blue-100 text-blue-700">
+                                from {borrowed.borrowedFrom}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{borrowed.explanation}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Resolution Patterns */}
+                  {comprehensiveResult.chromatic.resolutionPatterns.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold mb-2">Harmonic Resolutions</h4>
+                      <div className="space-y-2">
+                        {comprehensiveResult.chromatic.resolutionPatterns.map((pattern, index) => (
+                          <div key={index} className="p-3 bg-card rounded border">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="font-medium">{pattern.from} → {pattern.to}</span>
+                              <Badge variant="outline" className={`${
+                                pattern.type === 'strong' ? 'bg-green-100 text-green-700' :
+                                pattern.type === 'weak' ? 'bg-yellow-100 text-yellow-700' :
+                                'bg-red-100 text-red-700'
+                              }`}>
+                                {pattern.type} resolution
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{pattern.explanation}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </CollapsibleContent>
+            </Card>
+          </Collapsible>
+        )}
+        
+        {/* Pedagogical Guidance */}
+        <Card className="border-2 border-green-200 bg-green-50/30">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <BookOpenIcon className="h-5 w-5 text-green-600" />
+              Learning Guidance
+            </CardTitle>
+            <CardDescription>
+              Understanding which analytical approach works best for this progression
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div>
+              <strong className="text-sm font-semibold text-green-700">Recommended Approach:</strong>
+              <Badge variant="outline" className="ml-2 bg-green-100 text-green-800 capitalize">
+                {comprehensiveResult.primaryApproach} Analysis
+              </Badge>
+            </div>
+            <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+              <p className="text-sm text-green-800">{comprehensiveResult.pedagogicalValue}</p>
+            </div>
+            <div className="p-3 bg-card rounded-lg border">
+              <strong className="text-sm font-semibold text-card-foreground">Comprehensive Explanation:</strong>
+              <p className="text-sm text-card-foreground mt-1">{comprehensiveResult.explanation}</p>
             </div>
           </CardContent>
         </Card>
-
-        {/* Alternative Interpretations */}
-        {alternatives && alternatives.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                Alternative Interpretations
-                <Badge variant="outline">
-                  {alternatives.length} Option{alternatives.length > 1 ? 's' : ''}
-                </Badge>
-              </CardTitle>
-              <CardDescription>
-                Other theoretically valid ways to analyze this progression
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {alternatives.map((alt, index) => (
-                  <div key={index} className="border rounded p-3 bg-gray-50">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium">
-                        {alt.keyCenter} - {alt.source === 'user-guided' ? 'User Context' : 
-                         alt.source === 'structural' ? 'Structural Analysis' : 'Algorithmic'}
-                      </h4>
-                      <Badge variant="secondary">
-                        {(alt.confidence * 100).toFixed(0)}% Confidence
-                      </Badge>
-                    </div>
-                    
-                    <div className="text-sm text-gray-700 mb-2">
-                      {alt.explanation}
-                    </div>
-                    
-                    <div className="text-sm">
-                      <strong>Roman Numerals:</strong>{' '}
-                      {alt.chords.map(chord => chord.romanNumeral).join(' - ')}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* AI Enhancement Results */}
-        {aiEnhancement && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                AI Enhancement
-                <Badge variant="outline" className="bg-blue-50 text-blue-700">
-                  Contextual
-                </Badge>
-              </CardTitle>
-              <CardDescription>
-                Song examples and additional musical context
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {aiEnhancement.theoreticalExplanation && (
-                  <div>
-                    <strong>Theory Insights:</strong>
-                    <p className="text-sm text-gray-700 mt-1">{aiEnhancement.theoreticalExplanation}</p>
-                  </div>
-                )}
-                
-                {aiEnhancement.songExamples.length > 0 && (
-                  <div>
-                    <strong>Song Examples:</strong>
-                    <ul className="text-sm text-gray-700 mt-1">
-                      {aiEnhancement.songExamples.map((song, index) => (
-                        <li key={index}>• {song}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {aiEnhancement.genres.length > 0 && (
-                  <div>
-                    <strong>Common Genres:</strong>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {aiEnhancement.genres.map((genre, index) => (
-                        <Badge key={index} variant="outline">{genre}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Cross-validation Results */}
-        {crossValidation && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                Cross-Validation
-                <Badge 
-                  variant="outline" 
-                  className={crossValidation.agreement > 0.8 ? "bg-green-50 text-green-700" : "bg-yellow-50 text-yellow-700"}
-                >
-                  {(crossValidation.agreement * 100).toFixed(0)}% Agreement
-                </Badge>
-              </CardTitle>
-              <CardDescription>
-                Comparison between local analysis and AI results
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div>
-                  <strong>Recommended Interpretation:</strong> 
-                  <Badge variant="outline" className="ml-1">
-                    {crossValidation.recommendedInterpretation}
-                  </Badge>
-                </div>
-                
-                {crossValidation.discrepancies.length > 0 && (
-                  <div>
-                    <strong>Discrepancies:</strong>
-                    <ul className="text-sm text-gray-700 mt-1">
-                      {crossValidation.discrepancies.map((discrepancy, index) => (
-                        <li key={index}>• {discrepancy}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
       </div>
     );
   };
@@ -327,8 +304,8 @@ const EnhancedHarmonyTab: React.FC<EnhancedHarmonyTabProps> = ({
       return (
         <div className="input-panel">
           <div className="text-center py-8">
-            <p className="text-gray-600">This feature is coming soon!</p>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-muted-foreground">This feature is coming soon!</p>
+            <p className="text-sm text-muted-foreground mt-2">
               Focus is currently on enhanced chord progression analysis.
             </p>
           </div>
@@ -350,42 +327,60 @@ const EnhancedHarmonyTab: React.FC<EnhancedHarmonyTabProps> = ({
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="known-key">Known key (optional):</Label>
+          <Label htmlFor="parent-key-signature">Parent key signature (optional):</Label>
           <Input
-            id="known-key"
+            id="parent-key-signature"
             value={knownKey}
             onChange={(e) => setKnownKey(e.target.value)}
-            placeholder="e.g., A major, Bb minor, F# major"
+            placeholder="e.g., C major, Bb major, F# minor"
             className="w-full"
           />
-          <p className="text-sm text-gray-600">
-            If you know what key the music is in, enter it here to improve analysis accuracy
+          <p className="text-sm text-muted-foreground">
+            Optional: Specify the parent key signature to guide analysis. Leave blank for automatic key detection using functional harmony principles.
           </p>
         </div>
         
-        <p className="input-panel__help">
-          Enter chords separated by spaces. Use | to separate measures. Enhanced with local music theory analysis!
+        <p className="input-panel__help text-muted-foreground">
+          Enter chords separated by spaces. Use | to separate measures. Comprehensive analysis with functional, modal, and chromatic perspectives!
         </p>
         <div className="progression-examples">
-          <p><strong>Try these progressions:</strong></p>
-          <div className="progression-examples__list">
+          <p><strong>Try these example progressions:</strong></p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
             <button 
-              className="progression-example" 
-              onClick={() => setProgressionInput('Am F C G')}
+              className="p-3 text-left border rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border-blue-200 bg-blue-50/30 dark:bg-blue-900/10 dark:border-blue-700" 
+              onClick={() => {
+                setProgressionInput('Am F C G');
+                setKnownKey('C major');
+              }}
+              title="Classic functional progression - great for learning Roman numeral analysis"
             >
-              vi-IV-I-V (Am F C G)
+              <div className="font-medium text-blue-800 dark:text-blue-200">Functional Example</div>
+              <div className="text-sm text-blue-600 dark:text-blue-300 font-mono">Am F C G</div>
+              <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">vi-IV-I-V progression</div>
             </button>
             <button 
-              className="progression-example" 
-              onClick={() => setProgressionInput('Dm G Em Am')}
+              className="p-3 text-left border rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors border-purple-200 bg-purple-50/30 dark:bg-purple-900/10 dark:border-purple-700" 
+              onClick={() => {
+                setProgressionInput('G F C G');
+                setKnownKey('C major');
+              }}
+              title="Mixolydian modal progression - demonstrates when modal analysis adds value"
             >
-              Modal Example (Dm G Em Am)
+              <div className="font-medium text-purple-800 dark:text-purple-200">Modal Example</div> 
+              <div className="text-sm text-purple-600 dark:text-purple-300 font-mono">G F C G</div>
+              <div className="text-xs text-purple-600 dark:text-purple-400 mt-1">bVII-I cadence (G Mixolydian)</div>
             </button>
             <button 
-              className="progression-example" 
-              onClick={() => setProgressionInput('Cmaj7 Am7 Dm7 G7')}
+              className="p-3 text-left border rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors border-orange-200 bg-orange-50/30 dark:bg-orange-900/10 dark:border-orange-700" 
+              onClick={() => {
+                setProgressionInput('C A7 Dm G7 C');
+                setKnownKey('C major');
+              }}
+              title="Secondary dominants - showcases chromatic harmony analysis"
             >
-              Jazz Standard (Cmaj7 Am7 Dm7 G7)
+              <div className="font-medium text-orange-800 dark:text-orange-200">Chromatic Example</div>
+              <div className="text-sm text-orange-600 dark:text-orange-300 font-mono">C A7 Dm G7 C</div>
+              <div className="text-xs text-orange-600 dark:text-orange-400 mt-1">I-V/ii-ii-V-I</div>
             </button>
           </div>
         </div>
@@ -396,9 +391,9 @@ const EnhancedHarmonyTab: React.FC<EnhancedHarmonyTabProps> = ({
   return (
     <div className="harmony-tab">
       <div className="tab-header">
-        <h2 className="tab-header__title">Enhanced Chords & Harmony</h2>
+        <h2 className="tab-header__title">Comprehensive Harmony Analysis</h2>
         <p className="tab-header__subtitle">
-          Local music theory analysis with AI enhancement and cross-validation
+          Functional harmony foundation with modal and chromatic enhancements - educational progressive disclosure
         </p>
       </div>
 
@@ -408,7 +403,7 @@ const EnhancedHarmonyTab: React.FC<EnhancedHarmonyTabProps> = ({
             <button
               key={method.id}
               onClick={() => {
-                trackInteraction(`Enhanced Method Selector - ${method.label}`, 'Navigation');
+                trackInteraction(`Comprehensive Method Selector - ${method.label}`, 'Navigation');
                 setActiveMethod(method.id);
               }}
               className={`method-selector__card ${
@@ -437,22 +432,24 @@ const EnhancedHarmonyTab: React.FC<EnhancedHarmonyTabProps> = ({
         <div className="input-section__actions">
           <Button
             onClick={handleAnalyze}
-            disabled={state.isAnalyzing || activeMethod !== 'progression' || !progressionInput.trim()}
+            disabled={isAnalyzing || activeMethod !== 'progression' || !progressionInput.trim()}
+            size="lg"
+            className="w-full md:w-auto"
           >
-            {state.isAnalyzing ? 'Analyzing...' : 
-             activeMethod === 'progression' ? 'Analyze Progression (Enhanced)' : 'Coming Soon'}
+            {isAnalyzing ? 'Analyzing...' : 
+             activeMethod === 'progression' ? 'Analyze with Comprehensive Framework' : 'Coming Soon'}
           </Button>
           
-          {state.lastError && (
-            <div className="text-red-600 text-sm mt-2">
-              Error: {state.lastError}
+          {analysisError && (
+            <div className="text-red-600 text-sm mt-2 p-2 bg-red-50 rounded border border-red-200">
+              <strong>Error:</strong> {analysisError}
             </div>
           )}
         </div>
       </div>
 
-      {/* Enhanced Results Display */}
-      {renderEnhancedResults()}
+      {/* Comprehensive Results Display */}
+      {renderComprehensiveResults()}
     </div>
   );
 };

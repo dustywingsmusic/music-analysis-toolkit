@@ -1,0 +1,441 @@
+{
+  "metadata": {
+    "title": "Comprehensive Modal Logic Validation Dataset",
+    "description": "Systematic test cases for identifying all modal logic issues across multiple analysis systems",
+    "created": "2025-07-31",
+    "totalCases": 16,
+    "systems": ["Enhanced Modal Analyzer", "Comprehensive Analysis Engine", "Legacy Local Analysis"],
+    "purpose": "Generate exhaustive output of all possible mode results for systematic issue identification"
+  },
+  "testCases": [
+    {
+      "id": 1,
+      "category": "clear_modal",
+      "input": {
+        "progression": "G F C G",
+        "chords": ["G", "F", "C", "G"],
+        "parentKey": "C major",
+        "description": "Classic G Mixolydian I-bVII-IV-I"
+      },
+      "expected": {
+        "modal": true,
+        "mode": "G Mixolydian",
+        "confidence": "high",
+        "pattern": "I-bVII-IV-I",
+        "reasoning": "Contains characteristic bVII-I modal cadence within parent key context"
+      },
+      "validation": {
+        "criticalTest": true,
+        "theoreticalBasis": "Mixolydian mode is defined by the bVII chord, creating the I-bVII progression",
+        "commonErrors": ["Detected as functional I-IV-V", "Wrong mode identification", "Low confidence on clear pattern"]
+      }
+    },
+    {
+      "id": 2,
+      "category": "clear_modal",
+      "input": {
+        "progression": "D C G D",
+        "chords": ["D", "C", "G", "D"],
+        "parentKey": "G major",
+        "description": "D Mixolydian I-bVII-IV-I"
+      },
+      "expected": {
+        "modal": true,
+        "mode": "D Mixolydian",
+        "confidence": "high",
+        "pattern": "I-bVII-IV-I",
+        "reasoning": "D as tonic with C natural (bVII) indicates D Mixolydian mode"
+      },
+      "validation": {
+        "criticalTest": true,
+        "theoreticalBasis": "D Mixolydian uses G major scale with D as tonal center",
+        "commonErrors": ["Detected as G major functional", "Wrong mode identification"]
+      }
+    },
+    {
+      "id": 3,
+      "category": "clear_modal",
+      "input": {
+        "progression": "A G D A",
+        "chords": ["A", "G", "D", "A"],
+        "parentKey": "D major",
+        "description": "A Mixolydian I-bVII-IV-I"
+      },
+      "expected": {
+        "modal": true,
+        "mode": "A Mixolydian",
+        "confidence": "high",
+        "pattern": "I-bVII-IV-I",
+        "reasoning": "A as tonic with G natural (bVII) indicates A Mixolydian mode"
+      },
+      "validation": {
+        "criticalTest": true,
+        "theoreticalBasis": "A Mixolydian uses D major scale with A as tonal center",
+        "commonErrors": ["Detected as D major functional", "Wrong confidence level"]
+      }
+    },
+    {
+      "id": 4,
+      "category": "clear_modal",
+      "input": {
+        "progression": "G F G",
+        "chords": ["G", "F", "G"],
+        "parentKey": "C major",
+        "description": "G Mixolydian I-bVII-I cadence"
+      },
+      "expected": {
+        "modal": true,
+        "mode": "G Mixolydian",
+        "confidence": "high",
+        "pattern": "I-bVII-I",
+        "reasoning": "Direct bVII-I cadence is the defining characteristic of Mixolydian mode"
+      },
+      "validation": {
+        "criticalTest": true,
+        "theoreticalBasis": "bVII-I is the most characteristic modal cadence in Mixolydian",
+        "commonErrors": ["Insufficient context detected", "Low confidence on clear pattern"]
+      }
+    },
+    {
+      "id": 5,
+      "category": "clear_modal",
+      "input": {
+        "progression": "F G",
+        "chords": ["F", "G"],
+        "parentKey": "C major",
+        "description": "bVII-I cadence (minimal context)"
+      },
+      "expected": {
+        "modal": true,
+        "mode": "G Mixolydian",
+        "confidence": "medium",
+        "pattern": "bVII-I",
+        "reasoning": "Even with minimal context, bVII-I is a clear modal indicator"
+      },
+      "validation": {
+        "criticalTest": true,
+        "theoreticalBasis": "bVII-I cadence is sufficient for modal identification when parent key is known",
+        "commonErrors": ["Insufficient context", "No modal detection", "Wrong confidence"]
+      }
+    },
+    {
+      "id": 6,
+      "category": "clear_functional",
+      "input": {
+        "progression": "C F G C",
+        "chords": ["C", "F", "G", "C"],
+        "parentKey": "C major",
+        "description": "C major I-IV-V-I functional"
+      },
+      "expected": {
+        "modal": false,
+        "mode": null,
+        "confidence": "high",
+        "pattern": "I-IV-V-I",
+        "reasoning": "Classic functional progression without modal characteristics"
+      },
+      "validation": {
+        "criticalTest": true,
+        "theoreticalBasis": "I-IV-V-I is the archetypal functional progression",
+        "commonErrors": ["False modal detection", "Detected as C Ionian", "High confidence on functional"]
+      }
+    },
+    {
+      "id": 7,
+      "category": "clear_functional",
+      "input": {
+        "progression": "G C D G",
+        "chords": ["G", "C", "D", "G"],
+        "parentKey": "G major",
+        "description": "G major I-IV-V-I functional"
+      },
+      "expected": {
+        "modal": false,
+        "mode": null,
+        "confidence": "high",
+        "pattern": "I-IV-V-I",
+        "reasoning": "Standard functional progression in G major"
+      },
+      "validation": {
+        "criticalTest": true,
+        "theoreticalBasis": "I-IV-V-I functional harmony with no modal characteristics",
+        "commonErrors": ["False modal detection", "System conflicts on clear functional"]
+      }
+    },
+    {
+      "id": 8,
+      "category": "clear_functional",
+      "input": {
+        "progression": "C Am F G",
+        "chords": ["C", "Am", "F", "G"],
+        "parentKey": "C major",
+        "description": "C major I-vi-IV-V functional"
+      },
+      "expected": {
+        "modal": false,
+        "mode": null,
+        "confidence": "high",
+        "pattern": "I-vi-IV-V",
+        "reasoning": "Common pop progression using functional harmony"
+      },
+      "validation": {
+        "criticalTest": true,
+        "theoreticalBasis": "I-vi-IV-V is a standard functional progression",
+        "commonErrors": ["False modal detection", "Ambiguous tonal center interpretation"]
+      }
+    },
+    {
+      "id": 9,
+      "category": "clear_functional",
+      "input": {
+        "progression": "Am F C G",
+        "chords": ["Am", "F", "C", "G"],
+        "parentKey": "C major",
+        "description": "vi-IV-I-V in C major (functional)"
+      },
+      "expected": {
+        "modal": false,
+        "mode": null,
+        "confidence": "medium",
+        "pattern": "vi-IV-I-V",
+        "reasoning": "Functional progression starting on vi, still in C major context"
+      },
+      "validation": {
+        "criticalTest": true,
+        "theoreticalBasis": "vi-IV-I-V maintains functional harmony despite starting on vi",
+        "commonErrors": ["A minor modal detection", "Tonal center confusion"]
+      }
+    },
+    {
+      "id": 10,
+      "category": "other_modal",
+      "input": {
+        "progression": "Dm G Dm",
+        "chords": ["Dm", "G", "Dm"],
+        "parentKey": "C major",
+        "description": "D Dorian i-IV-i"
+      },
+      "expected": {
+        "modal": true,
+        "mode": "D Dorian",
+        "confidence": "medium",
+        "pattern": "i-IV-i",
+        "reasoning": "Minor tonic with major IV chord indicates Dorian mode"
+      },
+      "validation": {
+        "criticalTest": true,
+        "theoreticalBasis": "D Dorian i-IV-i uses the characteristic major IV in minor mode",
+        "commonErrors": ["Wrong mode identification", "Detected as Mixolydian", "Functional interpretation"]
+      }
+    },
+    {
+      "id": 11,
+      "category": "other_modal",
+      "input": {
+        "progression": "Em F Em",
+        "chords": ["Em", "F", "Em"],
+        "parentKey": "D major",
+        "description": "E Phrygian i-bII-i"
+      },
+      "expected": {
+        "modal": true,
+        "mode": "E Phrygian",
+        "confidence": "medium",
+        "pattern": "i-bII-i",
+        "reasoning": "Minor tonic with bII chord indicates Phrygian mode"
+      },
+      "validation": {
+        "criticalTest": true,
+        "theoreticalBasis": "E Phrygian i-bII-i uses the characteristic bII chord",
+        "commonErrors": ["Wrong mode identification", "System doesn't recognize Phrygian", "Low confidence"]
+      }
+    },
+    {
+      "id": 12,
+      "category": "ambiguous",
+      "input": {
+        "progression": "G C D G",
+        "chords": ["G", "C", "D", "G"],
+        "parentKey": null,
+        "description": "G-C-D-G without parent key (ambiguous)"
+      },
+      "expected": {
+        "modal": false,
+        "mode": null,
+        "confidence": "low",
+        "pattern": "ambiguous",
+        "reasoning": "Without parent key context, this appears to be G major I-IV-V-I functional"
+      },
+      "validation": {
+        "criticalTest": false,
+        "theoreticalBasis": "G-C-D-G most likely represents functional G major harmony",
+        "commonErrors": ["High confidence without context", "Modal detection without evidence"]
+      }
+    },
+    {
+      "id": 13,
+      "category": "ambiguous",
+      "input": {
+        "progression": "G F C G",
+        "chords": ["G", "F", "C", "G"],
+        "parentKey": null,
+        "description": "G-F-C-G without parent key (modal pattern)"
+      },
+      "expected": {
+        "modal": true,
+        "mode": "G Mixolydian",
+        "confidence": "medium",
+        "pattern": "I-bVII-IV-I",
+        "reasoning": "bVII-I cadence indicates modal even without explicit parent key"
+      },
+      "validation": {
+        "criticalTest": true,
+        "theoreticalBasis": "The F-G progression suggests bVII-I which implies modal harmony",
+        "commonErrors": ["No modal detection", "Low confidence on clear pattern", "Wrong mode"]
+      }
+    },
+    {
+      "id": 14,
+      "category": "edge_case",
+      "input": {
+        "progression": "C",
+        "chords": ["C"],
+        "parentKey": null,
+        "description": "Single chord (insufficient context)"
+      },
+      "expected": {
+        "modal": false,
+        "mode": null,
+        "confidence": "low",
+        "pattern": "insufficient",
+        "reasoning": "Single chord provides no harmonic context for modal analysis"
+      },
+      "validation": {
+        "criticalTest": false,
+        "theoreticalBasis": "Modal analysis requires harmonic progression, not single chords",
+        "commonErrors": ["False modal detection", "High confidence on insufficient data", "System crashes"]
+      }
+    },
+    {
+      "id": 15,
+      "category": "edge_case",
+      "input": {
+        "progression": "G G",
+        "chords": ["G", "G"],
+        "parentKey": null,
+        "description": "Repeated chord (no progression)"
+      },
+      "expected": {
+        "modal": false,
+        "mode": null,
+        "confidence": "low",
+        "pattern": "static",
+        "reasoning": "No harmonic movement means no modal characteristics can be determined"
+      },
+      "validation": {
+        "criticalTest": false,
+        "theoreticalBasis": "Modal analysis requires harmonic progression between different chords",
+        "commonErrors": ["False modal detection", "System doesn't handle repeated chords"]
+      }
+    },
+    {
+      "id": 16,
+      "category": "edge_case",
+      "input": {
+        "progression": "C C# D",
+        "chords": ["C", "C#", "D"],
+        "parentKey": null,
+        "description": "Chromatic progression (non-modal)"
+      },
+      "expected": {
+        "modal": false,
+        "mode": null,
+        "confidence": "high",
+        "pattern": "chromatic",
+        "reasoning": "Chromatic progression doesn't fit modal or functional diatonic frameworks"
+      },
+      "validation": {
+        "criticalTest": false,
+        "theoreticalBasis": "Chromatic progressions are outside standard modal/functional analysis",
+        "commonErrors": ["False modal detection", "System confusion on chromatic input"]
+      }
+    }
+  ],
+  "validationFramework": {
+    "systemsToTest": [
+      {
+        "name": "Enhanced Modal Analyzer",
+        "threshold": 0.7,
+        "outputs": ["modal", "mode", "confidence", "romanNumerals", "evidence"],
+        "criticalChecks": ["confidence calibration", "mode accuracy", "pattern recognition"]
+      },
+      {
+        "name": "Comprehensive Analysis Engine",
+        "outputs": ["modal", "primaryApproach", "modalConfidence"],
+        "criticalChecks": ["functional vs modal decision", "integration consistency"]
+      },
+      {
+        "name": "Legacy Local Analysis",
+        "threshold": 0.7,
+        "outputs": ["modal", "mode", "confidence"],
+        "criticalChecks": ["baseline comparison", "parent key handling"]
+      }
+    ],
+    "conflictTypes": [
+      "Enhanced vs Comprehensive modal detection disagreement",
+      "Enhanced vs Legacy modal detection disagreement",
+      "Mode identification inconsistency",
+      "Confidence score conflicts"
+    ],
+    "theoreticalErrors": [
+      "Should detect modal but system does not",
+      "Should not detect modal but system does",
+      "Wrong mode identification",
+      "Poor confidence calibration"
+    ]
+  },
+  "expectedResults": {
+    "clearModalCases": {
+      "ids": [1, 2, 3, 4, 5],
+      "expectation": "All systems should detect modal with medium to high confidence",
+      "commonFailures": ["Low confidence", "No detection", "Wrong mode"]
+    },
+    "clearFunctionalCases": {
+      "ids": [6, 7, 8, 9],
+      "expectation": "All systems should NOT detect modal",
+      "commonFailures": ["False modal detection", "System conflicts"]
+    },
+    "otherModalCases": {
+      "ids": [10, 11],
+      "expectation": "Systems should detect correct modal type (Dorian, Phrygian)",
+      "commonFailures": ["Wrong mode identification", "Defaulting to Mixolydian"]
+    },
+    "ambiguousCases": {
+      "ids": [12, 13],
+      "expectation": "System-dependent results acceptable, but should be consistent",
+      "commonFailures": ["High confidence on ambiguous cases", "System conflicts"]
+    },
+    "edgeCases": {
+      "ids": [14, 15, 16],
+      "expectation": "Graceful handling with appropriate low confidence",
+      "commonFailures": ["System crashes", "False detections", "High confidence on insufficient data"]
+    }
+  },
+  "usageInstructions": {
+    "step1": "Run each test case through all three analysis systems",
+    "step2": "Compare actual results against expected results",
+    "step3": "Identify system conflicts and theoretical errors",
+    "step4": "Generate structured output for external analysis",
+    "step5": "Use findings to implement systematic modal logic fixes",
+    "step6": "Re-run validation to confirm improvements"
+  },
+  "benefits": [
+    "Systematic coverage of all modal logic scenarios",
+    "Automated conflict detection between analysis systems",
+    "Theoretical validation against music theory expectations",
+    "Structured output for external analysis tools",
+    "Comprehensive dataset for machine learning validation",
+    "Foundation for systematic logic improvements",
+    "Regression testing for future changes"
+  ]
+}

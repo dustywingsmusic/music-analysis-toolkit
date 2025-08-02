@@ -5,6 +5,7 @@
  */
 
 import { analyzeChordProgressionLocally } from './localChordProgressionAnalysis';
+import { ComprehensiveAnalysisEngine, ComprehensiveAnalysisResult } from './comprehensiveAnalysisService';
 import * as geminiService from './geminiService';
 import { 
   LocalAnalysisResult, 
@@ -34,6 +35,7 @@ export async function analyzeChordProgression(
   }
 ): Promise<{
   localResult: LocalAnalysisResult;
+  comprehensiveResult?: ComprehensiveAnalysisResult;
   aiEnhancement?: AIEnhancementResult;
   crossValidation?: CrossValidationResult;
 }> {
@@ -41,7 +43,7 @@ export async function analyzeChordProgression(
   const startTime = performance.now();
   
   try {
-    // Step 1: Always perform local analysis first
+    // Step 1: Always perform local analysis first (for compatibility)
     console.log('🎼 Starting local chord progression analysis...');
     const localAnalysis = await analyzeChordProgressionLocally(progressionInput, options.knownKey);
     
@@ -60,6 +62,15 @@ export async function analyzeChordProgression(
     };
     
     console.log('✅ Local analysis completed:', localResult);
+    
+    // Step 1.5: Perform comprehensive analysis (functional + modal + chromatic)
+    console.log('🎯 Starting comprehensive analysis...');
+    const comprehensiveEngine = new ComprehensiveAnalysisEngine();
+    const comprehensiveResult = await comprehensiveEngine.analyzeComprehensively(
+      progressionInput, 
+      options.knownKey
+    );
+    console.log('✅ Comprehensive analysis completed:', comprehensiveResult);
     
     // Step 2: AI Enhancement (if enabled)
     let aiEnhancement: AIEnhancementResult | undefined;
@@ -84,6 +95,7 @@ export async function analyzeChordProgression(
     
     return {
       localResult,
+      comprehensiveResult,
       aiEnhancement,
       crossValidation
     };
@@ -105,7 +117,8 @@ export async function analyzeChordProgression(
           processingTime: performance.now() - startTime,
           errorState: error instanceof Error ? error.message : 'Unknown error'
         }
-      }
+      },
+      comprehensiveResult: undefined
     };
   }
 }
