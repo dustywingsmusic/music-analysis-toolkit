@@ -407,7 +407,20 @@ class ComprehensiveTestGenerator {
               prefer = 'sharps';
             }
 
-            const deg = (semitones) => this.getNoteAtInterval(root, semitones, { prefer });
+            // Optional notational refinement: in strongly flat parents, respell certain naturals diatonically
+            const adjustByParentKey = (n) => {
+              if (!parentKey) return n;
+              const r = pkRoot;
+              if (FLAT_MAJOR_ROOTS.has(r)) {
+                // In Gb/Db/Cb families, prefer Cb over B for certain degrees (e.g., bVII of Db)
+                if ((r === 'Gb' || r === 'Db' || r === 'Cb') && n === 'B') return 'Cb';
+                // Very rare, but if Cb major contexts appear and we hit E, prefer Fb
+                if (r === 'Cb' && n === 'E') return 'Fb';
+              }
+              return n;
+            };
+
+            const deg = (semitones) => adjustByParentKey(this.getNoteAtInterval(root, semitones, { prefer }));
 
             switch (modeName) {
                 case 'Mixolydian': {
@@ -440,6 +453,7 @@ class ComprehensiveTestGenerator {
                 case 'Lydian': {
                     return [
                         { variant: 'long',    chords: [root, deg(2), deg(7), root],              pattern: 'I-II-V-I',       reasoning: 'raised 4th via II; keeps functional V at bay contextually' },
+                        { variant: 'long_nov', chords: [root, deg(2), root, deg(2)],             pattern: 'I-II-I-II',      reasoning: 'strict Lydian motion emphasizing #4, avoids V' },
                         { variant: 'short',   chords: [root, deg(2), root],                      pattern: 'I-II-I',         reasoning: 'II (diatonic) emphasizes #4 over IV' },
                         { variant: 'seventh', chords: [`${root}maj7`, deg(2), `${root}maj7`],    pattern: 'Imaj7-II-Imaj7', reasoning: 'Imaj7 with implied #11 color' },
                         { variant: 'vamp',    chords: [root, deg(2)],                            pattern: 'I-II (vamp)',    reasoning: 'two-chord Lydian vamp' },
@@ -457,7 +471,7 @@ class ComprehensiveTestGenerator {
                 }
                 case 'Locrian': {
                     return [
-                        { variant: 'long',    chords: [`${root}dim`, deg(1), `${deg(7)}m`, `${root}dim`], pattern: 'i°-bII-v-i°',  reasoning: 'Locrian with bII and minor v (no true V)' },
+                        { variant: 'long',    chords: [`${root}dim`, deg(1), `${deg(6)}m`, `${root}dim`], pattern: 'i°-bII-v-i°',  reasoning: 'Locrian with bII and minor v (no true V)' },
                         { variant: 'short',   chords: [`${root}dim`, deg(1), `${root}dim`],                  pattern: 'i°-bII-i°',    reasoning: 'diminished tonic and Neapolitan color' },
                         { variant: 'seventh', chords: [`${root}m7b5`, deg(1), `${root}m7b5`],                pattern: 'iø7-bII-iø7',  reasoning: 'half-diminished tonic is idiomatic for Locrian' },
                         { variant: 'vamp',    chords: [`${root}dim`, deg(1)],                                pattern: 'i°-bII (vamp)', reasoning: 'two-chord Locrian vamp' },

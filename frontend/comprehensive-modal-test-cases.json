@@ -1,9 +1,9 @@
 {
   "metadata": {
-    "generated": "2025-08-02T15:50:05.356Z",
-    "totalCases": 712,
+    "generated": "2025-08-02T18:54:15.425Z",
+    "totalCases": 728,
     "categories": {
-      "modal_characteristic": 208,
+      "modal_characteristic": 224,
       "modal_seventh_variant": 112,
       "modal_vamp": 112,
       "modal_foil": 112,
@@ -251,6 +251,21 @@
       "chords": [
         "C",
         "D",
+        "C",
+        "D"
+      ],
+      "parentKey": "G major",
+      "expectedModal": true,
+      "expectedMode": "C Lydian",
+      "description": "C Lydian I-II-I-II",
+      "category": "modal_characteristic",
+      "theoreticalBasis": "Lydian long_nov — strict Lydian motion emphasizing #4, avoids V"
+    },
+    {
+      "id": "test-19",
+      "chords": [
+        "C",
+        "D",
         "C"
       ],
       "parentKey": "G major",
@@ -261,7 +276,7 @@
       "theoreticalBasis": "Lydian short — II (diatonic) emphasizes #4 over IV"
     },
     {
-      "id": "test-19",
+      "id": "test-20",
       "chords": [
         "Cmaj7",
         "D",
@@ -275,7 +290,7 @@
       "theoreticalBasis": "Lydian seventh — Imaj7 with implied #11 color"
     },
     {
-      "id": "test-20",
+      "id": "test-21",
       "chords": [
         "C",
         "D"
@@ -288,7 +303,7 @@
       "theoreticalBasis": "Lydian vamp — two-chord Lydian vamp"
     },
     {
-      "id": "test-21",
+      "id": "test-22",
       "chords": [
         "C",
         "G",
@@ -301,7 +316,7 @@
       "theoreticalBasis": "Lydian foil — authentic cadence reduces Lydian feel"
     },
     {
-      "id": "test-22",
+      "id": "test-23",
       "chords": [
         "C",
         "D",
@@ -314,7 +329,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-23",
+      "id": "test-24",
       "chords": [
         "C",
         "Bb",
@@ -329,7 +344,7 @@
       "theoreticalBasis": "Mixolydian long — bVII and IV emphasize modal dominant-less cadence"
     },
     {
-      "id": "test-24",
+      "id": "test-25",
       "chords": [
         "C",
         "Bb",
@@ -343,7 +358,7 @@
       "theoreticalBasis": "Mixolydian short — bVII-I cadence is a core Mixolydian marker"
     },
     {
-      "id": "test-25",
+      "id": "test-26",
       "chords": [
         "C7",
         "F",
@@ -357,7 +372,7 @@
       "theoreticalBasis": "Mixolydian seventh — dominant-quality tonic is idiomatic in Mixolydian"
     },
     {
-      "id": "test-26",
+      "id": "test-27",
       "chords": [
         "C",
         "F"
@@ -370,7 +385,7 @@
       "theoreticalBasis": "Mixolydian vamp — sustained modal color without functional V"
     },
     {
-      "id": "test-27",
+      "id": "test-28",
       "chords": [
         "C",
         "G",
@@ -383,7 +398,7 @@
       "theoreticalBasis": "Mixolydian foil — leading-tone V implies functional major over modal"
     },
     {
-      "id": "test-28",
+      "id": "test-29",
       "chords": [
         "C",
         "Bb",
@@ -396,7 +411,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-29",
+      "id": "test-30",
       "chords": [
         "Cm",
         "Ab",
@@ -411,7 +426,7 @@
       "theoreticalBasis": "Aeolian long — natural minor hallmark bVI, bVII"
     },
     {
-      "id": "test-30",
+      "id": "test-31",
       "chords": [
         "Cm",
         "Bb",
@@ -425,7 +440,7 @@
       "theoreticalBasis": "Aeolian short — Aeolian cadence without leading tone"
     },
     {
-      "id": "test-31",
+      "id": "test-32",
       "chords": [
         "Cm7",
         "Ab",
@@ -440,7 +455,7 @@
       "theoreticalBasis": "Aeolian seventh — seventh voicings in Aeolian"
     },
     {
-      "id": "test-32",
+      "id": "test-33",
       "chords": [
         "Cm",
         "Bb"
@@ -453,7 +468,7 @@
       "theoreticalBasis": "Aeolian vamp — two-chord Aeolian vamp"
     },
     {
-      "id": "test-33",
+      "id": "test-34",
       "chords": [
         "Cm",
         "G7",
@@ -466,7 +481,7 @@
       "theoreticalBasis": "Aeolian foil — leading-tone dominant suggests harmonic minor"
     },
     {
-      "id": "test-34",
+      "id": "test-35",
       "chords": [
         "Cm",
         "Ab",
@@ -479,11 +494,11 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-35",
+      "id": "test-36",
       "chords": [
         "Cdim",
         "Db",
-        "Gm",
+        "Gbm",
         "Cdim"
       ],
       "parentKey": "Db major",
@@ -494,7 +509,7 @@
       "theoreticalBasis": "Locrian long — Locrian with bII and minor v (no true V)"
     },
     {
-      "id": "test-36",
+      "id": "test-37",
       "chords": [
         "Cdim",
         "Db",
@@ -508,7 +523,7 @@
       "theoreticalBasis": "Locrian short — diminished tonic and Neapolitan color"
     },
     {
-      "id": "test-37",
+      "id": "test-38",
       "chords": [
         "Cm7b5",
         "Db",
@@ -522,7 +537,7 @@
       "theoreticalBasis": "Locrian seventh — half-diminished tonic is idiomatic for Locrian"
     },
     {
-      "id": "test-38",
+      "id": "test-39",
       "chords": [
         "Cdim",
         "Db"
@@ -535,7 +550,7 @@
       "theoreticalBasis": "Locrian vamp — two-chord Locrian vamp"
     },
     {
-      "id": "test-39",
+      "id": "test-40",
       "chords": [
         "Cdim",
         "G7",
@@ -548,11 +563,11 @@
       "theoreticalBasis": "Locrian foil — true V7 contradicts Locrian"
     },
     {
-      "id": "test-40",
+      "id": "test-41",
       "chords": [
         "Cdim",
         "Db",
-        "Gm",
+        "Gbm",
         "Cdim"
       ],
       "expectedModal": false,
@@ -561,7 +576,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-41",
+      "id": "test-42",
       "chords": [
         "Db",
         "Gb",
@@ -575,7 +590,7 @@
       "theoreticalBasis": "Ionian short — plagal movement as modal color"
     },
     {
-      "id": "test-42",
+      "id": "test-43",
       "chords": [
         "Dbmaj7",
         "Gbmaj7",
@@ -589,7 +604,7 @@
       "theoreticalBasis": "Ionian seventh — Ionian color with 7ths"
     },
     {
-      "id": "test-43",
+      "id": "test-44",
       "chords": [
         "Db",
         "Gb"
@@ -602,7 +617,7 @@
       "theoreticalBasis": "Ionian vamp — sustained Ionian color"
     },
     {
-      "id": "test-44",
+      "id": "test-45",
       "chords": [
         "Db",
         "Ab",
@@ -615,7 +630,7 @@
       "theoreticalBasis": "Ionian foil — authentic cadence is functional, not modal"
     },
     {
-      "id": "test-45",
+      "id": "test-46",
       "chords": [
         "Dbm",
         "Gb",
@@ -630,7 +645,7 @@
       "theoreticalBasis": "Dorian long — major IV and bVII with minor tonic"
     },
     {
-      "id": "test-46",
+      "id": "test-47",
       "chords": [
         "Dbm",
         "Gb",
@@ -644,7 +659,7 @@
       "theoreticalBasis": "Dorian short — major IV against minor tonic defines Dorian"
     },
     {
-      "id": "test-47",
+      "id": "test-48",
       "chords": [
         "Dbm7",
         "Gbmaj7",
@@ -658,7 +673,7 @@
       "theoreticalBasis": "Dorian seventh — seventh-quality voicings, modal color intact"
     },
     {
-      "id": "test-48",
+      "id": "test-49",
       "chords": [
         "Dbm",
         "Gb"
@@ -671,7 +686,7 @@
       "theoreticalBasis": "Dorian vamp — two-chord Dorian vamp"
     },
     {
-      "id": "test-49",
+      "id": "test-50",
       "chords": [
         "Dbm",
         "Gbm",
@@ -684,7 +699,7 @@
       "theoreticalBasis": "Dorian foil — minor iv pulls toward Aeolian"
     },
     {
-      "id": "test-50",
+      "id": "test-51",
       "chords": [
         "Dbm",
         "Gb",
@@ -697,7 +712,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-51",
+      "id": "test-52",
       "chords": [
         "Dbm",
         "D",
@@ -712,7 +727,7 @@
       "theoreticalBasis": "Phrygian long — bII with bVII underscores Phrygian"
     },
     {
-      "id": "test-52",
+      "id": "test-53",
       "chords": [
         "Dbm",
         "D",
@@ -726,7 +741,7 @@
       "theoreticalBasis": "Phrygian short — flat second is the signature degree"
     },
     {
-      "id": "test-53",
+      "id": "test-54",
       "chords": [
         "Dbm7",
         "D",
@@ -740,7 +755,7 @@
       "theoreticalBasis": "Phrygian seventh — seventh voicing maintains Phrygian color"
     },
     {
-      "id": "test-54",
+      "id": "test-55",
       "chords": [
         "Dbm",
         "D"
@@ -753,7 +768,7 @@
       "theoreticalBasis": "Phrygian vamp — pedal vamp on tonic and bII"
     },
     {
-      "id": "test-55",
+      "id": "test-56",
       "chords": [
         "Dbm",
         "Eb",
@@ -766,7 +781,7 @@
       "theoreticalBasis": "Phrygian foil — natural 2 undermines Phrygian"
     },
     {
-      "id": "test-56",
+      "id": "test-57",
       "chords": [
         "Dbm",
         "D",
@@ -779,7 +794,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-57",
+      "id": "test-58",
       "chords": [
         "Db",
         "Eb",
@@ -794,7 +809,22 @@
       "theoreticalBasis": "Lydian long — raised 4th via II; keeps functional V at bay contextually"
     },
     {
-      "id": "test-58",
+      "id": "test-59",
+      "chords": [
+        "Db",
+        "Eb",
+        "Db",
+        "Eb"
+      ],
+      "parentKey": "Ab major",
+      "expectedModal": true,
+      "expectedMode": "Db Lydian",
+      "description": "Db Lydian I-II-I-II",
+      "category": "modal_characteristic",
+      "theoreticalBasis": "Lydian long_nov — strict Lydian motion emphasizing #4, avoids V"
+    },
+    {
+      "id": "test-60",
       "chords": [
         "Db",
         "Eb",
@@ -808,7 +838,7 @@
       "theoreticalBasis": "Lydian short — II (diatonic) emphasizes #4 over IV"
     },
     {
-      "id": "test-59",
+      "id": "test-61",
       "chords": [
         "Dbmaj7",
         "Eb",
@@ -822,7 +852,7 @@
       "theoreticalBasis": "Lydian seventh — Imaj7 with implied #11 color"
     },
     {
-      "id": "test-60",
+      "id": "test-62",
       "chords": [
         "Db",
         "Eb"
@@ -835,7 +865,7 @@
       "theoreticalBasis": "Lydian vamp — two-chord Lydian vamp"
     },
     {
-      "id": "test-61",
+      "id": "test-63",
       "chords": [
         "Db",
         "Ab",
@@ -848,7 +878,7 @@
       "theoreticalBasis": "Lydian foil — authentic cadence reduces Lydian feel"
     },
     {
-      "id": "test-62",
+      "id": "test-64",
       "chords": [
         "Db",
         "Eb",
@@ -861,10 +891,10 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-63",
+      "id": "test-65",
       "chords": [
         "Db",
-        "B",
+        "Cb",
         "Gb",
         "Db"
       ],
@@ -876,10 +906,10 @@
       "theoreticalBasis": "Mixolydian long — bVII and IV emphasize modal dominant-less cadence"
     },
     {
-      "id": "test-64",
+      "id": "test-66",
       "chords": [
         "Db",
-        "B",
+        "Cb",
         "Db"
       ],
       "parentKey": "Gb major",
@@ -890,7 +920,7 @@
       "theoreticalBasis": "Mixolydian short — bVII-I cadence is a core Mixolydian marker"
     },
     {
-      "id": "test-65",
+      "id": "test-67",
       "chords": [
         "Db7",
         "Gb",
@@ -904,7 +934,7 @@
       "theoreticalBasis": "Mixolydian seventh — dominant-quality tonic is idiomatic in Mixolydian"
     },
     {
-      "id": "test-66",
+      "id": "test-68",
       "chords": [
         "Db",
         "Gb"
@@ -917,7 +947,7 @@
       "theoreticalBasis": "Mixolydian vamp — sustained modal color without functional V"
     },
     {
-      "id": "test-67",
+      "id": "test-69",
       "chords": [
         "Db",
         "Ab",
@@ -930,10 +960,10 @@
       "theoreticalBasis": "Mixolydian foil — leading-tone V implies functional major over modal"
     },
     {
-      "id": "test-68",
+      "id": "test-70",
       "chords": [
         "Db",
-        "B",
+        "Cb",
         "Gb",
         "Db"
       ],
@@ -943,7 +973,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-69",
+      "id": "test-71",
       "chords": [
         "Dbm",
         "A",
@@ -958,7 +988,7 @@
       "theoreticalBasis": "Aeolian long — natural minor hallmark bVI, bVII"
     },
     {
-      "id": "test-70",
+      "id": "test-72",
       "chords": [
         "Dbm",
         "B",
@@ -972,7 +1002,7 @@
       "theoreticalBasis": "Aeolian short — Aeolian cadence without leading tone"
     },
     {
-      "id": "test-71",
+      "id": "test-73",
       "chords": [
         "Dbm7",
         "A",
@@ -987,7 +1017,7 @@
       "theoreticalBasis": "Aeolian seventh — seventh voicings in Aeolian"
     },
     {
-      "id": "test-72",
+      "id": "test-74",
       "chords": [
         "Dbm",
         "B"
@@ -1000,7 +1030,7 @@
       "theoreticalBasis": "Aeolian vamp — two-chord Aeolian vamp"
     },
     {
-      "id": "test-73",
+      "id": "test-75",
       "chords": [
         "Dbm",
         "Ab7",
@@ -1013,7 +1043,7 @@
       "theoreticalBasis": "Aeolian foil — leading-tone dominant suggests harmonic minor"
     },
     {
-      "id": "test-74",
+      "id": "test-76",
       "chords": [
         "Dbm",
         "A",
@@ -1026,11 +1056,11 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-75",
+      "id": "test-77",
       "chords": [
         "Dbdim",
         "D",
-        "Abm",
+        "Gm",
         "Dbdim"
       ],
       "parentKey": "D major",
@@ -1041,7 +1071,7 @@
       "theoreticalBasis": "Locrian long — Locrian with bII and minor v (no true V)"
     },
     {
-      "id": "test-76",
+      "id": "test-78",
       "chords": [
         "Dbdim",
         "D",
@@ -1055,7 +1085,7 @@
       "theoreticalBasis": "Locrian short — diminished tonic and Neapolitan color"
     },
     {
-      "id": "test-77",
+      "id": "test-79",
       "chords": [
         "Dbm7b5",
         "D",
@@ -1069,7 +1099,7 @@
       "theoreticalBasis": "Locrian seventh — half-diminished tonic is idiomatic for Locrian"
     },
     {
-      "id": "test-78",
+      "id": "test-80",
       "chords": [
         "Dbdim",
         "D"
@@ -1082,7 +1112,7 @@
       "theoreticalBasis": "Locrian vamp — two-chord Locrian vamp"
     },
     {
-      "id": "test-79",
+      "id": "test-81",
       "chords": [
         "Dbdim",
         "Ab7",
@@ -1095,11 +1125,11 @@
       "theoreticalBasis": "Locrian foil — true V7 contradicts Locrian"
     },
     {
-      "id": "test-80",
+      "id": "test-82",
       "chords": [
         "Dbdim",
         "D",
-        "Abm",
+        "Gm",
         "Dbdim"
       ],
       "expectedModal": false,
@@ -1108,7 +1138,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-81",
+      "id": "test-83",
       "chords": [
         "D",
         "G",
@@ -1122,7 +1152,7 @@
       "theoreticalBasis": "Ionian short — plagal movement as modal color"
     },
     {
-      "id": "test-82",
+      "id": "test-84",
       "chords": [
         "Dmaj7",
         "Gmaj7",
@@ -1136,7 +1166,7 @@
       "theoreticalBasis": "Ionian seventh — Ionian color with 7ths"
     },
     {
-      "id": "test-83",
+      "id": "test-85",
       "chords": [
         "D",
         "G"
@@ -1149,7 +1179,7 @@
       "theoreticalBasis": "Ionian vamp — sustained Ionian color"
     },
     {
-      "id": "test-84",
+      "id": "test-86",
       "chords": [
         "D",
         "A",
@@ -1162,7 +1192,7 @@
       "theoreticalBasis": "Ionian foil — authentic cadence is functional, not modal"
     },
     {
-      "id": "test-85",
+      "id": "test-87",
       "chords": [
         "Dm",
         "G",
@@ -1177,7 +1207,7 @@
       "theoreticalBasis": "Dorian long — major IV and bVII with minor tonic"
     },
     {
-      "id": "test-86",
+      "id": "test-88",
       "chords": [
         "Dm",
         "G",
@@ -1191,7 +1221,7 @@
       "theoreticalBasis": "Dorian short — major IV against minor tonic defines Dorian"
     },
     {
-      "id": "test-87",
+      "id": "test-89",
       "chords": [
         "Dm7",
         "Gmaj7",
@@ -1205,7 +1235,7 @@
       "theoreticalBasis": "Dorian seventh — seventh-quality voicings, modal color intact"
     },
     {
-      "id": "test-88",
+      "id": "test-90",
       "chords": [
         "Dm",
         "G"
@@ -1218,7 +1248,7 @@
       "theoreticalBasis": "Dorian vamp — two-chord Dorian vamp"
     },
     {
-      "id": "test-89",
+      "id": "test-91",
       "chords": [
         "Dm",
         "Gm",
@@ -1231,7 +1261,7 @@
       "theoreticalBasis": "Dorian foil — minor iv pulls toward Aeolian"
     },
     {
-      "id": "test-90",
+      "id": "test-92",
       "chords": [
         "Dm",
         "G",
@@ -1244,7 +1274,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-91",
+      "id": "test-93",
       "chords": [
         "Dm",
         "Eb",
@@ -1259,7 +1289,7 @@
       "theoreticalBasis": "Phrygian long — bII with bVII underscores Phrygian"
     },
     {
-      "id": "test-92",
+      "id": "test-94",
       "chords": [
         "Dm",
         "Eb",
@@ -1273,7 +1303,7 @@
       "theoreticalBasis": "Phrygian short — flat second is the signature degree"
     },
     {
-      "id": "test-93",
+      "id": "test-95",
       "chords": [
         "Dm7",
         "Eb",
@@ -1287,7 +1317,7 @@
       "theoreticalBasis": "Phrygian seventh — seventh voicing maintains Phrygian color"
     },
     {
-      "id": "test-94",
+      "id": "test-96",
       "chords": [
         "Dm",
         "Eb"
@@ -1300,7 +1330,7 @@
       "theoreticalBasis": "Phrygian vamp — pedal vamp on tonic and bII"
     },
     {
-      "id": "test-95",
+      "id": "test-97",
       "chords": [
         "Dm",
         "E",
@@ -1313,7 +1343,7 @@
       "theoreticalBasis": "Phrygian foil — natural 2 undermines Phrygian"
     },
     {
-      "id": "test-96",
+      "id": "test-98",
       "chords": [
         "Dm",
         "Eb",
@@ -1326,7 +1356,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-97",
+      "id": "test-99",
       "chords": [
         "D",
         "E",
@@ -1341,7 +1371,22 @@
       "theoreticalBasis": "Lydian long — raised 4th via II; keeps functional V at bay contextually"
     },
     {
-      "id": "test-98",
+      "id": "test-100",
+      "chords": [
+        "D",
+        "E",
+        "D",
+        "E"
+      ],
+      "parentKey": "A major",
+      "expectedModal": true,
+      "expectedMode": "D Lydian",
+      "description": "D Lydian I-II-I-II",
+      "category": "modal_characteristic",
+      "theoreticalBasis": "Lydian long_nov — strict Lydian motion emphasizing #4, avoids V"
+    },
+    {
+      "id": "test-101",
       "chords": [
         "D",
         "E",
@@ -1355,7 +1400,7 @@
       "theoreticalBasis": "Lydian short — II (diatonic) emphasizes #4 over IV"
     },
     {
-      "id": "test-99",
+      "id": "test-102",
       "chords": [
         "Dmaj7",
         "E",
@@ -1369,7 +1414,7 @@
       "theoreticalBasis": "Lydian seventh — Imaj7 with implied #11 color"
     },
     {
-      "id": "test-100",
+      "id": "test-103",
       "chords": [
         "D",
         "E"
@@ -1382,7 +1427,7 @@
       "theoreticalBasis": "Lydian vamp — two-chord Lydian vamp"
     },
     {
-      "id": "test-101",
+      "id": "test-104",
       "chords": [
         "D",
         "A",
@@ -1395,7 +1440,7 @@
       "theoreticalBasis": "Lydian foil — authentic cadence reduces Lydian feel"
     },
     {
-      "id": "test-102",
+      "id": "test-105",
       "chords": [
         "D",
         "E",
@@ -1408,7 +1453,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-103",
+      "id": "test-106",
       "chords": [
         "D",
         "C",
@@ -1423,7 +1468,7 @@
       "theoreticalBasis": "Mixolydian long — bVII and IV emphasize modal dominant-less cadence"
     },
     {
-      "id": "test-104",
+      "id": "test-107",
       "chords": [
         "D",
         "C",
@@ -1437,7 +1482,7 @@
       "theoreticalBasis": "Mixolydian short — bVII-I cadence is a core Mixolydian marker"
     },
     {
-      "id": "test-105",
+      "id": "test-108",
       "chords": [
         "D7",
         "G",
@@ -1451,7 +1496,7 @@
       "theoreticalBasis": "Mixolydian seventh — dominant-quality tonic is idiomatic in Mixolydian"
     },
     {
-      "id": "test-106",
+      "id": "test-109",
       "chords": [
         "D",
         "G"
@@ -1464,7 +1509,7 @@
       "theoreticalBasis": "Mixolydian vamp — sustained modal color without functional V"
     },
     {
-      "id": "test-107",
+      "id": "test-110",
       "chords": [
         "D",
         "A",
@@ -1477,7 +1522,7 @@
       "theoreticalBasis": "Mixolydian foil — leading-tone V implies functional major over modal"
     },
     {
-      "id": "test-108",
+      "id": "test-111",
       "chords": [
         "D",
         "C",
@@ -1490,7 +1535,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-109",
+      "id": "test-112",
       "chords": [
         "Dm",
         "Bb",
@@ -1505,7 +1550,7 @@
       "theoreticalBasis": "Aeolian long — natural minor hallmark bVI, bVII"
     },
     {
-      "id": "test-110",
+      "id": "test-113",
       "chords": [
         "Dm",
         "C",
@@ -1519,7 +1564,7 @@
       "theoreticalBasis": "Aeolian short — Aeolian cadence without leading tone"
     },
     {
-      "id": "test-111",
+      "id": "test-114",
       "chords": [
         "Dm7",
         "Bb",
@@ -1534,7 +1579,7 @@
       "theoreticalBasis": "Aeolian seventh — seventh voicings in Aeolian"
     },
     {
-      "id": "test-112",
+      "id": "test-115",
       "chords": [
         "Dm",
         "C"
@@ -1547,7 +1592,7 @@
       "theoreticalBasis": "Aeolian vamp — two-chord Aeolian vamp"
     },
     {
-      "id": "test-113",
+      "id": "test-116",
       "chords": [
         "Dm",
         "A7",
@@ -1560,7 +1605,7 @@
       "theoreticalBasis": "Aeolian foil — leading-tone dominant suggests harmonic minor"
     },
     {
-      "id": "test-114",
+      "id": "test-117",
       "chords": [
         "Dm",
         "Bb",
@@ -1573,11 +1618,11 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-115",
+      "id": "test-118",
       "chords": [
         "Ddim",
         "Eb",
-        "Am",
+        "Abm",
         "Ddim"
       ],
       "parentKey": "Eb major",
@@ -1588,7 +1633,7 @@
       "theoreticalBasis": "Locrian long — Locrian with bII and minor v (no true V)"
     },
     {
-      "id": "test-116",
+      "id": "test-119",
       "chords": [
         "Ddim",
         "Eb",
@@ -1602,7 +1647,7 @@
       "theoreticalBasis": "Locrian short — diminished tonic and Neapolitan color"
     },
     {
-      "id": "test-117",
+      "id": "test-120",
       "chords": [
         "Dm7b5",
         "Eb",
@@ -1616,7 +1661,7 @@
       "theoreticalBasis": "Locrian seventh — half-diminished tonic is idiomatic for Locrian"
     },
     {
-      "id": "test-118",
+      "id": "test-121",
       "chords": [
         "Ddim",
         "Eb"
@@ -1629,7 +1674,7 @@
       "theoreticalBasis": "Locrian vamp — two-chord Locrian vamp"
     },
     {
-      "id": "test-119",
+      "id": "test-122",
       "chords": [
         "Ddim",
         "A7",
@@ -1642,11 +1687,11 @@
       "theoreticalBasis": "Locrian foil — true V7 contradicts Locrian"
     },
     {
-      "id": "test-120",
+      "id": "test-123",
       "chords": [
         "Ddim",
         "Eb",
-        "Am",
+        "Abm",
         "Ddim"
       ],
       "expectedModal": false,
@@ -1655,7 +1700,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-121",
+      "id": "test-124",
       "chords": [
         "Eb",
         "Ab",
@@ -1669,7 +1714,7 @@
       "theoreticalBasis": "Ionian short — plagal movement as modal color"
     },
     {
-      "id": "test-122",
+      "id": "test-125",
       "chords": [
         "Ebmaj7",
         "Abmaj7",
@@ -1683,7 +1728,7 @@
       "theoreticalBasis": "Ionian seventh — Ionian color with 7ths"
     },
     {
-      "id": "test-123",
+      "id": "test-126",
       "chords": [
         "Eb",
         "Ab"
@@ -1696,7 +1741,7 @@
       "theoreticalBasis": "Ionian vamp — sustained Ionian color"
     },
     {
-      "id": "test-124",
+      "id": "test-127",
       "chords": [
         "Eb",
         "Bb",
@@ -1709,7 +1754,7 @@
       "theoreticalBasis": "Ionian foil — authentic cadence is functional, not modal"
     },
     {
-      "id": "test-125",
+      "id": "test-128",
       "chords": [
         "Ebm",
         "Ab",
@@ -1724,7 +1769,7 @@
       "theoreticalBasis": "Dorian long — major IV and bVII with minor tonic"
     },
     {
-      "id": "test-126",
+      "id": "test-129",
       "chords": [
         "Ebm",
         "Ab",
@@ -1738,7 +1783,7 @@
       "theoreticalBasis": "Dorian short — major IV against minor tonic defines Dorian"
     },
     {
-      "id": "test-127",
+      "id": "test-130",
       "chords": [
         "Ebm7",
         "Abmaj7",
@@ -1752,7 +1797,7 @@
       "theoreticalBasis": "Dorian seventh — seventh-quality voicings, modal color intact"
     },
     {
-      "id": "test-128",
+      "id": "test-131",
       "chords": [
         "Ebm",
         "Ab"
@@ -1765,7 +1810,7 @@
       "theoreticalBasis": "Dorian vamp — two-chord Dorian vamp"
     },
     {
-      "id": "test-129",
+      "id": "test-132",
       "chords": [
         "Ebm",
         "Abm",
@@ -1778,7 +1823,7 @@
       "theoreticalBasis": "Dorian foil — minor iv pulls toward Aeolian"
     },
     {
-      "id": "test-130",
+      "id": "test-133",
       "chords": [
         "Ebm",
         "Ab",
@@ -1791,7 +1836,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-131",
+      "id": "test-134",
       "chords": [
         "Ebm",
         "E",
@@ -1806,7 +1851,7 @@
       "theoreticalBasis": "Phrygian long — bII with bVII underscores Phrygian"
     },
     {
-      "id": "test-132",
+      "id": "test-135",
       "chords": [
         "Ebm",
         "E",
@@ -1820,7 +1865,7 @@
       "theoreticalBasis": "Phrygian short — flat second is the signature degree"
     },
     {
-      "id": "test-133",
+      "id": "test-136",
       "chords": [
         "Ebm7",
         "E",
@@ -1834,7 +1879,7 @@
       "theoreticalBasis": "Phrygian seventh — seventh voicing maintains Phrygian color"
     },
     {
-      "id": "test-134",
+      "id": "test-137",
       "chords": [
         "Ebm",
         "E"
@@ -1847,7 +1892,7 @@
       "theoreticalBasis": "Phrygian vamp — pedal vamp on tonic and bII"
     },
     {
-      "id": "test-135",
+      "id": "test-138",
       "chords": [
         "Ebm",
         "F",
@@ -1860,7 +1905,7 @@
       "theoreticalBasis": "Phrygian foil — natural 2 undermines Phrygian"
     },
     {
-      "id": "test-136",
+      "id": "test-139",
       "chords": [
         "Ebm",
         "E",
@@ -1873,7 +1918,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-137",
+      "id": "test-140",
       "chords": [
         "Eb",
         "F",
@@ -1888,7 +1933,22 @@
       "theoreticalBasis": "Lydian long — raised 4th via II; keeps functional V at bay contextually"
     },
     {
-      "id": "test-138",
+      "id": "test-141",
+      "chords": [
+        "Eb",
+        "F",
+        "Eb",
+        "F"
+      ],
+      "parentKey": "Bb major",
+      "expectedModal": true,
+      "expectedMode": "Eb Lydian",
+      "description": "Eb Lydian I-II-I-II",
+      "category": "modal_characteristic",
+      "theoreticalBasis": "Lydian long_nov — strict Lydian motion emphasizing #4, avoids V"
+    },
+    {
+      "id": "test-142",
       "chords": [
         "Eb",
         "F",
@@ -1902,7 +1962,7 @@
       "theoreticalBasis": "Lydian short — II (diatonic) emphasizes #4 over IV"
     },
     {
-      "id": "test-139",
+      "id": "test-143",
       "chords": [
         "Ebmaj7",
         "F",
@@ -1916,7 +1976,7 @@
       "theoreticalBasis": "Lydian seventh — Imaj7 with implied #11 color"
     },
     {
-      "id": "test-140",
+      "id": "test-144",
       "chords": [
         "Eb",
         "F"
@@ -1929,7 +1989,7 @@
       "theoreticalBasis": "Lydian vamp — two-chord Lydian vamp"
     },
     {
-      "id": "test-141",
+      "id": "test-145",
       "chords": [
         "Eb",
         "Bb",
@@ -1942,7 +2002,7 @@
       "theoreticalBasis": "Lydian foil — authentic cadence reduces Lydian feel"
     },
     {
-      "id": "test-142",
+      "id": "test-146",
       "chords": [
         "Eb",
         "F",
@@ -1955,7 +2015,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-143",
+      "id": "test-147",
       "chords": [
         "Eb",
         "Db",
@@ -1970,7 +2030,7 @@
       "theoreticalBasis": "Mixolydian long — bVII and IV emphasize modal dominant-less cadence"
     },
     {
-      "id": "test-144",
+      "id": "test-148",
       "chords": [
         "Eb",
         "Db",
@@ -1984,7 +2044,7 @@
       "theoreticalBasis": "Mixolydian short — bVII-I cadence is a core Mixolydian marker"
     },
     {
-      "id": "test-145",
+      "id": "test-149",
       "chords": [
         "Eb7",
         "Ab",
@@ -1998,7 +2058,7 @@
       "theoreticalBasis": "Mixolydian seventh — dominant-quality tonic is idiomatic in Mixolydian"
     },
     {
-      "id": "test-146",
+      "id": "test-150",
       "chords": [
         "Eb",
         "Ab"
@@ -2011,7 +2071,7 @@
       "theoreticalBasis": "Mixolydian vamp — sustained modal color without functional V"
     },
     {
-      "id": "test-147",
+      "id": "test-151",
       "chords": [
         "Eb",
         "Bb",
@@ -2024,7 +2084,7 @@
       "theoreticalBasis": "Mixolydian foil — leading-tone V implies functional major over modal"
     },
     {
-      "id": "test-148",
+      "id": "test-152",
       "chords": [
         "Eb",
         "Db",
@@ -2037,10 +2097,10 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-149",
+      "id": "test-153",
       "chords": [
         "Ebm",
-        "B",
+        "Cb",
         "Db",
         "Ebm"
       ],
@@ -2052,7 +2112,7 @@
       "theoreticalBasis": "Aeolian long — natural minor hallmark bVI, bVII"
     },
     {
-      "id": "test-150",
+      "id": "test-154",
       "chords": [
         "Ebm",
         "Db",
@@ -2066,10 +2126,10 @@
       "theoreticalBasis": "Aeolian short — Aeolian cadence without leading tone"
     },
     {
-      "id": "test-151",
+      "id": "test-155",
       "chords": [
         "Ebm7",
-        "B",
+        "Cb",
         "Db",
         "Ebm7"
       ],
@@ -2081,7 +2141,7 @@
       "theoreticalBasis": "Aeolian seventh — seventh voicings in Aeolian"
     },
     {
-      "id": "test-152",
+      "id": "test-156",
       "chords": [
         "Ebm",
         "Db"
@@ -2094,7 +2154,7 @@
       "theoreticalBasis": "Aeolian vamp — two-chord Aeolian vamp"
     },
     {
-      "id": "test-153",
+      "id": "test-157",
       "chords": [
         "Ebm",
         "Bb7",
@@ -2107,10 +2167,10 @@
       "theoreticalBasis": "Aeolian foil — leading-tone dominant suggests harmonic minor"
     },
     {
-      "id": "test-154",
+      "id": "test-158",
       "chords": [
         "Ebm",
-        "B",
+        "Cb",
         "Db",
         "Ebm"
       ],
@@ -2120,11 +2180,11 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-155",
+      "id": "test-159",
       "chords": [
         "Ebdim",
         "E",
-        "Bbm",
+        "Am",
         "Ebdim"
       ],
       "parentKey": "E major",
@@ -2135,7 +2195,7 @@
       "theoreticalBasis": "Locrian long — Locrian with bII and minor v (no true V)"
     },
     {
-      "id": "test-156",
+      "id": "test-160",
       "chords": [
         "Ebdim",
         "E",
@@ -2149,7 +2209,7 @@
       "theoreticalBasis": "Locrian short — diminished tonic and Neapolitan color"
     },
     {
-      "id": "test-157",
+      "id": "test-161",
       "chords": [
         "Ebm7b5",
         "E",
@@ -2163,7 +2223,7 @@
       "theoreticalBasis": "Locrian seventh — half-diminished tonic is idiomatic for Locrian"
     },
     {
-      "id": "test-158",
+      "id": "test-162",
       "chords": [
         "Ebdim",
         "E"
@@ -2176,7 +2236,7 @@
       "theoreticalBasis": "Locrian vamp — two-chord Locrian vamp"
     },
     {
-      "id": "test-159",
+      "id": "test-163",
       "chords": [
         "Ebdim",
         "Bb7",
@@ -2189,11 +2249,11 @@
       "theoreticalBasis": "Locrian foil — true V7 contradicts Locrian"
     },
     {
-      "id": "test-160",
+      "id": "test-164",
       "chords": [
         "Ebdim",
         "E",
-        "Bbm",
+        "Am",
         "Ebdim"
       ],
       "expectedModal": false,
@@ -2202,7 +2262,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-161",
+      "id": "test-165",
       "chords": [
         "E",
         "A",
@@ -2216,7 +2276,7 @@
       "theoreticalBasis": "Ionian short — plagal movement as modal color"
     },
     {
-      "id": "test-162",
+      "id": "test-166",
       "chords": [
         "Emaj7",
         "Amaj7",
@@ -2230,7 +2290,7 @@
       "theoreticalBasis": "Ionian seventh — Ionian color with 7ths"
     },
     {
-      "id": "test-163",
+      "id": "test-167",
       "chords": [
         "E",
         "A"
@@ -2243,7 +2303,7 @@
       "theoreticalBasis": "Ionian vamp — sustained Ionian color"
     },
     {
-      "id": "test-164",
+      "id": "test-168",
       "chords": [
         "E",
         "B",
@@ -2256,7 +2316,7 @@
       "theoreticalBasis": "Ionian foil — authentic cadence is functional, not modal"
     },
     {
-      "id": "test-165",
+      "id": "test-169",
       "chords": [
         "Em",
         "A",
@@ -2271,7 +2331,7 @@
       "theoreticalBasis": "Dorian long — major IV and bVII with minor tonic"
     },
     {
-      "id": "test-166",
+      "id": "test-170",
       "chords": [
         "Em",
         "A",
@@ -2285,7 +2345,7 @@
       "theoreticalBasis": "Dorian short — major IV against minor tonic defines Dorian"
     },
     {
-      "id": "test-167",
+      "id": "test-171",
       "chords": [
         "Em7",
         "Amaj7",
@@ -2299,7 +2359,7 @@
       "theoreticalBasis": "Dorian seventh — seventh-quality voicings, modal color intact"
     },
     {
-      "id": "test-168",
+      "id": "test-172",
       "chords": [
         "Em",
         "A"
@@ -2312,7 +2372,7 @@
       "theoreticalBasis": "Dorian vamp — two-chord Dorian vamp"
     },
     {
-      "id": "test-169",
+      "id": "test-173",
       "chords": [
         "Em",
         "Am",
@@ -2325,7 +2385,7 @@
       "theoreticalBasis": "Dorian foil — minor iv pulls toward Aeolian"
     },
     {
-      "id": "test-170",
+      "id": "test-174",
       "chords": [
         "Em",
         "A",
@@ -2338,7 +2398,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-171",
+      "id": "test-175",
       "chords": [
         "Em",
         "F",
@@ -2353,7 +2413,7 @@
       "theoreticalBasis": "Phrygian long — bII with bVII underscores Phrygian"
     },
     {
-      "id": "test-172",
+      "id": "test-176",
       "chords": [
         "Em",
         "F",
@@ -2367,7 +2427,7 @@
       "theoreticalBasis": "Phrygian short — flat second is the signature degree"
     },
     {
-      "id": "test-173",
+      "id": "test-177",
       "chords": [
         "Em7",
         "F",
@@ -2381,7 +2441,7 @@
       "theoreticalBasis": "Phrygian seventh — seventh voicing maintains Phrygian color"
     },
     {
-      "id": "test-174",
+      "id": "test-178",
       "chords": [
         "Em",
         "F"
@@ -2394,7 +2454,7 @@
       "theoreticalBasis": "Phrygian vamp — pedal vamp on tonic and bII"
     },
     {
-      "id": "test-175",
+      "id": "test-179",
       "chords": [
         "Em",
         "F#",
@@ -2407,7 +2467,7 @@
       "theoreticalBasis": "Phrygian foil — natural 2 undermines Phrygian"
     },
     {
-      "id": "test-176",
+      "id": "test-180",
       "chords": [
         "Em",
         "F",
@@ -2420,7 +2480,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-177",
+      "id": "test-181",
       "chords": [
         "E",
         "F#",
@@ -2435,7 +2495,22 @@
       "theoreticalBasis": "Lydian long — raised 4th via II; keeps functional V at bay contextually"
     },
     {
-      "id": "test-178",
+      "id": "test-182",
+      "chords": [
+        "E",
+        "F#",
+        "E",
+        "F#"
+      ],
+      "parentKey": "B major",
+      "expectedModal": true,
+      "expectedMode": "E Lydian",
+      "description": "E Lydian I-II-I-II",
+      "category": "modal_characteristic",
+      "theoreticalBasis": "Lydian long_nov — strict Lydian motion emphasizing #4, avoids V"
+    },
+    {
+      "id": "test-183",
       "chords": [
         "E",
         "F#",
@@ -2449,7 +2524,7 @@
       "theoreticalBasis": "Lydian short — II (diatonic) emphasizes #4 over IV"
     },
     {
-      "id": "test-179",
+      "id": "test-184",
       "chords": [
         "Emaj7",
         "F#",
@@ -2463,7 +2538,7 @@
       "theoreticalBasis": "Lydian seventh — Imaj7 with implied #11 color"
     },
     {
-      "id": "test-180",
+      "id": "test-185",
       "chords": [
         "E",
         "F#"
@@ -2476,7 +2551,7 @@
       "theoreticalBasis": "Lydian vamp — two-chord Lydian vamp"
     },
     {
-      "id": "test-181",
+      "id": "test-186",
       "chords": [
         "E",
         "B",
@@ -2489,7 +2564,7 @@
       "theoreticalBasis": "Lydian foil — authentic cadence reduces Lydian feel"
     },
     {
-      "id": "test-182",
+      "id": "test-187",
       "chords": [
         "E",
         "F#",
@@ -2502,7 +2577,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-183",
+      "id": "test-188",
       "chords": [
         "E",
         "D",
@@ -2517,7 +2592,7 @@
       "theoreticalBasis": "Mixolydian long — bVII and IV emphasize modal dominant-less cadence"
     },
     {
-      "id": "test-184",
+      "id": "test-189",
       "chords": [
         "E",
         "D",
@@ -2531,7 +2606,7 @@
       "theoreticalBasis": "Mixolydian short — bVII-I cadence is a core Mixolydian marker"
     },
     {
-      "id": "test-185",
+      "id": "test-190",
       "chords": [
         "E7",
         "A",
@@ -2545,7 +2620,7 @@
       "theoreticalBasis": "Mixolydian seventh — dominant-quality tonic is idiomatic in Mixolydian"
     },
     {
-      "id": "test-186",
+      "id": "test-191",
       "chords": [
         "E",
         "A"
@@ -2558,7 +2633,7 @@
       "theoreticalBasis": "Mixolydian vamp — sustained modal color without functional V"
     },
     {
-      "id": "test-187",
+      "id": "test-192",
       "chords": [
         "E",
         "B",
@@ -2571,7 +2646,7 @@
       "theoreticalBasis": "Mixolydian foil — leading-tone V implies functional major over modal"
     },
     {
-      "id": "test-188",
+      "id": "test-193",
       "chords": [
         "E",
         "D",
@@ -2584,7 +2659,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-189",
+      "id": "test-194",
       "chords": [
         "Em",
         "C",
@@ -2599,7 +2674,7 @@
       "theoreticalBasis": "Aeolian long — natural minor hallmark bVI, bVII"
     },
     {
-      "id": "test-190",
+      "id": "test-195",
       "chords": [
         "Em",
         "D",
@@ -2613,7 +2688,7 @@
       "theoreticalBasis": "Aeolian short — Aeolian cadence without leading tone"
     },
     {
-      "id": "test-191",
+      "id": "test-196",
       "chords": [
         "Em7",
         "C",
@@ -2628,7 +2703,7 @@
       "theoreticalBasis": "Aeolian seventh — seventh voicings in Aeolian"
     },
     {
-      "id": "test-192",
+      "id": "test-197",
       "chords": [
         "Em",
         "D"
@@ -2641,7 +2716,7 @@
       "theoreticalBasis": "Aeolian vamp — two-chord Aeolian vamp"
     },
     {
-      "id": "test-193",
+      "id": "test-198",
       "chords": [
         "Em",
         "B7",
@@ -2654,7 +2729,7 @@
       "theoreticalBasis": "Aeolian foil — leading-tone dominant suggests harmonic minor"
     },
     {
-      "id": "test-194",
+      "id": "test-199",
       "chords": [
         "Em",
         "C",
@@ -2667,11 +2742,11 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-195",
+      "id": "test-200",
       "chords": [
         "Edim",
         "F",
-        "Bm",
+        "Bbm",
         "Edim"
       ],
       "parentKey": "F major",
@@ -2682,7 +2757,7 @@
       "theoreticalBasis": "Locrian long — Locrian with bII and minor v (no true V)"
     },
     {
-      "id": "test-196",
+      "id": "test-201",
       "chords": [
         "Edim",
         "F",
@@ -2696,7 +2771,7 @@
       "theoreticalBasis": "Locrian short — diminished tonic and Neapolitan color"
     },
     {
-      "id": "test-197",
+      "id": "test-202",
       "chords": [
         "Em7b5",
         "F",
@@ -2710,7 +2785,7 @@
       "theoreticalBasis": "Locrian seventh — half-diminished tonic is idiomatic for Locrian"
     },
     {
-      "id": "test-198",
+      "id": "test-203",
       "chords": [
         "Edim",
         "F"
@@ -2723,7 +2798,7 @@
       "theoreticalBasis": "Locrian vamp — two-chord Locrian vamp"
     },
     {
-      "id": "test-199",
+      "id": "test-204",
       "chords": [
         "Edim",
         "B7",
@@ -2736,11 +2811,11 @@
       "theoreticalBasis": "Locrian foil — true V7 contradicts Locrian"
     },
     {
-      "id": "test-200",
+      "id": "test-205",
       "chords": [
         "Edim",
         "F",
-        "Bm",
+        "Bbm",
         "Edim"
       ],
       "expectedModal": false,
@@ -2749,7 +2824,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-201",
+      "id": "test-206",
       "chords": [
         "F",
         "Bb",
@@ -2763,7 +2838,7 @@
       "theoreticalBasis": "Ionian short — plagal movement as modal color"
     },
     {
-      "id": "test-202",
+      "id": "test-207",
       "chords": [
         "Fmaj7",
         "Bbmaj7",
@@ -2777,7 +2852,7 @@
       "theoreticalBasis": "Ionian seventh — Ionian color with 7ths"
     },
     {
-      "id": "test-203",
+      "id": "test-208",
       "chords": [
         "F",
         "Bb"
@@ -2790,7 +2865,7 @@
       "theoreticalBasis": "Ionian vamp — sustained Ionian color"
     },
     {
-      "id": "test-204",
+      "id": "test-209",
       "chords": [
         "F",
         "C",
@@ -2803,7 +2878,7 @@
       "theoreticalBasis": "Ionian foil — authentic cadence is functional, not modal"
     },
     {
-      "id": "test-205",
+      "id": "test-210",
       "chords": [
         "Fm",
         "Bb",
@@ -2818,7 +2893,7 @@
       "theoreticalBasis": "Dorian long — major IV and bVII with minor tonic"
     },
     {
-      "id": "test-206",
+      "id": "test-211",
       "chords": [
         "Fm",
         "Bb",
@@ -2832,7 +2907,7 @@
       "theoreticalBasis": "Dorian short — major IV against minor tonic defines Dorian"
     },
     {
-      "id": "test-207",
+      "id": "test-212",
       "chords": [
         "Fm7",
         "Bbmaj7",
@@ -2846,7 +2921,7 @@
       "theoreticalBasis": "Dorian seventh — seventh-quality voicings, modal color intact"
     },
     {
-      "id": "test-208",
+      "id": "test-213",
       "chords": [
         "Fm",
         "Bb"
@@ -2859,7 +2934,7 @@
       "theoreticalBasis": "Dorian vamp — two-chord Dorian vamp"
     },
     {
-      "id": "test-209",
+      "id": "test-214",
       "chords": [
         "Fm",
         "Bbm",
@@ -2872,7 +2947,7 @@
       "theoreticalBasis": "Dorian foil — minor iv pulls toward Aeolian"
     },
     {
-      "id": "test-210",
+      "id": "test-215",
       "chords": [
         "Fm",
         "Bb",
@@ -2885,7 +2960,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-211",
+      "id": "test-216",
       "chords": [
         "Fm",
         "Gb",
@@ -2900,7 +2975,7 @@
       "theoreticalBasis": "Phrygian long — bII with bVII underscores Phrygian"
     },
     {
-      "id": "test-212",
+      "id": "test-217",
       "chords": [
         "Fm",
         "Gb",
@@ -2914,7 +2989,7 @@
       "theoreticalBasis": "Phrygian short — flat second is the signature degree"
     },
     {
-      "id": "test-213",
+      "id": "test-218",
       "chords": [
         "Fm7",
         "Gb",
@@ -2928,7 +3003,7 @@
       "theoreticalBasis": "Phrygian seventh — seventh voicing maintains Phrygian color"
     },
     {
-      "id": "test-214",
+      "id": "test-219",
       "chords": [
         "Fm",
         "Gb"
@@ -2941,7 +3016,7 @@
       "theoreticalBasis": "Phrygian vamp — pedal vamp on tonic and bII"
     },
     {
-      "id": "test-215",
+      "id": "test-220",
       "chords": [
         "Fm",
         "G",
@@ -2954,7 +3029,7 @@
       "theoreticalBasis": "Phrygian foil — natural 2 undermines Phrygian"
     },
     {
-      "id": "test-216",
+      "id": "test-221",
       "chords": [
         "Fm",
         "Gb",
@@ -2967,7 +3042,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-217",
+      "id": "test-222",
       "chords": [
         "F",
         "G",
@@ -2982,7 +3057,22 @@
       "theoreticalBasis": "Lydian long — raised 4th via II; keeps functional V at bay contextually"
     },
     {
-      "id": "test-218",
+      "id": "test-223",
+      "chords": [
+        "F",
+        "G",
+        "F",
+        "G"
+      ],
+      "parentKey": "C major",
+      "expectedModal": true,
+      "expectedMode": "F Lydian",
+      "description": "F Lydian I-II-I-II",
+      "category": "modal_characteristic",
+      "theoreticalBasis": "Lydian long_nov — strict Lydian motion emphasizing #4, avoids V"
+    },
+    {
+      "id": "test-224",
       "chords": [
         "F",
         "G",
@@ -2996,7 +3086,7 @@
       "theoreticalBasis": "Lydian short — II (diatonic) emphasizes #4 over IV"
     },
     {
-      "id": "test-219",
+      "id": "test-225",
       "chords": [
         "Fmaj7",
         "G",
@@ -3010,7 +3100,7 @@
       "theoreticalBasis": "Lydian seventh — Imaj7 with implied #11 color"
     },
     {
-      "id": "test-220",
+      "id": "test-226",
       "chords": [
         "F",
         "G"
@@ -3023,7 +3113,7 @@
       "theoreticalBasis": "Lydian vamp — two-chord Lydian vamp"
     },
     {
-      "id": "test-221",
+      "id": "test-227",
       "chords": [
         "F",
         "C",
@@ -3036,7 +3126,7 @@
       "theoreticalBasis": "Lydian foil — authentic cadence reduces Lydian feel"
     },
     {
-      "id": "test-222",
+      "id": "test-228",
       "chords": [
         "F",
         "G",
@@ -3049,7 +3139,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-223",
+      "id": "test-229",
       "chords": [
         "F",
         "Eb",
@@ -3064,7 +3154,7 @@
       "theoreticalBasis": "Mixolydian long — bVII and IV emphasize modal dominant-less cadence"
     },
     {
-      "id": "test-224",
+      "id": "test-230",
       "chords": [
         "F",
         "Eb",
@@ -3078,7 +3168,7 @@
       "theoreticalBasis": "Mixolydian short — bVII-I cadence is a core Mixolydian marker"
     },
     {
-      "id": "test-225",
+      "id": "test-231",
       "chords": [
         "F7",
         "Bb",
@@ -3092,7 +3182,7 @@
       "theoreticalBasis": "Mixolydian seventh — dominant-quality tonic is idiomatic in Mixolydian"
     },
     {
-      "id": "test-226",
+      "id": "test-232",
       "chords": [
         "F",
         "Bb"
@@ -3105,7 +3195,7 @@
       "theoreticalBasis": "Mixolydian vamp — sustained modal color without functional V"
     },
     {
-      "id": "test-227",
+      "id": "test-233",
       "chords": [
         "F",
         "C",
@@ -3118,7 +3208,7 @@
       "theoreticalBasis": "Mixolydian foil — leading-tone V implies functional major over modal"
     },
     {
-      "id": "test-228",
+      "id": "test-234",
       "chords": [
         "F",
         "Eb",
@@ -3131,7 +3221,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-229",
+      "id": "test-235",
       "chords": [
         "Fm",
         "Db",
@@ -3146,7 +3236,7 @@
       "theoreticalBasis": "Aeolian long — natural minor hallmark bVI, bVII"
     },
     {
-      "id": "test-230",
+      "id": "test-236",
       "chords": [
         "Fm",
         "Eb",
@@ -3160,7 +3250,7 @@
       "theoreticalBasis": "Aeolian short — Aeolian cadence without leading tone"
     },
     {
-      "id": "test-231",
+      "id": "test-237",
       "chords": [
         "Fm7",
         "Db",
@@ -3175,7 +3265,7 @@
       "theoreticalBasis": "Aeolian seventh — seventh voicings in Aeolian"
     },
     {
-      "id": "test-232",
+      "id": "test-238",
       "chords": [
         "Fm",
         "Eb"
@@ -3188,7 +3278,7 @@
       "theoreticalBasis": "Aeolian vamp — two-chord Aeolian vamp"
     },
     {
-      "id": "test-233",
+      "id": "test-239",
       "chords": [
         "Fm",
         "C7",
@@ -3201,7 +3291,7 @@
       "theoreticalBasis": "Aeolian foil — leading-tone dominant suggests harmonic minor"
     },
     {
-      "id": "test-234",
+      "id": "test-240",
       "chords": [
         "Fm",
         "Db",
@@ -3214,11 +3304,11 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-235",
+      "id": "test-241",
       "chords": [
         "Fdim",
         "Gb",
-        "Cm",
+        "Cbm",
         "Fdim"
       ],
       "parentKey": "Gb major",
@@ -3229,7 +3319,7 @@
       "theoreticalBasis": "Locrian long — Locrian with bII and minor v (no true V)"
     },
     {
-      "id": "test-236",
+      "id": "test-242",
       "chords": [
         "Fdim",
         "Gb",
@@ -3243,7 +3333,7 @@
       "theoreticalBasis": "Locrian short — diminished tonic and Neapolitan color"
     },
     {
-      "id": "test-237",
+      "id": "test-243",
       "chords": [
         "Fm7b5",
         "Gb",
@@ -3257,7 +3347,7 @@
       "theoreticalBasis": "Locrian seventh — half-diminished tonic is idiomatic for Locrian"
     },
     {
-      "id": "test-238",
+      "id": "test-244",
       "chords": [
         "Fdim",
         "Gb"
@@ -3270,7 +3360,7 @@
       "theoreticalBasis": "Locrian vamp — two-chord Locrian vamp"
     },
     {
-      "id": "test-239",
+      "id": "test-245",
       "chords": [
         "Fdim",
         "C7",
@@ -3283,11 +3373,11 @@
       "theoreticalBasis": "Locrian foil — true V7 contradicts Locrian"
     },
     {
-      "id": "test-240",
+      "id": "test-246",
       "chords": [
         "Fdim",
         "Gb",
-        "Cm",
+        "Cbm",
         "Fdim"
       ],
       "expectedModal": false,
@@ -3296,7 +3386,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-241",
+      "id": "test-247",
       "chords": [
         "F#",
         "B",
@@ -3310,7 +3400,7 @@
       "theoreticalBasis": "Ionian short — plagal movement as modal color"
     },
     {
-      "id": "test-242",
+      "id": "test-248",
       "chords": [
         "F#maj7",
         "Bmaj7",
@@ -3324,7 +3414,7 @@
       "theoreticalBasis": "Ionian seventh — Ionian color with 7ths"
     },
     {
-      "id": "test-243",
+      "id": "test-249",
       "chords": [
         "F#",
         "B"
@@ -3337,7 +3427,7 @@
       "theoreticalBasis": "Ionian vamp — sustained Ionian color"
     },
     {
-      "id": "test-244",
+      "id": "test-250",
       "chords": [
         "F#",
         "C#",
@@ -3350,7 +3440,7 @@
       "theoreticalBasis": "Ionian foil — authentic cadence is functional, not modal"
     },
     {
-      "id": "test-245",
+      "id": "test-251",
       "chords": [
         "F#m",
         "B",
@@ -3365,7 +3455,7 @@
       "theoreticalBasis": "Dorian long — major IV and bVII with minor tonic"
     },
     {
-      "id": "test-246",
+      "id": "test-252",
       "chords": [
         "F#m",
         "B",
@@ -3379,7 +3469,7 @@
       "theoreticalBasis": "Dorian short — major IV against minor tonic defines Dorian"
     },
     {
-      "id": "test-247",
+      "id": "test-253",
       "chords": [
         "F#m7",
         "Bmaj7",
@@ -3393,7 +3483,7 @@
       "theoreticalBasis": "Dorian seventh — seventh-quality voicings, modal color intact"
     },
     {
-      "id": "test-248",
+      "id": "test-254",
       "chords": [
         "F#m",
         "B"
@@ -3406,7 +3496,7 @@
       "theoreticalBasis": "Dorian vamp — two-chord Dorian vamp"
     },
     {
-      "id": "test-249",
+      "id": "test-255",
       "chords": [
         "F#m",
         "Bm",
@@ -3419,7 +3509,7 @@
       "theoreticalBasis": "Dorian foil — minor iv pulls toward Aeolian"
     },
     {
-      "id": "test-250",
+      "id": "test-256",
       "chords": [
         "F#m",
         "B",
@@ -3432,7 +3522,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-251",
+      "id": "test-257",
       "chords": [
         "F#m",
         "G",
@@ -3447,7 +3537,7 @@
       "theoreticalBasis": "Phrygian long — bII with bVII underscores Phrygian"
     },
     {
-      "id": "test-252",
+      "id": "test-258",
       "chords": [
         "F#m",
         "G",
@@ -3461,7 +3551,7 @@
       "theoreticalBasis": "Phrygian short — flat second is the signature degree"
     },
     {
-      "id": "test-253",
+      "id": "test-259",
       "chords": [
         "F#m7",
         "G",
@@ -3475,7 +3565,7 @@
       "theoreticalBasis": "Phrygian seventh — seventh voicing maintains Phrygian color"
     },
     {
-      "id": "test-254",
+      "id": "test-260",
       "chords": [
         "F#m",
         "G"
@@ -3488,7 +3578,7 @@
       "theoreticalBasis": "Phrygian vamp — pedal vamp on tonic and bII"
     },
     {
-      "id": "test-255",
+      "id": "test-261",
       "chords": [
         "F#m",
         "G#",
@@ -3501,7 +3591,7 @@
       "theoreticalBasis": "Phrygian foil — natural 2 undermines Phrygian"
     },
     {
-      "id": "test-256",
+      "id": "test-262",
       "chords": [
         "F#m",
         "G",
@@ -3514,7 +3604,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-257",
+      "id": "test-263",
       "chords": [
         "F#",
         "Ab",
@@ -3529,7 +3619,22 @@
       "theoreticalBasis": "Lydian long — raised 4th via II; keeps functional V at bay contextually"
     },
     {
-      "id": "test-258",
+      "id": "test-264",
+      "chords": [
+        "F#",
+        "Ab",
+        "F#",
+        "Ab"
+      ],
+      "parentKey": "Db major",
+      "expectedModal": true,
+      "expectedMode": "F# Lydian",
+      "description": "F# Lydian I-II-I-II",
+      "category": "modal_characteristic",
+      "theoreticalBasis": "Lydian long_nov — strict Lydian motion emphasizing #4, avoids V"
+    },
+    {
+      "id": "test-265",
       "chords": [
         "F#",
         "Ab",
@@ -3543,7 +3648,7 @@
       "theoreticalBasis": "Lydian short — II (diatonic) emphasizes #4 over IV"
     },
     {
-      "id": "test-259",
+      "id": "test-266",
       "chords": [
         "F#maj7",
         "Ab",
@@ -3557,7 +3662,7 @@
       "theoreticalBasis": "Lydian seventh — Imaj7 with implied #11 color"
     },
     {
-      "id": "test-260",
+      "id": "test-267",
       "chords": [
         "F#",
         "Ab"
@@ -3570,7 +3675,7 @@
       "theoreticalBasis": "Lydian vamp — two-chord Lydian vamp"
     },
     {
-      "id": "test-261",
+      "id": "test-268",
       "chords": [
         "F#",
         "Db",
@@ -3583,7 +3688,7 @@
       "theoreticalBasis": "Lydian foil — authentic cadence reduces Lydian feel"
     },
     {
-      "id": "test-262",
+      "id": "test-269",
       "chords": [
         "F#",
         "Ab",
@@ -3596,7 +3701,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-263",
+      "id": "test-270",
       "chords": [
         "F#",
         "E",
@@ -3611,7 +3716,7 @@
       "theoreticalBasis": "Mixolydian long — bVII and IV emphasize modal dominant-less cadence"
     },
     {
-      "id": "test-264",
+      "id": "test-271",
       "chords": [
         "F#",
         "E",
@@ -3625,7 +3730,7 @@
       "theoreticalBasis": "Mixolydian short — bVII-I cadence is a core Mixolydian marker"
     },
     {
-      "id": "test-265",
+      "id": "test-272",
       "chords": [
         "F#7",
         "B",
@@ -3639,7 +3744,7 @@
       "theoreticalBasis": "Mixolydian seventh — dominant-quality tonic is idiomatic in Mixolydian"
     },
     {
-      "id": "test-266",
+      "id": "test-273",
       "chords": [
         "F#",
         "B"
@@ -3652,7 +3757,7 @@
       "theoreticalBasis": "Mixolydian vamp — sustained modal color without functional V"
     },
     {
-      "id": "test-267",
+      "id": "test-274",
       "chords": [
         "F#",
         "C#",
@@ -3665,7 +3770,7 @@
       "theoreticalBasis": "Mixolydian foil — leading-tone V implies functional major over modal"
     },
     {
-      "id": "test-268",
+      "id": "test-275",
       "chords": [
         "F#",
         "E",
@@ -3678,7 +3783,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-269",
+      "id": "test-276",
       "chords": [
         "F#m",
         "D",
@@ -3693,7 +3798,7 @@
       "theoreticalBasis": "Aeolian long — natural minor hallmark bVI, bVII"
     },
     {
-      "id": "test-270",
+      "id": "test-277",
       "chords": [
         "F#m",
         "E",
@@ -3707,7 +3812,7 @@
       "theoreticalBasis": "Aeolian short — Aeolian cadence without leading tone"
     },
     {
-      "id": "test-271",
+      "id": "test-278",
       "chords": [
         "F#m7",
         "D",
@@ -3722,7 +3827,7 @@
       "theoreticalBasis": "Aeolian seventh — seventh voicings in Aeolian"
     },
     {
-      "id": "test-272",
+      "id": "test-279",
       "chords": [
         "F#m",
         "E"
@@ -3735,7 +3840,7 @@
       "theoreticalBasis": "Aeolian vamp — two-chord Aeolian vamp"
     },
     {
-      "id": "test-273",
+      "id": "test-280",
       "chords": [
         "F#m",
         "C#7",
@@ -3748,7 +3853,7 @@
       "theoreticalBasis": "Aeolian foil — leading-tone dominant suggests harmonic minor"
     },
     {
-      "id": "test-274",
+      "id": "test-281",
       "chords": [
         "F#m",
         "D",
@@ -3761,11 +3866,11 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-275",
+      "id": "test-282",
       "chords": [
         "F#dim",
         "G",
-        "C#m",
+        "Cm",
         "F#dim"
       ],
       "parentKey": "G major",
@@ -3776,7 +3881,7 @@
       "theoreticalBasis": "Locrian long — Locrian with bII and minor v (no true V)"
     },
     {
-      "id": "test-276",
+      "id": "test-283",
       "chords": [
         "F#dim",
         "G",
@@ -3790,7 +3895,7 @@
       "theoreticalBasis": "Locrian short — diminished tonic and Neapolitan color"
     },
     {
-      "id": "test-277",
+      "id": "test-284",
       "chords": [
         "F#m7b5",
         "G",
@@ -3804,7 +3909,7 @@
       "theoreticalBasis": "Locrian seventh — half-diminished tonic is idiomatic for Locrian"
     },
     {
-      "id": "test-278",
+      "id": "test-285",
       "chords": [
         "F#dim",
         "G"
@@ -3817,7 +3922,7 @@
       "theoreticalBasis": "Locrian vamp — two-chord Locrian vamp"
     },
     {
-      "id": "test-279",
+      "id": "test-286",
       "chords": [
         "F#dim",
         "C#7",
@@ -3830,11 +3935,11 @@
       "theoreticalBasis": "Locrian foil — true V7 contradicts Locrian"
     },
     {
-      "id": "test-280",
+      "id": "test-287",
       "chords": [
         "F#dim",
         "G",
-        "C#m",
+        "Cm",
         "F#dim"
       ],
       "expectedModal": false,
@@ -3843,7 +3948,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-281",
+      "id": "test-288",
       "chords": [
         "G",
         "C",
@@ -3857,7 +3962,7 @@
       "theoreticalBasis": "Ionian short — plagal movement as modal color"
     },
     {
-      "id": "test-282",
+      "id": "test-289",
       "chords": [
         "Gmaj7",
         "Cmaj7",
@@ -3871,7 +3976,7 @@
       "theoreticalBasis": "Ionian seventh — Ionian color with 7ths"
     },
     {
-      "id": "test-283",
+      "id": "test-290",
       "chords": [
         "G",
         "C"
@@ -3884,7 +3989,7 @@
       "theoreticalBasis": "Ionian vamp — sustained Ionian color"
     },
     {
-      "id": "test-284",
+      "id": "test-291",
       "chords": [
         "G",
         "D",
@@ -3897,7 +4002,7 @@
       "theoreticalBasis": "Ionian foil — authentic cadence is functional, not modal"
     },
     {
-      "id": "test-285",
+      "id": "test-292",
       "chords": [
         "Gm",
         "C",
@@ -3912,7 +4017,7 @@
       "theoreticalBasis": "Dorian long — major IV and bVII with minor tonic"
     },
     {
-      "id": "test-286",
+      "id": "test-293",
       "chords": [
         "Gm",
         "C",
@@ -3926,7 +4031,7 @@
       "theoreticalBasis": "Dorian short — major IV against minor tonic defines Dorian"
     },
     {
-      "id": "test-287",
+      "id": "test-294",
       "chords": [
         "Gm7",
         "Cmaj7",
@@ -3940,7 +4045,7 @@
       "theoreticalBasis": "Dorian seventh — seventh-quality voicings, modal color intact"
     },
     {
-      "id": "test-288",
+      "id": "test-295",
       "chords": [
         "Gm",
         "C"
@@ -3953,7 +4058,7 @@
       "theoreticalBasis": "Dorian vamp — two-chord Dorian vamp"
     },
     {
-      "id": "test-289",
+      "id": "test-296",
       "chords": [
         "Gm",
         "Cm",
@@ -3966,7 +4071,7 @@
       "theoreticalBasis": "Dorian foil — minor iv pulls toward Aeolian"
     },
     {
-      "id": "test-290",
+      "id": "test-297",
       "chords": [
         "Gm",
         "C",
@@ -3979,7 +4084,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-291",
+      "id": "test-298",
       "chords": [
         "Gm",
         "Ab",
@@ -3994,7 +4099,7 @@
       "theoreticalBasis": "Phrygian long — bII with bVII underscores Phrygian"
     },
     {
-      "id": "test-292",
+      "id": "test-299",
       "chords": [
         "Gm",
         "Ab",
@@ -4008,7 +4113,7 @@
       "theoreticalBasis": "Phrygian short — flat second is the signature degree"
     },
     {
-      "id": "test-293",
+      "id": "test-300",
       "chords": [
         "Gm7",
         "Ab",
@@ -4022,7 +4127,7 @@
       "theoreticalBasis": "Phrygian seventh — seventh voicing maintains Phrygian color"
     },
     {
-      "id": "test-294",
+      "id": "test-301",
       "chords": [
         "Gm",
         "Ab"
@@ -4035,7 +4140,7 @@
       "theoreticalBasis": "Phrygian vamp — pedal vamp on tonic and bII"
     },
     {
-      "id": "test-295",
+      "id": "test-302",
       "chords": [
         "Gm",
         "A",
@@ -4048,7 +4153,7 @@
       "theoreticalBasis": "Phrygian foil — natural 2 undermines Phrygian"
     },
     {
-      "id": "test-296",
+      "id": "test-303",
       "chords": [
         "Gm",
         "Ab",
@@ -4061,7 +4166,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-297",
+      "id": "test-304",
       "chords": [
         "G",
         "A",
@@ -4076,7 +4181,22 @@
       "theoreticalBasis": "Lydian long — raised 4th via II; keeps functional V at bay contextually"
     },
     {
-      "id": "test-298",
+      "id": "test-305",
+      "chords": [
+        "G",
+        "A",
+        "G",
+        "A"
+      ],
+      "parentKey": "D major",
+      "expectedModal": true,
+      "expectedMode": "G Lydian",
+      "description": "G Lydian I-II-I-II",
+      "category": "modal_characteristic",
+      "theoreticalBasis": "Lydian long_nov — strict Lydian motion emphasizing #4, avoids V"
+    },
+    {
+      "id": "test-306",
       "chords": [
         "G",
         "A",
@@ -4090,7 +4210,7 @@
       "theoreticalBasis": "Lydian short — II (diatonic) emphasizes #4 over IV"
     },
     {
-      "id": "test-299",
+      "id": "test-307",
       "chords": [
         "Gmaj7",
         "A",
@@ -4104,7 +4224,7 @@
       "theoreticalBasis": "Lydian seventh — Imaj7 with implied #11 color"
     },
     {
-      "id": "test-300",
+      "id": "test-308",
       "chords": [
         "G",
         "A"
@@ -4117,7 +4237,7 @@
       "theoreticalBasis": "Lydian vamp — two-chord Lydian vamp"
     },
     {
-      "id": "test-301",
+      "id": "test-309",
       "chords": [
         "G",
         "D",
@@ -4130,7 +4250,7 @@
       "theoreticalBasis": "Lydian foil — authentic cadence reduces Lydian feel"
     },
     {
-      "id": "test-302",
+      "id": "test-310",
       "chords": [
         "G",
         "A",
@@ -4143,7 +4263,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-303",
+      "id": "test-311",
       "chords": [
         "G",
         "F",
@@ -4158,7 +4278,7 @@
       "theoreticalBasis": "Mixolydian long — bVII and IV emphasize modal dominant-less cadence"
     },
     {
-      "id": "test-304",
+      "id": "test-312",
       "chords": [
         "G",
         "F",
@@ -4172,7 +4292,7 @@
       "theoreticalBasis": "Mixolydian short — bVII-I cadence is a core Mixolydian marker"
     },
     {
-      "id": "test-305",
+      "id": "test-313",
       "chords": [
         "G7",
         "C",
@@ -4186,7 +4306,7 @@
       "theoreticalBasis": "Mixolydian seventh — dominant-quality tonic is idiomatic in Mixolydian"
     },
     {
-      "id": "test-306",
+      "id": "test-314",
       "chords": [
         "G",
         "C"
@@ -4199,7 +4319,7 @@
       "theoreticalBasis": "Mixolydian vamp — sustained modal color without functional V"
     },
     {
-      "id": "test-307",
+      "id": "test-315",
       "chords": [
         "G",
         "D",
@@ -4212,7 +4332,7 @@
       "theoreticalBasis": "Mixolydian foil — leading-tone V implies functional major over modal"
     },
     {
-      "id": "test-308",
+      "id": "test-316",
       "chords": [
         "G",
         "F",
@@ -4225,7 +4345,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-309",
+      "id": "test-317",
       "chords": [
         "Gm",
         "Eb",
@@ -4240,7 +4360,7 @@
       "theoreticalBasis": "Aeolian long — natural minor hallmark bVI, bVII"
     },
     {
-      "id": "test-310",
+      "id": "test-318",
       "chords": [
         "Gm",
         "F",
@@ -4254,7 +4374,7 @@
       "theoreticalBasis": "Aeolian short — Aeolian cadence without leading tone"
     },
     {
-      "id": "test-311",
+      "id": "test-319",
       "chords": [
         "Gm7",
         "Eb",
@@ -4269,7 +4389,7 @@
       "theoreticalBasis": "Aeolian seventh — seventh voicings in Aeolian"
     },
     {
-      "id": "test-312",
+      "id": "test-320",
       "chords": [
         "Gm",
         "F"
@@ -4282,7 +4402,7 @@
       "theoreticalBasis": "Aeolian vamp — two-chord Aeolian vamp"
     },
     {
-      "id": "test-313",
+      "id": "test-321",
       "chords": [
         "Gm",
         "D7",
@@ -4295,7 +4415,7 @@
       "theoreticalBasis": "Aeolian foil — leading-tone dominant suggests harmonic minor"
     },
     {
-      "id": "test-314",
+      "id": "test-322",
       "chords": [
         "Gm",
         "Eb",
@@ -4308,11 +4428,11 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-315",
+      "id": "test-323",
       "chords": [
         "Gdim",
         "Ab",
-        "Dm",
+        "Dbm",
         "Gdim"
       ],
       "parentKey": "Ab major",
@@ -4323,7 +4443,7 @@
       "theoreticalBasis": "Locrian long — Locrian with bII and minor v (no true V)"
     },
     {
-      "id": "test-316",
+      "id": "test-324",
       "chords": [
         "Gdim",
         "Ab",
@@ -4337,7 +4457,7 @@
       "theoreticalBasis": "Locrian short — diminished tonic and Neapolitan color"
     },
     {
-      "id": "test-317",
+      "id": "test-325",
       "chords": [
         "Gm7b5",
         "Ab",
@@ -4351,7 +4471,7 @@
       "theoreticalBasis": "Locrian seventh — half-diminished tonic is idiomatic for Locrian"
     },
     {
-      "id": "test-318",
+      "id": "test-326",
       "chords": [
         "Gdim",
         "Ab"
@@ -4364,7 +4484,7 @@
       "theoreticalBasis": "Locrian vamp — two-chord Locrian vamp"
     },
     {
-      "id": "test-319",
+      "id": "test-327",
       "chords": [
         "Gdim",
         "D7",
@@ -4377,11 +4497,11 @@
       "theoreticalBasis": "Locrian foil — true V7 contradicts Locrian"
     },
     {
-      "id": "test-320",
+      "id": "test-328",
       "chords": [
         "Gdim",
         "Ab",
-        "Dm",
+        "Dbm",
         "Gdim"
       ],
       "expectedModal": false,
@@ -4390,7 +4510,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-321",
+      "id": "test-329",
       "chords": [
         "Ab",
         "Db",
@@ -4404,7 +4524,7 @@
       "theoreticalBasis": "Ionian short — plagal movement as modal color"
     },
     {
-      "id": "test-322",
+      "id": "test-330",
       "chords": [
         "Abmaj7",
         "Dbmaj7",
@@ -4418,7 +4538,7 @@
       "theoreticalBasis": "Ionian seventh — Ionian color with 7ths"
     },
     {
-      "id": "test-323",
+      "id": "test-331",
       "chords": [
         "Ab",
         "Db"
@@ -4431,7 +4551,7 @@
       "theoreticalBasis": "Ionian vamp — sustained Ionian color"
     },
     {
-      "id": "test-324",
+      "id": "test-332",
       "chords": [
         "Ab",
         "Eb",
@@ -4444,7 +4564,7 @@
       "theoreticalBasis": "Ionian foil — authentic cadence is functional, not modal"
     },
     {
-      "id": "test-325",
+      "id": "test-333",
       "chords": [
         "Abm",
         "Db",
@@ -4459,7 +4579,7 @@
       "theoreticalBasis": "Dorian long — major IV and bVII with minor tonic"
     },
     {
-      "id": "test-326",
+      "id": "test-334",
       "chords": [
         "Abm",
         "Db",
@@ -4473,7 +4593,7 @@
       "theoreticalBasis": "Dorian short — major IV against minor tonic defines Dorian"
     },
     {
-      "id": "test-327",
+      "id": "test-335",
       "chords": [
         "Abm7",
         "Dbmaj7",
@@ -4487,7 +4607,7 @@
       "theoreticalBasis": "Dorian seventh — seventh-quality voicings, modal color intact"
     },
     {
-      "id": "test-328",
+      "id": "test-336",
       "chords": [
         "Abm",
         "Db"
@@ -4500,7 +4620,7 @@
       "theoreticalBasis": "Dorian vamp — two-chord Dorian vamp"
     },
     {
-      "id": "test-329",
+      "id": "test-337",
       "chords": [
         "Abm",
         "Dbm",
@@ -4513,7 +4633,7 @@
       "theoreticalBasis": "Dorian foil — minor iv pulls toward Aeolian"
     },
     {
-      "id": "test-330",
+      "id": "test-338",
       "chords": [
         "Abm",
         "Db",
@@ -4526,7 +4646,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-331",
+      "id": "test-339",
       "chords": [
         "Abm",
         "A",
@@ -4541,7 +4661,7 @@
       "theoreticalBasis": "Phrygian long — bII with bVII underscores Phrygian"
     },
     {
-      "id": "test-332",
+      "id": "test-340",
       "chords": [
         "Abm",
         "A",
@@ -4555,7 +4675,7 @@
       "theoreticalBasis": "Phrygian short — flat second is the signature degree"
     },
     {
-      "id": "test-333",
+      "id": "test-341",
       "chords": [
         "Abm7",
         "A",
@@ -4569,7 +4689,7 @@
       "theoreticalBasis": "Phrygian seventh — seventh voicing maintains Phrygian color"
     },
     {
-      "id": "test-334",
+      "id": "test-342",
       "chords": [
         "Abm",
         "A"
@@ -4582,7 +4702,7 @@
       "theoreticalBasis": "Phrygian vamp — pedal vamp on tonic and bII"
     },
     {
-      "id": "test-335",
+      "id": "test-343",
       "chords": [
         "Abm",
         "Bb",
@@ -4595,7 +4715,7 @@
       "theoreticalBasis": "Phrygian foil — natural 2 undermines Phrygian"
     },
     {
-      "id": "test-336",
+      "id": "test-344",
       "chords": [
         "Abm",
         "A",
@@ -4608,7 +4728,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-337",
+      "id": "test-345",
       "chords": [
         "Ab",
         "Bb",
@@ -4623,7 +4743,22 @@
       "theoreticalBasis": "Lydian long — raised 4th via II; keeps functional V at bay contextually"
     },
     {
-      "id": "test-338",
+      "id": "test-346",
+      "chords": [
+        "Ab",
+        "Bb",
+        "Ab",
+        "Bb"
+      ],
+      "parentKey": "Eb major",
+      "expectedModal": true,
+      "expectedMode": "Ab Lydian",
+      "description": "Ab Lydian I-II-I-II",
+      "category": "modal_characteristic",
+      "theoreticalBasis": "Lydian long_nov — strict Lydian motion emphasizing #4, avoids V"
+    },
+    {
+      "id": "test-347",
       "chords": [
         "Ab",
         "Bb",
@@ -4637,7 +4772,7 @@
       "theoreticalBasis": "Lydian short — II (diatonic) emphasizes #4 over IV"
     },
     {
-      "id": "test-339",
+      "id": "test-348",
       "chords": [
         "Abmaj7",
         "Bb",
@@ -4651,7 +4786,7 @@
       "theoreticalBasis": "Lydian seventh — Imaj7 with implied #11 color"
     },
     {
-      "id": "test-340",
+      "id": "test-349",
       "chords": [
         "Ab",
         "Bb"
@@ -4664,7 +4799,7 @@
       "theoreticalBasis": "Lydian vamp — two-chord Lydian vamp"
     },
     {
-      "id": "test-341",
+      "id": "test-350",
       "chords": [
         "Ab",
         "Eb",
@@ -4677,7 +4812,7 @@
       "theoreticalBasis": "Lydian foil — authentic cadence reduces Lydian feel"
     },
     {
-      "id": "test-342",
+      "id": "test-351",
       "chords": [
         "Ab",
         "Bb",
@@ -4690,7 +4825,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-343",
+      "id": "test-352",
       "chords": [
         "Ab",
         "Gb",
@@ -4705,7 +4840,7 @@
       "theoreticalBasis": "Mixolydian long — bVII and IV emphasize modal dominant-less cadence"
     },
     {
-      "id": "test-344",
+      "id": "test-353",
       "chords": [
         "Ab",
         "Gb",
@@ -4719,7 +4854,7 @@
       "theoreticalBasis": "Mixolydian short — bVII-I cadence is a core Mixolydian marker"
     },
     {
-      "id": "test-345",
+      "id": "test-354",
       "chords": [
         "Ab7",
         "Db",
@@ -4733,7 +4868,7 @@
       "theoreticalBasis": "Mixolydian seventh — dominant-quality tonic is idiomatic in Mixolydian"
     },
     {
-      "id": "test-346",
+      "id": "test-355",
       "chords": [
         "Ab",
         "Db"
@@ -4746,7 +4881,7 @@
       "theoreticalBasis": "Mixolydian vamp — sustained modal color without functional V"
     },
     {
-      "id": "test-347",
+      "id": "test-356",
       "chords": [
         "Ab",
         "Eb",
@@ -4759,7 +4894,7 @@
       "theoreticalBasis": "Mixolydian foil — leading-tone V implies functional major over modal"
     },
     {
-      "id": "test-348",
+      "id": "test-357",
       "chords": [
         "Ab",
         "Gb",
@@ -4772,7 +4907,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-349",
+      "id": "test-358",
       "chords": [
         "Abm",
         "E",
@@ -4787,7 +4922,7 @@
       "theoreticalBasis": "Aeolian long — natural minor hallmark bVI, bVII"
     },
     {
-      "id": "test-350",
+      "id": "test-359",
       "chords": [
         "Abm",
         "Gb",
@@ -4801,7 +4936,7 @@
       "theoreticalBasis": "Aeolian short — Aeolian cadence without leading tone"
     },
     {
-      "id": "test-351",
+      "id": "test-360",
       "chords": [
         "Abm7",
         "E",
@@ -4816,7 +4951,7 @@
       "theoreticalBasis": "Aeolian seventh — seventh voicings in Aeolian"
     },
     {
-      "id": "test-352",
+      "id": "test-361",
       "chords": [
         "Abm",
         "Gb"
@@ -4829,7 +4964,7 @@
       "theoreticalBasis": "Aeolian vamp — two-chord Aeolian vamp"
     },
     {
-      "id": "test-353",
+      "id": "test-362",
       "chords": [
         "Abm",
         "Eb7",
@@ -4842,7 +4977,7 @@
       "theoreticalBasis": "Aeolian foil — leading-tone dominant suggests harmonic minor"
     },
     {
-      "id": "test-354",
+      "id": "test-363",
       "chords": [
         "Abm",
         "E",
@@ -4855,11 +4990,11 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-355",
+      "id": "test-364",
       "chords": [
         "Abdim",
         "A",
-        "Ebm",
+        "Dm",
         "Abdim"
       ],
       "parentKey": "A major",
@@ -4870,7 +5005,7 @@
       "theoreticalBasis": "Locrian long — Locrian with bII and minor v (no true V)"
     },
     {
-      "id": "test-356",
+      "id": "test-365",
       "chords": [
         "Abdim",
         "A",
@@ -4884,7 +5019,7 @@
       "theoreticalBasis": "Locrian short — diminished tonic and Neapolitan color"
     },
     {
-      "id": "test-357",
+      "id": "test-366",
       "chords": [
         "Abm7b5",
         "A",
@@ -4898,7 +5033,7 @@
       "theoreticalBasis": "Locrian seventh — half-diminished tonic is idiomatic for Locrian"
     },
     {
-      "id": "test-358",
+      "id": "test-367",
       "chords": [
         "Abdim",
         "A"
@@ -4911,7 +5046,7 @@
       "theoreticalBasis": "Locrian vamp — two-chord Locrian vamp"
     },
     {
-      "id": "test-359",
+      "id": "test-368",
       "chords": [
         "Abdim",
         "Eb7",
@@ -4924,11 +5059,11 @@
       "theoreticalBasis": "Locrian foil — true V7 contradicts Locrian"
     },
     {
-      "id": "test-360",
+      "id": "test-369",
       "chords": [
         "Abdim",
         "A",
-        "Ebm",
+        "Dm",
         "Abdim"
       ],
       "expectedModal": false,
@@ -4937,7 +5072,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-361",
+      "id": "test-370",
       "chords": [
         "A",
         "D",
@@ -4951,7 +5086,7 @@
       "theoreticalBasis": "Ionian short — plagal movement as modal color"
     },
     {
-      "id": "test-362",
+      "id": "test-371",
       "chords": [
         "Amaj7",
         "Dmaj7",
@@ -4965,7 +5100,7 @@
       "theoreticalBasis": "Ionian seventh — Ionian color with 7ths"
     },
     {
-      "id": "test-363",
+      "id": "test-372",
       "chords": [
         "A",
         "D"
@@ -4978,7 +5113,7 @@
       "theoreticalBasis": "Ionian vamp — sustained Ionian color"
     },
     {
-      "id": "test-364",
+      "id": "test-373",
       "chords": [
         "A",
         "E",
@@ -4991,7 +5126,7 @@
       "theoreticalBasis": "Ionian foil — authentic cadence is functional, not modal"
     },
     {
-      "id": "test-365",
+      "id": "test-374",
       "chords": [
         "Am",
         "D",
@@ -5006,7 +5141,7 @@
       "theoreticalBasis": "Dorian long — major IV and bVII with minor tonic"
     },
     {
-      "id": "test-366",
+      "id": "test-375",
       "chords": [
         "Am",
         "D",
@@ -5020,7 +5155,7 @@
       "theoreticalBasis": "Dorian short — major IV against minor tonic defines Dorian"
     },
     {
-      "id": "test-367",
+      "id": "test-376",
       "chords": [
         "Am7",
         "Dmaj7",
@@ -5034,7 +5169,7 @@
       "theoreticalBasis": "Dorian seventh — seventh-quality voicings, modal color intact"
     },
     {
-      "id": "test-368",
+      "id": "test-377",
       "chords": [
         "Am",
         "D"
@@ -5047,7 +5182,7 @@
       "theoreticalBasis": "Dorian vamp — two-chord Dorian vamp"
     },
     {
-      "id": "test-369",
+      "id": "test-378",
       "chords": [
         "Am",
         "Dm",
@@ -5060,7 +5195,7 @@
       "theoreticalBasis": "Dorian foil — minor iv pulls toward Aeolian"
     },
     {
-      "id": "test-370",
+      "id": "test-379",
       "chords": [
         "Am",
         "D",
@@ -5073,7 +5208,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-371",
+      "id": "test-380",
       "chords": [
         "Am",
         "Bb",
@@ -5088,7 +5223,7 @@
       "theoreticalBasis": "Phrygian long — bII with bVII underscores Phrygian"
     },
     {
-      "id": "test-372",
+      "id": "test-381",
       "chords": [
         "Am",
         "Bb",
@@ -5102,7 +5237,7 @@
       "theoreticalBasis": "Phrygian short — flat second is the signature degree"
     },
     {
-      "id": "test-373",
+      "id": "test-382",
       "chords": [
         "Am7",
         "Bb",
@@ -5116,7 +5251,7 @@
       "theoreticalBasis": "Phrygian seventh — seventh voicing maintains Phrygian color"
     },
     {
-      "id": "test-374",
+      "id": "test-383",
       "chords": [
         "Am",
         "Bb"
@@ -5129,7 +5264,7 @@
       "theoreticalBasis": "Phrygian vamp — pedal vamp on tonic and bII"
     },
     {
-      "id": "test-375",
+      "id": "test-384",
       "chords": [
         "Am",
         "B",
@@ -5142,7 +5277,7 @@
       "theoreticalBasis": "Phrygian foil — natural 2 undermines Phrygian"
     },
     {
-      "id": "test-376",
+      "id": "test-385",
       "chords": [
         "Am",
         "Bb",
@@ -5155,7 +5290,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-377",
+      "id": "test-386",
       "chords": [
         "A",
         "B",
@@ -5170,7 +5305,22 @@
       "theoreticalBasis": "Lydian long — raised 4th via II; keeps functional V at bay contextually"
     },
     {
-      "id": "test-378",
+      "id": "test-387",
+      "chords": [
+        "A",
+        "B",
+        "A",
+        "B"
+      ],
+      "parentKey": "E major",
+      "expectedModal": true,
+      "expectedMode": "A Lydian",
+      "description": "A Lydian I-II-I-II",
+      "category": "modal_characteristic",
+      "theoreticalBasis": "Lydian long_nov — strict Lydian motion emphasizing #4, avoids V"
+    },
+    {
+      "id": "test-388",
       "chords": [
         "A",
         "B",
@@ -5184,7 +5334,7 @@
       "theoreticalBasis": "Lydian short — II (diatonic) emphasizes #4 over IV"
     },
     {
-      "id": "test-379",
+      "id": "test-389",
       "chords": [
         "Amaj7",
         "B",
@@ -5198,7 +5348,7 @@
       "theoreticalBasis": "Lydian seventh — Imaj7 with implied #11 color"
     },
     {
-      "id": "test-380",
+      "id": "test-390",
       "chords": [
         "A",
         "B"
@@ -5211,7 +5361,7 @@
       "theoreticalBasis": "Lydian vamp — two-chord Lydian vamp"
     },
     {
-      "id": "test-381",
+      "id": "test-391",
       "chords": [
         "A",
         "E",
@@ -5224,7 +5374,7 @@
       "theoreticalBasis": "Lydian foil — authentic cadence reduces Lydian feel"
     },
     {
-      "id": "test-382",
+      "id": "test-392",
       "chords": [
         "A",
         "B",
@@ -5237,7 +5387,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-383",
+      "id": "test-393",
       "chords": [
         "A",
         "G",
@@ -5252,7 +5402,7 @@
       "theoreticalBasis": "Mixolydian long — bVII and IV emphasize modal dominant-less cadence"
     },
     {
-      "id": "test-384",
+      "id": "test-394",
       "chords": [
         "A",
         "G",
@@ -5266,7 +5416,7 @@
       "theoreticalBasis": "Mixolydian short — bVII-I cadence is a core Mixolydian marker"
     },
     {
-      "id": "test-385",
+      "id": "test-395",
       "chords": [
         "A7",
         "D",
@@ -5280,7 +5430,7 @@
       "theoreticalBasis": "Mixolydian seventh — dominant-quality tonic is idiomatic in Mixolydian"
     },
     {
-      "id": "test-386",
+      "id": "test-396",
       "chords": [
         "A",
         "D"
@@ -5293,7 +5443,7 @@
       "theoreticalBasis": "Mixolydian vamp — sustained modal color without functional V"
     },
     {
-      "id": "test-387",
+      "id": "test-397",
       "chords": [
         "A",
         "E",
@@ -5306,7 +5456,7 @@
       "theoreticalBasis": "Mixolydian foil — leading-tone V implies functional major over modal"
     },
     {
-      "id": "test-388",
+      "id": "test-398",
       "chords": [
         "A",
         "G",
@@ -5319,7 +5469,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-389",
+      "id": "test-399",
       "chords": [
         "Am",
         "F",
@@ -5334,7 +5484,7 @@
       "theoreticalBasis": "Aeolian long — natural minor hallmark bVI, bVII"
     },
     {
-      "id": "test-390",
+      "id": "test-400",
       "chords": [
         "Am",
         "G",
@@ -5348,7 +5498,7 @@
       "theoreticalBasis": "Aeolian short — Aeolian cadence without leading tone"
     },
     {
-      "id": "test-391",
+      "id": "test-401",
       "chords": [
         "Am7",
         "F",
@@ -5363,7 +5513,7 @@
       "theoreticalBasis": "Aeolian seventh — seventh voicings in Aeolian"
     },
     {
-      "id": "test-392",
+      "id": "test-402",
       "chords": [
         "Am",
         "G"
@@ -5376,7 +5526,7 @@
       "theoreticalBasis": "Aeolian vamp — two-chord Aeolian vamp"
     },
     {
-      "id": "test-393",
+      "id": "test-403",
       "chords": [
         "Am",
         "E7",
@@ -5389,7 +5539,7 @@
       "theoreticalBasis": "Aeolian foil — leading-tone dominant suggests harmonic minor"
     },
     {
-      "id": "test-394",
+      "id": "test-404",
       "chords": [
         "Am",
         "F",
@@ -5402,11 +5552,11 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-395",
+      "id": "test-405",
       "chords": [
         "Adim",
         "Bb",
-        "Em",
+        "Ebm",
         "Adim"
       ],
       "parentKey": "Bb major",
@@ -5417,7 +5567,7 @@
       "theoreticalBasis": "Locrian long — Locrian with bII and minor v (no true V)"
     },
     {
-      "id": "test-396",
+      "id": "test-406",
       "chords": [
         "Adim",
         "Bb",
@@ -5431,7 +5581,7 @@
       "theoreticalBasis": "Locrian short — diminished tonic and Neapolitan color"
     },
     {
-      "id": "test-397",
+      "id": "test-407",
       "chords": [
         "Am7b5",
         "Bb",
@@ -5445,7 +5595,7 @@
       "theoreticalBasis": "Locrian seventh — half-diminished tonic is idiomatic for Locrian"
     },
     {
-      "id": "test-398",
+      "id": "test-408",
       "chords": [
         "Adim",
         "Bb"
@@ -5458,7 +5608,7 @@
       "theoreticalBasis": "Locrian vamp — two-chord Locrian vamp"
     },
     {
-      "id": "test-399",
+      "id": "test-409",
       "chords": [
         "Adim",
         "E7",
@@ -5471,11 +5621,11 @@
       "theoreticalBasis": "Locrian foil — true V7 contradicts Locrian"
     },
     {
-      "id": "test-400",
+      "id": "test-410",
       "chords": [
         "Adim",
         "Bb",
-        "Em",
+        "Ebm",
         "Adim"
       ],
       "expectedModal": false,
@@ -5484,7 +5634,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-401",
+      "id": "test-411",
       "chords": [
         "Bb",
         "Eb",
@@ -5498,7 +5648,7 @@
       "theoreticalBasis": "Ionian short — plagal movement as modal color"
     },
     {
-      "id": "test-402",
+      "id": "test-412",
       "chords": [
         "Bbmaj7",
         "Ebmaj7",
@@ -5512,7 +5662,7 @@
       "theoreticalBasis": "Ionian seventh — Ionian color with 7ths"
     },
     {
-      "id": "test-403",
+      "id": "test-413",
       "chords": [
         "Bb",
         "Eb"
@@ -5525,7 +5675,7 @@
       "theoreticalBasis": "Ionian vamp — sustained Ionian color"
     },
     {
-      "id": "test-404",
+      "id": "test-414",
       "chords": [
         "Bb",
         "F",
@@ -5538,7 +5688,7 @@
       "theoreticalBasis": "Ionian foil — authentic cadence is functional, not modal"
     },
     {
-      "id": "test-405",
+      "id": "test-415",
       "chords": [
         "Bbm",
         "Eb",
@@ -5553,7 +5703,7 @@
       "theoreticalBasis": "Dorian long — major IV and bVII with minor tonic"
     },
     {
-      "id": "test-406",
+      "id": "test-416",
       "chords": [
         "Bbm",
         "Eb",
@@ -5567,7 +5717,7 @@
       "theoreticalBasis": "Dorian short — major IV against minor tonic defines Dorian"
     },
     {
-      "id": "test-407",
+      "id": "test-417",
       "chords": [
         "Bbm7",
         "Ebmaj7",
@@ -5581,7 +5731,7 @@
       "theoreticalBasis": "Dorian seventh — seventh-quality voicings, modal color intact"
     },
     {
-      "id": "test-408",
+      "id": "test-418",
       "chords": [
         "Bbm",
         "Eb"
@@ -5594,7 +5744,7 @@
       "theoreticalBasis": "Dorian vamp — two-chord Dorian vamp"
     },
     {
-      "id": "test-409",
+      "id": "test-419",
       "chords": [
         "Bbm",
         "Ebm",
@@ -5607,7 +5757,7 @@
       "theoreticalBasis": "Dorian foil — minor iv pulls toward Aeolian"
     },
     {
-      "id": "test-410",
+      "id": "test-420",
       "chords": [
         "Bbm",
         "Eb",
@@ -5620,10 +5770,10 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-411",
+      "id": "test-421",
       "chords": [
         "Bbm",
-        "B",
+        "Cb",
         "Ab",
         "Bbm"
       ],
@@ -5635,10 +5785,10 @@
       "theoreticalBasis": "Phrygian long — bII with bVII underscores Phrygian"
     },
     {
-      "id": "test-412",
+      "id": "test-422",
       "chords": [
         "Bbm",
-        "B",
+        "Cb",
         "Bbm"
       ],
       "parentKey": "Gb major",
@@ -5649,10 +5799,10 @@
       "theoreticalBasis": "Phrygian short — flat second is the signature degree"
     },
     {
-      "id": "test-413",
+      "id": "test-423",
       "chords": [
         "Bbm7",
-        "B",
+        "Cb",
         "Bbm7"
       ],
       "parentKey": "Gb major",
@@ -5663,10 +5813,10 @@
       "theoreticalBasis": "Phrygian seventh — seventh voicing maintains Phrygian color"
     },
     {
-      "id": "test-414",
+      "id": "test-424",
       "chords": [
         "Bbm",
-        "B"
+        "Cb"
       ],
       "parentKey": "Gb major",
       "expectedModal": true,
@@ -5676,7 +5826,7 @@
       "theoreticalBasis": "Phrygian vamp — pedal vamp on tonic and bII"
     },
     {
-      "id": "test-415",
+      "id": "test-425",
       "chords": [
         "Bbm",
         "C",
@@ -5689,10 +5839,10 @@
       "theoreticalBasis": "Phrygian foil — natural 2 undermines Phrygian"
     },
     {
-      "id": "test-416",
+      "id": "test-426",
       "chords": [
         "Bbm",
-        "B",
+        "Cb",
         "Ab",
         "Bbm"
       ],
@@ -5702,7 +5852,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-417",
+      "id": "test-427",
       "chords": [
         "Bb",
         "C",
@@ -5717,7 +5867,22 @@
       "theoreticalBasis": "Lydian long — raised 4th via II; keeps functional V at bay contextually"
     },
     {
-      "id": "test-418",
+      "id": "test-428",
+      "chords": [
+        "Bb",
+        "C",
+        "Bb",
+        "C"
+      ],
+      "parentKey": "F major",
+      "expectedModal": true,
+      "expectedMode": "Bb Lydian",
+      "description": "Bb Lydian I-II-I-II",
+      "category": "modal_characteristic",
+      "theoreticalBasis": "Lydian long_nov — strict Lydian motion emphasizing #4, avoids V"
+    },
+    {
+      "id": "test-429",
       "chords": [
         "Bb",
         "C",
@@ -5731,7 +5896,7 @@
       "theoreticalBasis": "Lydian short — II (diatonic) emphasizes #4 over IV"
     },
     {
-      "id": "test-419",
+      "id": "test-430",
       "chords": [
         "Bbmaj7",
         "C",
@@ -5745,7 +5910,7 @@
       "theoreticalBasis": "Lydian seventh — Imaj7 with implied #11 color"
     },
     {
-      "id": "test-420",
+      "id": "test-431",
       "chords": [
         "Bb",
         "C"
@@ -5758,7 +5923,7 @@
       "theoreticalBasis": "Lydian vamp — two-chord Lydian vamp"
     },
     {
-      "id": "test-421",
+      "id": "test-432",
       "chords": [
         "Bb",
         "F",
@@ -5771,7 +5936,7 @@
       "theoreticalBasis": "Lydian foil — authentic cadence reduces Lydian feel"
     },
     {
-      "id": "test-422",
+      "id": "test-433",
       "chords": [
         "Bb",
         "C",
@@ -5784,7 +5949,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-423",
+      "id": "test-434",
       "chords": [
         "Bb",
         "Ab",
@@ -5799,7 +5964,7 @@
       "theoreticalBasis": "Mixolydian long — bVII and IV emphasize modal dominant-less cadence"
     },
     {
-      "id": "test-424",
+      "id": "test-435",
       "chords": [
         "Bb",
         "Ab",
@@ -5813,7 +5978,7 @@
       "theoreticalBasis": "Mixolydian short — bVII-I cadence is a core Mixolydian marker"
     },
     {
-      "id": "test-425",
+      "id": "test-436",
       "chords": [
         "Bb7",
         "Eb",
@@ -5827,7 +5992,7 @@
       "theoreticalBasis": "Mixolydian seventh — dominant-quality tonic is idiomatic in Mixolydian"
     },
     {
-      "id": "test-426",
+      "id": "test-437",
       "chords": [
         "Bb",
         "Eb"
@@ -5840,7 +6005,7 @@
       "theoreticalBasis": "Mixolydian vamp — sustained modal color without functional V"
     },
     {
-      "id": "test-427",
+      "id": "test-438",
       "chords": [
         "Bb",
         "F",
@@ -5853,7 +6018,7 @@
       "theoreticalBasis": "Mixolydian foil — leading-tone V implies functional major over modal"
     },
     {
-      "id": "test-428",
+      "id": "test-439",
       "chords": [
         "Bb",
         "Ab",
@@ -5866,7 +6031,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-429",
+      "id": "test-440",
       "chords": [
         "Bbm",
         "Gb",
@@ -5881,7 +6046,7 @@
       "theoreticalBasis": "Aeolian long — natural minor hallmark bVI, bVII"
     },
     {
-      "id": "test-430",
+      "id": "test-441",
       "chords": [
         "Bbm",
         "Ab",
@@ -5895,7 +6060,7 @@
       "theoreticalBasis": "Aeolian short — Aeolian cadence without leading tone"
     },
     {
-      "id": "test-431",
+      "id": "test-442",
       "chords": [
         "Bbm7",
         "Gb",
@@ -5910,7 +6075,7 @@
       "theoreticalBasis": "Aeolian seventh — seventh voicings in Aeolian"
     },
     {
-      "id": "test-432",
+      "id": "test-443",
       "chords": [
         "Bbm",
         "Ab"
@@ -5923,7 +6088,7 @@
       "theoreticalBasis": "Aeolian vamp — two-chord Aeolian vamp"
     },
     {
-      "id": "test-433",
+      "id": "test-444",
       "chords": [
         "Bbm",
         "F7",
@@ -5936,7 +6101,7 @@
       "theoreticalBasis": "Aeolian foil — leading-tone dominant suggests harmonic minor"
     },
     {
-      "id": "test-434",
+      "id": "test-445",
       "chords": [
         "Bbm",
         "Gb",
@@ -5949,11 +6114,11 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-435",
+      "id": "test-446",
       "chords": [
         "Bbdim",
         "B",
-        "Fm",
+        "Em",
         "Bbdim"
       ],
       "parentKey": "B major",
@@ -5964,7 +6129,7 @@
       "theoreticalBasis": "Locrian long — Locrian with bII and minor v (no true V)"
     },
     {
-      "id": "test-436",
+      "id": "test-447",
       "chords": [
         "Bbdim",
         "B",
@@ -5978,7 +6143,7 @@
       "theoreticalBasis": "Locrian short — diminished tonic and Neapolitan color"
     },
     {
-      "id": "test-437",
+      "id": "test-448",
       "chords": [
         "Bbm7b5",
         "B",
@@ -5992,7 +6157,7 @@
       "theoreticalBasis": "Locrian seventh — half-diminished tonic is idiomatic for Locrian"
     },
     {
-      "id": "test-438",
+      "id": "test-449",
       "chords": [
         "Bbdim",
         "B"
@@ -6005,7 +6170,7 @@
       "theoreticalBasis": "Locrian vamp — two-chord Locrian vamp"
     },
     {
-      "id": "test-439",
+      "id": "test-450",
       "chords": [
         "Bbdim",
         "F7",
@@ -6018,11 +6183,11 @@
       "theoreticalBasis": "Locrian foil — true V7 contradicts Locrian"
     },
     {
-      "id": "test-440",
+      "id": "test-451",
       "chords": [
         "Bbdim",
         "B",
-        "Fm",
+        "Em",
         "Bbdim"
       ],
       "expectedModal": false,
@@ -6031,7 +6196,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-441",
+      "id": "test-452",
       "chords": [
         "B",
         "E",
@@ -6045,7 +6210,7 @@
       "theoreticalBasis": "Ionian short — plagal movement as modal color"
     },
     {
-      "id": "test-442",
+      "id": "test-453",
       "chords": [
         "Bmaj7",
         "Emaj7",
@@ -6059,7 +6224,7 @@
       "theoreticalBasis": "Ionian seventh — Ionian color with 7ths"
     },
     {
-      "id": "test-443",
+      "id": "test-454",
       "chords": [
         "B",
         "E"
@@ -6072,7 +6237,7 @@
       "theoreticalBasis": "Ionian vamp — sustained Ionian color"
     },
     {
-      "id": "test-444",
+      "id": "test-455",
       "chords": [
         "B",
         "F#",
@@ -6085,7 +6250,7 @@
       "theoreticalBasis": "Ionian foil — authentic cadence is functional, not modal"
     },
     {
-      "id": "test-445",
+      "id": "test-456",
       "chords": [
         "Bm",
         "E",
@@ -6100,7 +6265,7 @@
       "theoreticalBasis": "Dorian long — major IV and bVII with minor tonic"
     },
     {
-      "id": "test-446",
+      "id": "test-457",
       "chords": [
         "Bm",
         "E",
@@ -6114,7 +6279,7 @@
       "theoreticalBasis": "Dorian short — major IV against minor tonic defines Dorian"
     },
     {
-      "id": "test-447",
+      "id": "test-458",
       "chords": [
         "Bm7",
         "Emaj7",
@@ -6128,7 +6293,7 @@
       "theoreticalBasis": "Dorian seventh — seventh-quality voicings, modal color intact"
     },
     {
-      "id": "test-448",
+      "id": "test-459",
       "chords": [
         "Bm",
         "E"
@@ -6141,7 +6306,7 @@
       "theoreticalBasis": "Dorian vamp — two-chord Dorian vamp"
     },
     {
-      "id": "test-449",
+      "id": "test-460",
       "chords": [
         "Bm",
         "Em",
@@ -6154,7 +6319,7 @@
       "theoreticalBasis": "Dorian foil — minor iv pulls toward Aeolian"
     },
     {
-      "id": "test-450",
+      "id": "test-461",
       "chords": [
         "Bm",
         "E",
@@ -6167,7 +6332,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-451",
+      "id": "test-462",
       "chords": [
         "Bm",
         "C",
@@ -6182,7 +6347,7 @@
       "theoreticalBasis": "Phrygian long — bII with bVII underscores Phrygian"
     },
     {
-      "id": "test-452",
+      "id": "test-463",
       "chords": [
         "Bm",
         "C",
@@ -6196,7 +6361,7 @@
       "theoreticalBasis": "Phrygian short — flat second is the signature degree"
     },
     {
-      "id": "test-453",
+      "id": "test-464",
       "chords": [
         "Bm7",
         "C",
@@ -6210,7 +6375,7 @@
       "theoreticalBasis": "Phrygian seventh — seventh voicing maintains Phrygian color"
     },
     {
-      "id": "test-454",
+      "id": "test-465",
       "chords": [
         "Bm",
         "C"
@@ -6223,7 +6388,7 @@
       "theoreticalBasis": "Phrygian vamp — pedal vamp on tonic and bII"
     },
     {
-      "id": "test-455",
+      "id": "test-466",
       "chords": [
         "Bm",
         "C#",
@@ -6236,7 +6401,7 @@
       "theoreticalBasis": "Phrygian foil — natural 2 undermines Phrygian"
     },
     {
-      "id": "test-456",
+      "id": "test-467",
       "chords": [
         "Bm",
         "C",
@@ -6249,7 +6414,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-457",
+      "id": "test-468",
       "chords": [
         "B",
         "C#",
@@ -6264,7 +6429,22 @@
       "theoreticalBasis": "Lydian long — raised 4th via II; keeps functional V at bay contextually"
     },
     {
-      "id": "test-458",
+      "id": "test-469",
+      "chords": [
+        "B",
+        "C#",
+        "B",
+        "C#"
+      ],
+      "parentKey": "F# major",
+      "expectedModal": true,
+      "expectedMode": "B Lydian",
+      "description": "B Lydian I-II-I-II",
+      "category": "modal_characteristic",
+      "theoreticalBasis": "Lydian long_nov — strict Lydian motion emphasizing #4, avoids V"
+    },
+    {
+      "id": "test-470",
       "chords": [
         "B",
         "C#",
@@ -6278,7 +6458,7 @@
       "theoreticalBasis": "Lydian short — II (diatonic) emphasizes #4 over IV"
     },
     {
-      "id": "test-459",
+      "id": "test-471",
       "chords": [
         "Bmaj7",
         "C#",
@@ -6292,7 +6472,7 @@
       "theoreticalBasis": "Lydian seventh — Imaj7 with implied #11 color"
     },
     {
-      "id": "test-460",
+      "id": "test-472",
       "chords": [
         "B",
         "C#"
@@ -6305,7 +6485,7 @@
       "theoreticalBasis": "Lydian vamp — two-chord Lydian vamp"
     },
     {
-      "id": "test-461",
+      "id": "test-473",
       "chords": [
         "B",
         "F#",
@@ -6318,7 +6498,7 @@
       "theoreticalBasis": "Lydian foil — authentic cadence reduces Lydian feel"
     },
     {
-      "id": "test-462",
+      "id": "test-474",
       "chords": [
         "B",
         "C#",
@@ -6331,7 +6511,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-463",
+      "id": "test-475",
       "chords": [
         "B",
         "A",
@@ -6346,7 +6526,7 @@
       "theoreticalBasis": "Mixolydian long — bVII and IV emphasize modal dominant-less cadence"
     },
     {
-      "id": "test-464",
+      "id": "test-476",
       "chords": [
         "B",
         "A",
@@ -6360,7 +6540,7 @@
       "theoreticalBasis": "Mixolydian short — bVII-I cadence is a core Mixolydian marker"
     },
     {
-      "id": "test-465",
+      "id": "test-477",
       "chords": [
         "B7",
         "E",
@@ -6374,7 +6554,7 @@
       "theoreticalBasis": "Mixolydian seventh — dominant-quality tonic is idiomatic in Mixolydian"
     },
     {
-      "id": "test-466",
+      "id": "test-478",
       "chords": [
         "B",
         "E"
@@ -6387,7 +6567,7 @@
       "theoreticalBasis": "Mixolydian vamp — sustained modal color without functional V"
     },
     {
-      "id": "test-467",
+      "id": "test-479",
       "chords": [
         "B",
         "F#",
@@ -6400,7 +6580,7 @@
       "theoreticalBasis": "Mixolydian foil — leading-tone V implies functional major over modal"
     },
     {
-      "id": "test-468",
+      "id": "test-480",
       "chords": [
         "B",
         "A",
@@ -6413,7 +6593,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-469",
+      "id": "test-481",
       "chords": [
         "Bm",
         "G",
@@ -6428,7 +6608,7 @@
       "theoreticalBasis": "Aeolian long — natural minor hallmark bVI, bVII"
     },
     {
-      "id": "test-470",
+      "id": "test-482",
       "chords": [
         "Bm",
         "A",
@@ -6442,7 +6622,7 @@
       "theoreticalBasis": "Aeolian short — Aeolian cadence without leading tone"
     },
     {
-      "id": "test-471",
+      "id": "test-483",
       "chords": [
         "Bm7",
         "G",
@@ -6457,7 +6637,7 @@
       "theoreticalBasis": "Aeolian seventh — seventh voicings in Aeolian"
     },
     {
-      "id": "test-472",
+      "id": "test-484",
       "chords": [
         "Bm",
         "A"
@@ -6470,7 +6650,7 @@
       "theoreticalBasis": "Aeolian vamp — two-chord Aeolian vamp"
     },
     {
-      "id": "test-473",
+      "id": "test-485",
       "chords": [
         "Bm",
         "F#7",
@@ -6483,7 +6663,7 @@
       "theoreticalBasis": "Aeolian foil — leading-tone dominant suggests harmonic minor"
     },
     {
-      "id": "test-474",
+      "id": "test-486",
       "chords": [
         "Bm",
         "G",
@@ -6496,11 +6676,11 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-475",
+      "id": "test-487",
       "chords": [
         "Bdim",
         "C",
-        "F#m",
+        "Fm",
         "Bdim"
       ],
       "parentKey": "C major",
@@ -6511,7 +6691,7 @@
       "theoreticalBasis": "Locrian long — Locrian with bII and minor v (no true V)"
     },
     {
-      "id": "test-476",
+      "id": "test-488",
       "chords": [
         "Bdim",
         "C",
@@ -6525,7 +6705,7 @@
       "theoreticalBasis": "Locrian short — diminished tonic and Neapolitan color"
     },
     {
-      "id": "test-477",
+      "id": "test-489",
       "chords": [
         "Bm7b5",
         "C",
@@ -6539,7 +6719,7 @@
       "theoreticalBasis": "Locrian seventh — half-diminished tonic is idiomatic for Locrian"
     },
     {
-      "id": "test-478",
+      "id": "test-490",
       "chords": [
         "Bdim",
         "C"
@@ -6552,7 +6732,7 @@
       "theoreticalBasis": "Locrian vamp — two-chord Locrian vamp"
     },
     {
-      "id": "test-479",
+      "id": "test-491",
       "chords": [
         "Bdim",
         "F#7",
@@ -6565,11 +6745,11 @@
       "theoreticalBasis": "Locrian foil — true V7 contradicts Locrian"
     },
     {
-      "id": "test-480",
+      "id": "test-492",
       "chords": [
         "Bdim",
         "C",
-        "F#m",
+        "Fm",
         "Bdim"
       ],
       "expectedModal": false,
@@ -6578,7 +6758,7 @@
       "theoreticalBasis": "Omit parent key to force boundary decision between modal and functional"
     },
     {
-      "id": "test-481",
+      "id": "test-493",
       "chords": [
         "C",
         "F",
@@ -6592,7 +6772,7 @@
       "theoreticalBasis": "Classic functional cadence - pure functional harmony"
     },
     {
-      "id": "test-482",
+      "id": "test-494",
       "chords": [
         "C",
         "A",
@@ -6606,7 +6786,7 @@
       "theoreticalBasis": "Pop progression - pure functional harmony"
     },
     {
-      "id": "test-483",
+      "id": "test-495",
       "chords": [
         "A",
         "F",
@@ -6620,7 +6800,7 @@
       "theoreticalBasis": "Pop progression starting on vi - pure functional harmony"
     },
     {
-      "id": "test-484",
+      "id": "test-496",
       "chords": [
         "D",
         "G",
@@ -6633,7 +6813,7 @@
       "theoreticalBasis": "Jazz ii-V-I - pure functional harmony"
     },
     {
-      "id": "test-485",
+      "id": "test-497",
       "chords": [
         "C",
         "G",
@@ -6647,7 +6827,7 @@
       "theoreticalBasis": "Pop ballad progression - pure functional harmony"
     },
     {
-      "id": "test-486",
+      "id": "test-498",
       "chords": [
         "Db",
         "Gb",
@@ -6661,7 +6841,7 @@
       "theoreticalBasis": "Classic functional cadence - pure functional harmony"
     },
     {
-      "id": "test-487",
+      "id": "test-499",
       "chords": [
         "Db",
         "Bb",
@@ -6675,7 +6855,7 @@
       "theoreticalBasis": "Pop progression - pure functional harmony"
     },
     {
-      "id": "test-488",
+      "id": "test-500",
       "chords": [
         "Bb",
         "Gb",
@@ -6689,7 +6869,7 @@
       "theoreticalBasis": "Pop progression starting on vi - pure functional harmony"
     },
     {
-      "id": "test-489",
+      "id": "test-501",
       "chords": [
         "Eb",
         "Ab",
@@ -6702,7 +6882,7 @@
       "theoreticalBasis": "Jazz ii-V-I - pure functional harmony"
     },
     {
-      "id": "test-490",
+      "id": "test-502",
       "chords": [
         "Db",
         "Ab",
@@ -6716,7 +6896,7 @@
       "theoreticalBasis": "Pop ballad progression - pure functional harmony"
     },
     {
-      "id": "test-491",
+      "id": "test-503",
       "chords": [
         "D",
         "G",
@@ -6730,7 +6910,7 @@
       "theoreticalBasis": "Classic functional cadence - pure functional harmony"
     },
     {
-      "id": "test-492",
+      "id": "test-504",
       "chords": [
         "D",
         "B",
@@ -6744,7 +6924,7 @@
       "theoreticalBasis": "Pop progression - pure functional harmony"
     },
     {
-      "id": "test-493",
+      "id": "test-505",
       "chords": [
         "B",
         "G",
@@ -6758,7 +6938,7 @@
       "theoreticalBasis": "Pop progression starting on vi - pure functional harmony"
     },
     {
-      "id": "test-494",
+      "id": "test-506",
       "chords": [
         "E",
         "A",
@@ -6771,7 +6951,7 @@
       "theoreticalBasis": "Jazz ii-V-I - pure functional harmony"
     },
     {
-      "id": "test-495",
+      "id": "test-507",
       "chords": [
         "D",
         "A",
@@ -6785,7 +6965,7 @@
       "theoreticalBasis": "Pop ballad progression - pure functional harmony"
     },
     {
-      "id": "test-496",
+      "id": "test-508",
       "chords": [
         "Eb",
         "Ab",
@@ -6799,7 +6979,7 @@
       "theoreticalBasis": "Classic functional cadence - pure functional harmony"
     },
     {
-      "id": "test-497",
+      "id": "test-509",
       "chords": [
         "Eb",
         "C",
@@ -6813,7 +6993,7 @@
       "theoreticalBasis": "Pop progression - pure functional harmony"
     },
     {
-      "id": "test-498",
+      "id": "test-510",
       "chords": [
         "C",
         "Ab",
@@ -6827,7 +7007,7 @@
       "theoreticalBasis": "Pop progression starting on vi - pure functional harmony"
     },
     {
-      "id": "test-499",
+      "id": "test-511",
       "chords": [
         "F",
         "Bb",
@@ -6840,7 +7020,7 @@
       "theoreticalBasis": "Jazz ii-V-I - pure functional harmony"
     },
     {
-      "id": "test-500",
+      "id": "test-512",
       "chords": [
         "Eb",
         "Bb",
@@ -6854,7 +7034,7 @@
       "theoreticalBasis": "Pop ballad progression - pure functional harmony"
     },
     {
-      "id": "test-501",
+      "id": "test-513",
       "chords": [
         "E",
         "A",
@@ -6868,7 +7048,7 @@
       "theoreticalBasis": "Classic functional cadence - pure functional harmony"
     },
     {
-      "id": "test-502",
+      "id": "test-514",
       "chords": [
         "E",
         "C#",
@@ -6882,7 +7062,7 @@
       "theoreticalBasis": "Pop progression - pure functional harmony"
     },
     {
-      "id": "test-503",
+      "id": "test-515",
       "chords": [
         "C#",
         "A",
@@ -6896,7 +7076,7 @@
       "theoreticalBasis": "Pop progression starting on vi - pure functional harmony"
     },
     {
-      "id": "test-504",
+      "id": "test-516",
       "chords": [
         "F#",
         "B",
@@ -6909,7 +7089,7 @@
       "theoreticalBasis": "Jazz ii-V-I - pure functional harmony"
     },
     {
-      "id": "test-505",
+      "id": "test-517",
       "chords": [
         "E",
         "B",
@@ -6923,7 +7103,7 @@
       "theoreticalBasis": "Pop ballad progression - pure functional harmony"
     },
     {
-      "id": "test-506",
+      "id": "test-518",
       "chords": [
         "F",
         "Bb",
@@ -6937,7 +7117,7 @@
       "theoreticalBasis": "Classic functional cadence - pure functional harmony"
     },
     {
-      "id": "test-507",
+      "id": "test-519",
       "chords": [
         "F",
         "D",
@@ -6951,7 +7131,7 @@
       "theoreticalBasis": "Pop progression - pure functional harmony"
     },
     {
-      "id": "test-508",
+      "id": "test-520",
       "chords": [
         "D",
         "Bb",
@@ -6965,7 +7145,7 @@
       "theoreticalBasis": "Pop progression starting on vi - pure functional harmony"
     },
     {
-      "id": "test-509",
+      "id": "test-521",
       "chords": [
         "G",
         "C",
@@ -6978,7 +7158,7 @@
       "theoreticalBasis": "Jazz ii-V-I - pure functional harmony"
     },
     {
-      "id": "test-510",
+      "id": "test-522",
       "chords": [
         "F",
         "C",
@@ -6992,7 +7172,7 @@
       "theoreticalBasis": "Pop ballad progression - pure functional harmony"
     },
     {
-      "id": "test-511",
+      "id": "test-523",
       "chords": [
         "F#",
         "B",
@@ -7006,7 +7186,7 @@
       "theoreticalBasis": "Classic functional cadence - pure functional harmony"
     },
     {
-      "id": "test-512",
+      "id": "test-524",
       "chords": [
         "F#",
         "D#",
@@ -7020,7 +7200,7 @@
       "theoreticalBasis": "Pop progression - pure functional harmony"
     },
     {
-      "id": "test-513",
+      "id": "test-525",
       "chords": [
         "D#",
         "B",
@@ -7034,7 +7214,7 @@
       "theoreticalBasis": "Pop progression starting on vi - pure functional harmony"
     },
     {
-      "id": "test-514",
+      "id": "test-526",
       "chords": [
         "G#",
         "C#",
@@ -7047,7 +7227,7 @@
       "theoreticalBasis": "Jazz ii-V-I - pure functional harmony"
     },
     {
-      "id": "test-515",
+      "id": "test-527",
       "chords": [
         "F#",
         "C#",
@@ -7061,7 +7241,7 @@
       "theoreticalBasis": "Pop ballad progression - pure functional harmony"
     },
     {
-      "id": "test-516",
+      "id": "test-528",
       "chords": [
         "G",
         "C",
@@ -7075,7 +7255,7 @@
       "theoreticalBasis": "Classic functional cadence - pure functional harmony"
     },
     {
-      "id": "test-517",
+      "id": "test-529",
       "chords": [
         "G",
         "E",
@@ -7089,7 +7269,7 @@
       "theoreticalBasis": "Pop progression - pure functional harmony"
     },
     {
-      "id": "test-518",
+      "id": "test-530",
       "chords": [
         "E",
         "C",
@@ -7103,7 +7283,7 @@
       "theoreticalBasis": "Pop progression starting on vi - pure functional harmony"
     },
     {
-      "id": "test-519",
+      "id": "test-531",
       "chords": [
         "A",
         "D",
@@ -7116,7 +7296,7 @@
       "theoreticalBasis": "Jazz ii-V-I - pure functional harmony"
     },
     {
-      "id": "test-520",
+      "id": "test-532",
       "chords": [
         "G",
         "D",
@@ -7130,7 +7310,7 @@
       "theoreticalBasis": "Pop ballad progression - pure functional harmony"
     },
     {
-      "id": "test-521",
+      "id": "test-533",
       "chords": [
         "Ab",
         "Db",
@@ -7144,7 +7324,7 @@
       "theoreticalBasis": "Classic functional cadence - pure functional harmony"
     },
     {
-      "id": "test-522",
+      "id": "test-534",
       "chords": [
         "Ab",
         "F",
@@ -7158,7 +7338,7 @@
       "theoreticalBasis": "Pop progression - pure functional harmony"
     },
     {
-      "id": "test-523",
+      "id": "test-535",
       "chords": [
         "F",
         "Db",
@@ -7172,7 +7352,7 @@
       "theoreticalBasis": "Pop progression starting on vi - pure functional harmony"
     },
     {
-      "id": "test-524",
+      "id": "test-536",
       "chords": [
         "Bb",
         "Eb",
@@ -7185,7 +7365,7 @@
       "theoreticalBasis": "Jazz ii-V-I - pure functional harmony"
     },
     {
-      "id": "test-525",
+      "id": "test-537",
       "chords": [
         "Ab",
         "Eb",
@@ -7199,7 +7379,7 @@
       "theoreticalBasis": "Pop ballad progression - pure functional harmony"
     },
     {
-      "id": "test-526",
+      "id": "test-538",
       "chords": [
         "A",
         "D",
@@ -7213,7 +7393,7 @@
       "theoreticalBasis": "Classic functional cadence - pure functional harmony"
     },
     {
-      "id": "test-527",
+      "id": "test-539",
       "chords": [
         "A",
         "F#",
@@ -7227,7 +7407,7 @@
       "theoreticalBasis": "Pop progression - pure functional harmony"
     },
     {
-      "id": "test-528",
+      "id": "test-540",
       "chords": [
         "F#",
         "D",
@@ -7241,7 +7421,7 @@
       "theoreticalBasis": "Pop progression starting on vi - pure functional harmony"
     },
     {
-      "id": "test-529",
+      "id": "test-541",
       "chords": [
         "B",
         "E",
@@ -7254,7 +7434,7 @@
       "theoreticalBasis": "Jazz ii-V-I - pure functional harmony"
     },
     {
-      "id": "test-530",
+      "id": "test-542",
       "chords": [
         "A",
         "E",
@@ -7268,7 +7448,7 @@
       "theoreticalBasis": "Pop ballad progression - pure functional harmony"
     },
     {
-      "id": "test-531",
+      "id": "test-543",
       "chords": [
         "Bb",
         "Eb",
@@ -7282,7 +7462,7 @@
       "theoreticalBasis": "Classic functional cadence - pure functional harmony"
     },
     {
-      "id": "test-532",
+      "id": "test-544",
       "chords": [
         "Bb",
         "G",
@@ -7296,7 +7476,7 @@
       "theoreticalBasis": "Pop progression - pure functional harmony"
     },
     {
-      "id": "test-533",
+      "id": "test-545",
       "chords": [
         "G",
         "Eb",
@@ -7310,7 +7490,7 @@
       "theoreticalBasis": "Pop progression starting on vi - pure functional harmony"
     },
     {
-      "id": "test-534",
+      "id": "test-546",
       "chords": [
         "C",
         "F",
@@ -7323,7 +7503,7 @@
       "theoreticalBasis": "Jazz ii-V-I - pure functional harmony"
     },
     {
-      "id": "test-535",
+      "id": "test-547",
       "chords": [
         "Bb",
         "F",
@@ -7337,7 +7517,7 @@
       "theoreticalBasis": "Pop ballad progression - pure functional harmony"
     },
     {
-      "id": "test-536",
+      "id": "test-548",
       "chords": [
         "B",
         "E",
@@ -7351,7 +7531,7 @@
       "theoreticalBasis": "Classic functional cadence - pure functional harmony"
     },
     {
-      "id": "test-537",
+      "id": "test-549",
       "chords": [
         "B",
         "G#",
@@ -7365,7 +7545,7 @@
       "theoreticalBasis": "Pop progression - pure functional harmony"
     },
     {
-      "id": "test-538",
+      "id": "test-550",
       "chords": [
         "G#",
         "E",
@@ -7379,7 +7559,7 @@
       "theoreticalBasis": "Pop progression starting on vi - pure functional harmony"
     },
     {
-      "id": "test-539",
+      "id": "test-551",
       "chords": [
         "C#",
         "F#",
@@ -7392,7 +7572,7 @@
       "theoreticalBasis": "Jazz ii-V-I - pure functional harmony"
     },
     {
-      "id": "test-540",
+      "id": "test-552",
       "chords": [
         "B",
         "F#",
@@ -7406,7 +7586,7 @@
       "theoreticalBasis": "Pop ballad progression - pure functional harmony"
     },
     {
-      "id": "test-541",
+      "id": "test-553",
       "chords": [
         "C",
         "F",
@@ -7419,7 +7599,7 @@
       "theoreticalBasis": "Without parent key context, functional interpretation is more likely"
     },
     {
-      "id": "test-542",
+      "id": "test-554",
       "chords": [
         "Am",
         "F",
@@ -7432,7 +7612,7 @@
       "theoreticalBasis": "Without parent key context, functional interpretation is more likely"
     },
     {
-      "id": "test-543",
+      "id": "test-555",
       "chords": [
         "D",
         "G",
@@ -7445,7 +7625,7 @@
       "theoreticalBasis": "Without parent key context, functional interpretation is more likely"
     },
     {
-      "id": "test-544",
+      "id": "test-556",
       "chords": [
         "C",
         "A#",
@@ -7460,7 +7640,7 @@
       "theoreticalBasis": "Parent key context resolves modal vs functional ambiguity"
     },
     {
-      "id": "test-545",
+      "id": "test-557",
       "chords": [
         "G",
         "F",
@@ -7475,7 +7655,7 @@
       "theoreticalBasis": "Parent key context resolves modal vs functional ambiguity"
     },
     {
-      "id": "test-546",
+      "id": "test-558",
       "chords": [
         "D",
         "C",
@@ -7490,7 +7670,7 @@
       "theoreticalBasis": "Parent key context resolves modal vs functional ambiguity"
     },
     {
-      "id": "test-547",
+      "id": "test-559",
       "chords": [
         "A",
         "G",
@@ -7505,7 +7685,7 @@
       "theoreticalBasis": "Parent key context resolves modal vs functional ambiguity"
     },
     {
-      "id": "test-548",
+      "id": "test-560",
       "chords": [
         "C"
       ],
@@ -7515,7 +7695,7 @@
       "theoreticalBasis": "No harmonic progression"
     },
     {
-      "id": "test-549",
+      "id": "test-561",
       "chords": [
         "G",
         "G",
@@ -7527,7 +7707,7 @@
       "theoreticalBasis": "Static harmony"
     },
     {
-      "id": "test-550",
+      "id": "test-562",
       "chords": [
         "C",
         "C#",
@@ -7539,7 +7719,7 @@
       "theoreticalBasis": "Non-diatonic movement"
     },
     {
-      "id": "test-551",
+      "id": "test-563",
       "chords": [
         "F#",
         "Gb"
@@ -7550,7 +7730,7 @@
       "theoreticalBasis": "Enharmonic handling test"
     },
     {
-      "id": "test-552",
+      "id": "test-564",
       "chords": [
         "C",
         "F#",
@@ -7563,7 +7743,7 @@
       "theoreticalBasis": "Non-functional movement"
     },
     {
-      "id": "test-553",
+      "id": "test-565",
       "chords": [
         "C",
         "F",
@@ -7577,7 +7757,7 @@
       "theoreticalBasis": "Distinguishes Ionian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-554",
+      "id": "test-566",
       "chords": [
         "Cmaj7",
         "Fmaj7",
@@ -7591,7 +7771,7 @@
       "theoreticalBasis": "Distinguishes Ionian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-555",
+      "id": "test-567",
       "chords": [
         "C",
         "F"
@@ -7604,7 +7784,7 @@
       "theoreticalBasis": "Distinguishes Ionian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-556",
+      "id": "test-568",
       "chords": [
         "C",
         "G",
@@ -7617,7 +7797,7 @@
       "theoreticalBasis": "Distinguishes Ionian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-557",
+      "id": "test-569",
       "chords": [
         "Dm",
         "G",
@@ -7632,7 +7812,7 @@
       "theoreticalBasis": "Distinguishes Dorian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-558",
+      "id": "test-570",
       "chords": [
         "Dm",
         "G",
@@ -7645,7 +7825,7 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-559",
+      "id": "test-571",
       "chords": [
         "Dm",
         "G",
@@ -7659,7 +7839,7 @@
       "theoreticalBasis": "Distinguishes Dorian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-560",
+      "id": "test-572",
       "chords": [
         "Dm7",
         "Gmaj7",
@@ -7673,7 +7853,7 @@
       "theoreticalBasis": "Distinguishes Dorian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-561",
+      "id": "test-573",
       "chords": [
         "Dm",
         "G"
@@ -7686,7 +7866,7 @@
       "theoreticalBasis": "Distinguishes Dorian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-562",
+      "id": "test-574",
       "chords": [
         "Dm",
         "Gm",
@@ -7699,7 +7879,7 @@
       "theoreticalBasis": "Distinguishes Dorian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-563",
+      "id": "test-575",
       "chords": [
         "Em",
         "F",
@@ -7714,7 +7894,7 @@
       "theoreticalBasis": "Distinguishes Phrygian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-564",
+      "id": "test-576",
       "chords": [
         "Em",
         "F",
@@ -7727,7 +7907,7 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-565",
+      "id": "test-577",
       "chords": [
         "Em",
         "F",
@@ -7741,7 +7921,7 @@
       "theoreticalBasis": "Distinguishes Phrygian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-566",
+      "id": "test-578",
       "chords": [
         "Em7",
         "F",
@@ -7755,7 +7935,7 @@
       "theoreticalBasis": "Distinguishes Phrygian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-567",
+      "id": "test-579",
       "chords": [
         "Em",
         "F"
@@ -7768,7 +7948,7 @@
       "theoreticalBasis": "Distinguishes Phrygian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-568",
+      "id": "test-580",
       "chords": [
         "Em",
         "F#",
@@ -7781,7 +7961,7 @@
       "theoreticalBasis": "Distinguishes Phrygian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-569",
+      "id": "test-581",
       "chords": [
         "F",
         "G",
@@ -7796,7 +7976,7 @@
       "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-570",
+      "id": "test-582",
       "chords": [
         "F",
         "G",
@@ -7809,7 +7989,22 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-571",
+      "id": "test-583",
+      "chords": [
+        "F",
+        "G",
+        "F",
+        "G"
+      ],
+      "parentKey": "C major",
+      "expectedModal": true,
+      "expectedMode": "F Lydian",
+      "description": "F Lydian in C major context — I-II-I-II",
+      "category": "modal_characteristic",
+      "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=long_nov"
+    },
+    {
+      "id": "test-584",
       "chords": [
         "F",
         "G",
@@ -7823,7 +8018,7 @@
       "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-572",
+      "id": "test-585",
       "chords": [
         "Fmaj7",
         "G",
@@ -7837,7 +8032,7 @@
       "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-573",
+      "id": "test-586",
       "chords": [
         "F",
         "G"
@@ -7850,7 +8045,7 @@
       "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-574",
+      "id": "test-587",
       "chords": [
         "F",
         "C",
@@ -7863,7 +8058,7 @@
       "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-575",
+      "id": "test-588",
       "chords": [
         "G",
         "F",
@@ -7878,7 +8073,7 @@
       "theoreticalBasis": "Distinguishes Mixolydian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-576",
+      "id": "test-589",
       "chords": [
         "G",
         "F",
@@ -7891,7 +8086,7 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-577",
+      "id": "test-590",
       "chords": [
         "G",
         "F",
@@ -7905,7 +8100,7 @@
       "theoreticalBasis": "Distinguishes Mixolydian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-578",
+      "id": "test-591",
       "chords": [
         "G7",
         "C",
@@ -7919,7 +8114,7 @@
       "theoreticalBasis": "Distinguishes Mixolydian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-579",
+      "id": "test-592",
       "chords": [
         "G",
         "C"
@@ -7932,7 +8127,7 @@
       "theoreticalBasis": "Distinguishes Mixolydian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-580",
+      "id": "test-593",
       "chords": [
         "G",
         "D",
@@ -7945,7 +8140,7 @@
       "theoreticalBasis": "Distinguishes Mixolydian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-581",
+      "id": "test-594",
       "chords": [
         "Am",
         "F",
@@ -7960,7 +8155,7 @@
       "theoreticalBasis": "Distinguishes Aeolian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-582",
+      "id": "test-595",
       "chords": [
         "Am",
         "F",
@@ -7973,7 +8168,7 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-583",
+      "id": "test-596",
       "chords": [
         "Am",
         "G",
@@ -7987,7 +8182,7 @@
       "theoreticalBasis": "Distinguishes Aeolian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-584",
+      "id": "test-597",
       "chords": [
         "Am7",
         "F",
@@ -8002,7 +8197,7 @@
       "theoreticalBasis": "Distinguishes Aeolian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-585",
+      "id": "test-598",
       "chords": [
         "Am",
         "G"
@@ -8015,7 +8210,7 @@
       "theoreticalBasis": "Distinguishes Aeolian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-586",
+      "id": "test-599",
       "chords": [
         "Am",
         "E7",
@@ -8028,11 +8223,11 @@
       "theoreticalBasis": "Distinguishes Aeolian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-587",
+      "id": "test-600",
       "chords": [
         "Bdim",
         "C",
-        "F#m",
+        "Fm",
         "Bdim"
       ],
       "parentKey": "C major",
@@ -8043,11 +8238,11 @@
       "theoreticalBasis": "Distinguishes Locrian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-588",
+      "id": "test-601",
       "chords": [
         "Bdim",
         "C",
-        "F#m",
+        "Fm",
         "Bdim"
       ],
       "expectedModal": false,
@@ -8056,7 +8251,7 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-589",
+      "id": "test-602",
       "chords": [
         "Bdim",
         "C",
@@ -8070,7 +8265,7 @@
       "theoreticalBasis": "Distinguishes Locrian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-590",
+      "id": "test-603",
       "chords": [
         "Bm7b5",
         "C",
@@ -8084,7 +8279,7 @@
       "theoreticalBasis": "Distinguishes Locrian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-591",
+      "id": "test-604",
       "chords": [
         "Bdim",
         "C"
@@ -8097,7 +8292,7 @@
       "theoreticalBasis": "Distinguishes Locrian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-592",
+      "id": "test-605",
       "chords": [
         "Bdim",
         "F#7",
@@ -8110,7 +8305,7 @@
       "theoreticalBasis": "Distinguishes Locrian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-593",
+      "id": "test-606",
       "chords": [
         "G",
         "C",
@@ -8124,7 +8319,7 @@
       "theoreticalBasis": "Distinguishes Ionian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-594",
+      "id": "test-607",
       "chords": [
         "Gmaj7",
         "Cmaj7",
@@ -8138,7 +8333,7 @@
       "theoreticalBasis": "Distinguishes Ionian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-595",
+      "id": "test-608",
       "chords": [
         "G",
         "C"
@@ -8151,7 +8346,7 @@
       "theoreticalBasis": "Distinguishes Ionian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-596",
+      "id": "test-609",
       "chords": [
         "G",
         "D",
@@ -8164,7 +8359,7 @@
       "theoreticalBasis": "Distinguishes Ionian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-597",
+      "id": "test-610",
       "chords": [
         "Am",
         "D",
@@ -8179,7 +8374,7 @@
       "theoreticalBasis": "Distinguishes Dorian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-598",
+      "id": "test-611",
       "chords": [
         "Am",
         "D",
@@ -8192,7 +8387,7 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-599",
+      "id": "test-612",
       "chords": [
         "Am",
         "D",
@@ -8206,7 +8401,7 @@
       "theoreticalBasis": "Distinguishes Dorian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-600",
+      "id": "test-613",
       "chords": [
         "Am7",
         "Dmaj7",
@@ -8220,7 +8415,7 @@
       "theoreticalBasis": "Distinguishes Dorian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-601",
+      "id": "test-614",
       "chords": [
         "Am",
         "D"
@@ -8233,7 +8428,7 @@
       "theoreticalBasis": "Distinguishes Dorian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-602",
+      "id": "test-615",
       "chords": [
         "Am",
         "Dm",
@@ -8246,7 +8441,7 @@
       "theoreticalBasis": "Distinguishes Dorian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-603",
+      "id": "test-616",
       "chords": [
         "Bm",
         "C",
@@ -8261,7 +8456,7 @@
       "theoreticalBasis": "Distinguishes Phrygian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-604",
+      "id": "test-617",
       "chords": [
         "Bm",
         "C",
@@ -8274,7 +8469,7 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-605",
+      "id": "test-618",
       "chords": [
         "Bm",
         "C",
@@ -8288,7 +8483,7 @@
       "theoreticalBasis": "Distinguishes Phrygian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-606",
+      "id": "test-619",
       "chords": [
         "Bm7",
         "C",
@@ -8302,7 +8497,7 @@
       "theoreticalBasis": "Distinguishes Phrygian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-607",
+      "id": "test-620",
       "chords": [
         "Bm",
         "C"
@@ -8315,7 +8510,7 @@
       "theoreticalBasis": "Distinguishes Phrygian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-608",
+      "id": "test-621",
       "chords": [
         "Bm",
         "C#",
@@ -8328,7 +8523,7 @@
       "theoreticalBasis": "Distinguishes Phrygian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-609",
+      "id": "test-622",
       "chords": [
         "C",
         "D",
@@ -8343,7 +8538,7 @@
       "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-610",
+      "id": "test-623",
       "chords": [
         "C",
         "D",
@@ -8356,7 +8551,22 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-611",
+      "id": "test-624",
+      "chords": [
+        "C",
+        "D",
+        "C",
+        "D"
+      ],
+      "parentKey": "G major",
+      "expectedModal": true,
+      "expectedMode": "C Lydian",
+      "description": "C Lydian in G major context — I-II-I-II",
+      "category": "modal_characteristic",
+      "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=long_nov"
+    },
+    {
+      "id": "test-625",
       "chords": [
         "C",
         "D",
@@ -8370,7 +8580,7 @@
       "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-612",
+      "id": "test-626",
       "chords": [
         "Cmaj7",
         "D",
@@ -8384,7 +8594,7 @@
       "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-613",
+      "id": "test-627",
       "chords": [
         "C",
         "D"
@@ -8397,7 +8607,7 @@
       "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-614",
+      "id": "test-628",
       "chords": [
         "C",
         "G",
@@ -8410,7 +8620,7 @@
       "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-615",
+      "id": "test-629",
       "chords": [
         "D",
         "C",
@@ -8425,7 +8635,7 @@
       "theoreticalBasis": "Distinguishes Mixolydian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-616",
+      "id": "test-630",
       "chords": [
         "D",
         "C",
@@ -8438,7 +8648,7 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-617",
+      "id": "test-631",
       "chords": [
         "D",
         "C",
@@ -8452,7 +8662,7 @@
       "theoreticalBasis": "Distinguishes Mixolydian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-618",
+      "id": "test-632",
       "chords": [
         "D7",
         "G",
@@ -8466,7 +8676,7 @@
       "theoreticalBasis": "Distinguishes Mixolydian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-619",
+      "id": "test-633",
       "chords": [
         "D",
         "G"
@@ -8479,7 +8689,7 @@
       "theoreticalBasis": "Distinguishes Mixolydian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-620",
+      "id": "test-634",
       "chords": [
         "D",
         "A",
@@ -8492,7 +8702,7 @@
       "theoreticalBasis": "Distinguishes Mixolydian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-621",
+      "id": "test-635",
       "chords": [
         "Em",
         "C",
@@ -8507,7 +8717,7 @@
       "theoreticalBasis": "Distinguishes Aeolian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-622",
+      "id": "test-636",
       "chords": [
         "Em",
         "C",
@@ -8520,7 +8730,7 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-623",
+      "id": "test-637",
       "chords": [
         "Em",
         "D",
@@ -8534,7 +8744,7 @@
       "theoreticalBasis": "Distinguishes Aeolian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-624",
+      "id": "test-638",
       "chords": [
         "Em7",
         "C",
@@ -8549,7 +8759,7 @@
       "theoreticalBasis": "Distinguishes Aeolian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-625",
+      "id": "test-639",
       "chords": [
         "Em",
         "D"
@@ -8562,7 +8772,7 @@
       "theoreticalBasis": "Distinguishes Aeolian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-626",
+      "id": "test-640",
       "chords": [
         "Em",
         "B7",
@@ -8575,11 +8785,11 @@
       "theoreticalBasis": "Distinguishes Aeolian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-627",
+      "id": "test-641",
       "chords": [
         "F#dim",
         "G",
-        "C#m",
+        "Cm",
         "F#dim"
       ],
       "parentKey": "G major",
@@ -8590,11 +8800,11 @@
       "theoreticalBasis": "Distinguishes Locrian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-628",
+      "id": "test-642",
       "chords": [
         "F#dim",
         "G",
-        "C#m",
+        "Cm",
         "F#dim"
       ],
       "expectedModal": false,
@@ -8603,7 +8813,7 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-629",
+      "id": "test-643",
       "chords": [
         "F#dim",
         "G",
@@ -8617,7 +8827,7 @@
       "theoreticalBasis": "Distinguishes Locrian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-630",
+      "id": "test-644",
       "chords": [
         "F#m7b5",
         "G",
@@ -8631,7 +8841,7 @@
       "theoreticalBasis": "Distinguishes Locrian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-631",
+      "id": "test-645",
       "chords": [
         "F#dim",
         "G"
@@ -8644,7 +8854,7 @@
       "theoreticalBasis": "Distinguishes Locrian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-632",
+      "id": "test-646",
       "chords": [
         "F#dim",
         "C#7",
@@ -8657,7 +8867,7 @@
       "theoreticalBasis": "Distinguishes Locrian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-633",
+      "id": "test-647",
       "chords": [
         "D",
         "G",
@@ -8671,7 +8881,7 @@
       "theoreticalBasis": "Distinguishes Ionian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-634",
+      "id": "test-648",
       "chords": [
         "Dmaj7",
         "Gmaj7",
@@ -8685,7 +8895,7 @@
       "theoreticalBasis": "Distinguishes Ionian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-635",
+      "id": "test-649",
       "chords": [
         "D",
         "G"
@@ -8698,7 +8908,7 @@
       "theoreticalBasis": "Distinguishes Ionian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-636",
+      "id": "test-650",
       "chords": [
         "D",
         "A",
@@ -8711,7 +8921,7 @@
       "theoreticalBasis": "Distinguishes Ionian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-637",
+      "id": "test-651",
       "chords": [
         "Em",
         "A",
@@ -8726,7 +8936,7 @@
       "theoreticalBasis": "Distinguishes Dorian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-638",
+      "id": "test-652",
       "chords": [
         "Em",
         "A",
@@ -8739,7 +8949,7 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-639",
+      "id": "test-653",
       "chords": [
         "Em",
         "A",
@@ -8753,7 +8963,7 @@
       "theoreticalBasis": "Distinguishes Dorian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-640",
+      "id": "test-654",
       "chords": [
         "Em7",
         "Amaj7",
@@ -8767,7 +8977,7 @@
       "theoreticalBasis": "Distinguishes Dorian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-641",
+      "id": "test-655",
       "chords": [
         "Em",
         "A"
@@ -8780,7 +8990,7 @@
       "theoreticalBasis": "Distinguishes Dorian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-642",
+      "id": "test-656",
       "chords": [
         "Em",
         "Am",
@@ -8793,7 +9003,7 @@
       "theoreticalBasis": "Distinguishes Dorian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-643",
+      "id": "test-657",
       "chords": [
         "F#m",
         "G",
@@ -8808,7 +9018,7 @@
       "theoreticalBasis": "Distinguishes Phrygian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-644",
+      "id": "test-658",
       "chords": [
         "F#m",
         "G",
@@ -8821,7 +9031,7 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-645",
+      "id": "test-659",
       "chords": [
         "F#m",
         "G",
@@ -8835,7 +9045,7 @@
       "theoreticalBasis": "Distinguishes Phrygian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-646",
+      "id": "test-660",
       "chords": [
         "F#m7",
         "G",
@@ -8849,7 +9059,7 @@
       "theoreticalBasis": "Distinguishes Phrygian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-647",
+      "id": "test-661",
       "chords": [
         "F#m",
         "G"
@@ -8862,7 +9072,7 @@
       "theoreticalBasis": "Distinguishes Phrygian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-648",
+      "id": "test-662",
       "chords": [
         "F#m",
         "G#",
@@ -8875,7 +9085,7 @@
       "theoreticalBasis": "Distinguishes Phrygian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-649",
+      "id": "test-663",
       "chords": [
         "G",
         "A",
@@ -8890,7 +9100,7 @@
       "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-650",
+      "id": "test-664",
       "chords": [
         "G",
         "A",
@@ -8903,7 +9113,22 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-651",
+      "id": "test-665",
+      "chords": [
+        "G",
+        "A",
+        "G",
+        "A"
+      ],
+      "parentKey": "D major",
+      "expectedModal": true,
+      "expectedMode": "G Lydian",
+      "description": "G Lydian in D major context — I-II-I-II",
+      "category": "modal_characteristic",
+      "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=long_nov"
+    },
+    {
+      "id": "test-666",
       "chords": [
         "G",
         "A",
@@ -8917,7 +9142,7 @@
       "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-652",
+      "id": "test-667",
       "chords": [
         "Gmaj7",
         "A",
@@ -8931,7 +9156,7 @@
       "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-653",
+      "id": "test-668",
       "chords": [
         "G",
         "A"
@@ -8944,7 +9169,7 @@
       "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-654",
+      "id": "test-669",
       "chords": [
         "G",
         "D",
@@ -8957,7 +9182,7 @@
       "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-655",
+      "id": "test-670",
       "chords": [
         "A",
         "G",
@@ -8972,7 +9197,7 @@
       "theoreticalBasis": "Distinguishes Mixolydian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-656",
+      "id": "test-671",
       "chords": [
         "A",
         "G",
@@ -8985,7 +9210,7 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-657",
+      "id": "test-672",
       "chords": [
         "A",
         "G",
@@ -8999,7 +9224,7 @@
       "theoreticalBasis": "Distinguishes Mixolydian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-658",
+      "id": "test-673",
       "chords": [
         "A7",
         "D",
@@ -9013,7 +9238,7 @@
       "theoreticalBasis": "Distinguishes Mixolydian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-659",
+      "id": "test-674",
       "chords": [
         "A",
         "D"
@@ -9026,7 +9251,7 @@
       "theoreticalBasis": "Distinguishes Mixolydian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-660",
+      "id": "test-675",
       "chords": [
         "A",
         "E",
@@ -9039,7 +9264,7 @@
       "theoreticalBasis": "Distinguishes Mixolydian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-661",
+      "id": "test-676",
       "chords": [
         "Bm",
         "G",
@@ -9054,7 +9279,7 @@
       "theoreticalBasis": "Distinguishes Aeolian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-662",
+      "id": "test-677",
       "chords": [
         "Bm",
         "G",
@@ -9067,7 +9292,7 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-663",
+      "id": "test-678",
       "chords": [
         "Bm",
         "A",
@@ -9081,7 +9306,7 @@
       "theoreticalBasis": "Distinguishes Aeolian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-664",
+      "id": "test-679",
       "chords": [
         "Bm7",
         "G",
@@ -9096,7 +9321,7 @@
       "theoreticalBasis": "Distinguishes Aeolian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-665",
+      "id": "test-680",
       "chords": [
         "Bm",
         "A"
@@ -9109,7 +9334,7 @@
       "theoreticalBasis": "Distinguishes Aeolian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-666",
+      "id": "test-681",
       "chords": [
         "Bm",
         "F#7",
@@ -9122,11 +9347,11 @@
       "theoreticalBasis": "Distinguishes Aeolian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-667",
+      "id": "test-682",
       "chords": [
         "C#dim",
         "D",
-        "G#m",
+        "Gm",
         "C#dim"
       ],
       "parentKey": "D major",
@@ -9137,11 +9362,11 @@
       "theoreticalBasis": "Distinguishes Locrian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-668",
+      "id": "test-683",
       "chords": [
         "C#dim",
         "D",
-        "G#m",
+        "Gm",
         "C#dim"
       ],
       "expectedModal": false,
@@ -9150,7 +9375,7 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-669",
+      "id": "test-684",
       "chords": [
         "C#dim",
         "D",
@@ -9164,7 +9389,7 @@
       "theoreticalBasis": "Distinguishes Locrian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-670",
+      "id": "test-685",
       "chords": [
         "C#m7b5",
         "D",
@@ -9178,7 +9403,7 @@
       "theoreticalBasis": "Distinguishes Locrian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-671",
+      "id": "test-686",
       "chords": [
         "C#dim",
         "D"
@@ -9191,7 +9416,7 @@
       "theoreticalBasis": "Distinguishes Locrian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-672",
+      "id": "test-687",
       "chords": [
         "C#dim",
         "G#7",
@@ -9204,7 +9429,7 @@
       "theoreticalBasis": "Distinguishes Locrian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-673",
+      "id": "test-688",
       "chords": [
         "A",
         "D",
@@ -9218,7 +9443,7 @@
       "theoreticalBasis": "Distinguishes Ionian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-674",
+      "id": "test-689",
       "chords": [
         "Amaj7",
         "Dmaj7",
@@ -9232,7 +9457,7 @@
       "theoreticalBasis": "Distinguishes Ionian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-675",
+      "id": "test-690",
       "chords": [
         "A",
         "D"
@@ -9245,7 +9470,7 @@
       "theoreticalBasis": "Distinguishes Ionian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-676",
+      "id": "test-691",
       "chords": [
         "A",
         "E",
@@ -9258,7 +9483,7 @@
       "theoreticalBasis": "Distinguishes Ionian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-677",
+      "id": "test-692",
       "chords": [
         "Bm",
         "E",
@@ -9273,7 +9498,7 @@
       "theoreticalBasis": "Distinguishes Dorian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-678",
+      "id": "test-693",
       "chords": [
         "Bm",
         "E",
@@ -9286,7 +9511,7 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-679",
+      "id": "test-694",
       "chords": [
         "Bm",
         "E",
@@ -9300,7 +9525,7 @@
       "theoreticalBasis": "Distinguishes Dorian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-680",
+      "id": "test-695",
       "chords": [
         "Bm7",
         "Emaj7",
@@ -9314,7 +9539,7 @@
       "theoreticalBasis": "Distinguishes Dorian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-681",
+      "id": "test-696",
       "chords": [
         "Bm",
         "E"
@@ -9327,7 +9552,7 @@
       "theoreticalBasis": "Distinguishes Dorian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-682",
+      "id": "test-697",
       "chords": [
         "Bm",
         "Em",
@@ -9340,7 +9565,7 @@
       "theoreticalBasis": "Distinguishes Dorian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-683",
+      "id": "test-698",
       "chords": [
         "C#m",
         "D",
@@ -9355,7 +9580,7 @@
       "theoreticalBasis": "Distinguishes Phrygian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-684",
+      "id": "test-699",
       "chords": [
         "C#m",
         "D",
@@ -9368,7 +9593,7 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-685",
+      "id": "test-700",
       "chords": [
         "C#m",
         "D",
@@ -9382,7 +9607,7 @@
       "theoreticalBasis": "Distinguishes Phrygian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-686",
+      "id": "test-701",
       "chords": [
         "C#m7",
         "D",
@@ -9396,7 +9621,7 @@
       "theoreticalBasis": "Distinguishes Phrygian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-687",
+      "id": "test-702",
       "chords": [
         "C#m",
         "D"
@@ -9409,7 +9634,7 @@
       "theoreticalBasis": "Distinguishes Phrygian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-688",
+      "id": "test-703",
       "chords": [
         "C#m",
         "D#",
@@ -9422,7 +9647,7 @@
       "theoreticalBasis": "Distinguishes Phrygian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-689",
+      "id": "test-704",
       "chords": [
         "D",
         "E",
@@ -9437,7 +9662,7 @@
       "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-690",
+      "id": "test-705",
       "chords": [
         "D",
         "E",
@@ -9450,7 +9675,22 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-691",
+      "id": "test-706",
+      "chords": [
+        "D",
+        "E",
+        "D",
+        "E"
+      ],
+      "parentKey": "A major",
+      "expectedModal": true,
+      "expectedMode": "D Lydian",
+      "description": "D Lydian in A major context — I-II-I-II",
+      "category": "modal_characteristic",
+      "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=long_nov"
+    },
+    {
+      "id": "test-707",
       "chords": [
         "D",
         "E",
@@ -9464,7 +9704,7 @@
       "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-692",
+      "id": "test-708",
       "chords": [
         "Dmaj7",
         "E",
@@ -9478,7 +9718,7 @@
       "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-693",
+      "id": "test-709",
       "chords": [
         "D",
         "E"
@@ -9491,7 +9731,7 @@
       "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-694",
+      "id": "test-710",
       "chords": [
         "D",
         "A",
@@ -9504,7 +9744,7 @@
       "theoreticalBasis": "Distinguishes Lydian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-695",
+      "id": "test-711",
       "chords": [
         "E",
         "D",
@@ -9519,7 +9759,7 @@
       "theoreticalBasis": "Distinguishes Mixolydian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-696",
+      "id": "test-712",
       "chords": [
         "E",
         "D",
@@ -9532,7 +9772,7 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-697",
+      "id": "test-713",
       "chords": [
         "E",
         "D",
@@ -9546,7 +9786,7 @@
       "theoreticalBasis": "Distinguishes Mixolydian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-698",
+      "id": "test-714",
       "chords": [
         "E7",
         "A",
@@ -9560,7 +9800,7 @@
       "theoreticalBasis": "Distinguishes Mixolydian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-699",
+      "id": "test-715",
       "chords": [
         "E",
         "A"
@@ -9573,7 +9813,7 @@
       "theoreticalBasis": "Distinguishes Mixolydian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-700",
+      "id": "test-716",
       "chords": [
         "E",
         "B",
@@ -9586,7 +9826,7 @@
       "theoreticalBasis": "Distinguishes Mixolydian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-701",
+      "id": "test-717",
       "chords": [
         "F#m",
         "D",
@@ -9601,7 +9841,7 @@
       "theoreticalBasis": "Distinguishes Aeolian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-702",
+      "id": "test-718",
       "chords": [
         "F#m",
         "D",
@@ -9614,7 +9854,7 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-703",
+      "id": "test-719",
       "chords": [
         "F#m",
         "E",
@@ -9628,7 +9868,7 @@
       "theoreticalBasis": "Distinguishes Aeolian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-704",
+      "id": "test-720",
       "chords": [
         "F#m7",
         "D",
@@ -9643,7 +9883,7 @@
       "theoreticalBasis": "Distinguishes Aeolian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-705",
+      "id": "test-721",
       "chords": [
         "F#m",
         "E"
@@ -9656,7 +9896,7 @@
       "theoreticalBasis": "Distinguishes Aeolian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-706",
+      "id": "test-722",
       "chords": [
         "F#m",
         "C#7",
@@ -9669,11 +9909,11 @@
       "theoreticalBasis": "Distinguishes Aeolian from other modes in same parent key; variant=foil"
     },
     {
-      "id": "test-707",
+      "id": "test-723",
       "chords": [
         "G#dim",
         "A",
-        "D#m",
+        "Dm",
         "G#dim"
       ],
       "parentKey": "A major",
@@ -9684,11 +9924,11 @@
       "theoreticalBasis": "Distinguishes Locrian from other modes in same parent key; variant=long"
     },
     {
-      "id": "test-708",
+      "id": "test-724",
       "chords": [
         "G#dim",
         "A",
-        "D#m",
+        "Dm",
         "G#dim"
       ],
       "expectedModal": false,
@@ -9697,7 +9937,7 @@
       "theoreticalBasis": "Boundary test without parent-key context"
     },
     {
-      "id": "test-709",
+      "id": "test-725",
       "chords": [
         "G#dim",
         "A",
@@ -9711,7 +9951,7 @@
       "theoreticalBasis": "Distinguishes Locrian from other modes in same parent key; variant=short"
     },
     {
-      "id": "test-710",
+      "id": "test-726",
       "chords": [
         "G#m7b5",
         "A",
@@ -9725,7 +9965,7 @@
       "theoreticalBasis": "Distinguishes Locrian from other modes in same parent key; variant=seventh"
     },
     {
-      "id": "test-711",
+      "id": "test-727",
       "chords": [
         "G#dim",
         "A"
@@ -9738,7 +9978,7 @@
       "theoreticalBasis": "Distinguishes Locrian from other modes in same parent key; variant=vamp"
     },
     {
-      "id": "test-712",
+      "id": "test-728",
       "chords": [
         "G#dim",
         "D#7",
