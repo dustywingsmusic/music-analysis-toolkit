@@ -25,6 +25,13 @@ export interface ComprehensiveAnalysisResult {
   confidence: number;
   explanation: string;
   pedagogicalValue: string;
+  
+  // User input context (for display)
+  userInput: {
+    chordProgression: string;
+    parentKey?: string;
+    analysisType?: string;
+  };
 }
 
 export interface ModalEnhancementResult {
@@ -132,7 +139,12 @@ export class ComprehensiveAnalysisEngine {
       primaryApproach,
       confidence,
       explanation,
-      pedagogicalValue
+      pedagogicalValue,
+      userInput: {
+        chordProgression: progressionInput,
+        parentKey: parentKey,
+        analysisType: 'chord_progression'
+      }
     };
   }
   

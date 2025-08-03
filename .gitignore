@@ -26,3 +26,4 @@ local_docs/
 .venv
 venv
 /.claude/
+/frontend/docs/
