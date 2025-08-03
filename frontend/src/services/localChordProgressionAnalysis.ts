@@ -14,6 +14,7 @@ import {
   isKnownModalPattern,
   ModalDetectionResult
 } from './modalDetectionFix';
+import { EnhancedModalAnalyzer } from './enhancedModalAnalyzer';
 
 // Enhanced interfaces for local analysis
 export interface LocalChordAnalysis extends ChordMatch {
@@ -28,6 +29,7 @@ export interface ProgressionInterpretation {
   chords: LocalChordAnalysis[];
   keyCenter: string;
   overallMode: string;
+  isModal: boolean; // Whether this progression has modal characteristics
   modalChords: LocalChordAnalysis[];
   modalInterchange: string;
   confidence: number;
@@ -65,7 +67,9 @@ export type ChordFunction = 'tonic' | 'predominant' | 'dominant' | 'subdominant'
 // Note name to pitch class mapping
 export const NOTE_TO_PITCH_CLASS: Record<string, number> = {
   'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3, 'E': 4, 'F': 5,
-  'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8, 'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10, 'B': 11
+  'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8, 'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10, 'B': 11,
+  // Extended enharmonic equivalents
+  'B#': 0, 'Cb': 11, 'E#': 5, 'Fb': 4
 };
 
 /**
@@ -235,6 +239,7 @@ function createEmptyAnalysis(progressionInput: string, knownKey?: string): Chord
       chords: [],
       keyCenter: 'Unknown',
       overallMode: 'Unknown',
+      isModal: false,
       modalChords: [],
       modalInterchange: 'No chords to analyze',
       confidence: 0,
@@ -265,13 +270,13 @@ async function generateMultipleInterpretations(
   }
   
   // Interpretation 2: Structural analysis (based on first/last chords)
-  const structuralInterpretation = analyzeStructurally(chordAnalyses, chordSymbols);
+  const structuralInterpretation = analyzeStructurally(chordAnalyses, chordSymbols, knownKey);
   if (structuralInterpretation) {
     interpretations.push(structuralInterpretation);
   }
   
   // Interpretation 3: Algorithmic analysis (original pitch-class based)
-  const algorithmicInterpretation = await analyzeAlgorithmically(chordAnalyses, allPitchClasses);
+  const algorithmicInterpretation = await analyzeAlgorithmically(chordAnalyses, allPitchClasses, chordSymbols);
   if (algorithmicInterpretation) {
     interpretations.push(algorithmicInterpretation);
   }
@@ -298,13 +303,32 @@ function analyzeWithKnownKey(
   
   // ENHANCED: Use modal detection fix for better tonic and mode detection
   const modalDetection = detectModalCharacteristics(chordSymbols, knownKey);
+  
+  // CROSS-VALIDATION: Use Enhanced Modal Analyzer for consistency
+  const enhancedAnalyzer = new EnhancedModalAnalyzer();
+  const enhancedResult = enhancedAnalyzer.analyzeModalCharacteristics(chordSymbols, knownKey);
+  
+  // Use Enhanced Modal Analyzer as authoritative source
+  // CRITICAL FIX: Check confidence threshold, not just null result
+  let isModalConsistent = enhancedResult !== null && enhancedResult.confidence >= 0.7;
+  let detectedModeConsistent = enhancedResult?.modeName || null;
+  
+  // Log any discrepancies for debugging
+  if (modalDetection.isModal !== isModalConsistent) {
+    console.log(`🔄 Modal detection discrepancy: Local (${modalDetection.isModal}) vs Enhanced (${isModalConsistent}). Using Enhanced as authoritative.`);
+  }
+  
+  if (modalDetection.detectedMode !== detectedModeConsistent) {
+    console.log(`🔄 Mode detection discrepancy: Local (${modalDetection.detectedMode}) vs Enhanced (${detectedModeConsistent}). Using Enhanced as authoritative.`);
+  }
+  
   const localTonic = modalDetection.localTonic;
   
   // ENHANCED: Use modal Roman numerals if modal characteristics detected
   const enhancedChords = chordAnalyses.map((chord, index) => {
     let romanNumeral: string;
     
-    if (modalDetection.isModal && modalDetection.confidence > 0.7) {
+    if (isModalConsistent && (modalDetection.confidence > 0.7 || (enhancedResult && enhancedResult.confidence > 0.6))) {
       // Use modal Roman numerals relative to local tonic
       const modalRomanNumerals = generateModalRomanNumerals(
         chordSymbols.map((symbol, i) => ({
@@ -326,7 +350,7 @@ function analyzeWithKnownKey(
       ...chord,
       romanNumeral,
       function: getChordFunction((chord.root - localTonic + 12) % 12, false),
-      isModal: modalDetection.isModal && modalDetection.evidence.some(e => e.strength > 0.8)
+      isModal: isModalConsistent // Use authoritative Enhanced modal analysis
     };
   });
   
@@ -340,8 +364,8 @@ function analyzeWithKnownKey(
   // ENHANCED: Confidence based on modal detection + user context
   let confidence = 0.85 + (enhancedChords.length > 0 ? 0.05 : 0);
   
-  // Boost confidence if modal characteristics are clearly detected
-  if (modalDetection.isModal && modalDetection.confidence > 0.8) {
+  // Boost confidence if modal characteristics are clearly detected by Enhanced analyzer
+  if (isModalConsistent && enhancedResult && enhancedResult.confidence > 0.7) {
     confidence = Math.min(0.95, confidence + 0.05);
   }
   
@@ -355,9 +379,9 @@ function analyzeWithKnownKey(
   // localTonicName already declared above
   
   let formattedMode: string;
-  if (modalDetection.detectedMode) {
-    // Use the detected mode from enhanced modal detection
-    const modeParts = modalDetection.detectedMode.split(' ');
+  if (detectedModeConsistent) {
+    // Use the cross-validated detected mode
+    const modeParts = detectedModeConsistent.split(' ');
     const detectedModeName = modeParts.slice(1).join(' ');
     formattedMode = formatModeWithDegrees(localTonicName, detectedModeName, parentKeyInfo.tonic, parentKeyInfo.isMinor);
   } else {
@@ -371,6 +395,7 @@ function analyzeWithKnownKey(
     chords: enhancedChords,
     keyCenter: parentKeyScale,
     overallMode: formattedMode,
+    isModal: isModalConsistent, // Use Enhanced modal analyzer result
     modalChords: enhancedChords.filter(chord => chord.isModal),
     modalInterchange: modalAnalysis.explanation || analyzeModalInterchangeInKey(enhancedChords, parentKeyInfo),
     confidence,
@@ -385,12 +410,22 @@ function analyzeWithKnownKey(
  */
 function analyzeStructurally(
   chordAnalyses: LocalChordAnalysis[],
-  chordSymbols: string[]
+  chordSymbols: string[],
+  parentKey?: string
 ): ProgressionInterpretation | null {
   if (chordAnalyses.length === 0) return null;
   
   // ENHANCED: Check for known modal patterns first
   const modalDetection = detectModalCharacteristics(chordSymbols);
+  
+  // CROSS-VALIDATION: Use Enhanced Modal Analyzer for consistency
+  const enhancedAnalyzer = new EnhancedModalAnalyzer();
+  const enhancedResult = enhancedAnalyzer.analyzeModalCharacteristics(chordSymbols, parentKey);
+  
+  // Use Enhanced Modal Analyzer as authoritative source
+  // CRITICAL FIX: Check confidence threshold, not just null result
+  let isModalConsistent = enhancedResult !== null && enhancedResult.confidence >= 0.7;
+  let detectedModeConsistent = enhancedResult?.modeName || null;
   
   // Weight first and last chords more heavily (common practice in analysis)
   const firstChord = chordAnalyses[0];
@@ -419,7 +454,7 @@ function analyzeStructurally(
   const enhancedChords = chordAnalyses.map((chord, index) => {
     let romanNumeral: string;
     
-    if (modalDetection.isModal && modalDetection.confidence > 0.7) {
+    if (isModalConsistent && enhancedResult && enhancedResult.confidence > 0.4) {
       const modalRomanNumerals = generateModalRomanNumerals(
         chordSymbols.map((symbol, i) => ({
           root: chordAnalyses[i].root,
@@ -439,7 +474,7 @@ function analyzeStructurally(
       ...chord,
       romanNumeral,
       function: getChordFunction((chord.root - keyRoot + 12) % 12, isMinor),
-      isModal: modalDetection.isModal
+      isModal: isModalConsistent // Use Enhanced modal analyzer result
     };
   });
   
@@ -473,6 +508,7 @@ function analyzeStructurally(
     chords: enhancedChords,
     keyCenter: parentKeyScale,
     overallMode: formattedMode,
+    isModal: isModalConsistent, // Use Enhanced modal analyzer result
     modalChords: enhancedChords.filter(chord => chord.isModal),
     modalInterchange: modalAnalysis.explanation || 'Structural analysis based on first/last chord emphasis',
     confidence,
@@ -486,7 +522,8 @@ function analyzeStructurally(
  */
 async function analyzeAlgorithmically(
   chordAnalyses: LocalChordAnalysis[],
-  allPitchClasses: number[]
+  allPitchClasses: number[],
+  originalChordSymbols: string[]
 ): Promise<ProgressionInterpretation | null> {
   const modeDetector = new RealTimeModeDetector();
   const uniquePitchClasses = [...new Set(allPitchClasses)];
@@ -499,6 +536,18 @@ async function analyzeAlgorithmically(
   const primaryMode = modeResult?.suggestions?.[0];
   if (!primaryMode) return null;
   
+  // Add modal detection to match other analysis functions  
+  const modalDetection = detectModalCharacteristics(originalChordSymbols);
+  
+  // CROSS-VALIDATION: Use Enhanced Modal Analyzer for consistency
+  const enhancedAnalyzer = new EnhancedModalAnalyzer();
+  const enhancedResult = enhancedAnalyzer.analyzeModalCharacteristics(originalChordSymbols);
+  
+  // Use Enhanced Modal Analyzer as authoritative source
+  // CRITICAL FIX: Check confidence threshold, not just null result
+  let isModalConsistent = enhancedResult !== null && enhancedResult.confidence >= 0.7;
+  let detectedModeConsistent = enhancedResult?.modeName || null;
+  
   const keyRoot = NOTE_TO_PITCH_CLASS[primaryMode.fullName.split(' ')[0]];
   if (keyRoot === undefined) return null;
   
@@ -509,7 +558,8 @@ async function analyzeAlgorithmically(
     return {
       ...chord,
       romanNumeral: getRomanNumeral(intervalFromKey, isMinorMode, chord.chordName),
-      function: getChordFunction(intervalFromKey, isMinorMode)
+      function: getChordFunction(intervalFromKey, isMinorMode),
+      isModal: isModalConsistent // Use Enhanced modal analyzer result
     };
   });
   
@@ -519,6 +569,7 @@ async function analyzeAlgorithmically(
     chords: enhancedChords,
     keyCenter: primaryMode.fullName.split(' ')[0] + (isMinorMode ? ' Minor' : ' Major'),
     overallMode: primaryMode.fullName,
+    isModal: isModalConsistent, // Use Enhanced modal analyzer result
     modalChords: enhancedChords.filter(chord => chord.isModal),
     modalInterchange: 'Based on pitch-class statistical analysis',
     confidence,

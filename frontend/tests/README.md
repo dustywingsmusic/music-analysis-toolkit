@@ -59,7 +59,8 @@ tests/
 
 ### 🎵 Modal Logic Validation (Primary Focus)
 **Comprehensive systematic testing of all modal analysis systems**
-- **232 generated test cases** covering all modal scenarios
+- **712 generated test cases** covering all modal scenarios
+- **7 test categories**: modal_characteristic, modal_seventh_variant, modal_vamp, modal_foil, functional_clear, ambiguous, edge_case
 - **Cross-system validation**: Enhanced, Comprehensive, and Legacy analyzers
 - **Theoretical correctness**: Music theory validation against expected results
 - **System conflict detection**: Automatic identification of analyzer disagreements
@@ -103,10 +104,13 @@ tests/
 ## Running Tests
 
 ### 🎯 Modal Logic Validation (Recommended)
-**Run comprehensive modal analysis validation with all 232+ test cases:**
+**Run comprehensive modal analysis validation with all 712 test cases:**
 ```bash
 # Full modal logic validation (all systems, all test cases) - RECOMMENDED
 npm run test:modal
+
+# Generate new test data AND run tests (complete workflow)
+npm run test:modal:full
 
 # With detailed output and specific patterns
 npm run test -- tests/unit/tools/comprehensive-modal-test-runner.test.ts --run -t "modal characteristic"
@@ -122,8 +126,8 @@ npm run test -- tests/unit/tools/comprehensive-modal-test-runner.test.ts --run -
 # Generate all modal test cases systematically
 node generate-comprehensive-test-cases.cjs
 
-# This creates comprehensive-modal-test-cases.json with 232+ test cases
-# Including all 12 roots × 7 modes × multiple progressions
+# This creates comprehensive-modal-test-cases.json with 712 test cases
+# Including all 12 roots × 7 modes × multiple variants and categories
 ```
 
 ### ⚡ Quick Modal Testing
@@ -209,7 +213,8 @@ When adding new features:
 The comprehensive modal tests are integrated into the CI pipeline via `npm run test:ci`, ensuring all modal logic changes are validated before deployment.
 
 ### Test Data Management
-- **Generated Test Cases**: `comprehensive-modal-test-cases.json` contains 232+ algorithmic test cases
+- **Generated Test Cases**: `comprehensive-modal-test-cases.json` contains 712 algorithmic test cases
+- **Test Categories**: 7 categories including modal variants, functional cases, and ambiguous boundaries
 - **Regeneration**: Run `node generate-comprehensive-test-cases.cjs` when modal patterns change
 - **Version Control**: Test data file is committed to track modal logic evolution
 
