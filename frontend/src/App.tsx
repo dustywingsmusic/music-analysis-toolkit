@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import QuestionDrivenMusicTool from './components/QuestionDrivenMusicTool';
+import QuestionDrivenMusicToolWithInputContext from './components/QuestionDrivenMusicToolWithInputContext';
 import { CookieConsent } from './components/CookieConsent';
 import { AnalyticsManager } from './utils/analyticsManager';
 import { AnalysisProvider } from './contexts/AnalysisContext';
@@ -36,7 +36,7 @@ const App: React.FC = () => {
   return (
     <AnalysisProvider>
       <div id="app-container" className="app-container">
-        <QuestionDrivenMusicTool showDebugInfo={showDebugInfo} />
+        <QuestionDrivenMusicToolWithInputContext showDebugInfo={showDebugInfo} />
         <CookieConsent
           onAccept={() => AnalyticsManager.grantConsent()}
           onDecline={() => AnalyticsManager.revokeConsent()}
