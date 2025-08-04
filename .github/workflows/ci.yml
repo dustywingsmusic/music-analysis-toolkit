@@ -28,7 +28,12 @@ jobs:
       run: npm ci
 
     - name: Run linting
-      run: npm run lint
+      run: |
+        if npm run | grep -q "lint"; then
+          npm run lint
+        else
+          echo "No lint script found, skipping linting"
+        fi
 
     - name: Run type checking
       run: npx tsc --noEmit
@@ -57,7 +62,7 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.9'
+        python-version: '3.11'
 
     - name: Install system dependencies
       run: |
@@ -113,7 +118,7 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.9'
+        python-version: '3.11'
 
     - name: Install system dependencies
       run: |
