@@ -6,7 +6,7 @@ import { Button } from './button';
 import DelightfulButton from './delightful-button';
 import MidiVisualizer from './midi-visualizer';
 import { Badge } from './badge';
-import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from './tooltip';
 import { NOTES } from '../../constants/scales';
 import { findChordMatches, ChordMatch } from '../../services/chordLogic';
 import { NotePlayed } from '../../types';
@@ -302,7 +302,8 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
   }, [placeholder, inputType]);
 
   return (
-    <div className={cn("unified-music-input space-y-4", className)}>
+    <TooltipProvider>
+      <div className={cn("unified-music-input space-y-4", className)}>
       {/* Enhanced Label with Status */}
       {label && (
         <div className="flex items-center justify-between">
@@ -845,6 +846,7 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
         </div>
       )}
     </div>
+    </TooltipProvider>
   );
 };
 
