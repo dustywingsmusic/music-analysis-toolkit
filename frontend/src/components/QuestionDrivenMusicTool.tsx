@@ -19,6 +19,7 @@ import ModeDiscoveryTab from './ModeDiscoveryTab';
 import EnhancedHarmonyTab from './EnhancedHarmonyTab';
 import ReferenceTab from './ReferenceTab';
 import AnalysisHub from './AnalysisHub';
+import MidiWidget from './MidiWidget';
 import ChordAnalyzer from './ChordAnalyzer';
 import {analyzeHarmony, analyzeMusic, discoverModes, getSongExamples} from '@/services/geminiService';
 import {buildModesFromRoot, isValidRootNote, ModeFromRoot} from '@/services/scaleDataService';
@@ -775,37 +776,6 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
           />
         );
 
-      case 'identify':
-        return (
-          <ModeIdentificationTab 
-            onAnalysisRequest={handleAnalysisRequest}
-            hasResults={unifiedResults.isVisible}
-            isLoading={isLoading}
-            initialMethod={inputRepopulationData?.method}
-            initialMelodyNotes={inputRepopulationData?.melodyNotes}
-            initialScaleNotes={inputRepopulationData?.scaleNotes}
-            initialProgression={inputRepopulationData?.progression}
-          />
-        );
-
-      case 'discover':
-        return (
-          <ModeDiscoveryTab 
-            onDiscoveryRequest={handleDiscoveryRequest}
-            hasResults={unifiedResults.isVisible}
-            isLoading={isLoading}
-            onDeeperAnalysis={handleDeeperAnalysis}
-          />
-        );
-
-      case 'harmony':
-        return (
-          <EnhancedHarmonyTab 
-            hasResults={!!state.currentAnalysis}
-            onSwitchToReferenceWithHighlight={handleSwitchToReferenceWithHighlight}
-          />
-        );
-
       case 'reference':
         return (
           <ReferenceTab
@@ -830,6 +800,79 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
               resetMidiConnection,
             }}
           />
+        );
+
+      case 'widget':
+        return (
+          <div className="widget-tab-container p-6">
+            <div className="max-w-4xl mx-auto space-y-6">
+              <div className="text-center space-y-2">
+                <h2 className="text-2xl font-bold">MIDI Analysis Widget</h2>
+                <p className="text-muted-foreground">
+                  Real-time MIDI analysis with compact comprehensive insights
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Primary MIDI Widget */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Live Analysis Widget</h3>
+                  <MidiWidget
+                    isExpanded={true}
+                    showSettings={true}
+                    onNavigateToReference={handleSwitchToReference}
+                    onNavigateToAnalysis={(analysisData) => {
+                      // Navigate to Analysis Hub with MIDI data
+                      navigateToTab('analysis');
+                      if (analysisData.chordProgression) {
+                        handleAnalysisRequest('progression', { chords: analysisData.chordProgression });
+                      }
+                    }}
+                    pluginMode={false}
+                  />
+                </div>
+                
+                {/* Compact Widget Preview */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Compact Mode Preview</h3>
+                  <p className="text-sm text-muted-foreground">
+                    This is how the widget appears in compact mode (future Chrome plugin):
+                  </p>
+                  <MidiWidget
+                    compactMode={true}
+                    showSettings={false}
+                    onNavigateToReference={handleSwitchToReference}
+                    pluginMode={true}
+                  />
+                </div>
+              </div>
+
+              {/* Widget Features */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+                <div className="text-center p-4 bg-card rounded-lg border">
+                  <div className="text-2xl mb-2">🎹</div>
+                  <h4 className="font-semibold">Real-time MIDI</h4>
+                  <p className="text-xs text-muted-foreground">
+                    Instant chord and scale detection from MIDI input
+                  </p>
+                </div>
+                <div className="text-center p-4 bg-card rounded-lg border">
+                  <div className="text-2xl mb-2">⚡</div>
+                  <h4 className="font-semibold">Fast Analysis</h4>
+                  <p className="text-xs text-muted-foreground">
+                    Lightweight analysis engine optimized for speed
+                  </p>
+                </div>
+                <div className="text-center p-4 bg-card rounded-lg border">
+                  <div className="text-2xl mb-2">🔗</div>
+                  <h4 className="font-semibold">Quick Links</h4>
+                  <p className="text-xs text-muted-foreground">
+                    Direct access to scale tables and full analysis
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         );
 
       default:

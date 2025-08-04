@@ -9,7 +9,7 @@ import { Badge } from "./ui/badge";
 import { trackNavClick } from '../utils/tracking';
 import { useAnalysis, useAnalysisActions } from '../contexts/AnalysisContext';
 
-export type TabType = 'identify' | 'discover' | 'harmony' | 'reference' | 'analysis';
+export type TabType = 'analysis' | 'reference' | 'widget';
 
 interface EnhancedNavigationTabsProps {
   onTabChange?: (tab: TabType) => void;
@@ -22,46 +22,30 @@ const EnhancedNavigationTabs: React.FC<EnhancedNavigationTabsProps> = ({ onTabCh
   const tabs = [
     { 
       id: 'analysis' as TabType, 
-      label: '🧠 Analysis', 
+      label: '📊 Analysis Hub', 
       title: 'Analysis Hub',
-      icon: '🧠',
+      icon: '📊',
       color: 'text-primary',
-      description: 'Unified music analysis with AI',
+      description: 'Unified music analysis with comprehensive insights',
       enhanced: true,
       featured: true
     },
     { 
-      id: 'identify' as TabType, 
-      label: '🎼 Identify', 
-      title: 'Mode Identification',
-      icon: '🎼',
-      color: 'text-primary',
-      description: 'What mode is this?'
-    },
-    { 
-      id: 'discover' as TabType, 
-      label: '🔍 Discover', 
-      title: 'Mode Discovery',
-      icon: '🔍',
-      color: 'text-secondary',
-      description: 'What modes can I explore?'
-    },
-    { 
-      id: 'harmony' as TabType, 
-      label: '🎵 Harmony', 
-      title: 'Enhanced Chords & Harmony',
-      icon: '🎵',
-      color: 'text-primary',
-      description: 'How do modes work with chords?',
-      enhanced: true
-    },
-    { 
       id: 'reference' as TabType, 
-      label: '📚 Reference', 
-      title: 'Scale Tables & Reference',
+      label: '📚 Explore & Reference', 
+      title: 'Explore & Reference',
       icon: '📚',
       color: 'text-accent',
-      description: 'Show me mode information'
+      description: 'Scale tables, mode exploration & comparative analysis'
+    },
+    { 
+      id: 'widget' as TabType, 
+      label: '🔧 Analysis Widget', 
+      title: 'MIDI Widget & Tools',
+      icon: '🔧',
+      color: 'text-secondary',
+      description: 'Real-time MIDI analysis widget & settings',
+      enhanced: true
     },
   ];
 
