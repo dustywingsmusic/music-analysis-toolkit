@@ -479,23 +479,51 @@ const ChromaticAnalysisLens: React.FC<{
       )}
       themeColor="orange"
     >
+      {/* Chromatic Elements Overview */}
+      <div className="mb-4 p-3 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-lg border border-orange-200">
+        <h3 className="font-semibold text-orange-700 dark:text-orange-300 mb-2 flex items-center gap-2">
+          <SparklesIcon className="h-4 w-4" />
+          Chromatic Harmony Analysis
+        </h3>
+        <p className="text-sm text-orange-800 dark:text-orange-200 mb-2">
+          This progression contains {chromaticElementsCount} chromatic element{chromaticElementsCount !== 1 ? 's' : ''} that extend beyond the basic functional harmony in {result.functional.keyCenter}.
+        </p>
+        <div className="text-xs text-orange-600 dark:text-orange-400">
+          Chromatic analysis reveals advanced harmonic relationships and sophisticated voice leading patterns.
+        </div>
+      </div>
       <div className="space-y-3">
         {/* Secondary Dominants */}
         {chromatic.secondaryDominants.length > 0 && (
           <div>
-            <h4 className="font-semibold mb-2 text-orange-700 dark:text-orange-300">Secondary Dominants</h4>
-            <div className="space-y-2">
+            <h4 className="font-semibold mb-2 text-orange-700 dark:text-orange-300 flex items-center gap-2">
+              Secondary Dominants
+              <Badge variant="secondary" className="text-xs">
+                {chromatic.secondaryDominants.length}
+              </Badge>
+            </h4>
+            <div className="grid gap-3">
               {chromatic.secondaryDominants.map((dominant, index) => (
-                <div key={index} className="p-2 bg-orange-50 dark:bg-orange-900/20 rounded border border-orange-200">
-                  <div className="flex items-center justify-between mb-1">
-                    <Badge variant="outline" className="bg-orange-100 text-orange-800 font-bold">
-                      {dominant.romanNumeral}
-                    </Badge>
-                    <span className="text-xs text-orange-600">
-                      → {dominant.target}
-                    </span>
+                <div key={index} className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 hover:shadow-sm transition-shadow">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-orange-100 dark:bg-orange-800/30 text-orange-800 dark:text-orange-200 font-bold text-base px-3 py-1">
+                        {dominant.romanNumeral}
+                      </Badge>
+                      <span className="text-sm text-orange-600 dark:text-orange-400 font-mono">
+                        ({dominant.chord})
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500">resolves to</span>
+                      <Badge variant="outline" className="bg-blue-100 dark:bg-blue-800/30 text-blue-800 dark:text-blue-200 font-bold">
+                        {dominant.target}
+                      </Badge>
+                    </div>
                   </div>
-                  <span className="text-sm">{dominant.explanation}</span>
+                  <ChromaticAnalysisHighlighter keyCenter={result.functional.keyCenter}>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{dominant.explanation}</p>
+                  </ChromaticAnalysisHighlighter>
                 </div>
               ))}
             </div>
@@ -505,19 +533,34 @@ const ChromaticAnalysisLens: React.FC<{
         {/* Borrowed Chords */}
         {chromatic.borrowedChords.length > 0 && (
           <div>
-            <h4 className="font-semibold mb-2 text-orange-700 dark:text-orange-300">Borrowed Chords</h4>
-            <div className="space-y-2">
+            <h4 className="font-semibold mb-2 text-orange-700 dark:text-orange-300 flex items-center gap-2">
+              Borrowed Chords
+              <Badge variant="secondary" className="text-xs">
+                {chromatic.borrowedChords.length}
+              </Badge>
+            </h4>
+            <div className="grid gap-3">
               {chromatic.borrowedChords.map((borrowed, index) => (
-                <div key={index} className="p-2 bg-orange-50 dark:bg-orange-900/20 rounded border border-orange-200">
-                  <div className="flex items-center justify-between mb-1">
-                    <Badge variant="outline" className="bg-orange-100 text-orange-800 font-bold">
-                      {borrowed.romanNumeral}
-                    </Badge>
-                    <span className="text-xs text-orange-600">
-                      from {borrowed.borrowedFrom}
-                    </span>
+                <div key={index} className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 hover:shadow-sm transition-shadow">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-orange-100 dark:bg-orange-800/30 text-orange-800 dark:text-orange-200 font-bold text-base px-3 py-1">
+                        {borrowed.romanNumeral}
+                      </Badge>
+                      <span className="text-sm text-orange-600 dark:text-orange-400 font-mono">
+                        ({borrowed.chord})
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500">from</span>
+                      <Badge variant="outline" className="bg-purple-100 dark:bg-purple-800/30 text-purple-800 dark:text-purple-200 text-xs">
+                        {borrowed.borrowedFrom}
+                      </Badge>
+                    </div>
                   </div>
-                  <span className="text-sm">{borrowed.explanation}</span>
+                  <ChromaticAnalysisHighlighter keyCenter={result.functional.keyCenter}>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{borrowed.explanation}</p>
+                  </ChromaticAnalysisHighlighter>
                 </div>
               ))}
             </div>
@@ -527,19 +570,28 @@ const ChromaticAnalysisLens: React.FC<{
         {/* Chromatic Mediants */}
         {chromatic.chromaticMediants.length > 0 && (
           <div>
-            <h4 className="font-semibold mb-2 text-orange-700 dark:text-orange-300">Chromatic Mediants</h4>
-            <div className="space-y-2">
+            <h4 className="font-semibold mb-2 text-orange-700 dark:text-orange-300 flex items-center gap-2">
+              Chromatic Mediants
+              <Badge variant="secondary" className="text-xs">
+                {chromatic.chromaticMediants.length}
+              </Badge>
+            </h4>
+            <div className="grid gap-3">
               {chromatic.chromaticMediants.map((mediant, index) => (
-                <div key={index} className="p-2 bg-orange-50 dark:bg-orange-900/20 rounded border border-orange-200">
-                  <div className="flex items-center justify-between mb-1">
-                    <Badge variant="outline" className="bg-orange-100 text-orange-800 font-bold">
-                      {mediant.chord}
-                    </Badge>
-                    <span className="text-xs text-orange-600">
+                <div key={index} className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 hover:shadow-sm transition-shadow">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-orange-100 dark:bg-orange-800/30 text-orange-800 dark:text-orange-200 font-bold text-base px-3 py-1">
+                        {mediant.chord}
+                      </Badge>
+                    </div>
+                    <Badge variant="outline" className="bg-indigo-100 dark:bg-indigo-800/30 text-indigo-800 dark:text-indigo-200 text-xs">
                       {mediant.relationship}
-                    </span>
+                    </Badge>
                   </div>
-                  <span className="text-sm">{mediant.explanation}</span>
+                  <ChromaticAnalysisHighlighter keyCenter={result.functional.keyCenter}>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{mediant.explanation}</p>
+                  </ChromaticAnalysisHighlighter>
                 </div>
               ))}
             </div>
@@ -549,43 +601,80 @@ const ChromaticAnalysisLens: React.FC<{
         {/* Resolution Patterns */}
         {chromatic.resolutionPatterns.length > 0 && (
           <div>
-            <h4 className="font-semibold mb-2 text-orange-700 dark:text-orange-300">Resolution Patterns</h4>
-            <div className="space-y-2">
+            <h4 className="font-semibold mb-2 text-orange-700 dark:text-orange-300 flex items-center gap-2">
+              Resolution Patterns
+              <Badge variant="secondary" className="text-xs">
+                {chromatic.resolutionPatterns.length}
+              </Badge>
+            </h4>
+            <div className="grid gap-3">
               {chromatic.resolutionPatterns.map((pattern, index) => (
-                <div key={index} className="p-2 bg-orange-50 dark:bg-orange-900/20 rounded border border-orange-200">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-mono text-orange-800">
-                      {pattern.from} → {pattern.to}
-                    </span>
+                <div key={index} className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 hover:shadow-sm transition-shadow">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-3">
+                      <span className="text-base font-mono font-bold text-orange-800 dark:text-orange-200 bg-white dark:bg-gray-800 px-2 py-1 rounded border">
+                        {pattern.from}
+                      </span>
+                      <span className="text-gray-400 text-lg">→</span>
+                      <span className="text-base font-mono font-bold text-orange-800 dark:text-orange-200 bg-white dark:bg-gray-800 px-2 py-1 rounded border">
+                        {pattern.to}
+                      </span>
+                    </div>
                     <Badge 
                       variant="outline" 
-                      className={`text-xs ${
-                        pattern.type === 'strong' ? 'bg-green-100 text-green-800' :
-                        pattern.type === 'weak' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
+                      className={`text-xs font-medium ${
+                        pattern.type === 'strong' ? 'bg-green-100 dark:bg-green-800/30 text-green-800 dark:text-green-200 border-green-300' :
+                        pattern.type === 'weak' ? 'bg-yellow-100 dark:bg-yellow-800/30 text-yellow-800 dark:text-yellow-200 border-yellow-300' :
+                        'bg-red-100 dark:bg-red-800/30 text-red-800 dark:text-red-200 border-red-300'
                       }`}
                     >
-                      {pattern.type}
+                      {pattern.type} resolution
                     </Badge>
                   </div>
-                  <span className="text-sm">{pattern.explanation}</span>
+                  <ChromaticAnalysisHighlighter keyCenter={result.functional.keyCenter}>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{pattern.explanation}</p>
+                  </ChromaticAnalysisHighlighter>
                 </div>
               ))}
             </div>
           </div>
         )}
         
-        {/* When to Use */}
-        <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200">
-          <strong className="text-sm font-semibold text-orange-700 dark:text-orange-300">When to Use Chromatic Analysis:</strong>
-          <ChromaticAnalysisHighlighter keyCenter={result.functional.keyCenter}>
-            <ul className="text-sm text-orange-800 dark:text-orange-200 mt-1 space-y-1">
-              <li>• Understanding complex harmonic progressions</li>
-              <li>• Analyzing classical and romantic period music</li>
-              <li>• Jazz harmony and chord substitutions</li>
-              <li>• Advanced composition techniques</li>
-            </ul>
-          </ChromaticAnalysisHighlighter>
+        {/* Summary and When to Use */}
+        <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200">
+          <div className="mb-3">
+            <strong className="text-sm font-semibold text-orange-700 dark:text-orange-300">Chromatic Analysis Summary:</strong>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {chromatic.secondaryDominants.length > 0 && (
+                <Badge variant="outline" className="bg-blue-100 dark:bg-blue-800/30 text-blue-800 dark:text-blue-200 text-xs">
+                  {chromatic.secondaryDominants.length} Secondary Dominant{chromatic.secondaryDominants.length !== 1 ? 's' : ''}
+                </Badge>
+              )}
+              {chromatic.borrowedChords.length > 0 && (
+                <Badge variant="outline" className="bg-purple-100 dark:bg-purple-800/30 text-purple-800 dark:text-purple-200 text-xs">
+                  {chromatic.borrowedChords.length} Borrowed Chord{chromatic.borrowedChords.length !== 1 ? 's' : ''}
+                </Badge>
+              )}
+              {chromatic.chromaticMediants.length > 0 && (
+                <Badge variant="outline" className="bg-indigo-100 dark:bg-indigo-800/30 text-indigo-800 dark:text-indigo-200 text-xs">
+                  {chromatic.chromaticMediants.length} Chromatic Mediant{chromatic.chromaticMediants.length !== 1 ? 's' : ''}
+                </Badge>
+              )}
+            </div>
+          </div>
+          
+          <div className="border-t border-orange-200 pt-3">
+            <strong className="text-sm font-semibold text-orange-700 dark:text-orange-300">When to Use Chromatic Analysis:</strong>
+            <ChromaticAnalysisHighlighter keyCenter={result.functional.keyCenter}>
+              <ul className="text-sm text-orange-800 dark:text-orange-200 mt-2 space-y-1">
+                <li>• Understanding complex harmonic progressions with non-diatonic chords</li>
+                <li>• Analyzing classical and romantic period music with advanced harmony</li>
+                <li>• Jazz harmony, chord substitutions, and reharmonization</li>
+                <li>• Advanced composition techniques and voice leading</li>
+                <li>• Modal interchange and borrowed chord analysis</li>
+              </ul>
+            </ChromaticAnalysisHighlighter>
+          </div>
         </div>
       </div>
     </AnalysisLensCard>

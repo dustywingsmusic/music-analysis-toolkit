@@ -66,8 +66,8 @@ export interface UnifiedAnalysisState {
   referenceConnections: ReferenceConnection[];
   
   // Active tab and navigation state
-  activeTab: 'identify' | 'discover' | 'harmony' | 'reference';
-  lastAnalysisTab: 'identify' | 'discover' | 'harmony' | null;
+  activeTab: 'analysis' | 'identify' | 'discover' | 'harmony' | 'reference';
+  lastAnalysisTab: 'analysis' | 'identify' | 'discover' | 'harmony' | null;
   
   // Cross-feature navigation
   pendingNavigation: {
@@ -112,7 +112,7 @@ const initialState: UnifiedAnalysisState = {
   crossValidation: null,
   analysisHistory: [],
   referenceConnections: [],
-  activeTab: 'identify',
+  activeTab: 'analysis',
   lastAnalysisTab: null,
   pendingNavigation: null,
   isAnalyzing: false,

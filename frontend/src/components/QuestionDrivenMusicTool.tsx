@@ -18,6 +18,7 @@ import ModeIdentificationTab, {IdentificationMethod} from './ModeIdentificationT
 import ModeDiscoveryTab from './ModeDiscoveryTab';
 import EnhancedHarmonyTab from './EnhancedHarmonyTab';
 import ReferenceTab from './ReferenceTab';
+import AnalysisHub from './AnalysisHub';
 import ChordAnalyzer from './ChordAnalyzer';
 import {analyzeHarmony, analyzeMusic, discoverModes, getSongExamples} from '@/services/geminiService';
 import {buildModesFromRoot, isValidRootNote, ModeFromRoot} from '@/services/scaleDataService';
@@ -748,6 +749,23 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
 
   const renderTabContent = () => {
     switch (state.activeTab) {
+      case 'analysis':
+        return (
+          <AnalysisHub
+            hasResults={unifiedResults.isVisible}
+            midiData={{
+              playedNotes: midiPlayedNotes,
+              playedPitchClasses: midiPlayedPitchClasses,
+              isActive: midiEnabled && midiStatus.includes('Listening'),
+              status: midiStatus,
+              clearPlayedNotes: clearMidiPlayedNotes,
+              analysisFocus: midiAnalysisFocus,
+              setAnalysisFocus: setMidiAnalysisFocus,
+            }}
+            onSwitchToReferenceWithHighlight={handleSwitchToReferenceWithHighlight}
+          />
+        );
+
       case 'identify':
         return (
           <ModeIdentificationTab 

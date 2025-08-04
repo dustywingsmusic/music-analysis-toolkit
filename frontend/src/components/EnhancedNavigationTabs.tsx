@@ -9,7 +9,7 @@ import { Badge } from "./ui/badge";
 import { trackNavClick } from '../utils/tracking';
 import { useAnalysis, useAnalysisActions } from '../contexts/AnalysisContext';
 
-export type TabType = 'identify' | 'discover' | 'harmony' | 'reference';
+export type TabType = 'identify' | 'discover' | 'harmony' | 'reference' | 'analysis';
 
 interface EnhancedNavigationTabsProps {
   onTabChange?: (tab: TabType) => void;
@@ -20,6 +20,16 @@ const EnhancedNavigationTabs: React.FC<EnhancedNavigationTabsProps> = ({ onTabCh
   const { navigateToReference } = useAnalysisActions();
 
   const tabs = [
+    { 
+      id: 'analysis' as TabType, 
+      label: '🧠 Analysis', 
+      title: 'Analysis Hub',
+      icon: '🧠',
+      color: 'text-primary',
+      description: 'Unified music analysis with AI',
+      enhanced: true,
+      featured: true
+    },
     { 
       id: 'identify' as TabType, 
       label: '🎼 Identify', 
@@ -104,7 +114,7 @@ const EnhancedNavigationTabs: React.FC<EnhancedNavigationTabsProps> = ({ onTabCh
 
       {/* Main Navigation Tabs */}
       <Tabs value={state.activeTab} onValueChange={(value) => handleTabChange(value as TabType)}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           {tabs.map((tab) => (
             <TabsTrigger 
               key={tab.id}
@@ -118,6 +128,11 @@ const EnhancedNavigationTabs: React.FC<EnhancedNavigationTabsProps> = ({ onTabCh
                 {tab.enhanced && (
                   <Badge variant="secondary" className="text-xs">
                     Enhanced
+                  </Badge>
+                )}
+                {tab.featured && (
+                  <Badge variant="outline" className="text-xs bg-green-100 text-green-800">
+                    New
                   </Badge>
                 )}
               </div>
