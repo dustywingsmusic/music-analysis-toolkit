@@ -28,6 +28,8 @@ import MappingDebugger from './MappingDebugger';
 import {useUnifiedResults} from "@/hooks/useUnifiedResults";
 import UnifiedResultsPanel from "@/components/UnifiedResultsPanel";
 import MidiSettingsPanel from './MidiSettingsPanel';
+import InputSettingsPanel from './InputSettingsPanel';
+import { InputMethodProvider, useInputMethod } from '../contexts/InputMethodContext';
 import {useMidi} from '@/hooks/useMidi';
 import {logger} from '@/utils/logger';
 import { trackInteraction } from '../utils/tracking';
@@ -846,15 +848,16 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
             <EnhancedNavigationTabs 
               onTabChange={handleTabChange}
             />
-            <MidiSettingsPanel 
-              status={midiStatus}
-              devices={midiDevices}
-              selectedDevice={midiSelectedDevice}
-              setSelectedDevice={setMidiSelectedDevice}
-              error={midiError}
-              enabled={midiEnabled}
+            <InputSettingsPanel 
+              midiStatus={midiStatus}
+              midiDevices={midiDevices}
+              selectedMidiDevice={midiSelectedDevice}
+              setSelectedMidiDevice={setMidiSelectedDevice}
+              midiError={midiError}
+              midiEnabled={midiEnabled}
               enableMidi={enableMidi}
               disableMidi={disableMidi}
+              showDetailedConfig={true}
             />
             {showDebugInfo && (
               <button 

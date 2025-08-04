@@ -10,8 +10,11 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from './tool
 import { NOTES } from '../../constants/scales';
 import { findChordMatches, ChordMatch } from '../../services/chordLogic';
 import { NotePlayed } from '../../types';
+import { useInputMethodFor, InputMethod } from '../../contexts/InputMethodContext';
+import CompactChordBuilder from './compact-chord-builder';
+import CompactNoteSelector from './compact-note-selector';
 
-export type InputMethod = 'keyboard' | 'mouse' | 'midi';
+export type { InputMethod } from '../../contexts/InputMethodContext';
 export type InputType = 'melody' | 'scale' | 'chord' | 'progression';
 
 interface UnifiedMusicInputProps {
@@ -21,6 +24,8 @@ interface UnifiedMusicInputProps {
   label?: string;
   inputType?: InputType;
   className?: string;
+  // Component identifier for input method preferences
+  componentId?: string;
   // Enhanced MIDI integration
   midiData?: {
     playedNotes: NotePlayed[];
@@ -38,6 +43,8 @@ interface UnifiedMusicInputProps {
   // Callbacks for specific actions
   onChordDetected?: (chords: ChordMatch[]) => void;
   onNotesChanged?: (notes: string[], pitchClasses: number[]) => void;
+  // Global input method control
+  useGlobalInputMethod?: boolean;
 }
 
 // Enhanced chord and note data
@@ -62,14 +69,23 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
   label,
   inputType = 'melody',
   className,
+  componentId,
   midiData,
   onValidation,
   showSuggestions = true,
   enableChordRecognition = true,
   onChordDetected,
-  onNotesChanged
+  onNotesChanged,
+  useGlobalInputMethod = true
 }) => {
-  const [activeInputMethod, setActiveInputMethod] = useState<InputMethod>('keyboard');
+  // Use global input method context or local state
+  const globalInputMethod = useInputMethodFor(componentId || `unified-input-${inputType}`);
+  const [localInputMethod, setLocalInputMethod] = useState<InputMethod>('keyboard');
+  
+  // Choose between global and local input method management
+  const activeInputMethod = useGlobalInputMethod ? globalInputMethod.activeInputMethod : localInputMethod;
+  const setActiveInputMethod = useGlobalInputMethod ? globalInputMethod.setInputMethod : setLocalInputMethod;
+  
   const [selectedNotes, setSelectedNotes] = useState<string[]>([]);
   const [validationState, setValidationState] = useState<{
     isValid: boolean;
@@ -258,22 +274,27 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
     { 
       id: 'keyboard' as const, 
       label: 'Type', 
-      icon: '⌨️', 
+      icon: '⌨️',
+      shortIcon: '⌨️', 
       description: `Type ${inputType === 'progression' ? 'chord symbols or Roman numerals' : inputType === 'chord' ? 'chord name' : 'note names'} directly`
     },
     { 
       id: 'mouse' as const, 
       label: 'Click', 
-      icon: '🖱️', 
+      icon: '🖱️',
+      shortIcon: '🖱️', 
       description: `Click to select ${inputType === 'chord' || inputType === 'progression' ? 'chords' : 'notes'}`
     },
     { 
       id: 'midi' as const, 
       label: 'Play', 
-      icon: '🎹', 
+      icon: '🎹',
+      shortIcon: '🎹', 
       description: `Play your MIDI keyboard${inputType === 'chord' ? ' (hold notes for chords)' : ''}`
     },
   ], [inputType]);
+  
+  const currentMethod = inputMethods.find(method => method.id === activeInputMethod);
 
   // Dynamic input data based on type
   const currentInputData = useMemo(() => {
@@ -357,42 +378,63 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
         </div>
       )}
 
-      {/* Enhanced Input Method Selector */}
-      <div className="flex items-center gap-2 p-1 bg-muted rounded-lg">
-        {inputMethods.map((method) => {
-          const isDisabled = method.id === 'midi' && !midiData?.isActive;
-          return (
-            <Tooltip key={method.id}>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => !isDisabled && setActiveInputMethod(method.id)}
-                  disabled={isDisabled}
-                  className={cn(
-                    "flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200",
-                    activeInputMethod === method.id
-                      ? "bg-background shadow-sm text-foreground"
-                      : isDisabled
-                        ? "text-muted-foreground/50 cursor-not-allowed"
-                        : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+      {/* Enhanced Input Method Selector - Hidden when using global input method */}
+      {!useGlobalInputMethod && (
+        <div className="flex items-center gap-2 p-1 bg-muted rounded-lg">
+          {inputMethods.map((method) => {
+            const isDisabled = method.id === 'midi' && !midiData?.isActive;
+            return (
+              <Tooltip key={method.id}>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => !isDisabled && setActiveInputMethod(method.id)}
+                    disabled={isDisabled}
+                    className={cn(
+                      "flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200",
+                      activeInputMethod === method.id
+                        ? "bg-background shadow-sm text-foreground"
+                        : isDisabled
+                          ? "text-muted-foreground/50 cursor-not-allowed"
+                          : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                    )}
+                  >
+                    <span>{method.icon}</span>
+                    {method.label}
+                    {method.id === 'midi' && midiData?.isActive && (
+                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                    )}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs">{method.description}</p>
+                  {isDisabled && (
+                    <p className="text-xs text-muted-foreground">MIDI device not connected</p>
                   )}
-                >
-                  <span>{method.icon}</span>
-                  {method.label}
-                  {method.id === 'midi' && midiData?.isActive && (
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                  )}
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="text-xs">{method.description}</p>
-                {isDisabled && (
-                  <p className="text-xs text-muted-foreground">MIDI device not connected</p>
-                )}
-              </TooltipContent>
-            </Tooltip>
-          );
-        })}
-      </div>
+                </TooltipContent>
+              </Tooltip>
+            );
+          })}
+        </div>
+      )}
+      
+      {/* Global Input Method Status Display - Shown when using global input method */}
+      {useGlobalInputMethod && (
+        <div className="flex items-center justify-between p-2 bg-muted/30 rounded-lg border border-muted">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Input method:</span>
+            <div className="flex items-center gap-2">
+              <span className="text-base">{currentMethod?.shortIcon}</span>
+              <span className="text-sm font-medium">{currentMethod?.label}</span>
+              {currentMethod?.id === 'midi' && midiData?.isActive && (
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+              )}
+            </div>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            {currentMethod?.id === 'midi' && midiData ? midiData.status : 'Ready'}
+          </div>
+        </div>
+      )}
 
       {/* Input Method Content */}
       <div className="space-y-3">
@@ -477,152 +519,30 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
           </div>
         )}
 
-        {/* Enhanced Mouse Input - Visual Picker */}
+        {/* Enhanced Mouse Input - Specialized Components */}
         {activeInputMethod === 'mouse' && (
           <div className="space-y-4">
-            {/* Category selector for chord progressions */}
-            {inputType === 'progression' && (
-              <div className="flex items-center gap-2 text-xs">
-                <span className="text-muted-foreground">Quick select:</span>
-                <button
-                  onClick={() => onChange('C G Am F')}
-                  className="px-2 py-1 bg-primary/10 hover:bg-primary/20 rounded text-primary transition-colors"
-                >
-                  vi-IV-I-V
-                </button>
-                <button
-                  onClick={() => onChange('Am F C G')}
-                  className="px-2 py-1 bg-primary/10 hover:bg-primary/20 rounded text-primary transition-colors"
-                >
-                  Pop progression
-                </button>
-              </div>
+            {/* Chord Progression Builder */}
+            {(inputType === 'chord' || inputType === 'progression') && (
+              <CompactChordBuilder
+                value={value}
+                onChange={onChange}
+                maxChords={inputType === 'chord' ? 1 : 8}
+                showPlayback={false}
+              />
             )}
             
-            {/* Enhanced grid layout based on input type */}
-            <div className={cn(
-              "grid gap-2",
-              inputType === 'chord' || inputType === 'progression' 
-                ? "grid-cols-3 sm:grid-cols-4 md:grid-cols-5"
-                : "grid-cols-6 sm:grid-cols-8 md:grid-cols-12"
-            )}>
-              {currentInputData.map((item) => {
-                const isSelected = currentValueArray.includes(item);
-                const isChordButton = inputType === 'chord' || inputType === 'progression';
-                
-                return (
-                  <Tooltip key={item}>
-                    <TooltipTrigger asChild>
-                      <DelightfulButton
-                        onClick={() => handleNoteToggle(item)}
-                        variant={isSelected ? "default" : "outline"}
-                        size="sm"
-                        className={cn(
-                          "transition-all duration-200 hover:scale-105",
-                          isChordButton ? "h-10" : "aspect-square",
-                          isSelected && "shadow-md scale-105 border-primary"
-                        )}
-                        musical={!isChordButton}
-                        sparkle={isSelected}
-                      >
-                        {item}
-                      </DelightfulButton>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="text-xs">
-                        {isChordButton 
-                          ? `Add ${item} to progression`
-                          : `Add ${item} note`
-                        }
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                );
-              })}
-            </div>
-            
-            {/* Enhanced selected items display */}
-            {currentValueArray.length > 0 && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-muted-foreground">
-                    Selected ({currentValueArray.length}):
-                  </span>
-                  {enableChordRecognition && currentValueArray.length >= 3 && (inputType === 'chord' || inputType === 'scale') && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        const pitchClasses = notesToPitchClasses(currentValueArray);
-                        const midiNotes = pitchClasses.map(pc => pc + 60);
-                        const chords = findChordMatches(midiNotes);
-                        if (chords.length > 0 && onChordDetected) {
-                          onChordDetected(chords);
-                        }
-                      }}
-                      className="text-xs h-6"
-                    >
-                      🎵 Analyze
-                    </Button>
-                  )}
-                </div>
-                
-                <div className="flex flex-wrap gap-2 p-3 bg-muted/30 rounded-md">
-                  {currentValueArray.map((item, index) => (
-                    <Badge
-                      key={`${item}-${index}`}
-                      variant="secondary"
-                      className="inline-flex items-center gap-1 px-2 py-1 text-sm cursor-pointer hover:bg-destructive/20 hover:text-destructive transition-colors"
-                      onClick={() => handleNoteToggle(item)}
-                    >
-                      {item}
-                      <span className="w-3 h-3 flex items-center justify-center text-xs hover:bg-destructive/30 rounded">
-                        ×
-                      </span>
-                    </Badge>
-                  ))}
-                </div>
-                
-                {/* Chord analysis results */}
-                {validationState.detectedChords.length > 0 && (
-                  <div className="p-2 bg-primary/5 rounded-md border border-primary/20">
-                    <p className="text-xs font-medium text-primary mb-1">Detected chords:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {validationState.detectedChords.slice(0, 3).map(chord => (
-                        <Badge key={chord.chordSymbol} variant="outline" className="text-xs">
-                          {chord.chordSymbol}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+            {/* Note Selector for Melodies/Scales */}
+            {(inputType === 'melody' || inputType === 'scale') && (
+              <CompactNoteSelector
+                value={value}
+                onChange={onChange}
+                mode={inputType === 'melody' ? 'melody' : 'scale'}
+                layout="horizontal"
+                maxNotes={inputType === 'melody' ? 20 : 12}
+                showOctaves={false}
+              />
             )}
-            
-            <div className="flex gap-2">
-              <DelightfulButton
-                onClick={() => onChange('')}
-                variant="outline"
-                size="sm"
-                className="flex-1"
-              >
-                Clear All
-              </DelightfulButton>
-              <DelightfulButton
-                onClick={() => {
-                  const randomSelection = currentInputData
-                    .sort(() => Math.random() - 0.5)
-                    .slice(0, Math.floor(Math.random() * 4) + 3);
-                  onChange(randomSelection.join(' '));
-                }}
-                variant="outline"
-                size="sm"
-                className="flex-1"
-                sparkle
-              >
-                🎲 Random
-              </DelightfulButton>
-            </div>
           </div>
         )}
 
