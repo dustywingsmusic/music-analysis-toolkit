@@ -1,0 +1,17 @@
+id,mode,parentKey,chords,expected_v_root(b5),found_v_root
+test-35,C Locrian,Db major,Cdim – Db – Gm – Cdim,Gb,G
+test-75,Db Locrian,D major,Dbdim – D – Abm – Dbdim,G,Ab
+test-115,D Locrian,Eb major,Ddim – Eb – Am – Ddim,Ab,A
+test-155,Eb Locrian,E major,Ebdim – E – Bbm – Ebdim,A,Bb
+test-195,E Locrian,F major,Edim – F – Bm – Edim,Bb,B
+test-235,F Locrian,Gb major,Fdim – Gb – Cm – Fdim,B,C
+test-275,F# Locrian,G major,F#dim – G – C#m – F#dim,C,C#
+test-315,G Locrian,Ab major,Gdim – Ab – Dm – Gdim,Db,D
+test-355,Ab Locrian,A major,Abdim – A – Ebm – Abdim,D,Eb
+test-395,A Locrian,Bb major,Adim – Bb – Em – Adim,Eb,E
+test-435,Bb Locrian,B major,Bbdim – B – Fm – Bbdim,E,F
+test-475,B Locrian,C major,Bdim – C – F#m – Bdim,F,F#
+test-587,B Locrian,C major,Bdim – C – F#m – Bdim,F,F#
+test-627,F# Locrian,G major,F#dim – G – C#m – F#dim,C,C#
+test-667,C# Locrian,D major,C#dim – D – G#m – C#dim,G,G#
+test-707,G# Locrian,A major,G#dim – A – D#m – G#dim,D,D#

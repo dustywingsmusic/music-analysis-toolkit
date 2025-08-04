@@ -17,6 +17,12 @@ export const noteToPc: { [key: string]: number } = {
 };
 
 export const generateDiatonicScale = (rootPitchClass: number, rootName: string, intervalPattern: number[]) => {
+    // Validate inputs
+    if (!rootName || typeof rootName !== 'string') {
+        console.warn(`Invalid rootName: ${rootName}. Using fallback.`);
+        rootName = 'C';
+    }
+    
     let scaleNotes = [rootName];
     let currentPitch = rootPitchClass;
     let rootLetter_idx = NOTE_LETTERS.indexOf(rootName.charAt(0));

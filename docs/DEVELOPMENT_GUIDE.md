@@ -23,6 +23,9 @@ This guide provides comprehensive instructions for developing and styling the Mu
 - **class-variance-authority (cva)** for component variants
 - **tailwind-merge** for intelligent class merging
 
+### 🚨 Critical Development Priority
+**Music Theory Integration Implementation**: Based on comprehensive music theory validation, the current architecture requires significant updates to improve theoretical accuracy and reduce AI over-reliance. Developers should prioritize the [Music Theory Integration Roadmap](MUSIC_THEORY_INTEGRATION_ROADMAP.md) phases over other feature development.
+
 ## Development Environment
 
 ### Project Structure
@@ -604,38 +607,106 @@ const handleDeeperAnalysis = async (mode: ModeFromRoot) => {
    - Use consistent visual hierarchy
    - Support reduced motion preferences
 
+## Music Theory Integration Implementation Guide
+
+### Phase 1 Development Priorities (CRITICAL)
+
+#### 1. Chord Progression Analysis Redesign
+**Location**: `src/services/chordLogic.ts` and `src/components/HarmonyTab.tsx`
+
+**Key Implementation Steps**:
+```typescript
+// Use existing chord templates instead of AI
+import { chordTemplates } from '@/services/chordLogic';
+import { detectModeFromChords } from '@/services/realTimeModeDetection';
+
+// Replace AI analysis with local analysis
+const analyzeProgressionLocally = (chords: string[]) => {
+  const chordMatches = chords.map(chord => identifyChord(chord));
+  const modalContext = detectModeFromNotes(getAllNotesFromChords(chordMatches));
+  return { chords: chordMatches, modalContext, confidence: calculateConfidence(modalContext) };
+};
+```
+
+#### 2. Shared Analysis Context Implementation
+**Location**: New `src/contexts/AnalysisContext.tsx`
+
+**Create unified state management**:
+```typescript
+interface UnifiedAnalysisContext {
+  inputNotes: number[];
+  inputType: 'melody' | 'chord_progression' | 'scale' | 'midi_realtime';
+  localAnalysis: LocalAnalysisResult;
+  referenceConnections: ReferenceConnection[];
+}
+```
+
+#### 3. Cross-Feature Navigation Enhancement
+**Location**: Extend existing "View in Tables" pattern in `IntegratedMusicSidebar.tsx`
+
+**Apply to all analysis results**:
+- Mode identification results → Reference tab with mode highlighted
+- Chord analysis → Scale tables showing related modes
+- MIDI input → Real-time reference updates
+
+### Music Theory Accuracy Requirements
+
+#### Theoretical Validation Checklist
+- [ ] **Modal vs. Tonal Context**: Distinguish between borrowed chords and true modal progressions
+- [ ] **Parent Scale Relationships**: Use existing scale database for accurate mode-to-family mappings
+- [ ] **Chord Function Analysis**: Implement Roman numeral analysis without AI dependency
+- [ ] **Characteristic Movement Detection**: Identify modal-specific progressions (♭VII-I in Dorian, etc.)
+- [ ] **Enharmonic Consistency**: Proper spelling based on modal context
+
+#### Local Analysis First Approach
+```typescript
+// Development pattern for all new features
+class MusicAnalyzer {
+  // 1. Primary analysis using existing local algorithms
+  analyzeLocally(input: MusicalInput): LocalResult;
+  
+  // 2. AI enhancement for context and examples  
+  enhanceWithAI(localResult: LocalResult): Promise<AIEnhancement>;
+  
+  // 3. Cross-validation between results
+  validateResults(local: LocalResult, ai: AIEnhancement): ValidatedResult;
+}
+```
+
 ## AI Development Tips
 
-### Effective Prompting for UI Development
+### Updated Prompting for Music Theory Features
 
-1. **Component Creation**
+1. **Music Theory Component Creation**
    ```
-   Create a React component for [specific purpose] using shadcn/ui components.
-   Include TypeScript interfaces, proper styling with Tailwind CSS, and accessibility features.
-   ```
-
-2. **Styling Updates**
-   ```
-   Update the styling for [component] to match the music theory theme.
-   Use the existing CSS variables and maintain consistency with other components.
+   Create a React component for [music theory purpose] that uses the existing Reference section analysis capabilities.
+   Integrate with local chord templates and scale data rather than relying on AI analysis.
+   Include cross-references to the Reference tab for educational continuity.
    ```
 
-3. **Feature Implementation**
+2. **Analysis Feature Updates**
    ```
-   Implement [specific feature] following the existing patterns in the codebase.
-   Use the established state management and component structure.
+   Update [analysis feature] to use local music theory algorithms first, with AI as enhancement.
+   Ensure theoretical accuracy by validating against the existing scale database.
+   Implement cross-feature navigation to connect analysis results with reference materials.
    ```
 
-### Code Review Checklist
+3. **Educational Feature Implementation**
+   ```
+   Implement [educational feature] that leverages the existing Reference section's sophisticated analysis.
+   Create progressive learning paths that build understanding incrementally.
+   Connect analysis results to broader modal system understanding.
+   ```
 
-- [ ] TypeScript interfaces properly defined
-- [ ] Components use shadcn/ui patterns
-- [ ] Styling follows Tailwind CSS conventions
-- [ ] Accessibility requirements met
-- [ ] Error handling implemented
-- [ ] Performance considerations addressed
-- [ ] Code follows project conventions
-- [ ] Tests included where appropriate
+### Music Theory Code Review Checklist
+
+- [ ] **Theoretical Accuracy**: All analysis results validated against established music theory
+- [ ] **Local Analysis Priority**: Primary logic uses existing chord templates and scale data
+- [ ] **AI Enhancement Only**: AI used for context, examples, and explanations, not core analysis
+- [ ] **Cross-Feature Integration**: Results connect to Reference section for deeper exploration
+- [ ] **Educational Value**: Features build understanding rather than just providing answers
+- [ ] **Progressive Disclosure**: Complexity adapts to user's theoretical knowledge level
+- [ ] **Performance**: Local analysis completes quickly without unnecessary AI calls
 
 ### Online References
 
