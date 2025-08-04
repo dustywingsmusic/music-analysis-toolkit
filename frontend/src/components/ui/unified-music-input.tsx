@@ -13,6 +13,7 @@ import { NotePlayed } from '../../types';
 import { useInputMethodFor, InputMethod } from '../../contexts/InputMethodContext';
 import CompactChordBuilder from './compact-chord-builder';
 import CompactNoteSelector from './compact-note-selector';
+import { ChordProgressionInput } from './chord-progression-input';
 
 export type { InputMethod } from '../../contexts/InputMethodContext';
 export type InputType = 'melody' | 'scale' | 'chord' | 'progression';
@@ -522,12 +523,23 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
         {/* Enhanced Mouse Input - Specialized Components */}
         {activeInputMethod === 'mouse' && (
           <div className="space-y-4">
-            {/* Chord Progression Builder */}
-            {(inputType === 'chord' || inputType === 'progression') && (
+            {/* Chord Progression Builder with Compact Modal */}
+            {inputType === 'progression' && (
+              <ChordProgressionInput
+                value={value}
+                onChange={onChange}
+                maxChords={8}
+                showBarLines={true}
+                allowKeyboardInput={true}
+              />
+            )}
+            
+            {/* Single Chord Builder */}
+            {inputType === 'chord' && (
               <CompactChordBuilder
                 value={value}
                 onChange={onChange}
-                maxChords={inputType === 'chord' ? 1 : 8}
+                maxChords={1}
                 showPlayback={false}
               />
             )}
