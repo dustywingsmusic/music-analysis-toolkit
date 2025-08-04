@@ -25,6 +25,7 @@ import { EnhancedConfidenceDisplay, ComprehensiveConfidence } from './ui/enhance
 import { EnhancedEvidenceDisplay, AnalysisEvidence } from './ui/enhanced-evidence-display';
 import { UserInputDisplay } from './ui/user-input-display';
 import { FunctionalAnalysisHighlighter, ModalAnalysisHighlighter, ChromaticAnalysisHighlighter } from './ui/music-term-highlighter';
+import { scaleTableNavigation } from '../services/SharedScaleTablesService';
 
 interface DualLensAnalysisPanelProps {
   result: ComprehensiveAnalysisResult;
@@ -424,15 +425,16 @@ const ModalAnalysisLens: React.FC<{
           <Button
             variant="link"
             size="sm"
-            className="p-0 h-auto text-purple-600 dark:text-purple-400"
+            className="p-0 h-auto text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-200 transition-colors"
             onClick={() => {
-              const modeParts = enhanced.modeName.split(' ');
-              const tonic = modeParts[0];
-              const mode = modeParts.slice(1).join(' ');
-              onViewInTables(mode, tonic);
+              // Use shared service for cross-navigation
+              scaleTableNavigation.viewModalInTables(
+                enhanced.modeName,
+                onViewInTables
+              );
             }}
           >
-            View {enhanced.modeName} in Scale Tables →
+            {scaleTableNavigation.generateViewInTablesText(enhanced.modeName)}
           </Button>
         )}
       </div>
