@@ -111,29 +111,6 @@ const ReferenceTab: React.FC<ReferenceTabProps> = ({
   }, [scaleService]);
 
   const quickReference = getQuickReferenceData();
-    {
-      category: 'Major Scale Modes',
-      modes: [
-        { name: 'Ionian (Major)', formula: '1 2 3 4 5 6 7', character: 'Bright, happy' },
-        { name: 'Dorian', formula: '1 2 ♭3 4 5 6 ♭7', character: 'Minor with bright 6th' },
-        { name: 'Phrygian', formula: '1 ♭2 ♭3 4 5 ♭6 ♭7', character: 'Dark, Spanish flavor' },
-        { name: 'Lydian', formula: '1 2 3 #4 5 6 7', character: 'Dreamy, floating' },
-        { name: 'Mixolydian', formula: '1 2 3 4 5 6 ♭7', character: 'Dominant, bluesy' },
-        { name: 'Aeolian (Natural Minor)', formula: '1 2 ♭3 4 5 ♭6 ♭7', character: 'Sad, melancholic' },
-        { name: 'Locrian', formula: '1 ♭2 ♭3 4 ♭5 ♭6 ♭7', character: 'Unstable, diminished, tritone' },
-      ]
-    },
-    {
-      category: 'Common Scales',
-      modes: [
-        { name: 'Harmonic Minor', formula: '1 2 ♭3 4 5 ♭6 7', character: 'Classical, exotic' },
-        { name: 'Melodic Minor', formula: '1 2 ♭3 4 5 6 7', character: 'Jazz, sophisticated' },
-        { name: 'Pentatonic Major', formula: '1 2 3 5 6', character: 'Simple, universal' },
-        { name: 'Pentatonic Minor', formula: '1 ♭3 4 5 ♭7', character: 'Blues, rock' },
-        { name: 'Blues Scale', formula: '1 ♭3 4 ♭5 5 ♭7', character: 'Blues, expressive' },
-      ]
-    }
-  ];
 
   return (
     <div className="reference-tab">

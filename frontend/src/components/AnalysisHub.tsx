@@ -14,8 +14,7 @@
  * - MIDI integration support
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
-import { Button } from "./ui/button";
+import React, { useState, useCallback } from 'react';
 import { Label } from "./ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
@@ -27,7 +26,7 @@ import UnifiedMusicInput, { InputType } from './ui/unified-music-input';
 import DelightfulButton from './ui/delightful-button';
 import DualLensAnalysisPanel from './DualLensAnalysisPanel';
 import { ComprehensiveAnalysisEngine, ComprehensiveAnalysisResult } from '../services/comprehensiveAnalysisService';
-import { useAnalysis, useAnalysisActions } from '../contexts/AnalysisContext';
+import { useAnalysisActions } from '../contexts/AnalysisContext';
 import { ChordMatch } from '../services/chordLogic';
 import { NotePlayed } from '../types';
 import { trackInteraction } from '../utils/tracking';
@@ -147,7 +146,7 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
 
   const handleValidation = useCallback((type: AnalysisType) => (
     isValid: boolean, 
-    suggestions?: string[]
+    _suggestions?: string[]
   ) => {
     setValidationStates(prev => ({ ...prev, [type]: isValid }));
   }, []);
@@ -249,8 +248,8 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
 
       setAnalysisResult(result);
       
-      // Update context for legacy compatibility
-      startAnalysis(activeAnalysisType, currentInput);
+      // Update context for legacy compatibility  
+      startAnalysis(activeAnalysisType as any, currentInput);
       
       trackInteraction(`Analysis Hub - ${activeAnalysisType} analysis`, 'Analysis');
       
