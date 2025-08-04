@@ -77,41 +77,6 @@ const QuestionDrivenMusicToolInner: React.FC<QuestionDrivenMusicToolWithInputCon
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header Section */}
-      <header className="bg-background border-b border-border p-4 shadow-lg z-10">
-        <div className="w-full px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          {/* Left: Title */}
-          <div className="flex items-center gap-3">
-            <span className="text-3xl animate-pulse">🎶</span>
-            <h1 className="text-2xl font-bold text-foreground">Music Theory Toolkit</h1>
-          </div>
-
-          {/* Right: Navigation & Input Settings */}
-          <div className="flex items-center gap-4">
-            {/* Navigation tabs would go here */}
-            <InputSettingsPanel 
-              activeInputMethod={activeInputMethod}
-              onInputMethodChange={setInputMethod}
-              midiStatus={midiStatus}
-              midiDevices={midiDevices}
-              selectedMidiDevice={midiSelectedDevice}
-              setSelectedMidiDevice={setMidiSelectedDevice}
-              midiError={midiError}
-              midiEnabled={midiEnabled}
-              enableMidi={enableMidi}
-              disableMidi={disableMidi}
-              showDetailedConfig={true}
-            />
-            {showDebugInfo && (
-              <button 
-                className="text-muted-foreground hover:text-foreground transition-colors duration-200"
-                title="Debug Information"
-              >
-                🔧 Debug
-              </button>
-            )}
-          </div>
-        </div>
-      </header>
 
       {/* Main Content - Render the original tool but with input context integration */}
       <QuestionDrivenMusicTool 

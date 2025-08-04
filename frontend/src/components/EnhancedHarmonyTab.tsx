@@ -14,10 +14,10 @@ import React, { useState } from 'react';
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
 import { Badge } from "./ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
+import { ChordProgressionInput } from "./ui/chord-progression-input";
 import { ChevronDownIcon, ChevronRightIcon, BookOpenIcon, TrendingUpIcon, SparklesIcon } from "lucide-react";
 import { trackInteraction } from '../utils/tracking';
 import { useAnalysis, useAnalysisActions } from '../contexts/AnalysisContext';
@@ -314,18 +314,20 @@ const EnhancedHarmonyTab: React.FC<EnhancedHarmonyTabProps> = ({
     }
 
     return (
-      <div className="input-panel">
-        <div className="space-y-2">
-          <Label htmlFor="chord-progression">Enter chord progression:</Label>
-          <Textarea
-            id="chord-progression"
-            value={progressionInput}
-            onChange={(e) => setProgressionInput(e.target.value)}
-            placeholder="e.g., Am F C G | Dm G Em Am"
-            rows={3}
-          />
-        </div>
+      <div className="input-panel space-y-6">
+        {/* Enhanced Chord Progression Input */}
+        <ChordProgressionInput
+          value={progressionInput}
+          onChange={setProgressionInput}
+          label="Chord Progression"
+          helpText="Build your progression visually or type it directly. Use | to separate measures."
+          maxChords={20}
+          showBarLines={true}
+          allowKeyboardInput={true}
+          className="chord-progression-section"
+        />
         
+        {/* Parent Key Signature Input */}
         <div className="space-y-2">
           <Label htmlFor="parent-key-signature">Parent key signature (optional):</Label>
           <Input
@@ -339,13 +341,10 @@ const EnhancedHarmonyTab: React.FC<EnhancedHarmonyTabProps> = ({
             Optional: Specify the parent key signature to guide analysis. Leave blank for automatic key detection using functional harmony principles.
           </p>
         </div>
-        
-        <p className="input-panel__help text-muted-foreground">
-          Enter chords separated by spaces. Use | to separate measures. Comprehensive analysis with functional, modal, and chromatic perspectives!
-        </p>
+        {/* Example Progressions - Quick Load Buttons */}
         <div className="progression-examples">
-          <p><strong>Try these example progressions:</strong></p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+          <p className="text-sm font-medium mb-3">Try these example progressions:</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <button 
               className="p-3 text-left border rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border-blue-200 bg-blue-50/30 dark:bg-blue-900/10 dark:border-blue-700" 
               onClick={() => {

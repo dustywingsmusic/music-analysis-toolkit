@@ -106,6 +106,13 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
     resetMidiConnection,
   } = useMidi(handleChordDetected, handleMelodyUpdate);
 
+  // Input method context integration
+  const { 
+    activeInputMethod, 
+    setInputMethod,
+    updateMidiAvailability 
+  } = useInputMethod();
+
   // App initialization logging
   useEffect(() => {
     logger.appInit('Music Theory Toolkit initialized', {
@@ -849,6 +856,8 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
               onTabChange={handleTabChange}
             />
             <InputSettingsPanel 
+              activeInputMethod={activeInputMethod}
+              onInputMethodChange={setInputMethod}
               midiStatus={midiStatus}
               midiDevices={midiDevices}
               selectedMidiDevice={midiSelectedDevice}
