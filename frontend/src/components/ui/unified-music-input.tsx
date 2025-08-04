@@ -221,29 +221,37 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
         }
       }
       
-      // Trigger callbacks
+      // Trigger callbacks (removed from dependency array to prevent infinite loops)
       if (onNotesChanged) {
-        const pitchClasses = notesToPitchClasses(noteNames);
+        const pitchClasses = noteNames.map(note => {
+          const normalizedNote = note.replace(/b/g, '♭').replace(/#/g, '♯').toUpperCase();
+          const noteIndex = NOTES.findIndex(n => {
+            const noteParts = n.toUpperCase().split('/');
+            return noteParts.some(part => part === normalizedNote);
+          });
+          return noteIndex !== -1 ? noteIndex : 0;
+        });
         onNotesChanged(noteNames, pitchClasses);
       }
     }
-  }, [midiData?.playedNotes, midiData?.analysisFocus, inputType, enableChordRecognition, notesToPitchClasses, onChordDetected, onNotesChanged]);
+  }, [midiData?.playedNotes, midiData?.analysisFocus, inputType, enableChordRecognition, onChange, value]);
 
   // Validation effect
   useEffect(() => {
     const validation = validateInput(value);
     setValidationState(validation);
+    // Call onValidation but don't include it in dependencies to prevent infinite loops
     if (onValidation) {
       onValidation(validation.isValid, validation.suggestions);
     }
-  }, [value, validateInput, onValidation]);
+  }, [value, inputType]);
 
   // Add to input history on successful validation
   useEffect(() => {
     if (value && validationState.isValid && !inputHistory.includes(value)) {
       setInputHistory(prev => [value, ...prev.slice(0, 4)]); // Keep last 5 entries
     }
-  }, [value, validationState.isValid]);
+  }, [value, validationState.isValid, inputHistory]);
 
   // Enhanced input method configuration
   const inputMethods = useMemo(() => [
