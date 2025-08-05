@@ -1,18 +1,18 @@
 /**
  * Compact Chord Builder Modal
  * 
- * An elegant, non-obtrusive chord input interface that appears as a small modal
- * next to chord positions. Features circular note selection, chord quality buttons,
- * and quick presets for fast chord building.
+ * A simplified, compact chord input interface that appears as a small modal
+ * next to chord positions. Features compact grid note selection, chord quality buttons,
+ * quick presets, and navigation arrows for chord progression building.
  * 
- * Design Philosophy: "Invisible until needed, then focused and efficient"
+ * Design Philosophy: "Single mode, all controls visible, maximum 280×250px"
  */
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from './card';
 import { Button } from './button';
 import { Badge } from './badge';
-import { X, Music } from 'lucide-react';
+import { X, Music, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // Core music theory data
@@ -26,33 +26,22 @@ interface ChordQuality {
   category: 'basic' | 'seventh' | 'extended';
 }
 
+// Simplified chord qualities for compact display
 const CHORD_QUALITIES: ChordQuality[] = [
-  // Basic triads
+  // Basic triads (most common)
   { symbol: '', name: 'Major', intervals: [0, 4, 7], category: 'basic' },
   { symbol: 'm', name: 'Minor', intervals: [0, 3, 7], category: 'basic' },
   { symbol: 'dim', name: 'Diminished', intervals: [0, 3, 6], category: 'basic' },
-  { symbol: 'aug', name: 'Augmented', intervals: [0, 4, 8], category: 'basic' },
-  
-  // Seventh chords
   { symbol: '7', name: 'Dominant 7th', intervals: [0, 4, 7, 10], category: 'seventh' },
   { symbol: 'maj7', name: 'Major 7th', intervals: [0, 4, 7, 11], category: 'seventh' },
   { symbol: 'm7', name: 'Minor 7th', intervals: [0, 3, 7, 10], category: 'seventh' },
-  { symbol: 'mM7', name: 'Minor Major 7th', intervals: [0, 3, 7, 11], category: 'seventh' },
-  { symbol: 'dim7', name: 'Diminished 7th', intervals: [0, 3, 6, 9], category: 'seventh' },
-  { symbol: 'm7♭5', name: 'Half Diminished', intervals: [0, 3, 6, 10], category: 'seventh' },
-  
-  // Extended chords (common ones)
-  { symbol: '9', name: 'Dominant 9th', intervals: [0, 4, 7, 10, 14], category: 'extended' },
-  { symbol: 'maj9', name: 'Major 9th', intervals: [0, 4, 7, 11, 14], category: 'extended' },
-  { symbol: 'add9', name: 'Add 9', intervals: [0, 4, 7, 14], category: 'extended' },
-  { symbol: 'sus2', name: 'Suspended 2nd', intervals: [0, 2, 7], category: 'basic' },
   { symbol: 'sus4', name: 'Suspended 4th', intervals: [0, 5, 7], category: 'basic' },
+  { symbol: 'sus2', name: 'Suspended 2nd', intervals: [0, 2, 7], category: 'basic' },
 ];
 
-// Common chord presets for quick selection
+// Common chord presets for quick selection (6 most common)
 const COMMON_CHORDS = [
-  'C', 'Dm', 'Em', 'F', 'G', 'Am', 'Bdim',  // C major scale chords
-  'G7', 'C7', 'F7', 'Am7', 'Dm7', 'Cmaj7'   // Common sevenths
+  'C', 'Dm', 'Em', 'F', 'G', 'Am'
 ];
 
 interface ChordBuilderModalProps {
@@ -62,6 +51,10 @@ interface ChordBuilderModalProps {
   position: { x: number; y: number };
   currentChord?: string;
   className?: string;
+  onPrevious?: () => void;
+  onNext?: () => void;
+  hasPrevious?: boolean;
+  hasNext?: boolean;
 }
 
 export const ChordBuilderModal: React.FC<ChordBuilderModalProps> = ({
@@ -70,11 +63,14 @@ export const ChordBuilderModal: React.FC<ChordBuilderModalProps> = ({
   onChordSelect,
   position,
   currentChord = '',
-  className
+  className,
+  onPrevious,
+  onNext,
+  hasPrevious = false,
+  hasNext = false
 }) => {
   const [selectedRoot, setSelectedRoot] = useState<number>(0); // C
   const [selectedQuality, setSelectedQuality] = useState<ChordQuality>(CHORD_QUALITIES[0]);
-  const [showExtended, setShowExtended] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Parse current chord to set initial state
@@ -124,14 +120,14 @@ export const ChordBuilderModal: React.FC<ChordBuilderModalProps> = ({
     };
   }, [isOpen, onClose]);
 
-  // Auto-position modal to stay within viewport
+  // Auto-position modal to stay within viewport (compact size)
   const getModalStyle = () => {
     if (!isOpen) return { display: 'none' };
     
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
-    const modalWidth = 320; // Approximate modal width
-    const modalHeight = 480; // Approximate modal height
+    const modalWidth = 280; // Compact modal width
+    const modalHeight = 250; // Compact modal height
     
     let x = position.x;
     let y = position.y;
@@ -180,17 +176,39 @@ export const ChordBuilderModal: React.FC<ChordBuilderModalProps> = ({
       <Card 
         ref={modalRef}
         className={cn(
-          "chord-builder-modal w-80 shadow-xl border-2 animate-in fade-in-0 zoom-in-95 duration-200",
+          "chord-builder-modal shadow-xl border-2 animate-in fade-in-0 zoom-in-95 duration-200",
           className
         )}
-        style={getModalStyle()}
+        style={{...getModalStyle(), width: '280px', maxHeight: '250px'}}
       >
-        <CardContent className="p-4 space-y-4">
-          {/* Header */}
+        <CardContent className="p-3 space-y-2 overflow-hidden">
+          {/* Header with Navigation */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Music className="h-4 w-4 text-blue-600" />
-              <h3 className="font-semibold text-sm">Build Chord</h3>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onPrevious}
+                disabled={!hasPrevious || !onPrevious}
+                className="h-6 w-6 p-0"
+              >
+                <ChevronLeft className="h-3 w-3" />
+              </Button>
+              <div className="flex flex-col items-center min-w-[5rem]">
+                <div className="text-lg font-bold text-blue-700">
+                  {buildChord()}
+                </div>
+                <div className="text-xs text-muted-foreground leading-tight">{selectedQuality.name}</div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onNext}
+                disabled={!hasNext || !onNext}
+                className="h-6 w-6 p-0"
+              >
+                <ChevronRight className="h-3 w-3" />
+              </Button>
             </div>
             <Button 
               variant="ghost" 
@@ -202,89 +220,50 @@ export const ChordBuilderModal: React.FC<ChordBuilderModalProps> = ({
             </Button>
           </div>
 
-          {/* Current Chord Preview */}
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-700 bg-blue-50 rounded-lg p-3">
-              {buildChord()}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">{selectedQuality.name}</p>
-          </div>
-
-          {/* Root Note Selector - Circular Layout */}
+          {/* Root Note Selector - Compact Grid */}
           <div>
-            <h4 className="text-sm font-medium mb-2">Root Note</h4>
-            <div className="relative w-48 h-48 mx-auto">
-              {NOTE_DISPLAY.map((note, index) => {
-                const angle = (index * 30) - 90; // Start at top (12 o'clock)
-                const radian = (angle * Math.PI) / 180;
-                const radius = 75;
-                const x = Math.cos(radian) * radius + 96;
-                const y = Math.sin(radian) * radius + 96;
-                
-                return (
-                  <Button
-                    key={note}
-                    onClick={() => setSelectedRoot(index)}
-                    className={cn(
-                      "absolute w-8 h-8 rounded-full text-xs font-medium transition-all duration-200",
-                      "transform -translate-x-4 -translate-y-4",
-                      selectedRoot === index
-                        ? "bg-blue-600 text-white shadow-lg scale-110"
-                        : "bg-white border border-gray-300 text-gray-700 hover:bg-blue-50 hover:border-blue-300"
-                    )}
-                    style={{ left: x, top: y }}
-                  >
-                    {note.split('/')[0]}
-                  </Button>
-                );
-              })}
+            <div className="grid grid-cols-4 gap-1 mb-2">
+              {NOTE_DISPLAY.map((note, index) => (
+                <Button
+                  key={note}
+                  onClick={() => setSelectedRoot(index)}
+                  variant={selectedRoot === index ? "default" : "outline"}
+                  size="sm"
+                  className="h-6 text-xs font-medium min-w-0 px-1"
+                >
+                  {note.split('/')[0]}
+                </Button>
+              ))}
             </div>
           </div>
 
           {/* Chord Quality Selector */}
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="text-sm font-medium">Chord Quality</h4>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowExtended(!showExtended)}
-                className="text-xs h-6"
-              >
-                {showExtended ? 'Basic' : 'Extended'}
-              </Button>
-            </div>
-            <div className="grid grid-cols-2 gap-1 max-h-32 overflow-y-auto">
-              {CHORD_QUALITIES
-                .filter(quality => showExtended || quality.category !== 'extended')
-                .map((quality) => (
-                  <Button
-                    key={quality.symbol}
-                    onClick={() => setSelectedQuality(quality)}
-                    variant={selectedQuality.symbol === quality.symbol ? "default" : "outline"}
-                    size="sm"
-                    className="text-xs justify-start h-8"
-                  >
-                    <span className="font-mono min-w-[2rem] text-left">
-                      {quality.symbol || 'maj'}
-                    </span>
-                    <span className="ml-1 truncate">{quality.name}</span>
-                  </Button>
-                ))}
+            <div className="grid grid-cols-4 gap-1 mb-2">
+              {CHORD_QUALITIES.map((quality) => (
+                <Button
+                  key={quality.symbol}
+                  onClick={() => setSelectedQuality(quality)}
+                  variant={selectedQuality.symbol === quality.symbol ? "default" : "outline"}
+                  size="sm"
+                  className="text-xs h-6 font-mono px-1 min-w-0"
+                >
+                  {quality.symbol || 'maj'}
+                </Button>
+              ))}
             </div>
           </div>
 
           {/* Quick Presets */}
           <div>
-            <h4 className="text-sm font-medium mb-2">Quick Presets</h4>
-            <div className="grid grid-cols-4 gap-1">
+            <div className="grid grid-cols-6 gap-1 mb-2">
               {COMMON_CHORDS.map((chord) => (
                 <Button
                   key={chord}
                   onClick={() => handlePresetChord(chord)}
                   variant="outline"
                   size="sm"
-                  className="text-xs h-8 font-mono"
+                  className="text-xs h-6 font-mono px-1 min-w-0"
                 >
                   {chord}
                 </Button>
@@ -293,7 +272,7 @@ export const ChordBuilderModal: React.FC<ChordBuilderModalProps> = ({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-2 pt-2 border-t">
+          <div className="flex gap-2 pt-1 border-t">
             <Button 
               onClick={handleChordConfirm}
               className="flex-1 bg-blue-600 hover:bg-blue-700"

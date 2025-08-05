@@ -81,11 +81,13 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
     slotId: string | null;
     position: { x: number; y: number };
     currentChord: string;
+    currentSlotIndex: number;
   }>({
     isOpen: false,
     slotId: null,
     position: { x: 0, y: 0 },
-    currentChord: ''
+    currentChord: '',
+    currentSlotIndex: -1
   });
 
   const [keyboardMode, setKeyboardMode] = useState(false);
@@ -101,6 +103,19 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
       .trim();
   }, []);
 
+  // Get editable (non-bar line) slots for navigation
+  const getEditableSlots = useCallback(() => {
+    return chordSlots
+      .map((slot, index) => ({ slot, index }))
+      .filter(({ slot }) => !slot.isBarLine);
+  }, [chordSlots]);
+
+  // Find the current slot index in the editable slots array
+  const getCurrentEditableIndex = useCallback((slotId: string) => {
+    const editableSlots = getEditableSlots();
+    return editableSlots.findIndex(({ slot }) => slot.id === slotId);
+  }, [getEditableSlots]);
+
   // Update parent component when slots change
   const updateProgression = useCallback((newSlots: ChordSlot[]) => {
     setChordSlots(newSlots);
@@ -115,6 +130,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
     if (slot?.isBarLine) return;
 
     const rect = (event.target as HTMLElement).getBoundingClientRect();
+    const editableIndex = getCurrentEditableIndex(slotId);
     
     setModalState({
       isOpen: true,
@@ -123,7 +139,8 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
         x: rect.right + 10,  // Position to the right of the clicked element
         y: rect.top
       },
-      currentChord: slot?.chord || ''
+      currentChord: slot?.chord || '',
+      currentSlotIndex: editableIndex
     });
   };
 
@@ -137,7 +154,12 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
     );
     
     updateProgression(newSlots);
-    setModalState(prev => ({ ...prev, isOpen: false, slotId: null }));
+    setModalState(prev => ({ 
+      ...prev, 
+      isOpen: false, 
+      slotId: null, 
+      currentSlotIndex: -1 
+    }));
   };
 
   const handleRemoveChord = (slotId: string, event: React.MouseEvent) => {
@@ -206,6 +228,60 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
     setKeyboardMode(false);
   };
 
+  // Navigation functions for the modal
+  const handleNavigateToPrevious = useCallback(() => {
+    const editableSlots = getEditableSlots();
+    const currentIndex = modalState.currentSlotIndex;
+    
+    if (currentIndex <= 0 || currentIndex >= editableSlots.length) return;
+    
+    const previousSlot = editableSlots[currentIndex - 1];
+    const slotElement = document.querySelector(`[data-slot-id="${previousSlot.slot.id}"]`) as HTMLElement;
+    
+    if (slotElement) {
+      const rect = slotElement.getBoundingClientRect();
+      setModalState({
+        isOpen: true,
+        slotId: previousSlot.slot.id,
+        position: {
+          x: rect.right + 10,
+          y: rect.top
+        },
+        currentChord: previousSlot.slot.chord || '',
+        currentSlotIndex: currentIndex - 1
+      });
+    }
+  }, [getEditableSlots, modalState.currentSlotIndex]);
+
+  const handleNavigateToNext = useCallback(() => {
+    const editableSlots = getEditableSlots();
+    const currentIndex = modalState.currentSlotIndex;
+    
+    if (currentIndex < 0 || currentIndex >= editableSlots.length - 1) return;
+    
+    const nextSlot = editableSlots[currentIndex + 1];
+    const slotElement = document.querySelector(`[data-slot-id="${nextSlot.slot.id}"]`) as HTMLElement;
+    
+    if (slotElement) {
+      const rect = slotElement.getBoundingClientRect();
+      setModalState({
+        isOpen: true,
+        slotId: nextSlot.slot.id,
+        position: {
+          x: rect.right + 10,
+          y: rect.top
+        },
+        currentChord: nextSlot.slot.chord || '',
+        currentSlotIndex: currentIndex + 1
+      });
+    }
+  }, [getEditableSlots, modalState.currentSlotIndex]);
+
+  // Check if navigation is available
+  const canNavigatePrevious = modalState.currentSlotIndex > 0;
+  const canNavigateNext = modalState.currentSlotIndex >= 0 && 
+    modalState.currentSlotIndex < getEditableSlots().length - 1;
+
   const renderChordSlot = (slot: ChordSlot, index: number) => {
     if (slot.isBarLine) {
       return (
@@ -223,6 +299,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
     return (
       <div
         key={slot.id}
+        data-slot-id={slot.id}
         onClick={(e) => handleSlotClick(slot.id, e)}
         className={cn(
           "relative group cursor-pointer transition-all duration-200 select-none",
@@ -355,10 +432,19 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
       {/* Chord Builder Modal */}
       <ChordBuilderModal
         isOpen={modalState.isOpen}
-        onClose={() => setModalState(prev => ({ ...prev, isOpen: false }))}
+        onClose={() => setModalState(prev => ({ 
+          ...prev, 
+          isOpen: false, 
+          slotId: null, 
+          currentSlotIndex: -1 
+        }))}
         onChordSelect={handleChordSelect}
         position={modalState.position}
         currentChord={modalState.currentChord}
+        onPrevious={handleNavigateToPrevious}
+        onNext={handleNavigateToNext}
+        hasPrevious={canNavigatePrevious}
+        hasNext={canNavigateNext}
       />
     </div>
   );
