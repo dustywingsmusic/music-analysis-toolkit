@@ -10,7 +10,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { ExternalLinkIcon, VolumeIcon, BookOpenIcon } from 'lucide-react';
-import { MusicTerm, AnalysisContext } from '../../data/musicTheoryGlossary';
+import { GlossaryTerm, MusicalExample } from '../../data/musicTheoryGlossary';
+
+// Type aliases for backwards compatibility
+type MusicTerm = GlossaryTerm;
+type AnalysisContext = 'chord_progression' | 'melody' | 'scale' | 'mode';
 
 interface ContextualTooltipProps {
   term: MusicTerm;

@@ -418,24 +418,6 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
         </div>
       )}
       
-      {/* Global Input Method Status Display - Shown when using global input method */}
-      {useGlobalInputMethod && (
-        <div className="flex items-center justify-between p-2 bg-muted/30 rounded-lg border border-muted">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Input method:</span>
-            <div className="flex items-center gap-2">
-              <span className="text-base">{currentMethod?.shortIcon}</span>
-              <span className="text-sm font-medium">{currentMethod?.label}</span>
-              {currentMethod?.id === 'midi' && midiData?.isActive && (
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-              )}
-            </div>
-          </div>
-          <div className="text-xs text-muted-foreground">
-            {currentMethod?.id === 'midi' && midiData ? midiData.status : 'Ready'}
-          </div>
-        </div>
-      )}
 
       {/* Input Method Content */}
       <div className="space-y-3">

@@ -97,10 +97,7 @@ const FUNCTIONAL_ROMAN_NUMERALS = {
       6: 'V/IV',    // Dominant of IV
       8: 'V/V',     // Dominant of V (very common)
       10: 'V/vi',   // Dominant of vi
-      // Borrowed chords from minor
-      3: 'biii',    // From parallel minor
-      6: 'bVI',     // From parallel minor
-      10: 'bVII',   // From parallel minor (modal characteristic)
+      // Note: Borrowed chords from minor are handled separately to avoid duplicate keys
     }
   },
   minor: {
@@ -112,10 +109,7 @@ const FUNCTIONAL_ROMAN_NUMERALS = {
       7: 'V/v',     // Dominant of v
       9: 'V/VI',    // Dominant of VI
       11: 'V/VII',  // Dominant of VII
-      // Borrowed from major
-      4: 'III',     // From parallel major
-      7: 'V',       // Major dominant (very common)
-      11: 'vii°',   // Leading tone
+      // Note: Borrowed chords from major are handled separately to avoid duplicate keys
     }
   }
 };

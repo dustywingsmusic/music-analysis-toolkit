@@ -14,9 +14,7 @@
 
 import React, {useCallback, useEffect, useState} from 'react';
 import EnhancedNavigationTabs, {TabType} from './EnhancedNavigationTabs';
-import ModeIdentificationTab, {IdentificationMethod} from './ModeIdentificationTab';
-import ModeDiscoveryTab from './ModeDiscoveryTab';
-import EnhancedHarmonyTab from './EnhancedHarmonyTab';
+import { IdentificationMethod } from '../types/analysis';
 import ReferenceTab from './ReferenceTab';
 import AnalysisHub from './AnalysisHub';
 import MidiWidget from './MidiWidget';

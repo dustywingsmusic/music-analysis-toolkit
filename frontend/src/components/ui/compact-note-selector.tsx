@@ -63,11 +63,14 @@ const CompactNoteSelector: React.FC<CompactNoteSelectorProps> = ({
   value,
   onChange,
   mode = 'melody',
-  layout = 'horizontal',
+  layout: initialLayout = 'horizontal',
   className,
   maxNotes = 20,
   showOctaves = false
 }) => {
+  // Internal layout state
+  const [layout, setLayout] = useState<NoteLayout>(initialLayout);
+  
   // Parse current notes
   const currentNotes = useMemo(() => {
     if (!value.trim()) return [];

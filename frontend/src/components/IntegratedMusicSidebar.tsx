@@ -60,6 +60,9 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
   
   const [unifiedDetectionResults, setUnifiedDetectionResults] = useState<UnifiedDetectionResult | null>(null);
   
+  // Computed values for conditional rendering
+  const hasUnifiedDetection = unifiedDetectionResults && unifiedDetectionResults.suggestions.length > 0;
+  
   // Real-time mode detection state
   const [modeDetector, setModeDetector] = useState(() => new RealTimeModeDetector());
   const [modeDetectionResult, setModeDetectionResult] = useState<ModeDetectionResult | null>(null);
@@ -717,10 +720,16 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
 
   // Register callbacks with keySuggester service
   useEffect(() => {
-    // Register melody suggestion callback
+    // Register melody suggestion callback - converted to unified detection
     keySuggester.registerMelodySuggestionCallback((suggestions: MelodySuggestion[]) => {
-      console.log('🎵 Sidebar received melody suggestions:', suggestions);
-      setMelodySuggestions(suggestions);
+      console.log('🎵 Sidebar received melody suggestions (unified):', suggestions);
+      
+      // Convert to unified detection format
+      setUnifiedDetectionResults({
+        suggestions: suggestions.map(s => ({ ...s, type: 'melody' as const })),
+        category: suggestions.length > 0 ? 'complete' : 'none',
+        closeness: suggestions[0]?.confidence || 0
+      });
 
       // Auto-expand results section when suggestions are received
       if (suggestions.length > 0) {

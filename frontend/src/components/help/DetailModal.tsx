@@ -17,10 +17,14 @@ import {
   ArrowRightIcon,
   XIcon,
   PlayIcon,
-  StopIcon
+  StopCircleIcon
 } from 'lucide-react';
-import { MusicTerm, AnalysisContext, musicTheoryGlossary } from '../../data/musicTheoryGlossary';
+import { GlossaryTerm, MusicalExample, musicTheoryGlossary } from '../../data/musicTheoryGlossary';
 import { useHelpAnalytics } from '../../hooks/useHelpAnalytics';
+
+// Type aliases for backwards compatibility
+type MusicTerm = GlossaryTerm;
+type AnalysisContext = 'chord_progression' | 'melody' | 'scale' | 'mode';
 
 interface DetailModalProps {
   term: MusicTerm;

@@ -16,11 +16,9 @@
 
 import React, { useState, useCallback } from 'react';
 import { Label } from "./ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardDescription, CardHeader } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Separator } from "./ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Music2Icon, BrainIcon, SparklesIcon, LoaderIcon } from "lucide-react";
 import UnifiedMusicInput, { InputType } from './ui/unified-music-input';
 import DelightfulButton from './ui/delightful-button';
@@ -418,10 +416,6 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
       <div className={`input-section ${hasResults || analysisResult ? 'input-section--with-results' : ''}`}>
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <span className="text-xl">{currentAnalysisType?.icon}</span>
-              {currentAnalysisType?.label}
-            </CardTitle>
             <CardDescription>
               {currentAnalysisType?.description}
             </CardDescription>

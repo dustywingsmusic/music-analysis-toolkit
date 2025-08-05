@@ -71,7 +71,7 @@ const EnhancedNavigationTabs: React.FC<EnhancedNavigationTabsProps> = ({ onTabCh
   };
 
   const getTabStatus = (tabId: TabType) => {
-    if (tabId === 'harmony' && state.currentAnalysis?.type === 'chord_progression') {
+    if (tabId === 'analysis' && state.currentAnalysis?.type === 'chord_progression') {
       return 'active';
     }
     if (tabId === state.lastAnalysisTab) {

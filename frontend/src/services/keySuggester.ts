@@ -287,18 +287,7 @@ export function updateMelodySuggestionsForSidebar(playedPitchClasses: Set<number
 }
 
 // Enhanced 5-6 note analysis interfaces and types
-interface DetectionSuggestion extends MelodySuggestion {
-  matchType: 'pentatonic' | 'hexatonic' | 'complete' | 'partial' | 'minimal';
-  priority: number;
-  closeness: number;
-  expectedNotes?: number;
-}
-
-interface UnifiedDetectionResult {
-  suggestions: DetectionSuggestion[];
-  category: 'pentatonic' | 'complete' | 'partial';
-  closeness: number;
-}
+// (Using exported interfaces defined above)
 
 type DetectionCategory = 'pentatonic' | 'complete' | 'partial';
 

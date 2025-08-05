@@ -31,7 +31,7 @@ import { trackInteraction } from '../utils/tracking';
 import { logger } from '../utils/logger';
 import { useInputMethod } from '../contexts/InputMethodContext';
 
-export type { InputMethod } from '../contexts/InputMethodContext';
+import type { InputMethod } from '../contexts/InputMethodContext';
 
 interface InputSettingsPanelProps {
   

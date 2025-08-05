@@ -276,6 +276,7 @@ export const useCompactAnalysis = () => {
     
     // State
     isAnalyzing,
+    setIsAnalyzing,
     lastAnalysis,
     
     // Utilities

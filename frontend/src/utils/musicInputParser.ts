@@ -143,7 +143,7 @@ export function validateMusicInput(input: string, inputType: InputType): Validat
       });
       break;
 
-    case 'progression':
+    case 'progression': {
       // Can contain chords or Roman numerals, but should be consistent
       const hasChords = parsedTokens.some(t => t.type === 'chord');
       const hasRoman = parsedTokens.some(t => t.type === 'roman');
@@ -158,6 +158,7 @@ export function validateMusicInput(input: string, inputType: InputType): Validat
         }
       });
       break;
+    }
   }
 
   const isValid = suggestions.length === 0;

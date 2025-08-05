@@ -18,7 +18,7 @@ import { Button } from './button';
 import { Input } from './input';
 import { Label } from './label';
 import { Badge } from './badge';
-import { ChordBuilderModal } from './chord-builder-modal';
+import MinimalChordBuilderModal from './chord-builder-modal-minimal';
 import { Plus, Edit2, X, RotateCcw, Keyboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -287,7 +287,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
       return (
         <div 
           key={slot.id}
-          className="flex items-center justify-center w-6 h-12 text-gray-400 text-2xl font-thin select-none"
+          className="flex items-center justify-center w-4 h-10 text-gray-400 text-xl font-thin select-none"
         >
           |
         </div>
@@ -303,32 +303,32 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
         onClick={(e) => handleSlotClick(slot.id, e)}
         className={cn(
           "relative group cursor-pointer transition-all duration-200 select-none",
-          "flex items-center justify-center min-w-[4rem] h-12 rounded-xl border-2 border-dashed transition-all duration-200",
+          "flex items-center justify-center min-w-[2.5rem] h-8 rounded-md border border-dashed transition-all duration-200",
           hasChord
             ? "border-blue-500 bg-blue-50 hover:bg-blue-100 shadow-sm"
             : "border-gray-300 bg-white hover:border-blue-400 hover:bg-blue-50/50",
-          "hover:shadow-md transform hover:scale-105 hover:-translate-y-0.5"
+          "hover:shadow-sm transform hover:scale-102 hover:-translate-y-0.5"
         )}
         title={hasChord ? `Click to edit ${slot.chord}` : "Click to add chord"}
       >
         {hasChord ? (
           <>
-            <span className="font-mono font-semibold text-blue-700 px-2 text-sm">
+            <span className="font-mono font-semibold text-blue-700 px-1 text-xs">
               {slot.chord}
             </span>
             <Button
               onClick={(e) => handleRemoveChord(slot.id, e)}
-              className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute -top-1.5 -right-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
               variant="destructive"
               size="sm"
-              style={{ width: '1.5rem', height: '1.5rem', padding: 0 }}
+              style={{ width: '1rem', height: '1rem', padding: 0 }}
             >
-              <X className="h-3 w-3" />
+              <X className="h-2 w-2" />
             </Button>
           </>
         ) : (
           <div className="flex items-center justify-center text-gray-400 hover:text-blue-600 group-hover:scale-110 transition-transform">
-            <Plus className="h-4 w-4" />
+            <Plus className="h-3 w-3" />
           </div>
         )}
       </div>
@@ -336,7 +336,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
   };
 
   return (
-    <div className={cn("chord-progression-input space-y-3", className)}>
+    <div className={cn("chord-progression-input space-y-2", className)}>
       {/* Label and Mode Toggle */}
       <div className="flex items-center justify-between">
         <Label className="text-sm font-medium">{label}</Label>
@@ -346,7 +346,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
               onClick={toggleKeyboardMode}
               variant="ghost"
               size="sm"
-              className="h-7 px-2 text-xs"
+              className="h-6 px-2 text-xs"
               title={keyboardMode ? "Switch to visual mode" : "Switch to keyboard mode"}
             >
               <Keyboard className="h-3 w-3 mr-1" />
@@ -396,7 +396,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
       ) : (
         <div className="chord-slots-container">
           {/* Visual Chord Grid */}
-          <div className="flex flex-wrap gap-3 p-5 bg-gradient-to-br from-gray-50/80 to-blue-50/30 rounded-xl border border-gray-200 min-h-[5rem] shadow-sm">
+          <div className="flex flex-wrap gap-2 p-3 bg-gradient-to-br from-gray-50/80 to-blue-50/30 rounded-lg border border-gray-200 min-h-[3.5rem] shadow-sm">
             {chordSlots.map((slot, index) => renderChordSlot(slot, index))}
             
             {/* Add More Button */}
@@ -404,7 +404,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
               <Button
                 onClick={handleAddMeasure}
                 variant="ghost"
-                className="min-w-[4rem] h-12 border-2 border-dashed border-gray-300 hover:border-green-400 hover:bg-green-50 transition-all duration-200"
+                className="min-w-[3rem] h-10 border-2 border-dashed border-gray-300 hover:border-green-400 hover:bg-green-50 transition-all duration-200"
                 title="Add measure (4 more chord slots)"
               >
                 <Plus className="h-4 w-4 text-green-600" />
@@ -415,9 +415,9 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
           
           {/* Progression Preview */}
           {slotsToString(chordSlots) && (
-            <div className="progression-preview mt-3 p-3 bg-white/80 rounded-lg border border-blue-200/50">
-              <div className="text-xs font-medium text-gray-600 mb-1">Progression:</div>
-              <Badge variant="outline" className="font-mono text-sm bg-blue-50 border-blue-300 text-blue-800">
+            <div className="progression-preview mt-1 p-1.5 bg-white/80 rounded-md border border-blue-200/50">
+              <div className="text-xs font-medium text-gray-600">Progression:</div>
+              <Badge variant="outline" className="font-mono text-xs h-5 px-2 bg-blue-50 border-blue-300 text-blue-800">
                 {slotsToString(chordSlots)}
               </Badge>
             </div>
@@ -438,7 +438,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
       )}
 
       {/* Chord Builder Modal */}
-      <ChordBuilderModal
+      <MinimalChordBuilderModal
         isOpen={modalState.isOpen}
         onClose={() => setModalState(prev => ({ 
           ...prev, 

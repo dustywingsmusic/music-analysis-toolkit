@@ -41,7 +41,7 @@ const UnifiedMusicInputDemo: React.FC = () => {
   const [analysisResults, setAnalysisResults] = useState<string[]>([]);
 
   // MIDI integration
-  const handleChordDetected = useCallback((noteNumbers: number[]) => {
+  const handleMidiChordDetected = useCallback((noteNumbers: number[]) => {
     console.log('MIDI chord detected:', noteNumbers);
   }, []);
 
@@ -61,7 +61,7 @@ const UnifiedMusicInputDemo: React.FC = () => {
     clearPlayedNotes: clearMidiPlayedNotes,
     error: midiError,
     enabled: midiEnabled,
-  } = useMidi(handleChordDetected, handleMelodyUpdate);
+  } = useMidi(handleMidiChordDetected, handleMelodyUpdate);
 
   // Enhanced MIDI data for components
   const midiData = {

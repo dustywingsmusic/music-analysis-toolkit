@@ -14,10 +14,14 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { musicTheoryGlossary, MusicTerm, AnalysisContext } from '../../data/musicTheoryGlossary';
+import { musicTheoryGlossary, GlossaryTerm, MusicalExample } from '../../data/musicTheoryGlossary';
 import { ContextualTooltip } from './ContextualTooltip';
 import { DetailModal } from './DetailModal';
 import { useHelpAnalytics } from '../../hooks/useHelpAnalytics';
+
+// Type aliases for backwards compatibility
+type MusicTerm = GlossaryTerm;
+type AnalysisContext = 'chord_progression' | 'melody' | 'scale' | 'mode';
 
 interface MusicTermHighlighterProps {
   children: React.ReactNode;
@@ -126,7 +130,7 @@ const MusicTermHighlighter: React.FC<MusicTermHighlighterProps> = ({
 
     const textNodes: Node[] = [];
     let node;
-    while (node = walker.nextNode()) {
+    while ((node = walker.nextNode())) {
       textNodes.push(node);
     }
 

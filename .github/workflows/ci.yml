@@ -27,11 +27,60 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
-    - name: Run linting
-      run: npm run lint
+    - name: Run ESLint and fix issues
+      run: |
+        echo "📋 Running ESLint..."
+        
+        if npm run lint -- --fix; then
+          echo "✅ ESLint passed without issues"
+        else
+          echo "🔧 ESLint found issues, attempting to fix..."
+          npm run lint -- --fix || true
+        fi
 
-    - name: Run type checking
-      run: npx tsc --noEmit
+    - name: Check for remaining lint issues
+      run: |
+        echo "🔍 Checking for remaining lint issues..."
+        
+        if npm run lint; then
+          echo "✅ All linting issues resolved"
+        else
+          echo "❌ ESLint found issues that couldn't be auto-fixed"
+          echo ""
+          echo "Please review and fix the remaining linting errors:"
+          echo "Run 'npm run lint -- --fix' locally to auto-fix what's possible"
+          npm run lint
+          exit 1
+        fi
+
+    - name: Run TypeScript check
+      run: |
+        echo "🔍 Running TypeScript compilation check..."
+        
+        if [ -f "tsconfig.app.json" ]; then
+          echo "Found tsconfig.app.json, running TypeScript check..."
+          if npx tsc --noEmit --project tsconfig.app.json; then
+            echo "✅ TypeScript compilation successful"
+          else
+            echo "❌ TypeScript compilation failed"
+            echo ""
+            echo "Please fix the TypeScript errors above"
+            exit 1
+          fi
+        elif [ -f "tsconfig.json" ]; then
+          echo "Found tsconfig.json, running TypeScript check..."
+          if npx tsc --noEmit --project tsconfig.json; then
+            echo "✅ TypeScript compilation successful"
+          else
+            echo "❌ TypeScript compilation failed"
+            echo ""
+            echo "Please fix the TypeScript errors above"
+            exit 1
+          fi
+        else
+          echo "❌ No TypeScript config file found"
+          exit 1
+        fi
 
     - name: Run unit tests
       run: npm run test:ci

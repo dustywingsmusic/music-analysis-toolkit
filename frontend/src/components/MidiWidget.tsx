@@ -77,7 +77,7 @@ export const MidiWidget: React.FC<MidiWidgetProps> = ({
   const [analysisResult, setAnalysisResult] = useState<CompactAnalysisResult | null>(null);
   
   // Compact analysis hook
-  const { analyzeQuickly, isAnalyzing, lastAnalysis } = useCompactAnalysis();
+  const { analyzeQuickly, isAnalyzing, setIsAnalyzing, lastAnalysis } = useCompactAnalysis();
 
   // MIDI integration with analysis callbacks
   const handleChordDetected = useCallback((noteNumbers: number[]) => {
