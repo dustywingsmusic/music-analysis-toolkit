@@ -71,6 +71,7 @@ export const ChordBuilderModal: React.FC<ChordBuilderModalProps> = ({
 }) => {
   const [selectedRoot, setSelectedRoot] = useState<number>(0); // C
   const [selectedQuality, setSelectedQuality] = useState<ChordQuality>(CHORD_QUALITIES[0]);
+  const [autoUpdate] = useState<boolean>(true); // Always enable auto-update
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Parse current chord to set initial state
@@ -126,8 +127,8 @@ export const ChordBuilderModal: React.FC<ChordBuilderModalProps> = ({
     
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
-    const modalWidth = 280; // Compact modal width
-    const modalHeight = 250; // Compact modal height
+    const modalWidth = 290; // Updated modal width
+    const modalHeight = 270; // Updated modal height
     
     let x = position.x;
     let y = position.y;
@@ -155,6 +156,18 @@ export const ChordBuilderModal: React.FC<ChordBuilderModalProps> = ({
     return `${rootNote}${selectedQuality.symbol}`;
   };
 
+  // Auto-update chord when selections change (if enabled)
+  useEffect(() => {
+    if (autoUpdate && isOpen) {
+      const chord = buildChord();
+      // Debounce updates to avoid rapid firing
+      const timer = setTimeout(() => {
+        onChordSelect(chord);
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [selectedRoot, selectedQuality, autoUpdate, isOpen, onChordSelect]);
+
   const handleChordConfirm = () => {
     const chord = buildChord();
     onChordSelect(chord);
@@ -179,11 +192,11 @@ export const ChordBuilderModal: React.FC<ChordBuilderModalProps> = ({
           "chord-builder-modal shadow-xl border-2 animate-in fade-in-0 zoom-in-95 duration-200",
           className
         )}
-        style={{...getModalStyle(), width: '280px', maxHeight: '250px'}}
+        style={{...getModalStyle(), width: '290px', height: '270px'}}
       >
         <CardContent className="p-3 space-y-2 overflow-hidden">
-          {/* Header with Navigation */}
-          <div className="flex items-center justify-between">
+          {/* Header with Navigation and Chord Preview */}
+          <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-200">
             <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
@@ -195,10 +208,10 @@ export const ChordBuilderModal: React.FC<ChordBuilderModalProps> = ({
                 <ChevronLeft className="h-3 w-3" />
               </Button>
               <div className="flex flex-col items-center min-w-[5rem]">
-                <div className="text-lg font-bold text-blue-700">
+                <div className="text-xl font-bold text-blue-700 mb-1">
                   {buildChord()}
                 </div>
-                <div className="text-xs text-muted-foreground leading-tight">{selectedQuality.name}</div>
+                <div className="text-xs text-muted-foreground leading-tight font-medium">{selectedQuality.name}</div>
               </div>
               <Button
                 variant="ghost"
@@ -221,15 +234,16 @@ export const ChordBuilderModal: React.FC<ChordBuilderModalProps> = ({
           </div>
 
           {/* Root Note Selector - Compact Grid */}
-          <div>
-            <div className="grid grid-cols-4 gap-1 mb-2">
+          <div className="mb-3">
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2 px-1">Root Note</div>
+            <div className="grid grid-cols-4 gap-1">
               {NOTE_DISPLAY.map((note, index) => (
                 <Button
                   key={note}
                   onClick={() => setSelectedRoot(index)}
                   variant={selectedRoot === index ? "default" : "outline"}
                   size="sm"
-                  className="h-6 text-xs font-medium min-w-0 px-1"
+                  className="h-7 text-xs font-medium min-w-0 px-1 hover:scale-105 hover:-translate-y-0.5 transition-all duration-150 hover:shadow-sm"
                 >
                   {note.split('/')[0]}
                 </Button>
@@ -238,15 +252,17 @@ export const ChordBuilderModal: React.FC<ChordBuilderModalProps> = ({
           </div>
 
           {/* Chord Quality Selector */}
-          <div>
-            <div className="grid grid-cols-4 gap-1 mb-2">
+          <div className="mb-3">
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2 px-1">Chord Quality</div>
+            <div className="grid grid-cols-4 gap-1">
               {CHORD_QUALITIES.map((quality) => (
                 <Button
                   key={quality.symbol}
                   onClick={() => setSelectedQuality(quality)}
                   variant={selectedQuality.symbol === quality.symbol ? "default" : "outline"}
                   size="sm"
-                  className="text-xs h-6 font-mono px-1 min-w-0"
+                  className="text-xs h-7 font-mono px-1 min-w-0 hover:scale-105 hover:-translate-y-0.5 transition-all duration-150 hover:shadow-sm"
+                  title={quality.name}
                 >
                   {quality.symbol || 'maj'}
                 </Button>
@@ -255,15 +271,16 @@ export const ChordBuilderModal: React.FC<ChordBuilderModalProps> = ({
           </div>
 
           {/* Quick Presets */}
-          <div>
-            <div className="grid grid-cols-6 gap-1 mb-2">
+          <div className="mb-3">
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2 px-1">Quick Presets</div>
+            <div className="grid grid-cols-6 gap-1">
               {COMMON_CHORDS.map((chord) => (
                 <Button
                   key={chord}
                   onClick={() => handlePresetChord(chord)}
                   variant="outline"
                   size="sm"
-                  className="text-xs h-6 font-mono px-1 min-w-0"
+                  className="text-xs h-7 font-mono px-1 min-w-0 hover:scale-105 hover:-translate-y-0.5 transition-all duration-150 hover:shadow-sm"
                 >
                   {chord}
                 </Button>
@@ -271,21 +288,17 @@ export const ChordBuilderModal: React.FC<ChordBuilderModalProps> = ({
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-2 pt-1 border-t">
-            <Button 
-              onClick={handleChordConfirm}
-              className="flex-1 bg-blue-600 hover:bg-blue-700"
-              size="sm"
-            >
-              Use Chord
-            </Button>
+          {/* Section Separator */}
+          <div className="border-t border-gray-200 my-2"></div>
+          
+          {/* Action Button - Single Done button */}
+          <div className="flex gap-2 pt-1">
             <Button 
               onClick={onClose}
-              variant="outline"
+              className="flex-1 bg-green-600 hover:bg-green-700 h-7"
               size="sm"
             >
-              Cancel
+              Done
             </Button>
           </div>
         </CardContent>

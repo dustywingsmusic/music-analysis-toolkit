@@ -49,7 +49,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
   placeholder = "Click [+] to add chords",
   className,
   label = "Chord Progression",
-  helpText = "Build your progression by clicking the [+] buttons to add chords"
+  helpText = "Click [+] to add chords"
 }) => {
   const [chordSlots, setChordSlots] = useState<ChordSlot[]>(() => {
     // Initialize slots from value prop
@@ -303,17 +303,17 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
         onClick={(e) => handleSlotClick(slot.id, e)}
         className={cn(
           "relative group cursor-pointer transition-all duration-200 select-none",
-          "flex items-center justify-center min-w-[4rem] h-12 rounded-lg border-2 border-dashed",
+          "flex items-center justify-center min-w-[4rem] h-12 rounded-xl border-2 border-dashed transition-all duration-200",
           hasChord
-            ? "border-blue-500 bg-blue-50 hover:bg-blue-100"
-            : "border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50",
-          "hover:shadow-md transform hover:scale-105"
+            ? "border-blue-500 bg-blue-50 hover:bg-blue-100 shadow-sm"
+            : "border-gray-300 bg-white hover:border-blue-400 hover:bg-blue-50/50",
+          "hover:shadow-md transform hover:scale-105 hover:-translate-y-0.5"
         )}
         title={hasChord ? `Click to edit ${slot.chord}` : "Click to add chord"}
       >
         {hasChord ? (
           <>
-            <span className="font-mono font-medium text-blue-700 px-2">
+            <span className="font-mono font-semibold text-blue-700 px-2 text-sm">
               {slot.chord}
             </span>
             <Button
@@ -327,7 +327,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
             </Button>
           </>
         ) : (
-          <div className="flex items-center justify-center text-gray-500 hover:text-blue-600">
+          <div className="flex items-center justify-center text-gray-400 hover:text-blue-600 group-hover:scale-110 transition-transform">
             <Plus className="h-4 w-4" />
           </div>
         )}
@@ -396,7 +396,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
       ) : (
         <div className="chord-slots-container">
           {/* Visual Chord Grid */}
-          <div className="flex flex-wrap gap-2 p-4 bg-gray-50/50 rounded-lg border border-gray-200 min-h-[5rem]">
+          <div className="flex flex-wrap gap-3 p-5 bg-gradient-to-br from-gray-50/80 to-blue-50/30 rounded-xl border border-gray-200 min-h-[5rem] shadow-sm">
             {chordSlots.map((slot, index) => renderChordSlot(slot, index))}
             
             {/* Add More Button */}
@@ -415,8 +415,9 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
           
           {/* Progression Preview */}
           {slotsToString(chordSlots) && (
-            <div className="progression-preview">
-              <Badge variant="outline" className="font-mono text-xs">
+            <div className="progression-preview mt-3 p-3 bg-white/80 rounded-lg border border-blue-200/50">
+              <div className="text-xs font-medium text-gray-600 mb-1">Progression:</div>
+              <Badge variant="outline" className="font-mono text-sm bg-blue-50 border-blue-300 text-blue-800">
                 {slotsToString(chordSlots)}
               </Badge>
             </div>
@@ -424,9 +425,16 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
         </div>
       )}
 
-      {/* Help Text */}
-      {helpText && (
-        <p className="text-xs text-muted-foreground">{helpText}</p>
+      {/* Help Text - Only show when helpful and contextual */}
+      {helpText && !keyboardMode && !slotsToString(chordSlots) && (
+        <p className="text-xs text-muted-foreground">
+          {helpText}
+        </p>
+      )}
+      {keyboardMode && (
+        <p className="text-xs text-muted-foreground">
+          Type chord names separated by spaces. Press Enter to apply or Escape to cancel.
+        </p>
       )}
 
       {/* Chord Builder Modal */}

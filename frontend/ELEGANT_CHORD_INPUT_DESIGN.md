@@ -139,7 +139,7 @@ User builds chord using circular selector + quality buttons
     ↓
 User clicks "Use Chord" or selects preset
     ↓
-Modal fades out (150ms)
+Modal fades out (150ms) (OR, the user clicks arrow to next or previous chord.)
     ↓
 Placeholder transforms to chord button with smooth transition
     ↓
