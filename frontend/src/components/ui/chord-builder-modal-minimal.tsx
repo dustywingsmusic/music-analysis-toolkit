@@ -27,6 +27,7 @@ interface MinimalChordBuilderModalProps {
   onChordSelect: (chord: string) => void;
   position: { x: number; y: number };
   currentChord?: string;
+  currentSlotId?: string | null;
   onPrevious?: () => void;
   onNext?: () => void;
   hasPrevious?: boolean;
@@ -39,6 +40,7 @@ export const MinimalChordBuilderModal: React.FC<MinimalChordBuilderModalProps> =
   onChordSelect,
   position,
   currentChord = '',
+  currentSlotId,
   onPrevious,
   onNext,
   hasPrevious = false,
@@ -47,30 +49,68 @@ export const MinimalChordBuilderModal: React.FC<MinimalChordBuilderModalProps> =
   const [selectedRoot, setSelectedRoot] = useState<number | null>(null);
   const [selectedQuality, setSelectedQuality] = useState<typeof CHORD_QUALITIES[0] | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+  const isNavigatingRef = useRef(false);
+  const hasUserMadeChangesRef = useRef(false);
+  const originalChordRef = useRef<string>('');
 
+  // Track if we need to reset due to slot change
+  const prevSlotIdRef = useRef(currentSlotId);
+  
   // Parse current chord or reset to defaults
   useEffect(() => {
-    if (!isOpen) return;
-    
-    if (currentChord && currentChord.trim()) {
-      // Parse existing chord
-      const match = currentChord.match(/^([A-G][#♯♭b]?)(.*)$/);
-      if (match) {
-        const [, root, quality] = match;
-        const rootIndex = NOTE_DISPLAY.findIndex(note => 
-          note === root || note.includes(root.replace('♯', '#').replace('♭', 'b'))
-        );
-        if (rootIndex !== -1) setSelectedRoot(rootIndex);
-        
-        const qualityMatch = CHORD_QUALITIES.find(q => q.symbol === quality);
-        if (qualityMatch) setSelectedQuality(qualityMatch);
-      }
-    } else {
-      // Reset to no selection for blank chord
+    if (!isOpen) {
+      // Reset when modal closes
       setSelectedRoot(null);
       setSelectedQuality(null);
+      prevSlotIdRef.current = null;
+      hasUserMadeChangesRef.current = false;
+      originalChordRef.current = '';
+      return;
     }
-  }, [currentChord, isOpen]);
+    
+    // Always reset when changing slots or opening fresh
+    const slotChanged = prevSlotIdRef.current !== currentSlotId;
+    if (slotChanged || prevSlotIdRef.current === null) {
+      console.log('🔄 Slot changed or fresh open:', { 
+        prevSlot: prevSlotIdRef.current, 
+        currentSlot: currentSlotId, 
+        currentChord,
+        resettingChangesFlag: true 
+      });
+      setSelectedRoot(null);
+      setSelectedQuality(null);
+      prevSlotIdRef.current = currentSlotId;
+      hasUserMadeChangesRef.current = false; // Always reset when switching slots
+    }
+    
+    // Store the original chord for comparison
+    originalChordRef.current = currentChord || '';
+    console.log('📝 Set original chord ref:', originalChordRef.current);
+    
+    if (currentChord && currentChord.trim()) {
+      // Parse existing chord after a brief delay to ensure state is reset
+      const currentSlotCapture = currentSlotId; // Capture the current slot at time of setTimeout
+      setTimeout(() => {
+        // Double-check we're still on the same slot to avoid race conditions
+        if (prevSlotIdRef.current === currentSlotCapture) {
+          console.log('🔍 Parsing chord:', currentChord, 'for slot:', currentSlotCapture);
+          const match = currentChord.match(/^([A-G][#♯♭b]?)(.*)$/);
+          if (match) {
+            const [, root, quality] = match;
+            const rootIndex = NOTE_DISPLAY.findIndex(note => 
+              note === root || note.includes(root.replace('♯', '#').replace('♭', 'b'))
+            );
+            if (rootIndex !== -1) setSelectedRoot(rootIndex);
+            
+            const qualityMatch = CHORD_QUALITIES.find(q => q.symbol === quality);
+            if (qualityMatch) setSelectedQuality(qualityMatch);
+          }
+        } else {
+          console.log('⚠️ Slot changed during parsing, skipping. Expected:', currentSlotCapture, 'Current:', prevSlotIdRef.current);
+        }
+      }, 10);
+    }
+  }, [currentChord, isOpen, currentSlotId]);
 
   // Close on escape or click outside
   useEffect(() => {
@@ -82,8 +122,20 @@ export const MinimalChordBuilderModal: React.FC<MinimalChordBuilderModalProps> =
 
     const handleClickOutside = (e: MouseEvent) => {
       if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+        // Don't trigger on navigation button clicks (they handle their own saving)
+        const target = e.target as HTMLElement;
+        if (target.closest('.chord-builder-modal-overlay')) {
+          console.log('🚫 Click outside ignored - navigation button click');
+          return;
+        }
+        
+        console.log('👆 Click outside detected, saving if changed');
+        // Save chord only if user made changes AND chord is different from current slot
         const chord = buildChord();
-        onChordSelect(chord);
+        if (chord && hasUserMadeChangesRef.current && hasChordChanged()) {
+          console.log('💾 Saving on click outside');
+          onChordSelect(chord);
+        }
         onClose();
       }
     };
@@ -132,15 +184,35 @@ export const MinimalChordBuilderModal: React.FC<MinimalChordBuilderModalProps> =
     return `${rootNote}${selectedQuality.symbol}`;
   };
 
-  // Real-time chord updates
-  useEffect(() => {
-    if (selectedRoot !== null && selectedQuality !== null) {
-      const chord = buildChord();
-      if (chord && chord !== currentChord) {
-        onChordSelect(chord);
-      }
-    }
-  }, [selectedRoot, selectedQuality, onChordSelect, currentChord]);
+  const hasChordChanged = () => {
+    const currentBuiltChord = buildChord();
+    return currentBuiltChord !== originalChordRef.current;
+  };
+
+  // Real-time chord updates - DISABLED to prevent race conditions
+  // useEffect(() => {
+  //   // Skip if we're navigating or if we haven't made user changes
+  //   if (!hasUserMadeChangesRef.current || isNavigatingRef.current) {
+  //     return;
+  //   }
+  //   
+  //   if (selectedRoot !== null && selectedQuality !== null && currentChord && currentChord.trim()) {
+  //     const chord = buildChord();
+  //     console.log('🔄 Real-time update check:', {
+  //       chord,
+  //       currentChord,
+  //       hasUserMadeChanges: hasUserMadeChangesRef.current,
+  //       isNavigating: isNavigatingRef.current,
+  //       different: chord !== currentChord,
+  //       willUpdate: chord && chord !== currentChord
+  //     });
+  //     if (chord && chord !== currentChord) {
+  //       console.log('✅ Real-time update triggered');
+  //       // Only auto-update if we're editing an existing chord, not a blank one
+  //       onChordSelect(chord);
+  //     }
+  //   }
+  // }, [selectedRoot, selectedQuality, onChordSelect, currentChord]);
 
   if (!isOpen) return null;
 
@@ -158,9 +230,24 @@ export const MinimalChordBuilderModal: React.FC<MinimalChordBuilderModalProps> =
               variant="ghost"
               size="sm"
               onClick={() => {
+                isNavigatingRef.current = true;
+                // Save chord only if user made changes AND chord is different from current slot
                 const chord = buildChord();
-                onChordSelect(chord);
+                const hasChanges = hasUserMadeChangesRef.current;
+                const chordChanged = hasChordChanged();
+                console.log('⬅️ Previous navigation:', {
+                  chord,
+                  hasUserMadeChanges: hasChanges,
+                  hasChordChanged: chordChanged,
+                  originalChord: originalChordRef.current,
+                  willSave: chord && hasChanges && chordChanged
+                });
+                if (chord && hasChanges && chordChanged) {
+                  onChordSelect(chord);
+                }
                 onPrevious?.();
+                // Reset navigation flag after a short delay
+                setTimeout(() => { isNavigatingRef.current = false; }, 100);
               }}
               disabled={!hasPrevious}
               className="h-4 w-4 p-0"
@@ -169,16 +256,22 @@ export const MinimalChordBuilderModal: React.FC<MinimalChordBuilderModalProps> =
             </Button>
             
             <div className="text-sm font-bold text-blue-700">
-              {buildChord() || '—'}
+              {(selectedRoot !== null && selectedQuality !== null) ? buildChord() : (currentChord || '—')}
             </div>
             
             <Button
               variant="ghost"
               size="sm"
               onClick={() => {
+                isNavigatingRef.current = true;
+                // Save chord only if user made changes AND chord is different from current slot
                 const chord = buildChord();
-                onChordSelect(chord);
+                if (chord && hasUserMadeChangesRef.current && hasChordChanged()) {
+                  onChordSelect(chord);
+                }
                 onNext?.();
+                // Reset navigation flag after a short delay
+                setTimeout(() => { isNavigatingRef.current = false; }, 100);
               }}
               disabled={!hasNext}
               className="h-4 w-4 p-0"
@@ -190,8 +283,11 @@ export const MinimalChordBuilderModal: React.FC<MinimalChordBuilderModalProps> =
               variant="ghost" 
               size="sm" 
               onClick={() => {
+                // Save chord only if user made changes AND chord is different from current slot
                 const chord = buildChord();
-                onChordSelect(chord);
+                if (chord && hasUserMadeChangesRef.current && hasChordChanged()) {
+                  onChordSelect(chord);
+                }
                 onClose();
               }}
               className="h-4 w-4 p-0 hover:bg-red-100"
@@ -206,7 +302,11 @@ export const MinimalChordBuilderModal: React.FC<MinimalChordBuilderModalProps> =
             {NOTE_DISPLAY.map((note, index) => (
               <Button
                 key={note}
-                onClick={() => setSelectedRoot(index)}
+                onClick={() => {
+                  console.log('🎵 Root clicked:', NOTE_DISPLAY[index]);
+                  setSelectedRoot(index);
+                  hasUserMadeChangesRef.current = true;
+                }}
                 variant={selectedRoot === index ? "default" : "outline"}
                 size="sm"
                 className="h-3 text-xs font-medium min-w-0 p-0"
@@ -222,8 +322,11 @@ export const MinimalChordBuilderModal: React.FC<MinimalChordBuilderModalProps> =
             {CHORD_QUALITIES.slice(0, 8).map((quality) => (
               <Button
                 key={quality.symbol}
-                onClick={() => setSelectedQuality(quality)}
-                variant={selectedQuality.symbol === quality.symbol ? "default" : "outline"}
+                onClick={() => {
+                  setSelectedQuality(quality);
+                  hasUserMadeChangesRef.current = true;
+                }}
+                variant={selectedQuality?.symbol === quality.symbol ? "default" : "outline"}
                 size="sm"
                 className="text-xs h-3 font-mono min-w-0 p-0"
                 title={quality.name}

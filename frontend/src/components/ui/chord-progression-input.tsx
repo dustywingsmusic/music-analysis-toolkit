@@ -144,22 +144,17 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
     });
   };
 
-  const handleChordSelect = (chord: string) => {
-    if (!modalState.slotId) return;
+  const handleChordSelect = (chord: string, slotId?: string) => {
+    const targetSlotId = slotId || modalState.slotId;
+    if (!targetSlotId) return;
 
     const newSlots = chordSlots.map(slot => 
-      slot.id === modalState.slotId 
+      slot.id === targetSlotId 
         ? { ...slot, chord }
         : slot
     );
     
     updateProgression(newSlots);
-    setModalState(prev => ({ 
-      ...prev, 
-      isOpen: false, 
-      slotId: null, 
-      currentSlotIndex: -1 
-    }));
   };
 
   const handleRemoveChord = (slotId: string, event: React.MouseEvent) => {
@@ -446,9 +441,18 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
           slotId: null, 
           currentSlotIndex: -1 
         }))}
-        onChordSelect={handleChordSelect}
+        onChordSelect={(chord) => {
+          console.log('🎯 Parent chord select called:', {
+            chord,
+            targetSlotId: modalState.slotId,
+            currentModalState: modalState,
+            stackTrace: new Error().stack
+          });
+          handleChordSelect(chord, modalState.slotId);
+        }}
         position={modalState.position}
         currentChord={modalState.currentChord}
+        currentSlotId={modalState.slotId}
         onPrevious={handleNavigateToPrevious}
         onNext={handleNavigateToNext}
         hasPrevious={canNavigatePrevious}
