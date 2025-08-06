@@ -130,19 +130,29 @@ export const ChordBuilderModal: React.FC<ChordBuilderModalProps> = ({
     const modalWidth = 160; // Minimal modal width
     const modalHeight = 140; // Minimal modal height
     
-    let x = position.x;
+    // Center the modal horizontally above the clicked element
+    let x = position.x - (modalWidth / 2);
     let y = position.y;
     
-    // Adjust horizontal position - prefer right side with more offset
-    if (x + modalWidth > viewportWidth - 20) {
-      x = position.x - modalWidth - 20; // Position to the left with more space
-    } else {
-      x = position.x + 20; // Position to the right with more space
+    // Adjust horizontal position to stay within viewport
+    if (x < 10) {
+      x = 10; // Left edge padding
+    } else if (x + modalWidth > viewportWidth - 10) {
+      x = viewportWidth - modalWidth - 10; // Right edge padding
     }
     
-    // Adjust vertical position
-    if (y + modalHeight > viewportHeight - 20) {
-      y = viewportHeight - modalHeight - 20;
+    // Adjust vertical position to stay within viewport
+    if (y < modalHeight + 20) {
+      // If there's not enough space above, position below the element
+      y = position.y + 40;
+    } else {
+      // Position above the element with some padding
+      y = position.y - modalHeight - 10;
+    }
+    
+    // Final check to ensure modal stays within viewport
+    if (y + modalHeight > viewportHeight - 10) {
+      y = viewportHeight - modalHeight - 10;
     }
     
     return {

@@ -21,6 +21,7 @@ import { Badge } from "./ui/badge";
 import { Separator } from "./ui/separator";
 import { Music2Icon, BrainIcon, SparklesIcon, LoaderIcon } from "lucide-react";
 import UnifiedMusicInput, { InputType } from './ui/unified-music-input';
+import { ChordProgressionInput } from './ui/chord-progression-input';
 import DelightfulButton from './ui/delightful-button';
 import DualLensAnalysisPanel from './DualLensAnalysisPanel';
 import { ComprehensiveAnalysisEngine, ComprehensiveAnalysisResult } from '../services/comprehensiveAnalysisService';
@@ -421,40 +422,33 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Main Input */}
-            <UnifiedMusicInput
-              value={inputs[activeAnalysisType]}
-              onChange={(value) => handleInputChange(activeAnalysisType, value)}
-              label={`${currentAnalysisType?.label} Input`}
-              placeholder={currentAnalysisType?.placeholder}
-              inputType={activeAnalysisType as InputType}
-              midiData={midiData}
-              onValidation={handleValidation(activeAnalysisType)}
-              onChordDetected={handleChordDetected}
-              onNotesChanged={handleNotesChanged}
-              enableChordRecognition={activeAnalysisType === 'chord' || activeAnalysisType === 'scale'}
-              showSuggestions
-            />
-
-            {/* Parent Key Input (for progression analysis) */}
-            {activeAnalysisType === 'progression' && (
-              <>
-                <Separator />
-                <div className="space-y-2">
-                  <Label htmlFor="parent-key">Parent Key Signature (optional)</Label>
-                  <UnifiedMusicInput
-                    value={inputs.parentKey}
-                    onChange={(value) => handleInputChange('parentKey' as AnalysisType, value)}
-                    label=""
-                    placeholder="e.g., C major, Bb major, F# minor"
-                    inputType="chord"
-                    className="w-full"
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Optional: Specify the parent key signature to guide analysis. Leave blank for automatic key detection.
-                  </p>
-                </div>
-              </>
+            {/* Main Input - Use simplified ChordProgressionInput for progression analysis */}
+            {activeAnalysisType === 'progression' ? (
+              <ChordProgressionInput
+                value={inputs[activeAnalysisType]}
+                onChange={(value) => handleInputChange(activeAnalysisType, value)}
+                parentKey={inputs.parentKey}
+                onParentKeyChange={(key) => handleInputChange('parentKey' as AnalysisType, key)}
+                label={`${currentAnalysisType?.label} Input`}
+                maxChords={16}
+                showBarLines={false}
+                allowKeyboardInput={true}
+                helpText="Click to add chords to your progression"
+              />
+            ) : (
+              <UnifiedMusicInput
+                value={inputs[activeAnalysisType]}
+                onChange={(value) => handleInputChange(activeAnalysisType, value)}
+                label={`${currentAnalysisType?.label} Input`}
+                placeholder={currentAnalysisType?.placeholder}
+                inputType={activeAnalysisType as InputType}
+                midiData={midiData}
+                onValidation={handleValidation(activeAnalysisType)}
+                onChordDetected={handleChordDetected}
+                onNotesChanged={handleNotesChanged}
+                enableChordRecognition={activeAnalysisType === 'chord' || activeAnalysisType === 'scale'}
+                showSuggestions
+              />
             )}
 
             {/* Detected Chords Display */}

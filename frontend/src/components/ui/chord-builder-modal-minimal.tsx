@@ -221,10 +221,10 @@ export const MinimalChordBuilderModal: React.FC<MinimalChordBuilderModalProps> =
       <Card 
         ref={modalRef}
         className="chord-builder-modal shadow-xl border-2 animate-in fade-in-0 zoom-in-95 duration-200"
-        style={{...getModalStyle(), width: '160px', height: '160px'}}
+        style={{...getModalStyle(), width: '160px', height: '170px'}}
       >
         <CardContent className="p-1 space-y-1 overflow-hidden">
-          {/* Header - Chord name and navigation */}
+          {/* Header - Chord name and navigation with visual progression indicators */}
           <div className="flex items-center justify-between pb-1 border-b border-gray-200">
             <Button
               variant="ghost"
@@ -250,13 +250,33 @@ export const MinimalChordBuilderModal: React.FC<MinimalChordBuilderModalProps> =
                 setTimeout(() => { isNavigatingRef.current = false; }, 100);
               }}
               disabled={!hasPrevious}
-              className="h-4 w-4 p-0"
+              className={cn(
+                "h-4 w-4 p-0 transition-all duration-200",
+                hasPrevious 
+                  ? "hover:bg-blue-100 hover:text-blue-700 hover:shadow-sm" 
+                  : "opacity-30"
+              )}
+              title="Previous chord - Navigate left in progression"
             >
               <ChevronLeft className="h-2 w-2" />
             </Button>
             
-            <div className="text-sm font-bold text-blue-700">
-              {(selectedRoot !== null && selectedQuality !== null) ? buildChord() : (currentChord || '—')}
+            <div className="text-center">
+              <div className="text-sm font-bold text-blue-700">
+                {(selectedRoot !== null && selectedQuality !== null) ? buildChord() : (currentChord || '—')}
+              </div>
+              {/* Enhanced visual progress indicator with spatial context */}
+              <div className="text-xs text-muted-foreground mt-0.5 flex items-center justify-center gap-1">
+                {hasPrevious && (
+                  <span className="text-blue-400 opacity-60">←</span>
+                )}
+                <span className="font-medium">
+                  Chord {((currentSlotId?.match(/\d+/) || ['0'])[0] as string)}
+                </span>
+                {hasNext && (
+                  <span className="text-blue-400 opacity-60">→</span>
+                )}
+              </div>
             </div>
             
             <Button
@@ -274,7 +294,13 @@ export const MinimalChordBuilderModal: React.FC<MinimalChordBuilderModalProps> =
                 setTimeout(() => { isNavigatingRef.current = false; }, 100);
               }}
               disabled={!hasNext}
-              className="h-4 w-4 p-0"
+              className={cn(
+                "h-4 w-4 p-0 transition-all duration-200",
+                hasNext 
+                  ? "hover:bg-blue-100 hover:text-blue-700 hover:shadow-sm" 
+                  : "opacity-30"
+              )}
+              title="Next chord - Navigate right in progression"
             >
               <ChevronRight className="h-2 w-2" />
             </Button>

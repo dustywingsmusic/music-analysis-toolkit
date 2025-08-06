@@ -19,7 +19,8 @@ import { Input } from './input';
 import { Label } from './label';
 import { Badge } from './badge';
 import MinimalChordBuilderModal from './chord-builder-modal-minimal';
-import { Plus, Edit2, X, RotateCcw, Keyboard } from 'lucide-react';
+import ParentKeyBuilderModal from './parent-key-builder-modal';
+import { Plus, Edit2, X, RotateCcw, Keyboard, Key, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ChordProgressionInputProps {
@@ -32,6 +33,9 @@ interface ChordProgressionInputProps {
   className?: string;
   label?: string;
   helpText?: string;
+  // Parent key signature support
+  parentKey?: string;
+  onParentKeyChange?: (parentKey: string) => void;
 }
 
 interface ChordSlot {
@@ -49,7 +53,9 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
   placeholder = "Click [+] to add chords",
   className,
   label = "Chord Progression",
-  helpText = "Click [+] to add chords"
+  helpText = "Click [+] to add chords",
+  parentKey = '',
+  onParentKeyChange
 }) => {
   const [chordSlots, setChordSlots] = useState<ChordSlot[]>(() => {
     // Initialize slots from value prop
@@ -92,6 +98,13 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
 
   const [keyboardMode, setKeyboardMode] = useState(false);
   const [keyboardValue, setKeyboardValue] = useState(value);
+  const [parentKeyModalState, setParentKeyModalState] = useState<{
+    isOpen: boolean;
+    position: { x: number; y: number };
+  }>({
+    isOpen: false,
+    position: { x: 0, y: 0 }
+  });
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Convert chord slots back to string format
@@ -113,7 +126,9 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
   // Find the current slot index in the editable slots array
   const getCurrentEditableIndex = useCallback((slotId: string) => {
     const editableSlots = getEditableSlots();
-    return editableSlots.findIndex(({ slot }) => slot.id === slotId);
+    const index = editableSlots.findIndex(({ slot }) => slot.id === slotId);
+    // Ensure we always return a valid index for navigation
+    return index >= 0 ? index : 0;
   }, [getEditableSlots]);
 
   // Update parent component when slots change
@@ -132,12 +147,19 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
     const rect = (event.target as HTMLElement).getBoundingClientRect();
     const editableIndex = getCurrentEditableIndex(slotId);
     
+    console.log('📍 Slot Click:', {
+      slotId,
+      editableIndex,
+      currentChord: slot?.chord || '',
+      rectPosition: { x: rect.left + (rect.width / 2), y: rect.top - 10 }
+    });
+    
     setModalState({
       isOpen: true,
       slotId,
       position: {
-        x: rect.right + 10,  // Position to the right of the clicked element
-        y: rect.top
+        x: rect.left + (rect.width / 2),  // Center horizontally above the element
+        y: rect.top - 10  // Position above the clicked element
       },
       currentChord: slot?.chord || '',
       currentSlotIndex: editableIndex
@@ -146,13 +168,25 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
 
   const handleChordSelect = (chord: string, slotId?: string) => {
     const targetSlotId = slotId || modalState.slotId;
-    if (!targetSlotId) return;
+    if (!targetSlotId) {
+      console.warn('❌ No target slot ID for chord select');
+      return;
+    }
 
-    const newSlots = chordSlots.map(slot => 
-      slot.id === targetSlotId 
-        ? { ...slot, chord }
-        : slot
-    );
+    console.log('🎯 Chord Select:', {
+      chord,
+      targetSlotId,
+      modalSlotId: modalState.slotId,
+      providedSlotId: slotId
+    });
+
+    const newSlots = chordSlots.map(slot => {
+      if (slot.id === targetSlotId) {
+        console.log(`✅ Updating slot ${slot.id} from "${slot.chord}" to "${chord}"`);
+        return { ...slot, chord };
+      }
+      return slot;
+    });
     
     updateProgression(newSlots);
   };
@@ -172,6 +206,26 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
   const handleClearAll = () => {
     const clearedSlots = chordSlots.map(slot => ({ ...slot, chord: null }));
     updateProgression(clearedSlots);
+    if (onParentKeyChange) {
+      onParentKeyChange('');
+    }
+  };
+
+  const handleParentKeyClick = (event: React.MouseEvent) => {
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    setParentKeyModalState({
+      isOpen: true,
+      position: {
+        x: rect.left + (rect.width / 2),  // Center horizontally above the element
+        y: rect.top - 10  // Position above the clicked element
+      }
+    });
+  };
+
+  const handleParentKeySelect = (key: string) => {
+    if (onParentKeyChange) {
+      onParentKeyChange(key);
+    }
   };
 
   const handleAddMeasure = () => {
@@ -223,54 +277,147 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
     setKeyboardMode(false);
   };
 
+  // Calculate progressive position for any slot based on its visual position
+  const calculateProgressivePosition = useCallback((slotIndex: number, fallbackPosition?: { x: number; y: number }) => {
+    // Try to get actual button size from first existing chord button
+    const firstChordButton = document.querySelector('[data-slot-id]') as HTMLElement;
+    
+    if (firstChordButton) {
+      const firstRect = firstChordButton.getBoundingClientRect();
+      const actualButtonWidth = firstRect.width;
+      const actualGap = 8; // Conservative gap between buttons
+      
+      // Calculate progressive position based on actual button size
+      const progressiveX = firstRect.left + (slotIndex * (actualButtonWidth + actualGap));
+      
+      return {
+        x: progressiveX + (actualButtonWidth / 2), // Center on the calculated position
+        y: firstRect.top - 10
+      };
+    }
+    
+    // Get the chord container as backup
+    const chordContainer = document.querySelector('.chord-list .flex-wrap');
+    if (chordContainer) {
+      const containerRect = chordContainer.getBoundingClientRect();
+      // Use much smaller, more realistic spacing
+      const estimatedButtonWidth = 45; // More realistic chord button width (was 80!)
+      const chordGap = 8;
+      
+      const progressiveX = containerRect.left + (slotIndex * (estimatedButtonWidth + chordGap)) + (estimatedButtonWidth / 2);
+      
+      return {
+        x: progressiveX,
+        y: containerRect.top - 10
+      };
+    }
+    
+    // Fallback to provided position with small incremental movement
+    if (fallbackPosition) {
+      return {
+        x: fallbackPosition.x + ((slotIndex - modalState.currentSlotIndex) * 60), // Much smaller increment (was 80!)
+        y: fallbackPosition.y
+      };
+    }
+    
+    // Last resort fallback
+    return { x: 400, y: 100 };
+  }, [modalState.currentSlotIndex]);
+
   // Navigation functions for the modal
   const handleNavigateToPrevious = useCallback(() => {
     const editableSlots = getEditableSlots();
     const currentIndex = modalState.currentSlotIndex;
     
-    if (currentIndex <= 0 || currentIndex >= editableSlots.length) return;
+    console.log('🔙 Navigate Previous:', {
+      currentIndex,
+      totalSlots: editableSlots.length,
+      canNavigate: currentIndex > 0
+    });
+    
+    if (currentIndex <= 0 || editableSlots.length === 0) return;
     
     const previousSlot = editableSlots[currentIndex - 1];
+    let position: { x: number; y: number };
+    
+    // Check if element exists in DOM
     const slotElement = document.querySelector(`[data-slot-id="${previousSlot.slot.id}"]`) as HTMLElement;
     
     if (slotElement) {
+      // Use actual element position for existing chords
       const rect = slotElement.getBoundingClientRect();
-      setModalState({
-        isOpen: true,
-        slotId: previousSlot.slot.id,
-        position: {
-          x: rect.right + 10,
-          y: rect.top
-        },
-        currentChord: previousSlot.slot.chord || '',
-        currentSlotIndex: currentIndex - 1
-      });
+      position = {
+        x: rect.left + (rect.width / 2),
+        y: rect.top - 10
+      };
+    } else {
+      // Calculate progressive position for empty slots (this is the key fix)
+      position = calculateProgressivePosition(currentIndex - 1, modalState.position);
     }
-  }, [getEditableSlots, modalState.currentSlotIndex]);
+    
+    console.log('🔍 Previous slot positioning:', {
+      slotId: previousSlot.slot.id,
+      chord: previousSlot.slot.chord,
+      elementFound: !!slotElement,
+      calculatedPosition: position,
+      slotIndex: currentIndex - 1
+    });
+    
+    setModalState({
+      isOpen: true,
+      slotId: previousSlot.slot.id,
+      position: position,
+      currentChord: previousSlot.slot.chord || '',
+      currentSlotIndex: currentIndex - 1
+    });
+  }, [getEditableSlots, modalState.currentSlotIndex, modalState.position, calculateProgressivePosition]);
 
   const handleNavigateToNext = useCallback(() => {
     const editableSlots = getEditableSlots();
     const currentIndex = modalState.currentSlotIndex;
     
+    console.log('▶️ Navigate Next:', {
+      currentIndex,
+      totalSlots: editableSlots.length,
+      canNavigate: currentIndex < editableSlots.length - 1
+    });
+    
     if (currentIndex < 0 || currentIndex >= editableSlots.length - 1) return;
     
     const nextSlot = editableSlots[currentIndex + 1];
+    let position: { x: number; y: number };
+    
+    // Check if element exists in DOM
     const slotElement = document.querySelector(`[data-slot-id="${nextSlot.slot.id}"]`) as HTMLElement;
     
     if (slotElement) {
+      // Use actual element position for existing chords
       const rect = slotElement.getBoundingClientRect();
-      setModalState({
-        isOpen: true,
-        slotId: nextSlot.slot.id,
-        position: {
-          x: rect.right + 10,
-          y: rect.top
-        },
-        currentChord: nextSlot.slot.chord || '',
-        currentSlotIndex: currentIndex + 1
-      });
+      position = {
+        x: rect.left + (rect.width / 2),
+        y: rect.top - 10
+      };
+    } else {
+      // Calculate progressive position for empty slots (this is the key fix)
+      position = calculateProgressivePosition(currentIndex + 1, modalState.position);
     }
-  }, [getEditableSlots, modalState.currentSlotIndex]);
+    
+    console.log('🔍 Next slot positioning:', {
+      slotId: nextSlot.slot.id,
+      chord: nextSlot.slot.chord,
+      elementFound: !!slotElement,
+      calculatedPosition: position,
+      slotIndex: currentIndex + 1
+    });
+    
+    setModalState({
+      isOpen: true,
+      slotId: nextSlot.slot.id,
+      position: position,
+      currentChord: nextSlot.slot.chord || '',
+      currentSlotIndex: currentIndex + 1
+    });
+  }, [getEditableSlots, modalState.currentSlotIndex, modalState.position, calculateProgressivePosition]);
 
   // Check if navigation is available
   const canNavigatePrevious = modalState.currentSlotIndex > 0;
@@ -331,8 +478,8 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
   };
 
   return (
-    <div className={cn("chord-progression-input space-y-2", className)}>
-      {/* Label and Mode Toggle */}
+    <div className={cn("chord-progression-input space-y-3", className)}>
+      {/* Simplified Header */}
       <div className="flex items-center justify-between">
         <Label className="text-sm font-medium">{label}</Label>
         <div className="flex items-center gap-2">
@@ -353,11 +500,37 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
             variant="ghost"
             size="sm"
             className="h-7 px-2 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
-            title="Clear all chords"
+            title="Clear all chords and parent key"
           >
             <RotateCcw className="h-3 w-3 mr-1" />
-            Clear
+            Clear All
           </Button>
+        </div>
+      </div>
+
+      {/* Compact Parent Key Section */}
+      <div className="parent-key-section">
+        <div className="flex items-center gap-2">
+          <Label className="text-xs font-medium text-muted-foreground">Parent Key:</Label>
+          <button
+            onClick={handleParentKeyClick}
+            className={cn(
+              "flex items-center gap-1 px-2 py-1 rounded-md border transition-all duration-200 text-xs font-medium",
+              parentKey
+                ? "border-green-600 bg-green-900/20 hover:bg-green-900/30 text-green-400"
+                : "border-muted hover:border-blue-400 bg-muted/30 hover:bg-muted/50 text-muted-foreground hover:text-foreground"
+            )}
+            title={parentKey ? `Parent key: ${parentKey}` : "Click to set parent key signature"}
+          >
+            <Key className="h-3 w-3" />
+            <span className="min-w-[3rem]">
+              {parentKey || 'Not Set'}
+            </span>
+            <Plus className="h-2 w-2 opacity-60" />
+          </button>
+          <span className="text-xs text-muted-foreground">
+            (Optional underlying key signature)
+          </span>
         </div>
       </div>
 
@@ -389,43 +562,79 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
           </div>
         </div>
       ) : (
-        <div className="chord-slots-container">
-          {/* Visual Chord Grid */}
-          <div className="flex flex-wrap gap-2 p-3 bg-gradient-to-br from-gray-50/80 to-blue-50/30 rounded-lg border border-gray-200 min-h-[3.5rem] shadow-sm">
-            {chordSlots.map((slot, index) => renderChordSlot(slot, index))}
-            
-            {/* Add More Button */}
-            {chordSlots.length < maxChords && (
-              <Button
-                onClick={handleAddMeasure}
-                variant="ghost"
-                className="min-w-[3rem] h-10 border-2 border-dashed border-gray-300 hover:border-green-400 hover:bg-green-50 transition-all duration-200"
-                title="Add measure (4 more chord slots)"
+        <div className="chord-list-container">
+          {/* Simplified Chord List - Consistent Left-Aligned Layout */}
+          <div className="chord-list bg-card rounded-lg border border-border p-3 pt-4">
+            {/* Progression direction indicator */}
+            <div className="flex items-center gap-1 mb-2 text-xs text-muted-foreground">
+              <ChevronRight className="h-3 w-3" />
+              <span>Chord progression flows left to right</span>
+            </div>
+            <div className="flex flex-wrap gap-2 items-center">
+              {/* Always show existing chords first */}
+              {chordSlots.map((slot, index) => {
+                if (slot.isBarLine || !slot.chord) return null;
+                return (
+                  <div key={slot.id} className="relative group">
+                    <button
+                      data-slot-id={slot.id}
+                      onClick={(e) => handleSlotClick(slot.id, e)}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-md transition-all duration-200"
+                      title={`Click to edit ${slot.chord}`}
+                    >
+                      <span className="font-semibold text-primary text-sm">{slot.chord}</span>
+                    </button>
+                    {/* Remove button positioned absolutely to avoid nested button */}
+                    <button
+                      onClick={(e) => handleRemoveChord(slot.id, e)}
+                      className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity h-4 w-4 bg-destructive hover:bg-destructive/80 text-destructive-foreground rounded-full flex items-center justify-center text-xs z-10"
+                      title={`Remove ${slot.chord}`}
+                    >
+                      <X className="h-2 w-2" />
+                    </button>
+                  </div>
+                );
+              })}
+              
+              {/* Add chord button - always present */}
+              <button
+                onClick={(e) => {
+                  // Find next empty slot
+                  const emptySlot = chordSlots.find(slot => !slot.isBarLine && !slot.chord);
+                  console.log('➕ Add chord clicked:', {
+                    emptySlot: emptySlot?.id,
+                    allSlots: chordSlots.map(s => ({ id: s.id, chord: s.chord, isBarLine: s.isBarLine }))
+                  });
+                  if (emptySlot) {
+                    handleSlotClick(emptySlot.id, e);
+                  }
+                }}
+                className="flex items-center gap-2 px-3 py-1.5 border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 hover:bg-muted/50 rounded-md transition-all duration-200"
+                title={chordSlots.filter(slot => !slot.isBarLine && slot.chord).length > 0 ? "Add another chord" : "Click to add your first chord"}
               >
-                <Plus className="h-4 w-4 text-green-600" />
-                <span className="ml-1 text-xs text-green-600">Measure</span>
-              </Button>
+                <Plus className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground font-medium">
+                  {chordSlots.filter(slot => !slot.isBarLine && slot.chord).length > 0 ? "Add Chord" : "Add First Chord"}
+                </span>
+              </button>
+            </div>
+            
+            {/* Compact Progression Summary */}
+            {slotsToString(chordSlots) && (
+              <div className="mt-2 pt-2 border-t border-border/50">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium text-muted-foreground">Progression:</span>
+                  <Badge variant="outline" className="font-mono text-xs bg-muted/20 border-muted-foreground/20">
+                    {slotsToString(chordSlots)}
+                  </Badge>
+                </div>
+              </div>
             )}
           </div>
-          
-          {/* Progression Preview */}
-          {slotsToString(chordSlots) && (
-            <div className="progression-preview mt-1 p-1.5 bg-white/80 rounded-md border border-blue-200/50">
-              <div className="text-xs font-medium text-gray-600">Progression:</div>
-              <Badge variant="outline" className="font-mono text-xs h-5 px-2 bg-blue-50 border-blue-300 text-blue-800">
-                {slotsToString(chordSlots)}
-              </Badge>
-            </div>
-          )}
         </div>
       )}
 
-      {/* Help Text - Only show when helpful and contextual */}
-      {helpText && !keyboardMode && !slotsToString(chordSlots) && (
-        <p className="text-xs text-muted-foreground">
-          {helpText}
-        </p>
-      )}
+      {/* Contextual Help Text */}
       {keyboardMode && (
         <p className="text-xs text-muted-foreground">
           Type chord names separated by spaces. Press Enter to apply or Escape to cancel.
@@ -457,6 +666,15 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
         onNext={handleNavigateToNext}
         hasPrevious={canNavigatePrevious}
         hasNext={canNavigateNext}
+      />
+
+      {/* Parent Key Builder Modal */}
+      <ParentKeyBuilderModal
+        isOpen={parentKeyModalState.isOpen}
+        onClose={() => setParentKeyModalState(prev => ({ ...prev, isOpen: false }))}
+        onKeySelect={handleParentKeySelect}
+        position={parentKeyModalState.position}
+        currentKey={parentKey}
       />
     </div>
   );
