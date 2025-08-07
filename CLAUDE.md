@@ -244,3 +244,137 @@ Input: Chord Progression
 - Teaches relationships between different analytical approaches
 
 This transforms the application from a "modal analysis tool" to a "comprehensive music theory analysis engine" that excels at modal analysis while properly handling functional harmony, chromatic harmony, and other theoretical approaches with equal sophistication.
+
+## UX Research Findings & Action Plan
+
+### Critical User Experience Issues (January 2025)
+
+Based on comprehensive UX analysis, the application suffers from expert-bias design that creates barriers for the broader musician community. While technically sophisticated, the interface assumes deep music theory knowledge and uses confusing terminology.
+
+#### Top Priority Issues
+
+1. **Misleading "Analyze with AI" Button**
+   - Current button claims AI analysis but uses only local algorithms
+   - Creates false expectations about app capabilities
+   - **Action**: Change to "Analyze Music" to reflect actual functionality
+
+2. **Confusing Navigation Structure**
+   - Users don't understand difference between "Analysis Hub" vs "Analysis Widget"
+   - Complex tab labels with badges create cognitive load
+   - **Action**: Simplify to 2 main tabs: "Analyze Music" and "Explore Scales"
+
+3. **Overwhelming Complexity for Beginners**
+   - Technical terms like "Parent Key Signature + Local Tonic" unexplained
+   - No progressive disclosure or onboarding
+   - All features visible simultaneously causing choice paralysis
+   - **Action**: Add tooltips, examples, and beginner mode
+
+4. **Chord Progression Input Usability Issues**
+   - Complex modal system with positioning problems (especially mobile)
+   - Multiple inconsistent input methods
+   - **Action**: Simplify to inline text input with optional visual builder
+
+#### Quick Wins (High Impact, Low Effort)
+
+- [ ] Fix misleading "Analyze with AI" button label → "Analyze Music"
+- [ ] Add tooltips explaining music theory terms
+- [ ] Pre-populate inputs with examples (e.g., "Am F C G")
+- [ ] Simplify tab navigation and remove confusing badges
+- [ ] Add user-friendly error messages instead of technical errors
+
+#### Medium Priority (High Impact, Medium Effort)
+
+- [ ] Create guided workflows replacing technical method selection
+- [ ] Redesign chord progression input system
+- [ ] Add comprehensive onboarding flow with welcome tour
+- [ ] Implement progressive disclosure (beginner vs expert modes)
+- [ ] Standardize UI patterns and button styles
+
+#### Long-term Goals (High Impact, High Effort)
+
+- [ ] Comprehensive accessibility audit and fixes
+- [ ] Mobile-first responsive redesign
+- [ ] User research and testing program
+- [ ] Terminology simplification across entire app
+- [ ] Advanced help system with music theory education
+
+### Key Files Requiring UX Improvements
+
+1. **`/src/components/AnalysisHub.tsx`** - Main interface, misleading AI button
+2. **`/src/components/ui/chord-progression-input.tsx`** - Complex modal system
+3. **`/src/components/EnhancedNavigationTabs.tsx`** - Navigation clarity issues
+4. **`/src/components/ui/delightful-button.tsx`** - Button standardization needed
+
+### UX Design Principles Moving Forward
+
+1. **Progressive Disclosure**: Show complexity only when needed
+2. **User-Friendly Language**: Replace expert terminology with accessible terms
+3. **Consistent Patterns**: Standardize interaction methods across features
+4. **Guided Learning**: Help users understand music theory concepts
+5. **Mobile-First**: Ensure touch-friendly interactions
+6. **Accessibility**: Support screen readers and keyboard navigation
+
+### Success Metrics for UX Improvements
+
+- Reduced bounce rate on first analysis attempt
+- Increased completion rate of analysis workflows  
+- Improved user retention (return visits)
+- Reduced support requests about basic functionality
+- Higher satisfaction scores from user feedback
+
+This UX action plan addresses the core finding: **the app has excellent technical capabilities but needs significant interface simplification to serve its intended audience of musicians at all skill levels**.
+
+## Documentation Structure
+
+For detailed information, refer to the organized documentation in `/docs/`:
+
+### Architecture & Implementation
+- @import docs/architecture/integration-roadmap.md
+- @import docs/implementation/analysis-hub.md  
+- @import docs/implementation/unified-input-system.md
+
+### Design & User Experience
+- @import docs/design/delightful-components.md
+- @import docs/design/contextual-help-system.md
+
+### Development Resources
+- @import docs/README.md
+
+**Note**: The `/docs/` directory contains comprehensive technical documentation, implementation guides, and design specifications. This CLAUDE.md file provides project overview and critical development information, while detailed technical documentation lives in the organized `/docs/` hierarchy.
+
+## Critical Development Information
+
+### Immediate Action Required (High Priority)
+1. **Fix Misleading "Analyze with AI" Button** (`src/components/AnalysisHub.tsx:490`)
+   - Button text claims AI analysis but only uses local algorithms
+   - Change to "Analyze Music" to reflect actual functionality
+   - Impact: Reduces user confusion and false expectations
+
+2. **Navigation UX Issues** (`src/components/EnhancedNavigationTabs.tsx`)
+   - Users confused by "Analysis Hub" vs "Analysis Widget" difference
+   - Simplify to 2 main tabs: "Analyze Music" and "Explore Scales"
+   - Remove confusing badges and technical labels
+
+3. **Chord Input Complexity** (`src/components/ui/chord-progression-input.tsx`)
+   - Complex modal system with positioning problems on mobile
+   - Consider inline text input as default with optional visual builder
+   - Recent fix: Modal positioning increment reduced from 80px to 60px
+
+### Technical Architecture (Must Maintain)
+- **Parent Key + Local Tonic Approach**: All modal analysis MUST use this consistent framework
+- **Local-First Analysis**: Core functionality works without external dependencies
+- **Comprehensive Analysis Engine**: Routes through functional → modal → chromatic analysis hierarchy
+- **Unified Input System**: Consistent experience across MIDI, mouse, keyboard inputs
+
+### Development Workflow
+- Always run `npm run test` before commits
+- Use `npm run dev` for hot reloading development
+- MIDI functionality requires physical devices for full testing
+- Check responsive design on mobile devices
+- Verify analysis results across different input methods
+
+### Files Requiring Immediate Attention
+1. `src/components/AnalysisHub.tsx` - Misleading AI button (line ~490)
+2. `src/components/ui/chord-progression-input.tsx` - UX complexity issues
+3. `src/components/EnhancedNavigationTabs.tsx` - Navigation clarity
+4. `src/components/ui/delightful-button.tsx` - Button standardization needed

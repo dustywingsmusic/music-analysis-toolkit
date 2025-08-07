@@ -1,90 +1,74 @@
 # Music Theory Toolkit Documentation
 
-This directory contains comprehensive documentation for the Music Theory Toolkit application, organized into focused areas of concern.
+## Overview
+Interactive web application for music theory analysis and exploration, powered by comprehensive local analysis algorithms with AI enhancement. Provides mode identification, scale discovery, and chord analysis tools for musicians at all skill levels.
 
-## 📚 Documentation Structure
+## Documentation Structure
 
-### Core Documents
+### Architecture
+- **[integration-roadmap.md](architecture/integration-roadmap.md)** - Phase 1 implementation status and architectural principles
 
-#### [🎯 DESIGN_AND_REQUIREMENTS.md](DESIGN_AND_REQUIREMENTS.md)
-**User needs, use cases, and design specifications**
-- 28 specific use cases organized by category
-- Question-driven navigation structure  
-- UI wireframes and interaction patterns
-- Feature implementation status and roadmap
-- **Critical Update**: Identifies features requiring theoretical redesign
+### Development
+- **[setup.md](development/setup.md)** - Environment setup and development commands
+- **[testing.md](development/testing.md)** - Testing strategy and modal logic validation
+- **[deployment.md](development/deployment.md)** - Docker deployment and Google Cloud Run
 
-#### [🏗️ TECHNICAL_ARCHITECTURE.md](TECHNICAL_ARCHITECTURE.md)
-**System architecture and implementation status**
-- Client-side SPA architecture with external services
-- Technology stack and component hierarchy
-- Implementation status (90% complete)
-- **Critical Update**: Prioritizes Music Theory Integration phases over legacy roadmap
+### Design
+- **[delightful-components.md](design/delightful-components.md)** - "Duolingo meets music theory" UI components
+- **[contextual-help-system.md](design/contextual-help-system.md)** - Progressive disclosure help system
 
-#### [🚀 DEPLOYMENT_AND_OPERATIONS.md](DEPLOYMENT_AND_OPERATIONS.md)
-**Deployment procedures, logging, and operational guidelines**
-- Google Cloud Run deployment architecture
-- Server-side logging implementation
-- Monitoring, observability, and troubleshooting
-- **Update**: Notes upcoming architecture evolution monitoring needs
+### Implementation
+- **[analysis-hub.md](implementation/analysis-hub.md)** - Unified analysis interface implementation
+- **[unified-input-system.md](implementation/unified-input-system.md)** - Comprehensive input system across all analysis types
 
-#### [🛠️ DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md)
-**Styling guidelines, development practices, and implementation guides**
-- shadcn/ui component system usage
-- Theme customization and styling patterns
-- **Critical Update**: Music Theory Integration implementation guide
-- Enhanced development priorities and code review checklists
+## Quick Start
 
-### Strategic Planning
+### Prerequisites
+- Node.js >=20.0.0
+- npm >=10.0.0  
+- Python 3.8+ (for backend)
 
-#### [🎼 MUSIC_THEORY_INTEGRATION_ROADMAP.md](MUSIC_THEORY_INTEGRATION_ROADMAP.md)
-**Strategic evolution plan for theoretical accuracy and educational cohesion**
-- Comprehensive analysis of current theoretical issues
-- Phased implementation plan to integrate Reference section capabilities
-- Technical implementation strategy and success metrics
-- **Priority**: CRITICAL - Addresses music theory validation concerns
+### Development Commands
+```bash
+# Frontend (navigate to /frontend/)
+npm run dev              # Start development server (port 3000)
+npm run build            # Build for production
+npm run test             # Run tests
 
-## 🔄 Recent Major Updates
+# Backend (navigate to /backend/)
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
-### Music Theory Validation & Integration Plan
-Based on comprehensive music theory validation analysis, the documentation has been updated to reflect critical issues with current AI-dependent features and the strategic plan to integrate the Reference section's sophisticated analysis capabilities throughout the application.
+# Docker Deployment
+docker-compose up --build
+```
 
-### Key Changes Made:
-1. **TECHNICAL_ARCHITECTURE.md**: Updated roadmap with critical integration priorities
-2. **DEVELOPMENT_GUIDE.md**: Added Music Theory Integration implementation guide  
-3. **DESIGN_AND_REQUIREMENTS.md**: Identified features requiring redesign with clear priorities
-4. **DEPLOYMENT_AND_OPERATIONS.md**: Added architecture evolution monitoring notice
-5. **NEW: MUSIC_THEORY_INTEGRATION_ROADMAP.md**: Comprehensive strategic plan
+## Key Features
 
-### Integration Priority Summary:
-- **Phase 1 (Immediate)**: Chord progression analysis redesign, shared analysis context
-- **Phase 2 (4-8 weeks)**: Modal context analysis, Roman numeral analysis engine  
-- **Phase 3 (8-16 weeks)**: Educational integration and progressive learning features
+### Analysis Capabilities
+- **Local-First Analysis**: Core functionality works without external dependencies
+- **AI Enhancement**: Contextual information and song examples when available
+- **Multiple Perspectives**: Functional, modal, and chromatic analysis approaches
+- **Real-time Input**: MIDI, mouse, and keyboard input methods
 
-## 🧭 Navigation Guide
+### User Experience
+- **Progressive Disclosure**: Complexity revealed based on user needs
+- **Delightful Interactions**: Musical animations and celebrations
+- **Accessibility**: Full keyboard navigation and screen reader support
+- **Mobile-First**: Touch-optimized responsive design
 
-### 📋 For Project Planning:
-- Start with **DESIGN_AND_REQUIREMENTS.md** for user needs and feature status
-- Review **MUSIC_THEORY_INTEGRATION_ROADMAP.md** for strategic priorities
-- Check **TECHNICAL_ARCHITECTURE.md** for implementation roadmap
+### Architecture Principles
+- **Parent Key + Local Tonic**: Consistent modal analysis framework
+- **Comprehensive Theory**: Multi-layered analytical approach
+- **Unified Input**: Consistent input experience across all features
+- **Context-Aware Help**: Just-in-time learning support
 
-### 👩‍💻 For Development:
-- Use **DEVELOPMENT_GUIDE.md** for implementation patterns and priorities
-- Follow **MUSIC_THEORY_INTEGRATION_ROADMAP.md** phase guidelines
-- Reference **TECHNICAL_ARCHITECTURE.md** for component details
+## Critical Information
 
-### 🚀 For Deployment:
-- Follow **DEPLOYMENT_AND_OPERATIONS.md** for procedures and monitoring
-- Monitor performance during integration phases per roadmap timeline
+### UX Issues (High Priority)
+1. **Misleading "Analyze with AI" button** - Change to "Analyze Music"
+2. **Navigation confusion** - Simplify tab structure and labels  
+3. **Beginner barriers** - Add tooltips and progressive disclosure
+4. **Chord input complexity** - Simplify modal system
+5. **Mobile usability** - Fix positioning and touch interactions
 
-### 🎓 For Understanding Features:
-- **DESIGN_AND_REQUIREMENTS.md** explains all 28 use cases and current status
-- **MUSIC_THEORY_INTEGRATION_ROADMAP.md** explains why certain features need redesign
-
-## 🎯 Current Project Status
-
-**Overall Status**: 90% feature complete, undergoing theoretical accuracy enhancement
-**Critical Priority**: Music Theory Integration phases to improve educational value
-**Architecture**: React + TypeScript + shadcn/ui, evolving to integrate Reference capabilities
-
-This documentation structure ensures comprehensive coverage while highlighting the critical evolution needed to create a theoretically sound and educationally valuable music theory learning platform.
+For detailed information on any topic, see the specific documentation files listed above.
