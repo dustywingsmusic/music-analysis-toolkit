@@ -194,6 +194,7 @@ local.json
 # Auto-generated files
 package-lock.json.backup
 yarn.lock.backup
+frontend/tests/generated/
 
 # Local documents and notes
 /.local_docs/
