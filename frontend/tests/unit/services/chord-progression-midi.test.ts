@@ -11,7 +11,7 @@ describe('Chord Progression MIDI Detection', () => {
     it('detects C major from MIDI notes [60, 64, 67]', () => {
       const midiNotes = [60, 64, 67]; // C, E, G
       const detectedChords = findChordMatches(midiNotes);
-      
+
       expect(detectedChords.length).toBeGreaterThan(0);
       expect(detectedChords[0].chordSymbol).toBe('C');
       expect(detectedChords[0].chordName).toBe('Major');
@@ -20,7 +20,7 @@ describe('Chord Progression MIDI Detection', () => {
     it('detects A minor from MIDI notes [57, 60, 64]', () => {
       const midiNotes = [57, 60, 64]; // A, C, E
       const detectedChords = findChordMatches(midiNotes);
-      
+
       expect(detectedChords.length).toBeGreaterThan(0);
       expect(detectedChords[0].chordSymbol).toBe('Am');
       expect(detectedChords[0].chordName).toBe('Minor');
@@ -29,7 +29,7 @@ describe('Chord Progression MIDI Detection', () => {
     it('detects F major from MIDI notes [65, 69, 72]', () => {
       const midiNotes = [65, 69, 72]; // F, A, C
       const detectedChords = findChordMatches(midiNotes);
-      
+
       expect(detectedChords.length).toBeGreaterThan(0);
       expect(detectedChords[0].chordSymbol).toBe('F');
       expect(detectedChords[0].chordName).toBe('Major');
@@ -38,7 +38,7 @@ describe('Chord Progression MIDI Detection', () => {
     it('detects G7 from MIDI notes [67, 71, 74, 77]', () => {
       const midiNotes = [67, 71, 74, 77]; // G, B, D, F
       const detectedChords = findChordMatches(midiNotes);
-      
+
       expect(detectedChords.length).toBeGreaterThan(0);
       expect(detectedChords[0].chordSymbol).toBe('G7');
       expect(detectedChords[0].chordName).toBe('Dominant 7th');
@@ -49,7 +49,7 @@ describe('Chord Progression MIDI Detection', () => {
     it('detects chord in "chord" focus mode (3+ notes)', () => {
       const midiNotes = [60, 64, 67]; // C major triad
       const analysisFocus = 'chord';
-      
+
       // In chord mode, should detect chord with 3+ notes
       if (midiNotes.length >= 3 && analysisFocus === 'chord') {
         const detectedChords = findChordMatches(midiNotes);
@@ -61,7 +61,7 @@ describe('Chord Progression MIDI Detection', () => {
     it('handles smart mode - auto-detects chord when 3+ notes played', () => {
       const midiNotes = [60, 64, 67]; // C major triad
       const analysisFocus = 'automatic';
-      
+
       // In smart mode, should detect chord when playing 3+ notes
       if (midiNotes.length >= 3) {
         const detectedChords = findChordMatches(midiNotes);
@@ -73,7 +73,7 @@ describe('Chord Progression MIDI Detection', () => {
     it('handles individual notes in smart mode (1-2 notes)', () => {
       const midiNotes = [60]; // Single C note
       const analysisFocus = 'automatic';
-      
+
       // In smart mode with single note, chord detection returns empty array
       const detectedChords = findChordMatches(midiNotes);
       expect(detectedChords).toEqual([]);
@@ -84,7 +84,7 @@ describe('Chord Progression MIDI Detection', () => {
     const commonProgressions = {
       'I-vi-IV-V in C': [
         [60, 64, 67], // C major
-        [57, 60, 64], // A minor  
+        [57, 60, 64], // A minor
         [65, 69, 72], // F major
         [67, 71, 74]  // G major
       ],
@@ -98,7 +98,7 @@ describe('Chord Progression MIDI Detection', () => {
     it('detects I-vi-IV-V progression in C major', () => {
       const progression = commonProgressions['I-vi-IV-V in C'];
       const expectedChords = ['C', 'Am', 'F', 'G'];
-      
+
       progression.forEach((midiNotes, index) => {
         const detectedChords = findChordMatches(midiNotes);
         expect(detectedChords.length).toBeGreaterThan(0);
@@ -109,7 +109,7 @@ describe('Chord Progression MIDI Detection', () => {
     it('detects ii-V-I progression in C major', () => {
       const progression = commonProgressions['ii-V-I in C'];
       const expectedChords = ['Dm', 'G', 'C'];
-      
+
       progression.forEach((midiNotes, index) => {
         const detectedChords = findChordMatches(midiNotes);
         expect(detectedChords.length).toBeGreaterThan(0);
@@ -122,7 +122,7 @@ describe('Chord Progression MIDI Detection', () => {
     it('handles duplicate MIDI notes', () => {
       const midiNotes = [60, 60, 64, 67, 67]; // C major with duplicates
       const detectedChords = findChordMatches(midiNotes);
-      
+
       expect(detectedChords.length).toBeGreaterThan(0);
       expect(detectedChords[0].chordSymbol).toBe('C');
     });
@@ -130,7 +130,7 @@ describe('Chord Progression MIDI Detection', () => {
     it('handles notes across multiple octaves', () => {
       const midiNotes = [48, 64, 79]; // C across multiple octaves (C3, E4, G5)
       const detectedChords = findChordMatches(midiNotes);
-      
+
       expect(detectedChords.length).toBeGreaterThan(0);
       expect(detectedChords[0].chordSymbol).toBe('C');
     });
@@ -139,23 +139,23 @@ describe('Chord Progression MIDI Detection', () => {
       // Test 1: C major with E in bass (first inversion) - E entered first but C is lower
       const midiNotes1 = [64, 60, 67]; // E4, C4, G4 - input order E, C, G
       const detectedChords1 = findChordMatches(midiNotes1);
-      
+
       expect(detectedChords1.length).toBeGreaterThan(0);
       expect(detectedChords1[0].chordSymbol).toBe('C'); // Should be root position, not inversion
       expect(detectedChords1[0].bassNote).toBe(0); // C should be bass (MIDI 60 % 12 = 0)
-      
+
       // Test 2: C major with actual E in bass (first inversion) - E is lowest note
       const midiNotes2 = [52, 60, 67]; // E3, C4, G4 - E is actually lowest
       const detectedChords2 = findChordMatches(midiNotes2);
-      
+
       expect(detectedChords2.length).toBeGreaterThan(0);
       expect(detectedChords2[0].chordSymbol).toBe('C/E'); // Should be first inversion
       expect(detectedChords2[0].bassNote).toBe(4); // E should be bass (MIDI 52 % 12 = 4)
-      
+
       // Test 3: Same chord, different input order, same bass note result
       const midiNotes3 = [60, 52, 67]; // C4, E3, G4 - different input order, same lowest note
       const detectedChords3 = findChordMatches(midiNotes3);
-      
+
       expect(detectedChords3.length).toBeGreaterThan(0);
       expect(detectedChords3[0].chordSymbol).toBe('C/E'); // Should be first inversion
       expect(detectedChords3[0].bassNote).toBe(4); // E should still be bass (MIDI 52 % 12 = 4)
@@ -164,7 +164,7 @@ describe('Chord Progression MIDI Detection', () => {
     it('detects partial chords for 2 notes', () => {
       const midiNotes = [60, 64]; // C and E - partial C major chord
       const detectedChords = findChordMatches(midiNotes);
-      
+
       // Should detect partial chord (C major without 5th)
       expect(detectedChords.length).toBeGreaterThan(0);
       expect(detectedChords[0].chordSymbol).toContain('C');
@@ -173,7 +173,7 @@ describe('Chord Progression MIDI Detection', () => {
 
     it('handles invalid MIDI numbers gracefully', () => {
       const invalidMidiNotes = [-1, 60, 64, 128]; // Invalid MIDI numbers mixed with valid
-      
+
       expect(() => findChordMatches(invalidMidiNotes)).not.toThrow();
     });
   });
@@ -198,7 +198,7 @@ describe('Chord Progression MIDI Detection', () => {
 
       const end = Date.now();
       const totalTime = end - start;
-      
+
       // Should be able to analyze 200 chord detections in under 100ms
       expect(totalTime).toBeLessThan(100);
     });
@@ -255,7 +255,7 @@ describe('Chord Progression MIDI Detection', () => {
         mockMidiNote(67, 'G') // Full mock object
       ];
 
-      const midiNumbers = mixedNotes.map(note => 
+      const midiNumbers = mixedNotes.map(note =>
         typeof note === 'number' ? note : (note.number || 60)
       );
 

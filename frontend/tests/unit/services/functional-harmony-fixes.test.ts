@@ -49,7 +49,7 @@ describe('Functional Harmony Analysis Fixes', () => {
       for (const testCase of testCases) {
         const result = await analyzer.analyzeFunctionally([testCase.chord], testCase.key);
         const chord = result.chords[0];
-        
+
         expect(chord.romanNumeral).toBe(testCase.expected);
         expect(chord.chromaticType).toBe('secondary_dominant');
         expect(chord.romanNumeral).not.toContain('Chr');
@@ -68,7 +68,7 @@ describe('Functional Harmony Analysis Fixes', () => {
       for (const testCase of testCases) {
         const result = await analyzer.analyzeFunctionally([testCase.chord], 'D major');
         const chord = result.chords[0];
-        
+
         // The specific figured bass might vary based on implementation, but should not be empty
         expect(chord.figuredBass).not.toBe('');
         expect(chord.inversion).toBeGreaterThan(0);
@@ -88,10 +88,10 @@ describe('Functional Harmony Analysis Fixes', () => {
   describe('Confidence Scoring Improvement', () => {
     it('should prefer functional analysis over chromatic for clear secondary dominants', async () => {
       const result = await analyzer.analyzeFunctionally(['A7', 'Dm'], 'D major');
-      
+
       // Should have high confidence because it's a clear functional progression
       expect(result.confidence).toBeGreaterThan(0.8);
-      
+
       const a7Chord = result.chords[0];
       expect(a7Chord.function).toBe('chromatic'); // Secondary dominants are chromatic but functional
       expect(a7Chord.chromaticType).toBe('secondary_dominant');
@@ -99,10 +99,10 @@ describe('Functional Harmony Analysis Fixes', () => {
 
     it('should not default to chromatic for well-known progressions', async () => {
       const result = await analyzer.analyzeFunctionally(['A7/G', 'G7', 'A7', 'Dm'], 'D major');
-      
+
       // This is a functional progression with secondary dominants, not atonal chaos
       expect(result.confidence).toBeGreaterThan(0.7);
-      
+
       // Should detect as functional progression type or at least have high confidence
       // The specific progression type may be 'other' but confidence should be high
       expect(result.confidence).toBeGreaterThan(0.7);
@@ -112,25 +112,25 @@ describe('Functional Harmony Analysis Fixes', () => {
   describe('Error Prevention', () => {
     it('should never return Chr placeholders for any chord', async () => {
       const chords = ['C7', 'F#7', 'Bb7', 'E7', 'Ab7', 'D7', 'G7', 'A7'];
-      
+
       for (const chord of chords) {
         const result = await analyzer.analyzeFunctionally([chord], 'C major');
         const analyzedChord = result.chords[0];
-        
+
         expect(analyzedChord.romanNumeral).not.toMatch(/Chr\d+/);
       }
     });
 
     it('should handle all 12 chromatic roots without fallback to Chr notation', async () => {
       const chromaticChords = [
-        'C7', 'C#7', 'D7', 'D#7', 'E7', 'F7', 
+        'C7', 'C#7', 'D7', 'D#7', 'E7', 'F7',
         'F#7', 'G7', 'G#7', 'A7', 'A#7', 'B7'
       ];
 
       for (const chord of chromaticChords) {
         const result = await analyzer.analyzeFunctionally([chord], 'C major');
         const analyzedChord = result.chords[0];
-        
+
         expect(analyzedChord.romanNumeral).not.toMatch(/Chr\d+/);
         expect(analyzedChord.romanNumeral).not.toBe(`?${analyzedChord.root}`);
       }

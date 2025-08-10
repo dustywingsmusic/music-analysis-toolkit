@@ -5,9 +5,9 @@ This directory contains services and utilities used for development, testing, an
 ## Files
 
 ### `testChordProgressionAnalysis.ts`
-**Status**: Development Tool  
-**Purpose**: Browser console testing for chord progression analysis  
-**Usage**: Manual testing and development validation  
+**Status**: Development Tool
+**Purpose**: Browser console testing for chord progression analysis
+**Usage**: Manual testing and development validation
 
 **Description**: Provides a test function that can be run in the browser console to verify chord progression analysis functionality. Contains predefined test progressions and outputs detailed analysis results for debugging and validation.
 
@@ -18,9 +18,9 @@ testChordProgressionAnalysis();
 ```
 
 ### `exhaustiveModalAnalysis.ts`
-**Status**: Development Tool  
-**Purpose**: Comprehensive modal analysis dataset generation  
-**Usage**: Test case generation and validation  
+**Status**: Development Tool
+**Purpose**: Comprehensive modal analysis dataset generation
+**Usage**: Test case generation and validation
 
 **Description**: Generates exhaustive test cases for modal analysis validation. Creates comprehensive datasets covering:
 - All chromatic roots with all 7 modes
@@ -40,7 +40,7 @@ testChordProgressionAnalysis();
 These tools are designed for:
 
 1. **Manual Testing**: Quick validation of analysis changes
-2. **Dataset Generation**: Creating comprehensive test suites  
+2. **Dataset Generation**: Creating comprehensive test suites
 3. **Performance Analysis**: Measuring analysis engine performance
 4. **Cross-Validation**: Ensuring consistency between analysis systems
 5. **Research**: Exploring music theory edge cases
@@ -61,7 +61,7 @@ npm run dev
 testChordProgressionAnalysis()
 ```
 
-### Dataset Generation  
+### Dataset Generation
 ```bash
 # Generate comprehensive test datasets
 npm run test:modal  # Uses generated data

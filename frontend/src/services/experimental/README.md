@@ -5,18 +5,18 @@ This directory contains experimental services that are not currently used in the
 ## Files
 
 ### `musicTheoryEngine.ts`
-**Status**: Experimental  
-**Purpose**: Rule-based music theory analysis engine with modular architecture  
-**Warning**: Not integrated into main application runtime  
-**Used by**: Development testing only  
+**Status**: Experimental
+**Purpose**: Rule-based music theory analysis engine with modular architecture
+**Warning**: Not integrated into main application runtime
+**Used by**: Development testing only
 
 **Description**: Implements a comprehensive rule-based system for music theory analysis with evidence scoring and multiple interpretation handling. Contains experimental approaches to modal detection that may be integrated into the main application in the future.
 
 ### `musicTheoryIntegration.ts`
-**Status**: Experimental/Legacy  
-**Purpose**: Integration layer for bridging old and new analysis systems  
-**Warning**: Not imported by runtime code  
-**Used by**: Documentation references only  
+**Status**: Experimental/Legacy
+**Purpose**: Integration layer for bridging old and new analysis systems
+**Warning**: Not imported by runtime code
+**Used by**: Documentation references only
 
 **Description**: Provides backward compatibility interfaces and migration paths for integrating rule-based analysis with existing systems. Contains experimental integration patterns that may inform future architecture decisions.
 

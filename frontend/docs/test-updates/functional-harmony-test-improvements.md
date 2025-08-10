@@ -7,7 +7,7 @@ Updated the functional harmony analysis test suite to match the improved seconda
 ## Key Improvements Reflected in Tests
 
 ### 1. Enhanced Secondary Dominant Notation ✅
-- **Before**: `V/vi`, `V/ii`, `V/V` 
+- **Before**: `V/vi`, `V/ii`, `V/V`
 - **After**: `V7/vi`, `V7/ii`, `V7/V`
 - **Rationale**: More accurate chord quality detection - distinguishes between triad and 7th chord secondary dominants
 

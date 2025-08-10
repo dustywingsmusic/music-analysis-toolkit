@@ -5,18 +5,18 @@ This directory contains services that have been superseded by newer implementati
 ## Files
 
 ### `modalAnalyzer.ts`
-**Status**: Legacy - Superseded  
-**Replacement**: `../enhancedModalAnalyzer.ts`  
-**Last Updated**: Phase 0 code organization  
-**Deprecation Warning**: @deprecated - Use enhancedModalAnalyzer.ts instead  
+**Status**: Legacy - Superseded
+**Replacement**: `../enhancedModalAnalyzer.ts`
+**Last Updated**: Phase 0 code organization
+**Deprecation Warning**: @deprecated - Use enhancedModalAnalyzer.ts instead
 
 **Description**: Original modal analysis implementation using rule-based approach. This was the first attempt at systematic modal detection with evidence scoring. Superseded by `enhancedModalAnalyzer.ts` which has:
 - Stronger confidence scoring
-- Better edge case handling  
+- Better edge case handling
 - Improved pattern recognition
 - More accurate parent key detection
 
-**Why Kept**: 
+**Why Kept**:
 - Historical reference for analysis evolution
 - Contains some experimental patterns that may be valuable
 - Used by deprecated `musicTheoryEngine.ts` in experimental directory
@@ -32,7 +32,7 @@ import { ModalAnalyzer } from '@/services/modalAnalyzer';
 ```
 
 **With:**
-```typescript  
+```typescript
 import { EnhancedModalAnalyzer } from '@/services/enhancedModalAnalyzer';
 ```
 
@@ -52,5 +52,5 @@ import { EnhancedModalAnalyzer } from '@/services/enhancedModalAnalyzer';
 ## Deprecation Timeline
 
 1. **Phase 0**: Moved to legacy directory with deprecation warnings
-2. **Phase 1**: All production imports migrated to enhanced version  
+2. **Phase 1**: All production imports migrated to enhanced version
 3. **Future**: Remove once no experimental code depends on it

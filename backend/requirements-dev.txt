@@ -23,7 +23,7 @@ bandit[toml]==1.8.0
 types-requests==2.32.0.20241016
 types-setuptools>=75.6.0
 
-# Security and Dependency Scanning  
+# Security and Dependency Scanning
 safety==3.2.11
 pip-audit>=2.7.0
 

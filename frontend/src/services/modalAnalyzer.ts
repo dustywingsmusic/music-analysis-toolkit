@@ -3,7 +3,7 @@
  *
  * @deprecated This is a legacy modal analyzer. Use enhancedModalAnalyzer.ts instead.
  * @warning This file is primarily used in musicTheoryEngine.ts (also experimental).
- * 
+ *
  * Specialized analyzer for modal characteristics using a rule-based approach.
  * Handles the specific case where modal interpretation provides better
  * theoretical understanding than functional harmony.

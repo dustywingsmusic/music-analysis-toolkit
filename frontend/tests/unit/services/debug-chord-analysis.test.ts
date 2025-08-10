@@ -9,14 +9,14 @@ import { findChordMatches } from '@/services/chordLogic';
 function analyzeChord(notes: number[], description: string) {
   console.log(`\n=== ${description} ===`);
   console.log(`Notes: ${notes} (MIDI)`);
-  
+
   const matches = findChordMatches(notes);
-  
+
   if (matches.length === 0) {
     console.log('No matches found');
     return matches;
   }
-  
+
   console.log('Top matches:');
   matches.slice(0, 5).forEach((match, i) => {
     console.log(`${i+1}. ${match.chordSymbol} (${match.confidence.toFixed(3)}) - ${match.chordName}`);
@@ -30,7 +30,7 @@ function analyzeChord(notes: number[], description: string) {
       console.log(`   Inversion: ${match.inversion}`);
     }
   });
-  
+
   return matches;
 }
 
@@ -52,19 +52,19 @@ describe('Debug Suspended Chord Analysis', () => {
     const csus4Matches = analyzeChord([60, 65, 67], 'Csus4 complete');
 
     console.log('\n=====================================');
-    
+
     // Basic validation
     expect(asus4Matches.length).toBeGreaterThan(0);
     expect(dsus2Matches.length).toBeGreaterThan(0);
-    
+
     // Check if Asus4(no5) is properly identified
-    const asus4Match = asus4Matches.find(m => 
+    const asus4Match = asus4Matches.find(m =>
       m.chordSymbol.includes('sus4') && m.rootName === 'A'
     );
     expect(asus4Match, 'Should identify A-D as Asus4').toBeTruthy();
-    
+
     // Check if Dsus2/A is properly identified
-    const dsus2InversionMatch = dsus2Matches.find(m => 
+    const dsus2InversionMatch = dsus2Matches.find(m =>
       m.rootName === 'D' && m.chordSymbol.includes('sus2') && m.inversion === '/A'
     );
     expect(dsus2InversionMatch, 'Should identify D-E-A with A bass as Dsus2/A').toBeTruthy();

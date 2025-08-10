@@ -3,7 +3,7 @@
  *
  * @deprecated This is a development/testing tool, not used in production runtime.
  * @warning This file is not imported by UI components - CLI/dev tool only.
- * 
+ *
  * Generates comprehensive test results for all possible modal inputs
  * to enable external analysis and validation of modal logic correctness.
  *

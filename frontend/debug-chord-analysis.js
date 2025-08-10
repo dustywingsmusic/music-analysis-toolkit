@@ -4,14 +4,14 @@ const { findChordMatches } = require('./src/services/chordLogic.ts');
 function analyzeChord(notes, description) {
   console.log(`\n=== ${description} ===`);
   console.log(`Notes: ${notes} (MIDI)`);
-  
+
   const matches = findChordMatches(notes);
-  
+
   if (matches.length === 0) {
     console.log('No matches found');
     return;
   }
-  
+
   console.log('Top matches:');
   matches.slice(0, 5).forEach((match, i) => {
     console.log(`${i+1}. ${match.chordSymbol} (${match.confidence.toFixed(3)}) - ${match.chordName}`);

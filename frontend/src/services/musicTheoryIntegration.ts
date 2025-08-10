@@ -3,7 +3,7 @@
  *
  * @deprecated This is an experimental/legacy file not currently used in production.
  * @warning This file is not integrated into the main application runtime.
- * 
+ *
  * Bridges the new modular architecture with the existing system.
  * Provides backward compatibility while enabling gradual migration
  * to the new rule-based analysis engine.
