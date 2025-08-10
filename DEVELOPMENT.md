@@ -10,7 +10,7 @@
 
 This will:
 - ✅ Install all dependencies (frontend, backend, tools)
-- ✅ Set up pre-commit hooks for instant code quality feedback  
+- ✅ Set up pre-commit hooks for instant code quality feedback
 - ✅ Validate your development environment
 - ✅ Run initial quality checks
 
@@ -29,7 +29,7 @@ git add .
 git commit -m "Your commit message"
 # Pre-commit hooks run automatically:
 # ✓ ESLint auto-fix
-# ✓ TypeScript compilation check  
+# ✓ TypeScript compilation check
 # ✓ Unit & component tests for changed files
 # ✓ Python formatting (Black, isort)
 # ✓ Python linting (flake8, mypy)
@@ -51,13 +51,13 @@ npm run type-check
 # Run all tests
 npm run test:ci
 
-# Run tests in watch mode  
+# Run tests in watch mode
 npm run test:watch
 
 # Run only unit tests
 npm run test:unit
 
-# Run only component tests  
+# Run only component tests
 npm run test:component
 
 # Run E2E tests
@@ -104,7 +104,7 @@ docker-compose up
 cd frontend && npm run dev
 # Runs on http://localhost:5173
 
-# Terminal 2: Backend  
+# Terminal 2: Backend
 cd backend && uvicorn app.main:app --reload --port 8000
 # Runs on http://localhost:8000
 ```
@@ -119,7 +119,7 @@ cd backend && uvicorn app.main:app --reload --port 8000
 - **Run:** `npm run test:unit`
 - **Scope:** Pure functions, services, utilities
 
-### **Component Tests** (Fast - < 5 seconds) 
+### **Component Tests** (Fast - < 5 seconds)
 - **Purpose:** Test React components in isolation
 - **Location:** `frontend/tests/component/`
 - **Run:** `npm run test:component`
@@ -150,7 +150,7 @@ cd backend && uvicorn app.main:app --reload --port 8000
 - **UI Components:** Radix UI primitives
 - **Code Quality:** ESLint 9.32.0 with TypeScript support
 
-### **Backend**  
+### **Backend**
 - **Framework:** FastAPI 0.111.0
 - **Server:** Uvicorn 0.30.1 / Gunicorn 22.0.0
 - **Music Theory:** librosa 0.10.1, music21 9.1.0
@@ -192,7 +192,7 @@ GitHub Actions provide comprehensive validation:
 This project includes specialized music theory capabilities:
 
 - **MIDI Support:** Real-time MIDI input detection and processing
-- **Scale Analysis:** Comprehensive modal analysis and scale detection  
+- **Scale Analysis:** Comprehensive modal analysis and scale detection
 - **Chord Progression Analysis:** Advanced harmonic analysis
 - **Music21 Integration:** Classical music theory computations
 - **Audio Processing:** librosa-powered audio analysis

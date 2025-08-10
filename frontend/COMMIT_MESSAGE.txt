@@ -8,7 +8,7 @@ CRITICAL BUG FIXES:
 
 IMPLEMENTATION DETAILS:
 • Comprehensive secondary dominant mapping for all 12 chromatic intervals
-• Enhanced figured bass notation for complex seventh chord inversions  
+• Enhanced figured bass notation for complex seventh chord inversions
 • Borrowed chord detection (♭VII7) vs secondary dominant logic properly separated
 • Zero fallback to Chr placeholders - all chords receive proper Roman numeral analysis
 

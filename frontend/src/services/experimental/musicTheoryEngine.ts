@@ -3,10 +3,10 @@
  *
  * @deprecated This is an experimental/legacy file not currently used in production.
  * @warning This file is not integrated into the main application runtime.
- * 
+ *
  * A comprehensive, modular, and extensible architecture for music theory analysis.
  * Uses a rule-based system with confidence scoring for multiple analytical perspectives.
- * 
+ *
  * Status: EXPERIMENTAL - Not wired to UI components, used only in tests and documentation.
  * The production app uses enhancedModalAnalyzer.ts and comprehensiveAnalysisService.ts instead.
  *

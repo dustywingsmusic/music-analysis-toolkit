@@ -8,7 +8,7 @@ max-line-length = 88
 max-complexity = 10
 
 # Exclude directories and files
-exclude = 
+exclude =
     .git,
     __pycache__,
     .venv,
@@ -25,10 +25,10 @@ exclude =
     migrations
 
 # Ignore specific error codes
-ignore = 
+ignore =
     # E203: whitespace before ':' (conflicts with Black)
     E203,
-    # E501: line too long (handled by Black)  
+    # E501: line too long (handled by Black)
     E501,
     # W503: line break before binary operator (conflicts with Black)
     W503,
@@ -38,9 +38,9 @@ ignore =
     F401,
 
 # Select specific error codes to check
-select = 
+select =
     E,  # pycodestyle errors
-    W,  # pycodestyle warnings  
+    W,  # pycodestyle warnings
     F,  # pyflakes
     C,  # mccabe complexity
     B,  # flake8-bugbear
@@ -74,7 +74,7 @@ show-source = True
 show-pep8 = True
 
 # Enable flake8-docstrings
-require-plugins = 
+require-plugins =
     flake8-docstrings,
     flake8-import-order,
     flake8-bugbear

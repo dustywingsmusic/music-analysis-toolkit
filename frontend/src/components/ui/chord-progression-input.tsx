@@ -69,10 +69,10 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
   // Use global input method context
   const globalInputMethod = useInputMethodFor(componentId || 'chord-progression-input');
   const rawGlobalContext = useInputMethod();
-  
+
   // Use raw global input method to bypass component-specific preferences
   const activeInputMethod = useGlobalInputMethod ? rawGlobalContext.activeInputMethod : 'mouse';
-  
+
   // Force re-render when input method changes
   const [forceUpdateKey, setForceUpdateKey] = useState(0);
   useEffect(() => {
@@ -289,7 +289,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
       // Cycle through input methods: midi → keyboard → mouse → midi
       const currentMethod = globalInputMethod.activeInputMethod;
       let nextMethod: InputMethod;
-      
+
       switch (currentMethod) {
         case 'midi':
           nextMethod = 'keyboard';
@@ -303,7 +303,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
         default:
           nextMethod = 'keyboard';
       }
-      
+
       // Use the component-specific setInputMethod to update both global and component preference
       globalInputMethod.setInputMethod(nextMethod);
     } else {

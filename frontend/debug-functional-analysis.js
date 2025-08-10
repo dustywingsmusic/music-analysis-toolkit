@@ -12,24 +12,24 @@ console.log('\n=== FUNCTIONAL HARMONY ANALYSIS DEBUG ===');
 // Step 1: Parse chord symbols
 chordProgression.forEach((chord, index) => {
   console.log(`\nChord ${index + 1}: ${chord}`);
-  
+
   // Extract root note
   const rootMatch = chord.match(/^([A-G][#b]?)/);
   const root = rootMatch ? rootMatch[1] : 'Unknown';
   console.log(`  Root: ${root}`);
-  
+
   // Extract bass note if slash chord
   const slashMatch = chord.match(/\/([A-G][#b]?)$/);
   const bassNote = slashMatch ? slashMatch[1] : root;
   console.log(`  Bass: ${bassNote}`);
-  
+
   // Extract chord quality
   let chordQuality = chord.replace(rootMatch ? rootMatch[0] : '', '');
   if (slashMatch) {
     chordQuality = chordQuality.replace(slashMatch[0], '');
   }
   console.log(`  Quality: ${chordQuality || 'major'}`);
-  
+
   // Determine if it's a dominant 7th
   const isDom7 = chordQuality.includes('7') && !chordQuality.includes('maj7') && !chordQuality.includes('m7');
   console.log(`  Is Dominant 7th: ${isDom7}`);
@@ -50,13 +50,13 @@ chordProgression.forEach((chord, index) => {
   const rootMatch = chord.match(/^([A-G][#b]?)/);
   const root = rootMatch ? rootMatch[1] : '';
   const interval = noteToInterval[root];
-  
+
   console.log(`\n${chord}: Root ${root} is interval ${interval} in D major`);
-  
+
   // Determine Roman numeral
   let romanNumeral = '?';
   const quality = chord.includes('7') && !chord.includes('maj7') && !chord.includes('m7') ? 'dominant7' : 'major';
-  
+
   if (root === 'A' && quality === 'dominant7') {
     // A7 in D major - this should be V7/ii (dominant of ii)
     // ii in D major is Em, so A7 is the dominant of Em

@@ -1,9 +1,9 @@
 /**
  * Test script for chord progression analysis
- * 
+ *
  * @deprecated This is a development/testing helper script, not used in production.
  * @warning This file is not imported by runtime code - dev/test tool only.
- * 
+ *
  * This can be run in the browser console to verify functionality.
  * Status: DEV TOOL - Used in unit testing context only.
  */

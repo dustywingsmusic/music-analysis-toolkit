@@ -81,11 +81,11 @@ describe('FunctionalHarmonyAnalyzer', () => {
       // The system may interpret E as V7/♭III (tonicizing G) rather than simple V
       const acceptablePatterns = [['i', 'iv', 'V', 'i'], ['i', 'iv', 'V7/♭III', 'i']];
       const actualRomanNumerals = result.chords.map(c => c.romanNumeral);
-      
-      expect(acceptablePatterns.some(pattern => 
+
+      expect(acceptablePatterns.some(pattern =>
         JSON.stringify(pattern) === JSON.stringify(actualRomanNumerals)
       )).toBe(true);
-      
+
       // IMPROVED: When analyzed as V7/♭III, the function may be 'chromatic' rather than 'dominant'
       expect(['dominant', 'chromatic']).toContain(result.chords[2].function);
       expect(result.confidence).toBeGreaterThanOrEqual(testCase!.confidence[0]);
@@ -225,11 +225,11 @@ describe('FunctionalHarmonyAnalyzer', () => {
       // This is incorrect - Ab major in C major should be bVI borrowed chord, not secondary dominant
       const acceptablePatterns = [['I', 'IV', 'bVI', 'V', 'I'], ['I', 'IV', 'V7/♭VI', 'V', 'I']];
       const actualRomanNumerals = result.chords.map(c => c.romanNumeral);
-      
-      expect(acceptablePatterns.some(pattern => 
+
+      expect(acceptablePatterns.some(pattern =>
         JSON.stringify(pattern) === JSON.stringify(actualRomanNumerals)
       )).toBe(true);
-      
+
       expect(result.chords[2].isChromatic).toBe(true);
       // Accept either borrowed_chord (correct) or secondary_dominant (system's current analysis)
       expect(['borrowed_chord', 'secondary_dominant']).toContain(result.chords[2].chromaticType);
@@ -310,13 +310,13 @@ describe('FunctionalHarmonyAnalyzer', () => {
       // IMPROVED: System now consistently uses '7' for dominant 7ths, 'maj7' for major 7ths
       // But system may interpret major 7ths simply as '7' in some contexts
       const expectedRomanNumerals = result.chords.map(c => c.romanNumeral);
-      
+
       // Verify key structural elements
       expect(expectedRomanNumerals[0]).toMatch(/^I(maj)?7$/); // I7 or Imaj7
       expect(expectedRomanNumerals[1]).toBe('V7/ii'); // A7 should be V7/ii
       expect(expectedRomanNumerals[2]).toBe('ii7'); // Dm7 should be ii7
       expect(expectedRomanNumerals[8]).toMatch(/^I(maj)?7$/); // Final I7 or Imaj7
-      
+
       // IMPROVED: System now detects more secondary dominants due to enhanced analysis
       expect(result.chromaticElements.filter(e => e.type === 'secondary_dominant').length).toBeGreaterThanOrEqual(2);
       // IMPROVED: The progression type detection may classify complex progressions differently
@@ -394,17 +394,17 @@ describe('FunctionalHarmonyAnalyzer', () => {
       // IMPROVED: System may use simplified '7' notation instead of 'maj7' in Roman numerals
       // But should still correctly identify the chord quality in chordName
       const romanNumerals = result.chords.map(c => c.romanNumeral);
-      
+
       // Accept either notation - the system might use I7, IV7, V7, I7
       const acceptablePatterns = [
         ['Imaj7', 'IVmaj7', 'Vmaj7', 'Imaj7'],  // Original expectation
         ['I7', 'IV7', 'V7', 'I7']  // System's current output
       ];
-      
-      expect(acceptablePatterns.some(pattern => 
+
+      expect(acceptablePatterns.some(pattern =>
         JSON.stringify(pattern) === JSON.stringify(romanNumerals)
       )).toBe(true);
-      
+
       expect(result.chords.every(c => c.chordName.includes('maj7'))).toBe(true);
     });
 
@@ -431,11 +431,11 @@ describe('FunctionalHarmonyAnalyzer', () => {
       // ISSUE: System is over-analyzing F as V7/♭VII instead of bVII borrowed chord
       const acceptablePatterns = [['I', 'bVII', 'IV', 'I'], ['I', 'V7/♭VII', 'IV', 'I']];
       const actualRomanNumerals = result.chords.map(c => c.romanNumeral);
-      
-      expect(acceptablePatterns.some(pattern => 
+
+      expect(acceptablePatterns.some(pattern =>
         JSON.stringify(pattern) === JSON.stringify(actualRomanNumerals)
       )).toBe(true);
-      
+
       expect(result.chords[1].chromaticType).toBeDefined();
       // IMPROVED: The primaryApproach property may not be set in this context
       // Focus on verifying the analysis results rather than internal properties
@@ -507,7 +507,7 @@ describe('FunctionalHarmonyAnalyzer', () => {
         // Focus on confidence ranges which are more reliable indicators
         expect(result.confidence).toBeGreaterThanOrEqual(testCase.confidence[0]);
         expect(result.confidence).toBeLessThanOrEqual(1.0); // Max confidence cap
-        
+
         // Verify we got some reasonable analysis
         expect(result.chords).toHaveLength(chordSymbols.length);
         expect(result.chords.every(c => c.romanNumeral.length > 0)).toBe(true);
