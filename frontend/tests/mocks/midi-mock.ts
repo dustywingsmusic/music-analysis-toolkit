@@ -57,11 +57,11 @@ export class MockMIDIInput {
   dispatchEvent(event: any): boolean {
     const listeners = this.eventListeners.get(event.type) || [];
     listeners.forEach(listener => listener(event));
-    
+
     if (event.type === 'midimessage' && this.onmidimessage) {
       this.onmidimessage(event);
     }
-    
+
     return true;
   }
 
@@ -72,14 +72,14 @@ export class MockMIDIInput {
       note,
       velocity
     ]);
-    
+
     const event = {
       type: 'midimessage',
       data,
       timeStamp: performance.now(),
       target: this,
     };
-    
+
     this.dispatchEvent(event);
   }
 
@@ -90,14 +90,14 @@ export class MockMIDIInput {
       note,
       velocity
     ]);
-    
+
     const event = {
       type: 'midimessage',
       data,
       timeStamp: performance.now(),
       target: this,
     };
-    
+
     this.dispatchEvent(event);
   }
 
@@ -193,7 +193,7 @@ export class MockMIDIAccess {
     // Add default mock devices
     const mockInput = new MockMIDIInput();
     const mockOutput = new MockMIDIOutput();
-    
+
     this.inputs.set(mockInput.id, mockInput);
     this.outputs.set(mockOutput.id, mockOutput);
   }
@@ -263,10 +263,10 @@ export const createMockMIDIAccess = (): MockMIDIAccess => {
 // Vitest mock setup
 export const setupMIDIMock = () => {
   const mockMIDIAccess = createMockMIDIAccess();
-  
+
   // Mock the global navigator.requestMIDIAccess
   global.navigator.requestMIDIAccess = vi.fn().mockResolvedValue(mockMIDIAccess);
-  
+
   return mockMIDIAccess;
 };
 

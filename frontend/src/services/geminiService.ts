@@ -80,9 +80,9 @@ The user will provide a tonic and either a chord or a set of notes.
 
 Your process MUST be:
 1.  **IDENTIFY MODES**: Based on the user's input and the provided Reference Scale Data, identify all plausible musical modes whose root matches the user's tonic.
-    - For each identified mode, calculate the **Parent Key**:  
-      The Parent Key is the **major scale** (or scale family root) from which the mode is derived.  
-      To compute this, use the mode degree (e.g., Phrygian = 3rd mode). Shift the tonic **down (mode degree − 1)** diatonically.  
+    - For each identified mode, calculate the **Parent Key**:
+      The Parent Key is the **major scale** (or scale family root) from which the mode is derived.
+      To compute this, use the mode degree (e.g., Phrygian = 3rd mode). Shift the tonic **down (mode degree − 1)** diatonically.
       Example: C Phrygian → A♭ Major, because C is the 3rd degree of A♭.
 2.  **STRUCTURED ANALYSIS**: Create a main \`analysis\` object for the single most likely mode. Populate the \`alternates\` array with objects for all other plausible modes. If only one mode is found, \`alternates\` MUST be an empty array.
 3.  **MODE DISCUSSION**: Write a concise \`modeDiscussion\` string that explains the reasoning based *only* on the modes you have identified.
@@ -575,18 +575,18 @@ const discoverModesFromRoot = async (
     debugInfo.rawResponse = rawResponse || '';
 
     if (!rawResponse) {
-      return { 
-        result: { error: "Mode discovery returned an empty response." }, 
-        debug: debugInfo 
+      return {
+        result: { error: "Mode discovery returned an empty response." },
+        debug: debugInfo
       };
     }
 
     const parsedData = safelyParseJson<any>(rawResponse);
 
     if (!parsedData) {
-      return { 
-        result: { error: "Mode discovery returned a malformed response." }, 
-        debug: debugInfo 
+      return {
+        result: { error: "Mode discovery returned a malformed response." },
+        debug: debugInfo
       };
     }
 
@@ -595,9 +595,9 @@ const discoverModesFromRoot = async (
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error in mode discovery";
     debugInfo.rawResponse = error instanceof Error ? error.stack ?? message : String(error);
-    return { 
-      result: { error: `Mode discovery failed: ${message}` }, 
-      debug: debugInfo 
+    return {
+      result: { error: `Mode discovery failed: ${message}` },
+      debug: debugInfo
     };
   }
 };
@@ -659,18 +659,18 @@ const analyzeChord = async (
     debugInfo.rawResponse = rawResponse || '';
 
     if (!rawResponse) {
-      return { 
-        result: { error: "Chord analysis returned an empty response." }, 
-        debug: debugInfo 
+      return {
+        result: { error: "Chord analysis returned an empty response." },
+        debug: debugInfo
       };
     }
 
     const parsedData = safelyParseJson<any>(rawResponse);
 
     if (!parsedData) {
-      return { 
-        result: { error: "Chord analysis returned a malformed response." }, 
-        debug: debugInfo 
+      return {
+        result: { error: "Chord analysis returned a malformed response." },
+        debug: debugInfo
       };
     }
 
@@ -679,9 +679,9 @@ const analyzeChord = async (
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error in chord analysis";
     debugInfo.rawResponse = error instanceof Error ? error.stack ?? message : String(error);
-    return { 
-      result: { error: `Chord analysis failed: ${message}` }, 
-      debug: debugInfo 
+    return {
+      result: { error: `Chord analysis failed: ${message}` },
+      debug: debugInfo
     };
   }
 };
@@ -713,18 +713,18 @@ const generateChordsFromMode = async (
     debugInfo.rawResponse = rawResponse || '';
 
     if (!rawResponse) {
-      return { 
-        result: { error: "Mode chord generation returned an empty response." }, 
-        debug: debugInfo 
+      return {
+        result: { error: "Mode chord generation returned an empty response." },
+        debug: debugInfo
       };
     }
 
     const parsedData = safelyParseJson<any>(rawResponse);
 
     if (!parsedData) {
-      return { 
-        result: { error: "Mode chord generation returned a malformed response." }, 
-        debug: debugInfo 
+      return {
+        result: { error: "Mode chord generation returned a malformed response." },
+        debug: debugInfo
       };
     }
 
@@ -733,9 +733,9 @@ const generateChordsFromMode = async (
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error in mode chord generation";
     debugInfo.rawResponse = error instanceof Error ? error.stack ?? message : String(error);
-    return { 
-      result: { error: `Mode chord generation failed: ${message}` }, 
-      debug: debugInfo 
+    return {
+      result: { error: `Mode chord generation failed: ${message}` },
+      debug: debugInfo
     };
   }
 };
@@ -767,18 +767,18 @@ const findChordSubstitutions = async (
     debugInfo.rawResponse = rawResponse || '';
 
     if (!rawResponse) {
-      return { 
-        result: { error: "Chord substitution analysis returned an empty response." }, 
-        debug: debugInfo 
+      return {
+        result: { error: "Chord substitution analysis returned an empty response." },
+        debug: debugInfo
       };
     }
 
     const parsedData = safelyParseJson<any>(rawResponse);
 
     if (!parsedData) {
-      return { 
-        result: { error: "Chord substitution analysis returned a malformed response." }, 
-        debug: debugInfo 
+      return {
+        result: { error: "Chord substitution analysis returned a malformed response." },
+        debug: debugInfo
       };
     }
 
@@ -787,9 +787,9 @@ const findChordSubstitutions = async (
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error in chord substitution analysis";
     debugInfo.rawResponse = error instanceof Error ? error.stack ?? message : String(error);
-    return { 
-      result: { error: `Chord substitution analysis failed: ${message}` }, 
-      debug: debugInfo 
+    return {
+      result: { error: `Chord substitution analysis failed: ${message}` },
+      debug: debugInfo
     };
   }
 };
@@ -821,18 +821,18 @@ const analyzeChordProgression = async (
     debugInfo.rawResponse = rawResponse || '';
 
     if (!rawResponse) {
-      return { 
-        result: { error: "Chord progression analysis returned an empty response." }, 
-        debug: debugInfo 
+      return {
+        result: { error: "Chord progression analysis returned an empty response." },
+        debug: debugInfo
       };
     }
 
     const parsedData = safelyParseJson<any>(rawResponse);
 
     if (!parsedData) {
-      return { 
-        result: { error: "Chord progression analysis returned a malformed response." }, 
-        debug: debugInfo 
+      return {
+        result: { error: "Chord progression analysis returned a malformed response." },
+        debug: debugInfo
       };
     }
 
@@ -841,9 +841,9 @@ const analyzeChordProgression = async (
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error in chord progression analysis";
     debugInfo.rawResponse = error instanceof Error ? error.stack ?? message : String(error);
-    return { 
-      result: { error: `Chord progression analysis failed: ${message}` }, 
-      debug: debugInfo 
+    return {
+      result: { error: `Chord progression analysis failed: ${message}` },
+      debug: debugInfo
     };
   }
 };

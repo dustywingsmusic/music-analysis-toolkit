@@ -92,7 +92,7 @@ const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
           <div className="unified-results-panel__controls">
             {/* Display Position Controls */}
             <div className="unified-results-panel__position-controls">
-              <Button 
+              <Button
                 onClick={() => onUpdateDisplayPosition({ mode: 'sidebar', dockSide: 'right' })}
                 variant={unifiedResults.displayPosition.mode === 'sidebar' ? 'default' : 'ghost'}
                 size="sm"
@@ -105,21 +105,21 @@ const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
           </div>
 
           {/* Close Button - Moved to top right corner */}
-          <Button 
+          <Button
             onClick={onDismissAnalysisPanel}
             variant="ghost"
             size="sm"
             className="unified-results-panel__close-top-right"
             title="Close results"
           >
-            <svg 
-              width="16" 
-              height="16" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
               strokeLinejoin="round"
             >
               <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -185,8 +185,8 @@ const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
                           }
                         }
 
-                        tonic = extractedTonic || 
-                               geminiAnalysis.result.analysis.parentScaleRootNote || 
+                        tonic = extractedTonic ||
+                               geminiAnalysis.result.analysis.parentScaleRootNote ||
                                (localAnalysis && localAnalysis.suggestedTonic) || 'F';
                       }
 
@@ -194,7 +194,7 @@ const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
                         <>
                           <p>
                             <strong>Mode:</strong> {mode}
-                            <Button 
+                            <Button
                               onClick={() => {
                                 trackInteraction(`View in Tables - Primary Analysis - ${mode} ${tonic}`, 'Navigation');
                                 onSwitchToReferenceWithHighlight(mode, tonic);
@@ -260,8 +260,8 @@ const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
                             }
                           }
 
-                          tonic = extractedTonic || 
-                                 alt.parentScaleRootNote || 
+                          tonic = extractedTonic ||
+                                 alt.parentScaleRootNote ||
                                  (localAnalysis && localAnalysis.suggestedTonic) || 'F';
                         }
 
@@ -270,7 +270,7 @@ const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
                             <h6>Alternative {index + 1}</h6>
                             <p>
                               <strong>Mode:</strong> {mode}
-                              <Button 
+                              <Button
                                 onClick={() => {
                                   trackInteraction(`View in Tables - Alternative Analysis - ${mode} ${tonic}`, 'Navigation');
                                   onSwitchToReferenceWithHighlight(mode, tonic);
@@ -363,7 +363,7 @@ const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
               {/* Only show ScaleGrid for non-deeper analysis (general discovery) */}
               {!discoveryAnalysis.deeperAnalysis && discoveryAnalysis.modes && Array.isArray(discoveryAnalysis.modes) && (
                 <div className="discovery-modes-grid mt-6">
-                  <ScaleGrid 
+                  <ScaleGrid
                     modes={discoveryAnalysis.modes as ModeFromRoot[]}
                     onModeSelect={(mode: ModeFromRoot) => {
                       // Trigger focused analysis for the selected mode
@@ -400,7 +400,7 @@ const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
                                   tonic = discoveryAnalysis.rootNote || 'C';
                                 }
                                 return (
-                                  <Button 
+                                  <Button
                                     onClick={() => {
                                       trackInteraction(`View in Tables - Discovery Analysis - ${modeName} ${tonic}`, 'Navigation');
                                       onSwitchToReferenceWithHighlight(modeName, tonic);
@@ -628,13 +628,13 @@ const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
                                   // Check if this note is played by normalizing both the note name and played notes
                                   const normalizedNoteName = normalizeNoteName(noteName);
                                   const playedNotesArray = localAnalysis.playedNotes.split(', ');
-                                  const isPlayed = playedNotesArray.some(playedNote => 
+                                  const isPlayed = playedNotesArray.some(playedNote =>
                                     normalizeNoteName(playedNote.trim()) === normalizedNoteName
                                   );
 
                                   return (
-                                    <span 
-                                      key={noteIndex} 
+                                    <span
+                                      key={noteIndex}
                                       className={`note-badge ${isPlayed ? 'note-played' : 'note-not-played'}`}
                                     >
                                       {noteName}
@@ -664,7 +664,7 @@ const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
                                           const tonic = parts[0];
                                           const mode = parts.slice(1).join(' ');
                                           return (
-                                            <Button 
+                                            <Button
                                               key={modeIndex}
                                               onClick={() => onSwitchToReferenceWithHighlight(mode, tonic)}
                                               variant="link"
@@ -701,7 +701,7 @@ const UnifiedResultsPanel: React.FC<UnifiedResultsPanelProps> = ({
                                             const tonic = parts[0];
                                             const mode = parts.slice(1).join(' ');
                                             return (
-                                              <Button 
+                                              <Button
                                                 key={modeIndex}
                                                 onClick={() => onSwitchToReferenceWithHighlight(mode, tonic)}
                                                 variant="link"

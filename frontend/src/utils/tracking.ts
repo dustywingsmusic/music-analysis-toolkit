@@ -1,6 +1,6 @@
 /**
  * Google Analytics tracking utilities with Advanced Consent Mode
- * 
+ *
  * In Advanced Consent Mode, Google Analytics is always loaded and configured.
  * When consent is denied, GA automatically sends cookieless pings instead of full events.
  * This enables behavioral modeling while respecting user privacy choices.

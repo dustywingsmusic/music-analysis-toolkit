@@ -1,0 +1,348 @@
+name: CI/CD Quality Gates
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # Frontend Quality Gates
+  frontend-quality:
+    name: Frontend Quality & Testing
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm ci --prefer-offline --no-audit
+
+      - name: TypeScript Compilation Check
+        run: |
+          cd frontend
+          npm run type-check
+
+      - name: ESLint Code Quality Check
+        run: |
+          cd frontend
+          npm run lint
+          echo "ℹ️ If linting fails, run 'npm run lint:fix' locally to auto-fix issues"
+
+      - name: Unit Tests with Coverage
+        run: |
+          cd frontend
+          npm run test:unit -- --coverage --reporter=verbose
+
+      - name: Component Tests
+        run: |
+          cd frontend
+          npm run test:component -- --reporter=verbose
+
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Upload Test Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-test-reports
+          path: |
+            frontend/tests/reports/
+            frontend/coverage/
+          retention-days: 7
+
+  # Backend Quality Gates
+  backend-quality:
+    name: Backend Quality & Security
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: backend/requirements-dev.txt
+
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Black Code Formatting Check
+        run: |
+          cd backend
+          black --check --diff .
+          echo "ℹ️ If formatting fails, run 'black .' locally to auto-format code"
+
+      - name: isort Import Sorting Check
+        run: |
+          cd backend
+          isort --check-only --diff .
+          echo "ℹ️ If import sorting fails, run 'isort .' locally to auto-sort imports"
+
+      - name: flake8 Linting
+        run: |
+          cd backend
+          flake8 .
+
+      - name: MyPy Type Checking
+        run: |
+          cd backend
+          mypy .
+
+      - name: Bandit Security Scan
+        run: |
+          cd backend
+          bandit -r app/ -f json -o bandit-report.json || true
+          bandit -r app/ --severity-level medium
+
+      - name: Upload Security Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-report
+          path: backend/bandit-report.json
+          retention-days: 7
+
+  # E2E Testing with MIDI Support
+  e2e-testing:
+    name: E2E Tests (Cross-Browser + MIDI)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [frontend-quality]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Dependencies
+        run: |
+          cd frontend
+          npm ci --prefer-offline --no-audit
+
+      - name: Install Playwright Browsers
+        run: |
+          cd frontend
+          npx playwright install --with-deps chromium firefox webkit
+
+      - name: Run E2E Tests
+        run: |
+          cd frontend
+          npm run test:e2e
+        env:
+          CI: true
+
+      - name: Upload Playwright Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: frontend/tests/reports/playwright-report/
+          retention-days: 7
+
+  # Integration Testing
+  integration-testing:
+    name: Full Stack Integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [frontend-quality, backend-quality]
+
+    services:
+      # Add any required services (Redis, etc.) here if needed
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install Dependencies
+        run: |
+          # Frontend
+          cd frontend && npm ci --prefer-offline --no-audit
+          # Backend
+          cd ../backend && pip install -r requirements.txt
+
+      - name: Start Backend Server
+        run: |
+          cd backend
+          uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+          # Wait for server to start
+          sleep 5
+          curl -f http://localhost:8000/docs || exit 1
+        env:
+          PYTHONPATH: .
+
+      - name: Build and Start Frontend
+        run: |
+          cd frontend
+          npm run build
+          npm run preview &
+          sleep 5
+
+      - name: Health Check Integration
+        run: |
+          # Test backend health
+          curl -f http://localhost:8000/health
+          # Test frontend serving
+          curl -f http://localhost:4173
+
+      - name: API Integration Tests
+        run: |
+          # Add specific integration test commands here
+          echo "Integration tests would run here"
+          # Example: pytest backend/tests/integration/
+
+      - name: Stop Services
+        if: always()
+        run: |
+          pkill -f uvicorn || true
+          pkill -f vite || true
+
+  # Dependency Vulnerability Scanning
+  security-audit:
+    name: Dependency Security Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Frontend Security Audit
+        run: |
+          cd frontend
+          npm audit --audit-level=moderate --production
+
+      - name: Python Security Audit
+        run: |
+          cd backend
+          pip install safety pip-audit
+          safety check --json --output safety-report.json || true
+          pip-audit --format=json --output=pip-audit-report.json || true
+          # Show reports but don't fail on vulnerabilities (informational)
+          safety check || echo "⚠️ Security vulnerabilities found - review safety-report.json"
+          pip-audit || echo "⚠️ Security vulnerabilities found - review pip-audit-report.json"
+
+      - name: Upload Security Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dependency-security-reports
+          path: |
+            backend/safety-report.json
+            backend/pip-audit-report.json
+          retention-days: 30
+
+  # Build and Quality Summary
+  quality-gate-summary:
+    name: Quality Gate Summary
+    runs-on: ubuntu-latest
+    needs: [frontend-quality, backend-quality, e2e-testing, integration-testing, security-audit]
+    if: always()
+
+    steps:
+      - name: Check Quality Gate Status
+        run: |
+          echo "🔍 Quality Gate Summary"
+          echo "======================"
+
+          if [[ "${{ needs.frontend-quality.result }}" == "success" ]]; then
+            echo "✅ Frontend Quality: PASSED"
+          else
+            echo "❌ Frontend Quality: FAILED"
+          fi
+
+          if [[ "${{ needs.backend-quality.result }}" == "success" ]]; then
+            echo "✅ Backend Quality: PASSED"
+          else
+            echo "❌ Backend Quality: FAILED"
+          fi
+
+          if [[ "${{ needs.e2e-testing.result }}" == "success" ]]; then
+            echo "✅ E2E Testing: PASSED"
+          else
+            echo "❌ E2E Testing: FAILED"
+          fi
+
+          if [[ "${{ needs.integration-testing.result }}" == "success" ]]; then
+            echo "✅ Integration Testing: PASSED"
+          else
+            echo "❌ Integration Testing: FAILED"
+          fi
+
+          echo ""
+          echo "🛠️ Local Fix Instructions:"
+          echo "- Code formatting: ./setup-dev.sh && pre-commit run --all-files"
+          echo "- Test failures: cd frontend && npm run test:watch"
+          echo "- E2E issues: cd frontend && npm run test:e2e -- --debug"
+          echo "- Security issues: Review uploaded security reports"
+
+          # Fail if critical jobs failed
+          if [[ "${{ needs.frontend-quality.result }}" != "success" ]] || \
+             [[ "${{ needs.backend-quality.result }}" != "success" ]]; then
+            echo ""
+            echo "❌ Critical quality gates failed - merge blocked"
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ All critical quality gates passed!"

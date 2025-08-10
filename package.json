@@ -1,0 +1,95 @@
+{
+  "name": "music-modes-app",
+  "version": "1.0.0",
+  "description": "AI-powered music theory analysis and mode detection application",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "// --- Development Environment ---": "--------------------------------",
+    "dev": "concurrently \"npm run backend:dev\" \"npm run frontend:dev\" --names \"backend,frontend\" --prefix-colors \"blue,green\"",
+    "frontend:dev": "cd frontend && npm run dev",
+    "backend:dev": "cd backend && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
+    "start": "cd backend && uvicorn app.main:app --host 0.0.0.0 --port 8000",
+    "build": "cd frontend && npm run build",
+    "preview": "cd frontend && npm run preview",
+
+    "// --- Testing ---": "----------------------------------------------",
+    "test": "cd frontend && npm run test",
+    "test:run": "cd frontend && npm run test:run",
+    "test:watch": "cd frontend && npm run test:watch",
+    "test:ui": "cd frontend && npm run test:ui",
+    "test:coverage": "cd frontend && npm run test:coverage",
+    "test:unit": "cd frontend && npm run test:unit",
+    "test:component": "cd frontend && npm run test:component",
+    "test:e2e": "cd frontend && npm run test:e2e",
+    "test:ci": "cd frontend && npm run test:ci",
+    "test:modal": "cd frontend && npm run test:modal",
+    "test:clean": "cd frontend && npm run test:clean",
+
+    "// --- Code Quality ---": "---------------------------------------",
+    "lint": "cd frontend && npm run lint",
+    "lint:fix": "cd frontend && npm run lint:fix",
+    "type-check": "cd frontend && npm run type-check",
+
+    "// --- Pre-commit & Setup ---": "---------------------------------",
+    "precommit:install": "pre-commit install && pre-commit install --hook-type pre-push",
+    "precommit:run": "pre-commit run --all-files",
+    "setup:hooks": "npm run precommit:install && echo 'Pre-commit hooks installed successfully!'",
+    "setup:dev": "./setup-dev.sh",
+
+    "// --- Backend Management ---": "----------------------------------",
+    "backend:install": "cd backend && pip3 install -r requirements.txt",
+    "backend:install:dev": "cd backend && pip3 install -r requirements-dev.txt",
+    "backend:format": "cd backend && black . && isort .",
+    "backend:lint": "cd backend && flake8 .",
+    "backend:type-check": "cd backend && mypy .",
+    "backend:security": "cd backend && bandit -r app/ -f json",
+    "backend:quality": "npm run backend:format && npm run backend:lint && npm run backend:type-check && npm run backend:security",
+
+    "// --- Docker Operations ---": "----------------------------------",
+    "docker:up": "docker-compose up",
+    "docker:up:build": "docker-compose up --build",
+    "docker:down": "docker-compose down",
+    "docker:clean": "docker-compose down --volumes --remove-orphans",
+
+    "// --- Utility Commands ---": "------------------------------------",
+    "clean": "cd frontend && rm -rf node_modules dist && cd ../backend && rm -rf __pycache__ .pytest_cache",
+    "clean:reports": "rm -rf reports/ frontend/tests/reports/ .coverage",
+    "deps:check": "cd frontend && npm audit && cd ../backend && pip-audit || echo 'pip-audit not available'",
+    "deps:update": "cd frontend && npm update && cd .. && npm run backend:install:dev",
+
+    "// --- Music-Specific Commands ---": "-----------------------------",
+    "test:modal:full": "cd frontend && npm run test:modal:full",
+    "test:modal:aggregate": "cd frontend && npm run test:modal:aggregate",
+    "debug:chord-analysis": "cd frontend && node debug-chord-analysis.js",
+    "generate:test-cases": "cd frontend && node generate-comprehensive-test-cases.cjs"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0",
+    "python": ">=3.8.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "."
+  },
+  "keywords": [
+    "music-theory",
+    "modal-analysis",
+    "chord-analysis",
+    "music-education",
+    "ai-music-tools",
+    "midi",
+    "react",
+    "fastapi",
+    "typescript"
+  ],
+  "author": "Music Modes App Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "workspaces": [
+    "frontend"
+  ]
+}

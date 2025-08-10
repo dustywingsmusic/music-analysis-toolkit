@@ -5,14 +5,10 @@
     "module": "ESNext",
     "jsx": "react-jsx",
     "strict": true,
-
-    /* Bundler & Module Resolution */
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-
-    /* Interop & Aliases */
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "paths": {
@@ -20,13 +16,9 @@
       "@fixtures/*": ["./tests/fixtures/*"],
       "@utils/*": ["./tests/utils/*"]
     },
-
-    /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-
-    /* Other */
     "skipLibCheck": true
   },
   "include": ["src", "server", "tests"],

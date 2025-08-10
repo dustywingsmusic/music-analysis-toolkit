@@ -23,10 +23,8 @@ case "$1" in
   dev)
     echo "Starting backend..."
     uvicorn backend.app.main:app --reload &
-    echo "Starting logging server..."
+    echo "Starting frontend dev (Vite + logging server)..."
     cd frontend
-    npm run dev:server &
-    echo "Starting frontend dev server with proxy..."
     npm run dev
     ;;
 

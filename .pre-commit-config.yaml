@@ -1,0 +1,112 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-added-large-files
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+
+  # Frontend Quality Checks (Vitest + ESLint)
+  - repo: local
+    hooks:
+      - id: eslint-fix
+        name: ESLint (with fix)
+        entry: bash -c 'cd frontend && npm run lint:fix'
+        language: system
+        files: ^frontend/.*\.(js|jsx|ts|tsx)$
+        pass_filenames: false
+
+      - id: typescript-check
+        name: TypeScript Check
+        entry: bash -c 'cd frontend && npm run type-check'
+        language: system
+        files: ^frontend/.*\.(ts|tsx)$
+        pass_filenames: false
+
+      - id: vitest-unit
+        name: Vitest Unit Tests (changed files)
+        entry: bash -c 'cd frontend && npm run test:unit -- --run --reporter=verbose'
+        language: system
+        files: ^frontend/(src|tests)/.*\.(js|jsx|ts|tsx)$
+        pass_filenames: false
+
+      - id: vitest-component
+        name: Vitest Component Tests (changed files)
+        entry: bash -c 'cd frontend && npm run test:component -- --run --reporter=verbose'
+        language: system
+        files: ^frontend/(src|tests)/.*\.(js|jsx|ts|tsx)$
+        pass_filenames: false
+
+  # Python Backend Quality Checks
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
+    hooks:
+      - id: black
+        files: ^backend/.*\.py$
+
+  - repo: https://github.com/pycqa/isort
+    rev: 6.0.1
+    hooks:
+      - id: isort
+        files: ^backend/.*\.py$
+        args: ["--profile", "black"]
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.3.0
+    hooks:
+      - id: flake8
+        files: ^backend/.*\.py$
+        additional_dependencies: [
+          flake8-docstrings,
+          flake8-import-order,
+          flake8-bugbear
+        ]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.17.1
+    hooks:
+      - id: mypy
+        files: ^backend/.*\.py$
+        additional_dependencies: [
+          types-requests,
+          pydantic,
+          fastapi
+        ]
+        args: [--ignore-missing-imports, --strict]
+
+  # Python Security Check
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.8.6
+    hooks:
+      - id: bandit
+        files: ^backend/.*\.py$
+        args: ["-c", "pyproject.toml"]
+
+  # Docker and Config File Validation
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.13.1-beta
+    hooks:
+      - id: hadolint-docker
+        files: ^.*/Dockerfile.*$
+
+  # Secrets Detection
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: package-lock.json|node_modules/
+
+# Configuration
+default_install_hook_types: [pre-commit, pre-push]
+default_stages: [pre-commit]
+
+# Fail fast - stop on first failure
+fail_fast: false
+
+# Minimum pre-commit version
+minimum_pre_commit_version: 3.0.0

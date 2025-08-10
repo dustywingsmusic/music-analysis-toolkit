@@ -17,6 +17,12 @@ export const noteToPc: { [key: string]: number } = {
 };
 
 export const generateDiatonicScale = (rootPitchClass: number, rootName: string, intervalPattern: number[]) => {
+    // Validate inputs
+    if (!rootName || typeof rootName !== 'string') {
+        console.warn(`Invalid rootName: ${rootName}. Using fallback.`);
+        rootName = 'C';
+    }
+
     let scaleNotes = [rootName];
     let currentPitch = rootPitchClass;
     let rootLetter_idx = NOTE_LETTERS.indexOf(rootName.charAt(0));
@@ -40,7 +46,7 @@ export const generateDiatonicScale = (rootPitchClass: number, rootName: string, 
                 }
             }
         }
-        
+
         if (!foundNote && pitchNameOptions) {
              const fallbackName = pitchNameOptions.normal || pitchNameOptions.flat || pitchNameOptions.sharp || "?";
              scaleNotes.push(fallbackName);
@@ -77,9 +83,9 @@ export const generateScaleFromIntervals = (
   return generateDiatonicScale(rootPitchClass, rootName, intervalPattern);
 };
 
-const majorScalePattern = allScaleData.find(s => s.tableId === 'major-scale-modes')?.parentScaleIntervalPattern; 
+const majorScalePattern = allScaleData.find(s => s.tableId === 'major-scale-modes')?.parentScaleIntervalPattern;
 // Natural minor scale (Aeolian) step pattern: W-H-W-W-H-W-W
-const minorScalePattern = [2, 1, 2, 2, 1, 2]; 
+const minorScalePattern = [2, 1, 2, 2, 1, 2];
 
 export const getNotesForMusicalKey = (musicalKey: string): string[] => {
     if (!majorScalePattern) {
@@ -103,7 +109,7 @@ export const getNotesForMusicalKey = (musicalKey: string): string[] => {
     } else if (keyType === 'Minor') {
         return generateDiatonicScale(rootPitchClass, rootName, minorScalePattern);
     }
-    
+
     console.warn(`Unknown key type: ${keyType}`);
     return [];
 };
@@ -205,20 +211,20 @@ export const parseTonicAndMode = (fullMode: string, fallbackTonic?: string): { t
   if (!fullMode || typeof fullMode !== 'string') {
     return { tonic: fallbackTonic || 'C', mode: 'Major' };
   }
-  
+
   const parts = fullMode.split(' ');
-  
+
   // Handle "Scale Family + Modes + Root + Mode Name" format
   // e.g., "Double Harmonic Major Modes Db Ultra-Locrian"
   if (parts.includes('Modes')) {
     const modesIndex = parts.indexOf('Modes');
     const scaleFamilyParts = parts.slice(0, modesIndex);
     const afterModesParts = parts.slice(modesIndex + 1);
-    
+
     // Find the root note (should be a valid note name)
     let rootNote = null;
     let modeNameParts = [];
-    
+
     for (let i = 0; i < afterModesParts.length; i++) {
       if (isValidNoteName(afterModesParts[i])) {
         rootNote = afterModesParts[i];
@@ -226,21 +232,21 @@ export const parseTonicAndMode = (fullMode: string, fallbackTonic?: string): { t
         break;
       }
     }
-    
+
     if (rootNote && modeNameParts.length > 0) {
       return {
         tonic: rootNote,
         mode: modeNameParts.join(' ')
       };
     }
-    
+
     // Fallback if parsing fails
     return {
       tonic: fallbackTonic || 'C',
       mode: fullMode
     };
   }
-  
+
   // Check if we have both tonic and mode, or just mode
   if (parts.length > 1 && isValidNoteName(parts[0])) {
     // Format: "F Ionian" - first part is a valid note name (tonic), rest is mode
@@ -268,7 +274,7 @@ export const extractTonicFromAnalysis = (analysis: any, localAnalysis?: { sugges
   if (analysis?.notes && Array.isArray(analysis.notes) && analysis.notes.length > 0) {
     return analysis.notes[0];
   }
-  
+
   if (analysis?.scale && typeof analysis.scale === 'string') {
     // Parse scale string to get first note
     const scaleNotes = analysis.scale.trim().split(/\s+/);
@@ -276,7 +282,7 @@ export const extractTonicFromAnalysis = (analysis: any, localAnalysis?: { sugges
       return scaleNotes[0];
     }
   }
-  
+
   return analysis?.parentScaleRootNote ||
          localAnalysis?.suggestedTonic ||
          'F';
