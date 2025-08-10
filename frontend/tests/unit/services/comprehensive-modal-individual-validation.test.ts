@@ -65,7 +65,7 @@ interface TestDataFile {
 const ENABLE_V1_ASSERTIONS = process.env.V1_ASSERTIONS === '1';
 
 // Load test data at module level
-const testDataPath = path.resolve(__dirname, '../../../comprehensive-modal-test-cases.json');
+const testDataPath = path.resolve(__dirname, '../../generated/comprehensive-modal-test-cases.json');
 if (!fs.existsSync(testDataPath)) {
   throw new Error(`Test data file not found at: ${testDataPath}`);
 }
@@ -266,7 +266,6 @@ describe('Comprehensive Modal Analysis - Individual Case Validation', () => {
               confidence: localResult.localAnalysis?.confidence || 0
             }
           };
-          testLog.result = 'PASS';
 
           // STRICT ASSERTIONS FOR MODAL DETECTION
 
@@ -442,7 +441,8 @@ describe('Comprehensive Modal Analysis - Individual Case Validation', () => {
             ).toBe(testCase.chords.length);
           }
 
-          // Success - increment passed count and log results
+          // Success - all assertions passed
+          testLog.result = 'PASS';
           categoryStats.passed++;
           testExecutionLogs.push(testLog);
 

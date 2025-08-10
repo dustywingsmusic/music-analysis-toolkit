@@ -18,8 +18,8 @@ import {
   ConfidenceCalculator,
   Evidence,
   EvidenceType
-} from '@/services/musicTheoryEngine';
-import { ModalAnalyzer, MODAL_CHARACTERISTIC_PATTERNS } from '@/services/modalAnalyzer';
+} from '@/services/experimental/musicTheoryEngine';
+import { ModalAnalyzer, MODAL_CHARACTERISTIC_PATTERNS } from '@/services/legacy/modalAnalyzer';
 
 describe('MusicTheoryEngine Architecture', () => {
   let engine: MusicTheoryEngine;

@@ -9,6 +9,7 @@ import '@testing-library/jest-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import AnalysisHub from '@/components/AnalysisHub';
 import { AnalysisProvider } from '@/contexts/AnalysisContext';
+import { InputMethodProvider } from '@/contexts/InputMethodContext';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
 // Mock the comprehensive analysis service
@@ -72,9 +73,11 @@ vi.mock('@/utils/logger', () => ({
 
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <TooltipProvider>
-    <AnalysisProvider>
-      {children}
-    </AnalysisProvider>
+    <InputMethodProvider>
+      <AnalysisProvider>
+        {children}
+      </AnalysisProvider>
+    </InputMethodProvider>
   </TooltipProvider>
 );
 

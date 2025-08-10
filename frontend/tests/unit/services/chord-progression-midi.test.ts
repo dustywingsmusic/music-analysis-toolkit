@@ -161,11 +161,14 @@ describe('Chord Progression MIDI Detection', () => {
       expect(detectedChords3[0].bassNote).toBe(4); // E should still be bass (MIDI 52 % 12 = 4)
     });
 
-    it('returns empty array for less than 3 notes', () => {
-      const midiNotes = [60, 64]; // Only 2 notes
+    it('detects partial chords for 2 notes', () => {
+      const midiNotes = [60, 64]; // C and E - partial C major chord
       const detectedChords = findChordMatches(midiNotes);
       
-      expect(detectedChords).toEqual([]);
+      // Should detect partial chord (C major without 5th)
+      expect(detectedChords.length).toBeGreaterThan(0);
+      expect(detectedChords[0].chordSymbol).toContain('C');
+      expect(detectedChords[0].isPartial).toBe(true);
     });
 
     it('handles invalid MIDI numbers gracefully', () => {

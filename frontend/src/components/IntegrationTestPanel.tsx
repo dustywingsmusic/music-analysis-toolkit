@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 import { Badge } from "./ui/badge";
 import { useAnalysis, useAnalysisActions } from '../contexts/AnalysisContext';
 import { analyzeChordProgression } from '../services/hybridAnalysisService';
-import { testChordProgressionAnalysis } from '../services/testChordProgressionAnalysis';
+import { testChordProgressionAnalysis } from '../services/dev-tools/testChordProgressionAnalysis';
 
 const IntegrationTestPanel: React.FC = () => {
   const { state } = useAnalysis();
