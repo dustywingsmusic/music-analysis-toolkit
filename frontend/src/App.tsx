@@ -1,7 +1,8 @@
 import React, {useState, useEffect} from 'react';
-import QuestionDrivenMusicTool from './components/QuestionDrivenMusicTool';
+import QuestionDrivenMusicToolWithInputContext from './components/QuestionDrivenMusicToolWithInputContext';
 import { CookieConsent } from './components/CookieConsent';
 import { AnalyticsManager } from './utils/analyticsManager';
+import { AnalysisProvider } from './contexts/AnalysisContext';
 
 declare const WebMidi: any;
 
@@ -33,13 +34,15 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <div id="app-container" className="app-container">
-      <QuestionDrivenMusicTool showDebugInfo={showDebugInfo} />
-      <CookieConsent
-        onAccept={() => AnalyticsManager.grantConsent()}
-        onDecline={() => AnalyticsManager.revokeConsent()}
-      />
-    </div>
+    <AnalysisProvider>
+      <div id="app-container" className="app-container">
+        <QuestionDrivenMusicToolWithInputContext showDebugInfo={showDebugInfo} />
+        <CookieConsent
+          onAccept={() => AnalyticsManager.grantConsent()}
+          onDecline={() => AnalyticsManager.revokeConsent()}
+        />
+      </div>
+    </AnalysisProvider>
   );
 };
 

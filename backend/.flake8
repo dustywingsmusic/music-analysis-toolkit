@@ -1,0 +1,80 @@
+[flake8]
+# Configuration for flake8 (Python linting)
+
+# Maximum line length (matches Black)
+max-line-length = 88
+
+# Maximum complexity (cyclomatic complexity)
+max-complexity = 10
+
+# Exclude directories and files
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    .tox,
+    .eggs,
+    *.egg,
+    build,
+    dist,
+    .pytest_cache,
+    .mypy_cache,
+    htmlcov,
+    *.pyc,
+    migrations
+
+# Ignore specific error codes
+ignore =
+    # E203: whitespace before ':' (conflicts with Black)
+    E203,
+    # E501: line too long (handled by Black)
+    E501,
+    # W503: line break before binary operator (conflicts with Black)
+    W503,
+    # E231: missing whitespace after ',' (handled by Black)
+    E231,
+    # F401: imported but unused (handled by isort/mypy)
+    F401,
+
+# Select specific error codes to check
+select =
+    E,  # pycodestyle errors
+    W,  # pycodestyle warnings
+    F,  # pyflakes
+    C,  # mccabe complexity
+    B,  # flake8-bugbear
+    I,  # flake8-import-order
+
+# Import order style (similar to isort)
+import-order-style = google
+application-import-names = app
+
+# Docstring conventions (numpy style)
+docstring-convention = numpy
+
+# Per-file ignores
+per-file-ignores =
+    # Tests don't need docstrings and can have longer lines
+    tests/*: D100,D101,D102,D103,D104,D105,D106,D107,E501
+    # __init__.py files can have unused imports
+    __init__.py: F401,F403
+    # Configuration files can have longer lines
+    */settings.py: E501
+    # Migration files (if any) can have longer lines
+    */migrations/*: E501
+
+# Count the number of occurrences of each error/warning code
+count = True
+
+# Show source code for each error
+show-source = True
+
+# Show pep8 explanation for each error
+show-pep8 = True
+
+# Enable flake8-docstrings
+require-plugins =
+    flake8-docstrings,
+    flake8-import-order,
+    flake8-bugbear

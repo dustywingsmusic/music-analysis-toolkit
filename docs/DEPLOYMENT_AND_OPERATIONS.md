@@ -16,6 +16,9 @@
 
 The Music Theory Toolkit uses a modern deployment architecture with Google Cloud Run hosting a Node.js/Express server that serves the React application and provides logging capabilities. This document covers the complete deployment and operational procedures.
 
+### 🎯 Architecture Evolution Notice
+**Important**: The application is undergoing a major evolution to integrate Reference section analysis capabilities with main features. This will improve theoretical accuracy and reduce AI dependency. Monitor deployment performance during the Music Theory Integration phases. See [Music Theory Integration Roadmap](MUSIC_THEORY_INTEGRATION_ROADMAP.md) for implementation timeline.
+
 ### Architecture Summary
 - **Frontend**: React SPA built with Vite
 - **Server**: Express.js for static serving and API endpoints
@@ -136,7 +139,7 @@ const logData = {
 if (cloudLoggingEnabled && log) {
   try {
     const entry = log.entry({
-      resource: { 
+      resource: {
         type: 'cloud_run_revision',
         labels: {
           service_name: 'music-theory-toolkit',
@@ -371,19 +374,19 @@ app.get('/health', (req, res) => {
 **Log Filtering Examples:**
 ```bash
 # View all application logs
-resource.type="cloud_run_revision" 
+resource.type="cloud_run_revision"
 resource.labels.service_name="music-theory-toolkit"
 
 # Filter by interaction type
-resource.type="cloud_run_revision" 
+resource.type="cloud_run_revision"
 jsonPayload.interaction_type="mode_identification"
 
 # Filter by severity
-resource.type="cloud_run_revision" 
+resource.type="cloud_run_revision"
 severity>=WARNING
 
 # Filter by user session
-resource.type="cloud_run_revision" 
+resource.type="cloud_run_revision"
 jsonPayload.session_id="session_123456"
 ```
 
@@ -408,7 +411,7 @@ jsonPayload.session_id="session_123456"
 #### 1. Deployment Failures
 
 **Issue**: Docker build failures
-**Solution**: 
+**Solution**:
 - Check Dockerfile syntax
 - Verify all dependencies are listed in package.json
 - Ensure build context includes all necessary files

@@ -12,7 +12,7 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ labelLeft, labelRight, valu
     onChange(!value);
   };
 
-  const getLabelClass = (isActive: boolean) => 
+  const getLabelClass = (isActive: boolean) =>
     `toggle-switch__label ${isActive ? 'toggle-switch__label--active' : ''}`;
 
   return (

@@ -1,0 +1,51 @@
+{
+  "cookies": [
+    {
+      "name": "_ga",
+      "value": "GA1.1.1432629535.1754434104",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1788994103.855696,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_ga_EV1FDWXP7C",
+      "value": "GS2.1.s1754434103$o1$g1$t1754434169$j60$l0$h0",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1788994169.713779,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "http://localhost:5173",
+      "localStorage": [
+        {
+          "name": "cookie-consent",
+          "value": "accepted"
+        },
+        {
+          "name": "music-app-input-method",
+          "value": "mouse"
+        },
+        {
+          "name": "music-app-method-preferences",
+          "value": "{\"header-control\":\"mouse\"}"
+        },
+        {
+          "name": "music-tool-user-preferences",
+          "value": "{\"autoShowResults\":true,\"isAnalysisDismissed\":false}"
+        },
+        {
+          "name": "music-tool-display-position",
+          "value": "{\"mode\":\"sidebar\",\"dockSide\":\"right\",\"width\":400,\"height\":600}"
+        }
+      ]
+    }
+  ]
+}

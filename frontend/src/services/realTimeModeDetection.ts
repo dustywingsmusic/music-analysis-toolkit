@@ -48,11 +48,11 @@ export interface ModeSuggestion {
 // Scale family definitions from legacy system (constants/scales.ts)
 const buildScaleFamilyIntervals = (): Record<ScaleFamily, number[]> => {
   const intervals: Record<string, number[]> = {};
-  
+
   allScaleData.forEach(scale => {
     intervals[scale.name] = scale.parentScaleIntervals;
   });
-  
+
   return intervals as Record<ScaleFamily, number[]>;
 };
 
@@ -62,20 +62,20 @@ const SCALE_FAMILY_INTERVALS: Record<ScaleFamily, number[]> = buildScaleFamilyIn
 // Mode to index mappings for each scale family (from legacy system)
 const buildModeToIndexMappings = (): Record<ScaleFamily, Record<string, number>> => {
   const mappings: Record<string, Record<string, number>> = {};
-  
+
   allScaleData.forEach(scale => {
     const modeNames = scale.commonNames || scale.alternateNames || [];
     const familyMappings: Record<string, number> = {};
-    
+
     modeNames.forEach((modeName, index) => {
       if (modeName) {
         familyMappings[modeName] = index;
       }
     });
-    
+
     mappings[scale.name] = familyMappings;
   });
-  
+
   return mappings as Record<ScaleFamily, Record<string, number>>;
 };
 
@@ -96,7 +96,7 @@ const buildNoteNames = (): string[] => {
   const noteNames: string[] = [];
   for (let i = 0; i < 12; i++) {
     const entry = PITCH_CLASS_NAMES[i as keyof typeof PITCH_CLASS_NAMES];
-    noteNames[i] = entry?.normal ?? PARENT_KEYS[i as keyof typeof PARENT_KEYS];
+    noteNames[i] = entry?.normal ?? PARENT_KEYS[i as keyof typeof PARENT_KEYS] ?? 'C';
   }
   return noteNames;
 };
@@ -112,8 +112,12 @@ const getModeNotes = (
 ): string[] => {
   const familyData = allScaleData.find(s => s.name === family);
   if (!familyData) return [];
-  const rootName = PARENT_KEYS[root as keyof typeof PARENT_KEYS];
-  return generateScaleFromIntervals(root, rootName, familyData.modeIntervals[modeIndex]);
+
+  // Ensure root is within valid range and get a valid note name
+  const normalizedRoot = ((root % 12) + 12) % 12; // Normalize to 0-11 range
+  const rootName = PARENT_KEYS[normalizedRoot as keyof typeof PARENT_KEYS] || 'C';
+
+  return generateScaleFromIntervals(normalizedRoot, rootName, familyData.modeIntervals[modeIndex]);
 };
 
 // Function to convert MIDI input to proper enharmonic spelling
@@ -181,12 +185,12 @@ export class RealTimeModeDetector {
    */
   private sessionInitialization(firstNotePitchClass: number, noteNumber: number): void {
     console.log('🎵 Session Initialization with first note:', NOTE_NAMES[firstNotePitchClass]);
-    
+
     // Clear notesHistory; set direction = "unknown" and state = "scale-mode"
     this.state.notesHistory = [];
     this.state.direction = "unknown";
     this.state.state = "scale-mode";
-    
+
     // Append first note's pitch class to notesHistory; set rootPitch
     this.state.notesHistory.push(firstNotePitchClass);
     this.state.rootPitch = firstNotePitchClass;
@@ -197,7 +201,7 @@ export class RealTimeModeDetector {
     this.precomputeModePitchSets(this.state.rootPitch);
     this.state.originalModes = this.computeOriginalModes(this.state.rootPitch);
     this.state.candidateModes = [...this.state.originalModes];
-    
+
     console.log('🎯 Initialized with', this.state.candidateModes.length, 'candidate modes');
   }
 
@@ -272,7 +276,7 @@ export class RealTimeModeDetector {
   /**
    * Consolidated logic for updating root pitch based on lowest MIDI note
    * Used by both handleExistingPitchClass and addNewPitchClass
-   * 
+   *
    * @param noteNumber - The MIDI note number to check
    * @param pitchClass - The pitch class to potentially set as root
    * @param allowManualOverride - Whether to update root when manual override is set
@@ -281,7 +285,7 @@ export class RealTimeModeDetector {
   private updateRootFromLowestMidiNote(noteNumber: number, pitchClass: number, allowManualOverride: boolean = false): ModeDetectionResult | null {
     // Update lowest MIDI note and check if it changed
     const isLowerMidiNote = this.updateLowestMidiNote(noteNumber);
-    
+
     if (isLowerMidiNote) {
       console.log('📉 Found lower MIDI note for pitch class', pitchClass);
     }
@@ -289,16 +293,16 @@ export class RealTimeModeDetector {
     // Different logic based on context:
     // - For existing pitch classes: Update root if (lower MIDI note OR manual root override)
     // - For new pitch classes: Update root if (lower MIDI note AND NOT manual root override)
-    const shouldUpdateRoot = allowManualOverride 
+    const shouldUpdateRoot = allowManualOverride
       ? (isLowerMidiNote || this.manualRootOverride)  // handleExistingPitchClass behavior
       : (isLowerMidiNote && !this.manualRootOverride); // addNewPitchClass behavior
 
     if (shouldUpdateRoot) {
       const reason = allowManualOverride && this.manualRootOverride && !isLowerMidiNote
-        ? 'manual root override' 
+        ? 'manual root override'
         : 'lower MIDI note';
       console.log('🎯 Updating root pitch due to:', reason);
-      
+
       this.state.rootPitch = pitchClass;
       this.recomputeCandidateModes();
       return this.generateResult();
@@ -323,7 +327,7 @@ export class RealTimeModeDetector {
    */
   private addNewPitchClass(noteNumber: number, pitchClass: number): ModeDetectionResult {
     const previousPC = this.state.notesHistory[this.state.notesHistory.length - 1];
-    
+
     // Add the pitch class to history
     this.state.notesHistory.push(pitchClass);
 
@@ -332,7 +336,7 @@ export class RealTimeModeDetector {
 
     // Use consolidated root update logic - check if root was updated
     const rootUpdateResult = this.updateRootFromLowestMidiNote(noteNumber, pitchClass);
-    
+
     // If root was updated, return the result immediately
     if (rootUpdateResult !== null) {
       return rootUpdateResult;
@@ -344,7 +348,7 @@ export class RealTimeModeDetector {
 
   /**
    * Adding a New Note
-   * 
+   *
    * Logic flow:
    * 1. Check if note class is already in notesHistory
    * 2. If no: add it to history and process
@@ -353,18 +357,18 @@ export class RealTimeModeDetector {
    */
   public addNote(noteNumber: number, pitchClass: number): ModeDetectionResult | null {
     console.log('🎵 Adding note:', NOTE_NAMES[pitchClass]);
-    
+
     // First note - session initialization
     if (this.state.notesHistory.length === 0) {
       this.sessionInitialization(pitchClass, noteNumber);
       return this.generateResult();
     }
-    
+
     // Check if pitch class is already in history BEFORE making any changes
     if (this.isPitchClassInHistory(pitchClass)) {
       return this.handleExistingPitchClass(noteNumber, pitchClass);
     }
-    
+
     // Add new pitch class to history and process
     return this.addNewPitchClass(noteNumber, pitchClass);
   }
@@ -384,7 +388,7 @@ export class RealTimeModeDetector {
       // Check if new note reverses order
       const isAscending = currentPC > previousPC;
       const isDescending = currentPC < previousPC;
-      
+
       if (this.state.direction === "ascending" && isDescending) {
         this.state.direction = "descending";
         console.log('🔄 Direction flipped to descending');
@@ -393,7 +397,7 @@ export class RealTimeModeDetector {
         console.log('🔄 Direction flipped to ascending');
       }
     }
-    
+
     console.log('📐 Direction:', this.state.direction);
   }
 
@@ -402,12 +406,12 @@ export class RealTimeModeDetector {
    */
   private strictFiltering(pitchClass: number): ModeDetectionResult {
     // Filter candidateModes to those whose modePitchSet contains pitchClass
-    this.state.candidateModes = this.state.candidateModes.filter(mode => 
+    this.state.candidateModes = this.state.candidateModes.filter(mode =>
       mode.modePitchSet.has(pitchClass)
     );
-    
+
     console.log('🔍 After strict filtering:', this.state.candidateModes.length, 'candidates remain');
-    
+
     if (this.state.candidateModes.length > 0) {
       // Generate suggestions from remaining candidates
       return this.generateResult();
@@ -423,40 +427,43 @@ export class RealTimeModeDetector {
    */
   private mismatchHandling(): ModeDetectionResult {
     console.log('⚠️ No strict matches - showing partial matches with mismatch counts');
-    
+
     // Instead of switching to melody-mode, compute partial matches for all original modes
     const partialMatches: ModeSuggestion[] = [];
     const notesHistorySet = new Set(this.state.notesHistory);
-    
+
     // Group by scale family
     const familyGroups = new Map<ScaleFamily, ModeSuggestion[]>();
-    
+
     for (const mode of this.state.originalModes) {
       const matchCount = this.calculateMatchCount(notesHistorySet, mode.modePitchSet);
       const mismatchCount = this.calculateMismatchCount(notesHistorySet, mode.modePitchSet);
-      
+
       // Only include modes that have at least some matches
       if (matchCount > 0) {
         const root = mode.actualRoot ?? this.state.rootPitch!;
         const notes = getModeNotes(root, mode.family, mode.modeIndex);
 
+        const normalizedRoot = ((root % 12) + 12) % 12;
+        const rootName = PARENT_KEYS[normalizedRoot as keyof typeof PARENT_KEYS] || 'C';
+
         const suggestion: ModeSuggestion = {
           family: mode.family,
           name: mode.name,
-          fullName: `${PARENT_KEYS[root as keyof typeof PARENT_KEYS]} ${mode.name}`,
+          fullName: `${rootName} ${mode.name}`,
           matchCount,
           mismatchCount,
           popularity: mode.popularity,
           notes
         };
-        
+
         if (!familyGroups.has(mode.family)) {
           familyGroups.set(mode.family, []);
         }
         familyGroups.get(mode.family)!.push(suggestion);
       }
     }
-    
+
     // Sort within each family and take top 3
     for (const [family, modes] of familyGroups) {
       modes.sort((a, b) => {
@@ -469,11 +476,11 @@ export class RealTimeModeDetector {
         }
         return a.popularity - b.popularity;
       });
-      
+
       // Take top 3 in each family
       partialMatches.push(...modes.slice(0, 3));
     }
-    
+
     console.log('🎼 Partial matches', partialMatches.length);
 
     return {
@@ -500,10 +507,10 @@ export class RealTimeModeDetector {
   private generateSuggestions(): ModeSuggestion[] {
     const suggestions: ModeSuggestion[] = [];
     const notesHistorySet = new Set(this.state.notesHistory);
-    
+
     // Group by scale family
     const familyGroups = new Map<ScaleFamily, ModeSuggestion[]>();
-    
+
     for (const mode of this.state.candidateModes) {
       const matchCount = this.calculateMatchCount(notesHistorySet, mode.modePitchSet);
       const mismatchCount = this.calculateMismatchCount(notesHistorySet, mode.modePitchSet);
@@ -511,22 +518,25 @@ export class RealTimeModeDetector {
       const root = mode.actualRoot ?? this.state.rootPitch!;
       const notes = getModeNotes(root, mode.family, mode.modeIndex);
 
+      const normalizedRoot = ((root % 12) + 12) % 12;
+      const rootName = PARENT_KEYS[normalizedRoot as keyof typeof PARENT_KEYS] || 'C';
+
       const suggestion: ModeSuggestion = {
         family: mode.family,
         name: mode.name,
-        fullName: `${PARENT_KEYS[root as keyof typeof PARENT_KEYS]} ${mode.name}`,
+        fullName: `${rootName} ${mode.name}`,
         matchCount,
         mismatchCount,
         popularity: mode.popularity,
         notes
       };
-      
+
       if (!familyGroups.has(mode.family)) {
         familyGroups.set(mode.family, []);
       }
       familyGroups.get(mode.family)!.push(suggestion);
     }
-    
+
     // Sort within each family based on MODE_ORDER and take top 3
     for (const [family, modes] of familyGroups) {
       const order = MODE_ORDER[family];
@@ -538,7 +548,7 @@ export class RealTimeModeDetector {
 
       suggestions.push(...modes.slice(0, 3));
     }
-    
+
     return suggestions;
   }
 

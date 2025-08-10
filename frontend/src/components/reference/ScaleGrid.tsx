@@ -17,9 +17,9 @@ interface ScaleGridProps {
   disabled?: boolean;
 }
 
-export const ScaleGrid: React.FC<ScaleGridProps> = ({ 
-  modes, 
-  onModeSelect, 
+export const ScaleGrid: React.FC<ScaleGridProps> = ({
+  modes,
+  onModeSelect,
   highlightedModeId,
   compact = false,
   showCharacteristics = true,
@@ -38,7 +38,7 @@ export const ScaleGrid: React.FC<ScaleGridProps> = ({
       return;
     }
 
-    const filtered = modes.filter(mode => 
+    const filtered = modes.filter(mode =>
       mode.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       mode.commonName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       mode.parentScaleName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -62,7 +62,7 @@ export const ScaleGrid: React.FC<ScaleGridProps> = ({
     <div className="scale-grid space-y-4">
       {enableFiltering && (
         <div className="scale-grid__filters">
-          <Input 
+          <Input
             placeholder="Search scales and modes..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -85,7 +85,7 @@ export const ScaleGrid: React.FC<ScaleGridProps> = ({
           const isDisabled = disabled || (loadingModeId && !isLoading);
 
           return (
-            <Card 
+            <Card
               key={mode.id}
               className={`
                 scale-card transition-all duration-200 group relative
@@ -129,8 +129,8 @@ export const ScaleGrid: React.FC<ScaleGridProps> = ({
 
                 <div className="scale-card__notes flex flex-wrap gap-1">
                   {mode.notes.map((note, index) => (
-                    <Badge 
-                      key={index} 
+                    <Badge
+                      key={index}
                       className="text-xs px-2 py-1 bg-cyan-600 text-white hover:bg-cyan-500"
                     >
                       {note}
@@ -159,9 +159,9 @@ export const ScaleGrid: React.FC<ScaleGridProps> = ({
 
                 {interactionMode === 'preview' && (
                   <div className="scale-card__actions opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button 
-                      variant="default" 
-                      size="sm" 
+                    <Button
+                      variant="default"
+                      size="sm"
                       className="w-full bg-cyan-600 hover:bg-cyan-500 text-white"
                       disabled={isDisabled}
                     >
@@ -172,9 +172,9 @@ export const ScaleGrid: React.FC<ScaleGridProps> = ({
 
                 {interactionMode === 'compare' && (
                   <div className="scale-card__actions opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       className="w-full border-slate-500 text-slate-300 hover:bg-slate-700"
                       disabled={isDisabled}
                     >
@@ -191,9 +191,9 @@ export const ScaleGrid: React.FC<ScaleGridProps> = ({
       {filteredModes.length === 0 && searchTerm && (
         <div className="text-center py-8">
           <p className="text-slate-400">No modes found matching "{searchTerm}"</p>
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => setSearchTerm('')}
             className="mt-2 border-slate-500 text-slate-300 hover:bg-slate-700"
           >

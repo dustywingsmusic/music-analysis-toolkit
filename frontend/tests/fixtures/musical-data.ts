@@ -1,7 +1,7 @@
 /**
  * Musical test data and fixtures for Music Modes App testing
  * Contains scales, chords, notes, and expected detection results
- * 
+ *
  * USAGE EXAMPLE:
  * ```typescript
  * // Using named constants for better readability
@@ -11,7 +11,7 @@
  *   expect(result.type).toBe('major');
  *   expect(result.root).toBe(C4);
  * });
- * 
+ *
  * // Creating scales using intervals
  * test('D dorian should be created correctly', () => {
  *   const dDorian = createScale(D4, SCALE_INTERVALS.dorian);
@@ -44,6 +44,11 @@ export const B4 = 71;
 export const C5 = 72;
 export const CSharp5 = 73;
 export const DFlat5 = 73;
+export const D5 = 74;
+export const DSharp5 = 75;
+export const EFlat5 = 75;
+export const E5 = 76;
+export const F5 = 77;
 
 // Octave 3 notes
 export const A3 = 57;
@@ -156,7 +161,7 @@ export const TEST_CHORDS = {
     expectedChord: { symbol: 'C', type: 'major', root: 0 },
   },
   aMinor: {
-    notes: [A4, C4, E4] as number[], // A C E
+    notes: [A3, C4, E4] as number[], // A C E - root position with A as bass
     expectedCategory: 'partial',
     // TODO: Implement confidence calculation for chord identification
     expectedCloseness: { min: 40, max: 50 }, // 3 notes out of 7 for heptatonic scale (~43%)
@@ -172,7 +177,7 @@ export const TEST_CHORDS = {
     expectedChord: { symbol: 'Cmaj7', type: 'major7', root: 0 },
   },
   dm7: {
-    notes: [D4, F4, A4, C4] as number[], // D F A C
+    notes: [D4, F4, A4, C5] as number[], // D F A C - root position with D as bass
     expectedCategory: 'partial',
     // TODO: Implement confidence calculation for 7th chord identification
     expectedCloseness: { min: 55, max: 65 }, // 4 notes out of 7 for heptatonic scale (~57%)
@@ -180,7 +185,7 @@ export const TEST_CHORDS = {
     expectedChord: { symbol: 'Dm7', type: 'minor7', root: 2 },
   },
   g7: {
-    notes: [G4, B4, D4, F4] as number[], // G B D F
+    notes: [G4, B4, D5, F5] as number[], // G B D F - root position with G as bass
     expectedCategory: 'partial',
     // TODO: Implement confidence calculation for 7th chord identification
     expectedCloseness: { min: 55, max: 65 }, // 4 notes out of 7 for heptatonic scale (~57%)
@@ -208,7 +213,7 @@ export const TEST_CHORDS = {
 // Test chord inversions
 export const TEST_INVERSIONS = {
   cMajorFirstInversion: {
-    notes: [E4, G4, C4] as number[], // E G C (C/E)
+    notes: [E4, G4, C5] as number[], // E G C (C/E) - E is lowest for first inversion
     expectedChord: { symbol: 'C/E', baseChord: 'C major', bassNote: 4, inversion: '/E' },
   },
   aMinorFirstInversion: {

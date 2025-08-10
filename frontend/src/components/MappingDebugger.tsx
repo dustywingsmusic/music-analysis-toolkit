@@ -40,7 +40,7 @@ const MappingDebugger: React.FC<MappingDebuggerProps> = ({ isVisible, onClose })
 
     const scaleFamily = getScaleFamilyFromMode(testMode);
     const highlightId = generateHighlightId(scaleFamily, testMode, testTonic);
-    
+
     setTestResult(`
 Mode: ${testMode}
 Tonic: ${testTonic}
@@ -190,7 +190,7 @@ Highlight ID: ${highlightId || 'null (failed to generate)'}
                 ))}
               </div>
             </div>
-            
+
             <div>
               <h4 className="font-medium text-cyan-300 mb-1">Mode to Scale Family (Sample)</h4>
               <div className="bg-slate-700/50 p-3 rounded text-sm max-h-40 overflow-y-auto">

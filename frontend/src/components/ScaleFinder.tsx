@@ -4,6 +4,7 @@ import { ProcessedScale } from '../types';
 import ScaleTable from './ScaleTable';
 import * as keySuggester from '../services/keySuggester';
 import { findChordMatches } from '../services/chordLogic';
+import { SharedScaleTablesService, sharedScaleTablesService } from '../services/SharedScaleTablesService';
 
 const setsAreEqual = (setA: Set<number>, setB: Set<number>) => {
     if (setA.size !== setB.size) return false;
@@ -19,17 +20,24 @@ interface ScaleFinderProps {
   playedNotes?: any[];
   playedPitchClasses?: Set<number>;
   midiMode?: '7' | '5' | 'melody' | 'chord';
+  detectionEnabled?: boolean;
+  analysisFocus?: 'automatic' | 'complete' | 'pentatonic' | 'chord';
+  sharedService?: SharedScaleTablesService;
 }
 
-const ScaleFinder: React.FC<ScaleFinderProps> = ({ 
-  initialHighlightId, 
-  embedded = false, 
-  showDebugInfo = false, 
+const ScaleFinder: React.FC<ScaleFinderProps> = ({
+  initialHighlightId,
+  embedded = false,
+  showDebugInfo = false,
   onShowUnifiedResults,
   playedNotes = [],
   playedPitchClasses = new Set(),
-  midiMode = '7'
+  midiMode = '7',
+  detectionEnabled = true,
+  analysisFocus = 'automatic',
+  sharedService
 }) => {
+  const scaleService = sharedService || sharedScaleTablesService;
   const [processedScales, setProcessedScales] = useState<ProcessedScale[]>([]);
   const [midiHighlightedCellId, setMidiHighlightedCellId] = useState<string | null>(null);
   const [hoveredCell, setHoveredCell] = useState<string | null>(null);
@@ -67,16 +75,8 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({
       confidence: number;
     }> = [];
 
-    // Find all scales that contain all the played notes (exact matches)
-    const exactMatches = processedScales.filter((scale) => {
-      // Check if all played notes are contained in this scale
-      for (const playedNote of playedPitchClasses) {
-        if (!scale.pitchClasses.has(playedNote)) {
-          return false;
-        }
-      }
-      return true;
-    });
+    // Use shared service for scale matching
+    const exactMatches = scaleService.getMidiScaleSuggestions(playedPitchClasses);
 
     // Group exact matches by their pitch class sets to find modes of the same parent scale
     const scaleGroups = new Map<string, ProcessedScale[]>();
@@ -96,7 +96,7 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({
         // Create a suggestion showing all modes of this scale group
         const modeNames = scales
           .filter(scale => scale.name) // Only include scales with names
-          .map(scale => `${NOTES[scale.rootNote]} ${scale.name}`)
+          .map(scale => `${scale.rootNoteName} ${scale.name}`)
           .join(', ');
 
         if (modeNames) {
@@ -110,9 +110,10 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({
       }
     });
 
-    // If no exact matches, find partial matches (scales that contain some of the played notes)
+    // If no exact matches, find partial matches using shared service
     if (suggestions.length === 0) {
-      const partialMatches = processedScales.filter((scale) => {
+      const allScales = scaleService.getFilteredScales();
+      const partialMatches = allScales.filter((scale) => {
         let matchCount = 0;
         playedPitchClasses.forEach((playedNote) => {
           if (scale.pitchClasses.has(playedNote)) {
@@ -143,7 +144,7 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({
           const modeNames = scales
             .filter(scale => scale.name)
             .slice(0, 3) // Limit to first 3 modes to avoid clutter
-            .map(scale => `${NOTES[scale.rootNote]} ${scale.name}`)
+            .map(scale => `${scale.rootNoteName} ${scale.name}`)
             .join(', ');
 
           if (modeNames) {
@@ -171,23 +172,30 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({
   }, [processedScales]);
 
   // Callback for chord detection
-  useCallback((noteNumbers: number[]) => {
+  const handleChordDetection = useCallback((noteNumbers: number[]) => {
     const detectedChords = findChordMatches(noteNumbers);
     if (detectedChords.length > 0) {
       // Use default values since baseKey and keyMode are now managed by MidiSettingsPanel
       keySuggester.updateChordSuggestions(detectedChords, 'C', 'major');
     }
   }, []);
-// Callback for melody mode
-  useCallback((pitchClasses: Set<number>) => {
+
+  // Callback for melody mode
+  const handleMelodyUpdate = useCallback((pitchClasses: Set<number>) => {
     if (pitchClasses.size > 0) {
       // Always show the melody overlay for immediate feedback
       keySuggester.updateMelodySuggestions(pitchClasses);
 
       // Also show in unified results if available
       if (onShowUnifiedResults) {
-        // Generate key suggestions using the same logic as keySuggester
-        const suggestions = generateKeySuggestions(pitchClasses);
+        // Use shared service for suggestions
+        const midiSuggestions = scaleService.getMidiScaleSuggestions(pitchClasses);
+        const suggestions = midiSuggestions.map(scale => ({
+          name: `${scale.rootNoteName} ${scale.name}`,
+          matchCount: pitchClasses.size,
+          pitchClasses: scale.pitchClasses,
+          confidence: 1.0
+        }));
 
         // Create results object for unified results system
         const results = {
@@ -205,10 +213,10 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({
         onShowUnifiedResults(results);
       }
     }
-  }, [onShowUnifiedResults, generateKeySuggestions]);
+  }, [onShowUnifiedResults, generateKeySuggestions, scaleService]);
 
   // Wrapper for clearing that also hides popup and clears chord sequence
-  useCallback(() => {
+  const handleClearSuggestions = useCallback(() => {
     keySuggester.hide();
     keySuggester.clearChordSequence();
   }, []);
@@ -228,67 +236,68 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({
   }, [initialHighlightId]);
 
 
-  // Process scale data once on mount
+  // Get processed scales from shared service
   useEffect(() => {
-    const PARENT_KEY_INDICES = [0, 7, 2, 9, 4, 11, 5, 10, 3, 8, 1, 6];
-    const newProcessedScales: ProcessedScale[] = [];
-
-    allScaleData.forEach(data => {
-      PARENT_KEY_INDICES.forEach((parentKeyIndex, keyRowIndex) => {
-        data.parentScaleIntervals.forEach((modeStartInterval, modeIndex) => {
-          const modeRootPitch = (parentKeyIndex + modeStartInterval) % 12;
-          const modeTypeIntervals = data.modeIntervals[modeIndex];
-          const pitchClasses = new Set(modeTypeIntervals.map(i => (modeRootPitch + i) % 12));
-          const cellId = `${data.tableId}-${keyRowIndex}-${modeIndex}`;
-
-          // Generate diatonic chords for major scale modes
-          let diatonicChords;
-          if (data.tableId === 'major-scale-modes' && data.isDiatonic) {
-            const chordQualities = ["", "m", "m", "", "", "m", "°"]; // Major scale pattern
-            const romanNumerals = ["I", "ii", "iii", "IV", "V", "vi", "vii°"];
-
-            // Adjust roman numerals and qualities based on mode
-            const modeAdjustedRomanNumerals: string[] = [];
-            const modeAdjustedQualities: string[] = [];
-
-            for (let i = 0; i < 7; i++) {
-              const chordIndex = (modeIndex + i) % 7;
-              modeAdjustedRomanNumerals.push(romanNumerals[i]);
-              modeAdjustedQualities.push(chordQualities[chordIndex]);
-            }
-
-            diatonicChords = modeAdjustedQualities.map((quality, i) => {
-              const chordRoot = (modeRootPitch + modeTypeIntervals[i]) % 12;
-              const noteName = NOTES[chordRoot];
-              return {
-                roman: modeAdjustedRomanNumerals[i],
-                symbol: noteName + quality,
-                quality: quality === "" ? "Major" : quality === "m" ? "Minor" : "Diminished",
-              };
-            });
-          }
-
-          newProcessedScales.push({ 
-            id: cellId, 
-            pitchClasses, 
-            rootNote: modeRootPitch,
-            name: data.commonNames ? data.commonNames[modeIndex] : 
-                  data.alternateNames ? data.alternateNames[modeIndex] : undefined,
-            diatonicChords
-          });
-        });
-      });
+    // Use shared service to get filtered scales
+    const scales = scaleService.getFilteredScales({
+      playedPitchClasses: detectionEnabled ? playedPitchClasses : undefined,
+      showOnlyMatches: detectionEnabled && playedPitchClasses.size > 0
     });
-    setProcessedScales(newProcessedScales);
-  }, []);
+    setProcessedScales(scales);
+  }, [scaleService, detectionEnabled, playedPitchClasses]);
 
 
   // Effect to find scale match when notes change
   useEffect(() => {
-    if (midiMode === 'melody' || midiMode === 'chord') return; // Melody and chord modes have different logic (implemented in Phase 2)
+    if (!detectionEnabled) return;
+
+    // Handle different analysis focus modes
+    if (analysisFocus === 'chord') {
+      // Chord mode - skip scale detection in ScaleFinder
+      return;
+    }
+
+    // Handle Smart (automatic) and Full Scale (complete) modes
+    // For Smart mode: detect scales when we have 3+ notes
+    // For Full Scale mode: always attempt detection
+    const minNotesForDetection = analysisFocus === 'complete' ? 1 : 3;
+
+    if (playedPitchClasses.size < minNotesForDetection) {
+      setMidiHighlightedCellId(null);
+      scaleService.clearAllHighlights();
+      if (showDebugInfo) {
+        setDebugInfo(null);
+      }
+      return;
+    }
 
     const pitchClassArray = Array.from(playedPitchClasses).sort();
     const noteNames = playedNotes.map(n => NOTES[n.number % 12]);
+
+    // Use shared service for MIDI scale suggestions
+    if (playedPitchClasses.size > 0) {
+      const suggestions = scaleService.getMidiScaleSuggestions(playedPitchClasses);
+      if (suggestions.length > 0) {
+        const bestMatch = suggestions[0];
+        setMidiHighlightedCellId(bestMatch.id);
+
+        // Set highlight in shared service
+        scaleService.setHighlight({
+          cellId: bestMatch.id,
+          reason: 'midi',
+          temporary: true,
+          duration: 5000
+        });
+
+        // Call melody update callback for unified results if we're in Smart or Full Scale mode
+        if ((analysisFocus === 'automatic' || analysisFocus === 'complete') && onShowUnifiedResults) {
+          handleMelodyUpdate(playedPitchClasses);
+        }
+      }
+    } else {
+      setMidiHighlightedCellId(null);
+      scaleService.clearAllHighlights();
+    }
 
     if (playedPitchClasses.size === 0) {
       setMidiHighlightedCellId(null);
@@ -345,35 +354,44 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({
 
     // Update debug info if debugging is enabled
     if (showDebugInfo) {
+      const debugMatches = allMatches || [];
       setDebugInfo({
-        notesEntered: playedCount,
+        notesEntered: playedCount || pitchClassArray.length,
         pitchClasses: pitchClassArray,
         noteNames: noteNames,
-        detectionMode: midiMode,
+        detectionMode: `${analysisFocus} (${midiMode})`,
         shouldCheck: shouldCheck,
-        scalesToSearch: scalesToSearch.length,
-        allMatches: allMatches.map(match => ({
+        scalesToSearch: processedScales.length,
+        allMatches: debugMatches.map ? debugMatches.map(match => ({
           id: match.id,
           rootNote: match.rootNote,
           name: match.name,
-          pitchClasses: Array.from(match.pitchClasses).sort()
-        })),
+          pitchClasses: Array.from(match.pitchClasses || []).sort()
+        })) : [],
         selectedMatch: selectedMatch,
         timestamp: Date.now()
       });
     }
 
-  }, [playedNotes, playedPitchClasses, midiMode, processedScales, showDebugInfo]);
+  }, [playedNotes, playedPitchClasses, midiMode, analysisFocus, processedScales, showDebugInfo, scaleService, detectionEnabled, onShowUnifiedResults, handleMelodyUpdate]);
 
 
   // Callback to highlight a scale in the tables
   const handleHighlightScale = useCallback((scaleId: string) => {
     setMidiHighlightedCellId(scaleId);
+
+    // Update shared service with highlight
+    scaleService.setHighlight({
+      cellId: scaleId,
+      reason: 'navigation',
+      temporary: false
+    });
+
     const element = document.getElementById(scaleId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
     }
-  }, []);
+  }, [scaleService]);
 
   // Effect to initialize keySuggester
   useEffect(() => {
@@ -483,8 +501,8 @@ const ScaleFinder: React.FC<ScaleFinderProps> = ({
             <div key={scaleGroup.tableId} className="card bg-slate-800/60 p-4">
                 <h2 className="section-title section-title--cyan">{scaleGroup.name}</h2>
                 <div className="table-container">
-                    <ScaleTable 
-                        scaleData={scaleGroup} 
+                    <ScaleTable
+                        scaleData={scaleGroup}
                         highlightedCellId={highlightedCellId}
                         hoveredCell={hoveredCell}
                         setHoveredCell={setHoveredCell}

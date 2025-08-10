@@ -71,8 +71,8 @@ app.use((req, res, next) => {
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'healthy', 
+  res.status(200).json({
+    status: 'healthy',
     timestamp: new Date().toISOString(),
     service: 'music-theory-toolkit'
   });
@@ -85,8 +85,8 @@ app.post('/api/log', async (req, res) => {
 
     // Validate required fields
     if (!message || !app_name) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: message and app_name are required' 
+      return res.status(400).json({
+        error: 'Missing required fields: message and app_name are required'
       });
     }
 
@@ -106,7 +106,7 @@ app.post('/api/log', async (req, res) => {
     if (cloudLoggingEnabled && log) {
       try {
         const entry = log.entry({
-          resource: { 
+          resource: {
             type: 'cloud_run_revision',
             labels: {
               service_name: 'music-theory-toolkit',
@@ -130,8 +130,8 @@ app.post('/api/log', async (req, res) => {
     // Always log to console for development/debugging
     console.log(`[${severity || 'INFO'}] ${message}`, JSON.stringify(logData, null, 2));
 
-    res.status(200).json({ 
-      success: true, 
+    res.status(200).json({
+      success: true,
       request_id: logData.request_id,
       timestamp: logData.server_timestamp
     });
@@ -159,7 +159,7 @@ app.post('/api/log', async (req, res) => {
       }
     }
 
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to log message',
       details: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
@@ -175,7 +175,7 @@ app.get('/config.js', (req, res) => {
     GOOGLE_CLOUD_PROJECT: process.env.VITE_GOOGLE_CLOUD_PROJECT,
     GTAG_ID: process.env.VITE_GTAG_ID
   };
-  
+
   // Generate ES module that exports the runtime config and sets global variable for backward compatibility
   const configJs = `
 // Set global variable for backward compatibility
@@ -185,7 +185,7 @@ window.RUNTIME_CONFIG = ${JSON.stringify(runtimeConfig)};
 export default ${JSON.stringify(runtimeConfig)};
 export const RUNTIME_CONFIG = ${JSON.stringify(runtimeConfig)};
 `;
-  
+
   res.setHeader('Content-Type', 'application/javascript');
   res.send(configJs);
 });
@@ -198,7 +198,7 @@ app.get('*', (req, res) => {
 // Error handling middleware
 app.use((error, req, res, next) => {
   console.error('Unhandled error:', error);
-  res.status(500).json({ 
+  res.status(500).json({
     error: 'Internal server error',
     timestamp: new Date().toISOString()
   });

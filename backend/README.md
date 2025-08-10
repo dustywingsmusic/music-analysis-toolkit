@@ -173,7 +173,7 @@ The API is built with FastAPI and can be run using Uvicorn.
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-Once the server is running, you can access the API documentation (Swagger UI) at:  
+Once the server is running, you can access the API documentation (Swagger UI) at:
 http://localhost:8000/docs
 
 ## API Usage
@@ -184,8 +184,8 @@ http://localhost:8000/docs
 
 **Request Body (multipart/form-data)**
 
-- **audio**: (File) The audio file to analyze (e.g., .wav, .mp3).  
-- **start**: (float, optional) Start time in seconds for the segment to analyze. Defaults to 0.0.  
+- **audio**: (File) The audio file to analyze (e.g., .wav, .mp3).
+- **start**: (float, optional) Start time in seconds for the segment to analyze. Defaults to 0.0.
 - **end**: (float, optional) End time in seconds for the segment to analyze. If not provided, analysis goes to the end of the audio.
 
 **Example Request (using curl)**

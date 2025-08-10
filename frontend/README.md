@@ -6,12 +6,12 @@ An interactive web application for music theory analysis and exploration, powere
 
 ## 📚 Documentation Structure
 
-The project documentation is organized into four comprehensive documents:
+The project documentation is organized into five comprehensive documents:
 
 ### 1. 🎯 [DESIGN_AND_REQUIREMENTS.md](./DESIGN_AND_REQUIREMENTS.md)
 **User needs, use cases, and design specifications**
 - 28 specific use cases organized by category
-- Question-driven navigation structure  
+- Question-driven navigation structure
 - UI wireframes and interaction patterns
 - Feature implementation status and roadmap
 
@@ -34,6 +34,13 @@ The project documentation is organized into four comprehensive documents:
 - Theme customization and styling patterns
 - Specialized implementation guides
 - Best practices and AI development tips
+
+### 5. 🧪 [TESTING_GUIDE.md](docs/TESTING_GUIDE.md)
+**Comprehensive testing strategy and modal logic validation**
+- Modal Logic Validation System (232+ test cases)
+- Cross-system validation and conflict detection
+- Development workflow integration
+- Debugging and troubleshooting guides
 
 ## 🚀 Quick Start
 
@@ -146,6 +153,7 @@ npm run type-check
 - **Want to see technical architecture?** → [TECHNICAL_ARCHITECTURE.md](./TECHNICAL_ARCHITECTURE.md)
 - **Ready to deploy or troubleshoot?** → [DEPLOYMENT_AND_OPERATIONS.md](./DEPLOYMENT_AND_OPERATIONS.md)
 - **Developing new features or styling?** → [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md)
+- **Need testing and validation guidance?** → [TESTING_GUIDE.md](docs/TESTING_GUIDE.md)
 
 ## 🎵 Application Overview
 
@@ -153,7 +161,7 @@ The Music Theory Toolkit uses a question-driven interface that directly addresse
 
 ### Question-Driven Navigation
 - **"What mode is this?"** → Mode Identification Tab
-- **"What modes can I explore?"** → Mode Discovery Tab  
+- **"What modes can I explore?"** → Mode Discovery Tab
 - **"How do modes work with chords?"** → Harmony Tab
 - **"Show me mode information"** → Reference Tab
 

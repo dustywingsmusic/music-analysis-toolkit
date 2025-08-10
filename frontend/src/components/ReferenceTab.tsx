@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import ScaleFinder from './ScaleFinder';
 import IntegratedMusicSidebar from './IntegratedMusicSidebar';
 import { UnifiedResultsState } from './UnifiedResultsPanel';
+import { sharedScaleTablesService, SharedScaleTablesService, ScaleHighlight } from '../services/SharedScaleTablesService';
 import '../styles/components/IntegratedMusicSidebar.css';
 
 interface ReferenceTabProps {
@@ -27,9 +28,9 @@ interface ReferenceTabProps {
   onDismissAnalysisPanel?: () => void;
 }
 
-const ReferenceTab: React.FC<ReferenceTabProps> = ({ 
-  highlightId, 
-  showDebugInfo = false, 
+const ReferenceTab: React.FC<ReferenceTabProps> = ({
+  highlightId,
+  showDebugInfo = false,
   onShowUnifiedResults,
   midiData,
   unifiedResults,
@@ -39,41 +40,77 @@ const ReferenceTab: React.FC<ReferenceTabProps> = ({
   onDismissAnalysisPanel
 }) => {
   const [midiHighlightId, setMidiHighlightId] = useState<string | null>(null);
+  const [scaleService] = useState(() => sharedScaleTablesService);
 
+  // Handle cross-navigation from other tabs
+  useEffect(() => {
+    if (onSwitchToReferenceWithHighlight) {
+      // Register for cross-navigation callbacks
+      const handleCrossNavigation = (mode: string, tonic: string) => {
+        const highlight = scaleService.navigateFromAnalysis({
+          sourceTab: 'harmony',
+          targetMode: mode,
+          targetTonic: tonic
+        });
+
+        if (highlight) {
+          setMidiHighlightId(highlight.cellId);
+        }
+      };
+
+      // This would be called by other components via props
+      // The actual implementation is handled through the existing prop system
+    }
+  }, [onSwitchToReferenceWithHighlight, scaleService]);
 
   // Callback to handle scale highlighting from MIDI detection
   const handleScaleHighlight = useCallback((scaleId: string | null) => {
     setMidiHighlightId(scaleId);
-  }, []);
+
+    // Update shared service with MIDI highlight
+    if (scaleId) {
+      const highlight: ScaleHighlight = {
+        cellId: scaleId,
+        reason: 'midi',
+        temporary: true,
+        duration: 5000 // 5 second highlight from MIDI
+      };
+      scaleService.setHighlight(highlight);
+    }
+  }, [scaleService]);
 
   // Note: Melody mode updates are now handled by IntegratedMusicSidebar
   // The sidebar component registers callbacks with keySuggester and handles
   // melody suggestions directly, eliminating the need for modal overlays
 
-  const quickReference = [
-    {
-      category: 'Major Scale Modes',
-      modes: [
-        { name: 'Ionian (Major)', formula: '1 2 3 4 5 6 7', character: 'Bright, happy' },
-        { name: 'Dorian', formula: '1 2 ♭3 4 5 6 ♭7', character: 'Minor with bright 6th' },
-        { name: 'Phrygian', formula: '1 ♭2 ♭3 4 5 ♭6 ♭7', character: 'Dark, Spanish flavor' },
-        { name: 'Lydian', formula: '1 2 3 #4 5 6 7', character: 'Dreamy, floating' },
-        { name: 'Mixolydian', formula: '1 2 3 4 5 6 ♭7', character: 'Dominant, bluesy' },
-        { name: 'Aeolian (Natural Minor)', formula: '1 2 ♭3 4 5 ♭6 ♭7', character: 'Sad, melancholic' },
-        { name: 'Locrian', formula: '1 ♭2 ♭3 4 ♭5 ♭6 ♭7', character: 'Unstable, diminished, tritone' },
-      ]
-    },
-    {
-      category: 'Common Scales',
-      modes: [
-        { name: 'Harmonic Minor', formula: '1 2 ♭3 4 5 ♭6 7', character: 'Classical, exotic' },
-        { name: 'Melodic Minor', formula: '1 2 ♭3 4 5 6 7', character: 'Jazz, sophisticated' },
-        { name: 'Pentatonic Major', formula: '1 2 3 5 6', character: 'Simple, universal' },
-        { name: 'Pentatonic Minor', formula: '1 ♭3 4 5 ♭7', character: 'Blues, rock' },
-        { name: 'Blues Scale', formula: '1 ♭3 4 ♭5 5 ♭7', character: 'Blues, expressive' },
-      ]
-    }
-  ];
+  // Get quick reference data from shared service
+  const getQuickReferenceData = useCallback(() => {
+    const scaleFamilies = scaleService.getAvailableScaleFamilies();
+    return [
+      {
+        category: 'Major Scale Modes',
+        modes: scaleFamilies.includes('Major Scale') ?
+          scaleService.findScalesByRoot('C').filter(scale => scale.scaleFamily === 'Major Scale')
+            .map(scale => ({
+              name: `${scale.name} (${scale.rootNoteName})`,
+              formula: scale.formula,
+              character: scale.character || 'Musical character'
+            })) : []
+      },
+      {
+        category: 'Common Alternative Scales',
+        modes: [
+          { name: 'Harmonic Minor', formula: '1 2 ♭3 4 5 ♭6 7', character: 'Classical, exotic' },
+          { name: 'Melodic Minor', formula: '1 2 ♭3 4 5 6 7', character: 'Jazz, sophisticated' },
+          { name: 'Pentatonic Major', formula: '1 2 3 5 6', character: 'Simple, universal' },
+          { name: 'Pentatonic Minor', formula: '1 ♭3 4 5 ♭7', character: 'Blues, rock' },
+          { name: 'Blues Scale', formula: '1 ♭3 4 ♭5 5 ♭7', character: 'Blues, expressive' },
+        ]
+      }
+    ];
+  }, [scaleService]);
+
+  const quickReference = getQuickReferenceData();
 
   return (
     <div className="reference-tab">
@@ -85,7 +122,7 @@ const ReferenceTab: React.FC<ReferenceTabProps> = ({
       </div>
 
       {/* Integrated Music Sidebar */}
-      <IntegratedMusicSidebar 
+      <IntegratedMusicSidebar
         onScaleHighlight={handleScaleHighlight}
         midiData={midiData}
         unifiedResults={unifiedResults}
@@ -122,7 +159,7 @@ const ReferenceTab: React.FC<ReferenceTabProps> = ({
           </p>
 
           <div className="scale-finder-container">
-            <ScaleFinder 
+            <ScaleFinder
               initialHighlightId={midiHighlightId || highlightId || null}
               embedded={true}
               showDebugInfo={showDebugInfo}
@@ -131,6 +168,7 @@ const ReferenceTab: React.FC<ReferenceTabProps> = ({
               playedPitchClasses={midiData?.playedPitchClasses || new Set()}
               detectionEnabled={midiData?.detectionEnabled ?? true}
               analysisFocus={midiData?.analysisFocus || 'automatic'}
+              sharedService={scaleService}
             />
           </div>
         </div>

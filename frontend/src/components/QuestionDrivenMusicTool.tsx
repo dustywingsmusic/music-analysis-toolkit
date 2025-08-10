@@ -8,16 +8,17 @@
  * - Reference a complete library of musical scales and modes
  *
  * The tool integrates with Gemini AI for advanced music theory analysis and maintains a history
- * of analysis results that can be revisited. It features a unified results display system that 
+ * of analysis results that can be revisited. It features a unified results display system that
  * persists across different tool sections.
  */
 
 import React, {useCallback, useEffect, useState} from 'react';
-import NavigationTabs, {TabType} from './NavigationTabs';
-import ModeIdentificationTab, {IdentificationMethod} from './ModeIdentificationTab';
-import ModeDiscoveryTab from './ModeDiscoveryTab';
-import HarmonyTab from './HarmonyTab';
+import { Music } from 'lucide-react';
+import EnhancedNavigationTabs, {TabType} from './EnhancedNavigationTabs';
+import { IdentificationMethod } from '../types/analysis';
 import ReferenceTab from './ReferenceTab';
+import AnalysisHub from './AnalysisHub';
+import MidiWidget from './MidiWidget';
 import ChordAnalyzer from './ChordAnalyzer';
 import {analyzeHarmony, analyzeMusic, discoverModes, getSongExamples} from '@/services/geminiService';
 import {buildModesFromRoot, isValidRootNote, ModeFromRoot} from '@/services/scaleDataService';
@@ -27,9 +28,14 @@ import MappingDebugger from './MappingDebugger';
 import {useUnifiedResults} from "@/hooks/useUnifiedResults";
 import UnifiedResultsPanel from "@/components/UnifiedResultsPanel";
 import MidiSettingsPanel from './MidiSettingsPanel';
+import InputSettingsPanel from './InputSettingsPanel';
+import { InputMethodProvider, useInputMethod } from '../contexts/InputMethodContext';
 import {useMidi} from '@/hooks/useMidi';
 import {logger} from '@/utils/logger';
 import { trackInteraction } from '../utils/tracking';
+import { useAnalysis, useAnalysisActions } from '../contexts/AnalysisContext';
+import IntegrationTestPanel from './IntegrationTestPanel';
+import NavigationDebugger from './NavigationDebugger';
 
 interface QuestionDrivenMusicToolProps {
   showDebugInfo: boolean;
@@ -37,17 +43,20 @@ interface QuestionDrivenMusicToolProps {
 
 
 const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showDebugInfo }) => {
-  const [activeTab, setActiveTab] = useState<TabType>('identify');
   const [highlightIdForReference, setHighlightIdForReference] = useState<string | null>(null);
 
-  // Use the unified results hook
+  // Use enhanced analysis context
+  const { state } = useAnalysis();
+  const { navigateToReference, completeLocalAnalysis, navigateToTab } = useAnalysisActions();
+
+  // Use the unified results hook for backward compatibility
   const {
     unifiedResults,
     setUnifiedResults,
     showUnifiedResults,
     dismissAnalysisPanel,
     updateDisplayPosition
-  } = useUnifiedResults(activeTab);
+  } = useUnifiedResults(state.activeTab);
 
   // Legacy compatibility - keep for backward compatibility during transition
   const [analysisResults, setAnalysisResults] = useState<any>(null);
@@ -97,11 +106,18 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
     resetMidiConnection,
   } = useMidi(handleChordDetected, handleMelodyUpdate);
 
+  // Input method context integration
+  const {
+    activeInputMethod,
+    setInputMethod,
+    updateMidiAvailability
+  } = useInputMethod();
+
   // App initialization logging
   useEffect(() => {
     logger.appInit('Music Theory Toolkit initialized', {
       component: 'QuestionDrivenMusicTool',
-      initialTab: activeTab,
+      initialTab: state.activeTab,
       showDebugInfo,
       timestamp: Date.now()
     });
@@ -213,22 +229,19 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
 
   const handleTabChange = useCallback((tab: TabType) => {
     // Log tab navigation
-    logger.webClick('User navigated to tab', {
+    logger.webClick('Enhanced User navigated to tab', {
       component: 'QuestionDrivenMusicTool',
       action: 'tab_change',
-      previousTab: activeTab,
+      previousTab: state.activeTab,
       newTab: tab,
-      hasVisibleResults: unifiedResults.isVisible
+      hasVisibleResults: unifiedResults.isVisible,
+      hasAnalysisContext: !!state.currentAnalysis
     });
 
-    setActiveTab(tab);
-    // With unified results system, results persist across tabs
-    // Only clear results if explicitly requested or going to reference with no results
-    if (tab === 'reference' && !unifiedResults.isVisible) {
-      // Don't change results visibility when going to reference
-    }
-    // Results remain visible and accessible across all tabs
-  }, [activeTab, unifiedResults.isVisible]);
+    // The EnhancedNavigationTabs handles context updates
+    // Legacy tab change tracking for compatibility
+    trackInteraction(`Tab Navigation - ${tab}`, 'Navigation');
+  }, [state.activeTab, unifiedResults.isVisible, state.currentAnalysis]);
 
   const handleAnalysisRequest = useCallback(async (method: string, data: any) => {
     console.log('Analysis request:', method, data);
@@ -239,7 +252,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
       action: 'analysis_request',
       method,
       dataKeys: Object.keys(data),
-      currentTab: activeTab
+      currentTab: state.activeTab
     });
 
     // Show loading state in unified results
@@ -377,7 +390,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
       action: 'discovery_request',
       method,
       dataKeys: Object.keys(data),
-      currentTab: activeTab
+      currentTab: state.activeTab
     });
 
 
@@ -414,8 +427,8 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
           };
 
         } catch (scaleError) {
-          result = { 
-            error: scaleError instanceof Error ? scaleError.message : 'Unknown error in scale data service' 
+          result = {
+            error: scaleError instanceof Error ? scaleError.message : 'Unknown error in scale data service'
           };
           debug = {
             method: 'root',
@@ -563,7 +576,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
     if (finalHighlightId) {
       setHighlightIdForReference(finalHighlightId);
     }
-    setActiveTab('reference');
+    navigateToTab('reference');
   }, [analysisResults]);
 
   const handleReturnToInput = useCallback((userInputs: any) => {
@@ -596,7 +609,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
       });
 
       // Switch to identify tab
-      setActiveTab('identify');
+      navigateToTab('identify');
     }
   }, []);
 
@@ -610,7 +623,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
     if (highlightId) {
       setHighlightIdForReference(highlightId);
     }
-    setActiveTab('reference');
+    navigateToTab('reference');
   }, []);
 
   const handleDeeperAnalysis = useCallback(async (mode: ModeFromRoot) => {
@@ -695,10 +708,10 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
 
 
     // Show loading state in unified results
-    const loadingResult = { 
-      method: 'mode-analysis', 
-      data, 
-      loading: true, 
+    const loadingResult = {
+      method: 'mode-analysis',
+      data,
+      loading: true,
       timestamp: Date.now(),
       selectedMode: mode
     };
@@ -741,39 +754,24 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
       // Show error results
       showUnifiedResultsWithLegacy(errorResult);
     }
-  }, [showUnifiedResultsWithLegacy, activeTab]);
+  }, [showUnifiedResultsWithLegacy, state.activeTab]);
 
   const renderTabContent = () => {
-    switch (activeTab) {
-      case 'identify':
+    switch (state.activeTab) {
+      case 'analysis':
         return (
-          <ModeIdentificationTab 
-            onAnalysisRequest={handleAnalysisRequest}
+          <AnalysisHub
             hasResults={unifiedResults.isVisible}
-            isLoading={isLoading}
-            initialMethod={inputRepopulationData?.method}
-            initialMelodyNotes={inputRepopulationData?.melodyNotes}
-            initialScaleNotes={inputRepopulationData?.scaleNotes}
-            initialProgression={inputRepopulationData?.progression}
-          />
-        );
-
-      case 'discover':
-        return (
-          <ModeDiscoveryTab 
-            onDiscoveryRequest={handleDiscoveryRequest}
-            hasResults={unifiedResults.isVisible}
-            isLoading={isLoading}
-            onDeeperAnalysis={handleDeeperAnalysis}
-          />
-        );
-
-      case 'harmony':
-        return (
-          <HarmonyTab 
-            onHarmonyRequest={handleHarmonyRequest}
-            hasResults={unifiedResults.isVisible}
-            isLoading={isLoading}
+            midiData={{
+              playedNotes: midiPlayedNotes,
+              playedPitchClasses: midiPlayedPitchClasses,
+              isActive: midiEnabled && midiStatus.includes('Listening'),
+              status: midiStatus,
+              clearPlayedNotes: clearMidiPlayedNotes,
+              analysisFocus: midiAnalysisFocus,
+              setAnalysisFocus: setMidiAnalysisFocus,
+            }}
+            onSwitchToReferenceWithHighlight={handleSwitchToReferenceWithHighlight}
           />
         );
 
@@ -803,6 +801,79 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
           />
         );
 
+      case 'widget':
+        return (
+          <div className="widget-tab-container p-6">
+            <div className="max-w-4xl mx-auto space-y-6">
+              <div className="text-center space-y-2">
+                <h2 className="text-2xl font-bold">MIDI Analysis Widget</h2>
+                <p className="text-muted-foreground">
+                  Real-time MIDI analysis with compact comprehensive insights
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Primary MIDI Widget */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Live Analysis Widget</h3>
+                  <MidiWidget
+                    isExpanded={true}
+                    showSettings={true}
+                    onNavigateToReference={handleSwitchToReference}
+                    onNavigateToAnalysis={(analysisData) => {
+                      // Navigate to Analysis Hub with MIDI data
+                      navigateToTab('analysis');
+                      if (analysisData.chordProgression) {
+                        handleAnalysisRequest('progression', { chords: analysisData.chordProgression });
+                      }
+                    }}
+                    pluginMode={false}
+                  />
+                </div>
+
+                {/* Compact Widget Preview */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Compact Mode Preview</h3>
+                  <p className="text-sm text-muted-foreground">
+                    This is how the widget appears in compact mode (future Chrome plugin):
+                  </p>
+                  <MidiWidget
+                    compactMode={true}
+                    showSettings={false}
+                    onNavigateToReference={handleSwitchToReference}
+                    pluginMode={true}
+                  />
+                </div>
+              </div>
+
+              {/* Widget Features */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+                <div className="text-center p-4 bg-card rounded-lg border">
+                  <div className="text-2xl mb-2">🎹</div>
+                  <h4 className="font-semibold">Real-time MIDI</h4>
+                  <p className="text-xs text-muted-foreground">
+                    Instant chord and scale detection from MIDI input
+                  </p>
+                </div>
+                <div className="text-center p-4 bg-card rounded-lg border">
+                  <div className="text-2xl mb-2">⚡</div>
+                  <h4 className="font-semibold">Fast Analysis</h4>
+                  <p className="text-xs text-muted-foreground">
+                    Lightweight analysis engine optimized for speed
+                  </p>
+                </div>
+                <div className="text-center p-4 bg-card rounded-lg border">
+                  <div className="text-2xl mb-2">🔗</div>
+                  <h4 className="font-semibold">Quick Links</h4>
+                  <p className="text-xs text-muted-foreground">
+                    Direct access to scale tables and full analysis
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
       default:
         return null;
     }
@@ -812,43 +883,58 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Header Section */}
-      <header className="bg-background border-b border-border p-4 shadow-lg z-10">
-        <div className="w-full px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          {/* Left: Title */}
-          <div className="flex items-center gap-3">
-            <span className="text-3xl animate-pulse">🎶</span>
-            <h1 className="text-2xl font-bold text-foreground">Music Theory Toolkit</h1>
+      {/* Professional Header Section */}
+      <header className="bg-background/95 backdrop-blur-sm border-b border-border/50 shadow-sm z-50 sticky top-0">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Top Bar - Branding */}
+          <div className="flex items-center justify-between py-4 border-b border-border/30">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
+                <Music className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-xl font-semibold text-foreground tracking-tight">
+                  Music Theory Toolkit
+                </h1>
+                <p className="text-sm text-muted-foreground font-medium">
+                  Professional music analysis & theory exploration
+                </p>
+              </div>
+            </div>
+
+            {/* Settings and Debug */}
+            <div className="flex items-center gap-2">
+              <InputSettingsPanel
+                activeInputMethod={activeInputMethod}
+                onInputMethodChange={setInputMethod}
+                midiStatus={midiStatus}
+                midiDevices={midiDevices}
+                selectedMidiDevice={midiSelectedDevice}
+                setSelectedMidiDevice={setMidiSelectedDevice}
+                midiError={midiError}
+                midiEnabled={midiEnabled}
+                enableMidi={enableMidi}
+                disableMidi={disableMidi}
+                showDetailedConfig={true}
+              />
+              {showDebugInfo && (
+                <button
+                  onClick={() => {
+                    trackInteraction('Question Driven Tool - Show Mapping Debugger', 'Debug Tools');
+                    setShowMappingDebugger(true);
+                  }}
+                  className="px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-all duration-200"
+                  title="Open Mapping System Debugger"
+                >
+                  Debug Tools
+                </button>
+              )}
+            </div>
           </div>
 
-          {/* Right: Navigation & MIDI Settings */}
-          <div className="flex items-center gap-4">
-            <NavigationTabs 
-              activeTab={activeTab}
-              onTabChange={handleTabChange}
-            />
-            <MidiSettingsPanel 
-              status={midiStatus}
-              devices={midiDevices}
-              selectedDevice={midiSelectedDevice}
-              setSelectedDevice={setMidiSelectedDevice}
-              error={midiError}
-              enabled={midiEnabled}
-              enableMidi={enableMidi}
-              disableMidi={disableMidi}
-            />
-            {showDebugInfo && (
-              <button 
-                onClick={() => {
-                  trackInteraction('Question Driven Tool - Show Mapping Debugger', 'Debug Tools');
-                  setShowMappingDebugger(true);
-                }}
-                className="text-muted-foreground hover:text-foreground transition-colors duration-200"
-                title="Open Mapping System Debugger"
-              >
-                🔧 Debug
-              </button>
-            )}
+          {/* Navigation Bar */}
+          <div className="py-3">
+            <EnhancedNavigationTabs onTabChange={handleTabChange} />
           </div>
         </div>
       </header>
@@ -883,7 +969,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
       {/* Analysis Results Toggle Button (FAB) - Always visible when results exist but panel is hidden */}
       {!unifiedResults.isVisible && unifiedResults.currentResults && (
         <div className="analysis-toggle-fab">
-          <button 
+          <button
             onClick={() => {
               trackInteraction('Question Driven Tool - Show Analysis Results', 'Navigation');
               showUnifiedResults(unifiedResults.currentResults);
@@ -899,21 +985,26 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
         </div>
       )}
 
-      {/* Legacy chord analyzer for backward compatibility - hidden by default */}
+      {/* Phase 1 Integration Test Panel */}
       {showDebugInfo && (
-        <div className="debug-panel">
-          <h3>Debug: Legacy Chord Analyzer</h3>
-          <ChordAnalyzer 
-            onSwitchToFinder={handleSwitchToReference}
-            showDebugInfo={showDebugInfo}
-            compact={true}
-            onAnalysisStateChange={() => {}}
-          />
+        <div className="debug-panel space-y-4">
+          <NavigationDebugger />
+          <IntegrationTestPanel />
+
+          <div className="legacy-debug">
+            <h3>Debug: Legacy Chord Analyzer</h3>
+            <ChordAnalyzer
+              onSwitchToFinder={handleSwitchToReference}
+              showDebugInfo={showDebugInfo}
+              compact={true}
+              onAnalysisStateChange={() => {}}
+            />
+          </div>
         </div>
       )}
 
       {/* Mapping System Debugger */}
-      <MappingDebugger 
+      <MappingDebugger
         isVisible={showMappingDebugger}
         onClose={() => setShowMappingDebugger(false)}
       />

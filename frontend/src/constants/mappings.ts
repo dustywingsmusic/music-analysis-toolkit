@@ -1,33 +1,19 @@
 /**
  * Centralized Mapping System for Music Theory Toolkit
- * 
+ *
  * This file consolidates all mappings used throughout the application
  * to make them easier to manage, debug, and maintain.
  */
 
 import { allScaleData } from './scales';
+import { NOTES, PARENT_KEY_INDICES, PARENT_KEYS, PITCH_CLASS_NAMES } from './music-base';
+
+// Re-export base constants for backward compatibility
+export { NOTES, PARENT_KEY_INDICES, PARENT_KEYS, PITCH_CLASS_NAMES };
 
 // ============================================================================
 // NOTE AND PITCH MAPPINGS
 // ============================================================================
-
-/**
- * Standard note names with enharmonic equivalents
- */
-export const NOTES = ["C", "C♯/D♭", "D", "D♯/E♭", "E", "F", "F♯/G♭", "G", "G♯/A♭", "A", "A♯/B♭", "B"];
-
-/**
- * Parent key indices for scale table organization
- */
-export const PARENT_KEY_INDICES = [0, 7, 2, 9, 4, 11, 5, 10, 3, 8, 1, 6];
-
-/**
- * Parent key pitch class to note name mapping
- */
-export const PARENT_KEYS = {
-    0: 'C', 1: 'D♭', 2: 'D', 3: 'E♭', 4: 'E', 5: 'F', 
-    6: 'G♭', 7: 'G', 8: 'A♭', 9: 'A', 10: 'B♭', 11: 'B'
-};
 
 /**
  * Comprehensive note to pitch class mapping (supports multiple formats)
@@ -35,14 +21,14 @@ export const PARENT_KEYS = {
 export const NOTE_TO_PITCH_CLASS: Record<string, number> = {
   // Natural notes
   "C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11,
-  
+
   // Sharp variants (both ASCII and Unicode)
   "C#": 1, "C♯": 1, "CS": 1,
   "D#": 3, "D♯": 3, "DS": 3,
   "F#": 6, "F♯": 6, "FS": 6,
   "G#": 8, "G♯": 8, "GS": 8,
   "A#": 10, "A♯": 10, "AS": 10,
-  
+
   // Flat variants (both ASCII and Unicode)
   "Db": 1, "D♭": 1, "DB": 1,
   "Eb": 3, "E♭": 3, "EB": 3,
@@ -51,23 +37,6 @@ export const NOTE_TO_PITCH_CLASS: Record<string, number> = {
   "Bb": 10, "B♭": 10, "BB": 10,
 };
 
-/**
- * Pitch class to note name mapping with enharmonic options
- */
-export const PITCH_CLASS_NAMES: { [key: number]: { normal: string; sharp?: string; flat?: string; } } = {
-    0: { normal: 'C', sharp: 'B♯', flat: 'D♭♭' }, 
-    1: { normal: 'C♯', flat: 'D♭' },
-    2: { normal: 'D', sharp: 'C♯♯', flat: 'E♭♭' }, 
-    3: { normal: 'E♭', sharp: 'D♯' },
-    4: { normal: 'E', flat: 'F♭', sharp: 'D♯♯' }, 
-    5: { normal: 'F', sharp: 'E♯', flat: 'G♭♭' },
-    6: { normal: 'F♯', flat: 'G♭' }, 
-    7: { normal: 'G', sharp: 'F♯♯', flat: 'A♭♭' },
-    8: { normal: 'A♭', sharp: 'G♯' }, 
-    9: { normal: 'A', sharp: 'G♯♯', flat: 'B♭♭' },
-    10: { normal: 'B♭', sharp: 'A♯' }, 
-    11: { normal: 'B', flat: 'C♭', sharp: 'A♯♯' }
-};
 
 // ============================================================================
 // SCALE FAMILY MAPPINGS
@@ -124,7 +93,7 @@ export const MODE_TO_SCALE_FAMILY: { [key: string]: string } = {
   'Mixolydian b2': 'Harmonic Major',
   'Lydian Aug ♯2': 'Harmonic Major',
   'Lydian Aug #2': 'Harmonic Major',
-  
+
   // Scale family names
   'Harmonic Minor': 'Harmonic Minor',
   'Melodic Minor': 'Melodic Minor',
@@ -152,7 +121,7 @@ export const MODE_TO_SCALE_FAMILY: { [key: string]: string } = {
   'Suspended': 'Major Pentatonic',
   'Jue': 'Major Pentatonic',
   'Zhi': 'Major Pentatonic',
-  
+
   // Basic major scale modes
   'Ionian': 'Major Scale',
   'Dorian': 'Major Scale',
@@ -265,11 +234,11 @@ export const MODE_POPULARITY_RANKING: { [modeName: string]: number } = {
   'Lydian': 5,           // Fifth most common
   'Phrygian': 6,         // Sixth most common
   'Locrian': 7,          // Least common
-  
+
   // Aliases for common modes
   'Natural Minor': 2,    // Same as Aeolian
   'Minor': 2,            // Same as Aeolian
-  
+
   // Other scale families get lower priority (higher numbers)
   'Harmonic Minor': 8,
   'Melodic Minor': 9,
@@ -280,7 +249,7 @@ export const MODE_POPULARITY_RANKING: { [modeName: string]: number } = {
   'Major Pentatonic': 12,
   'Minor Pentatonic': 13,
   'Blues Scale': 14,
-  
+
   // Modified modes get even lower priority
   'Dorian ♭2': 15,
   'Dorian b2': 15,
@@ -342,13 +311,13 @@ export function getModePopularity(modeName: string): number {
   if (MODE_POPULARITY_RANKING[modeName] !== undefined) {
     return MODE_POPULARITY_RANKING[modeName];
   }
-  
+
   // Try base mode name
   const baseModeName = extractBaseModeFromName(modeName);
   if (MODE_POPULARITY_RANKING[baseModeName] !== undefined) {
     return MODE_POPULARITY_RANKING[baseModeName];
   }
-  
+
   // Default to very low priority for unknown modes
   return 999;
 }
@@ -475,7 +444,7 @@ export function validateMappings(): { isValid: boolean; errors: string[] } {
 
   // Check that all scale families in MODE_TO_SCALE_FAMILY have corresponding entries in other mappings
   const scaleFamilies = new Set(Object.values(MODE_TO_SCALE_FAMILY));
-  
+
   for (const scaleFamily of scaleFamilies) {
     if (!SCALE_TO_TABLE_ID[scaleFamily]) {
       errors.push(`Scale family "${scaleFamily}" missing from SCALE_TO_TABLE_ID`);
@@ -506,11 +475,11 @@ export function validateMappings(): { isValid: boolean; errors: string[] } {
  */
 export function getAllModes(): { [scaleFamily: string]: string[] } {
   const result: { [scaleFamily: string]: string[] } = {};
-  
+
   for (const [scaleFamily, modes] of Object.entries(MODE_TO_INDEX_MAPPINGS)) {
     result[scaleFamily] = Object.keys(modes);
   }
-  
+
   return result;
 }
 
@@ -520,7 +489,7 @@ export function getAllModes(): { [scaleFamily: string]: string[] } {
 export function getMappingStats() {
   const scaleFamilies = Object.keys(MODE_TO_INDEX_MAPPINGS);
   const totalModes = Object.values(MODE_TO_INDEX_MAPPINGS).reduce(
-    (sum, modes) => sum + Object.keys(modes).length, 
+    (sum, modes) => sum + Object.keys(modes).length,
     0
   );
   const totalNoteVariants = Object.keys(NOTE_TO_PITCH_CLASS).length;

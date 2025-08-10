@@ -23,7 +23,7 @@ export interface ModeFromRoot {
 export const buildModesFromRoot = (rootNote: string): ModeFromRoot[] => {
   // Find the pitch class index for the root note
   const rootPitchClass = findPitchClassIndex(rootNote);
-  
+
   if (rootPitchClass === -1) {
     throw new Error(`Invalid root note: ${rootNote}. Valid notes are: ${NOTES.join(', ')}`);
   }
@@ -44,9 +44,9 @@ export const buildModesFromRoot = (rootNote: string): ModeFromRoot[] => {
 
       // Get mode name from headers (skip first header which is usually "Mode / Scale Degree")
       const modeName = scaleFamily.headers[modeIndex + 1] || `Mode ${modeIndex + 1}`;
-      
+
       // Get common name if available
-      const commonName = scaleFamily.commonNames?.[modeIndex] || 
+      const commonName = scaleFamily.commonNames?.[modeIndex] ||
                         scaleFamily.alternateNames?.[modeIndex];
 
       modes.push({
@@ -71,14 +71,14 @@ export const buildModesFromRoot = (rootNote: string): ModeFromRoot[] => {
     const scaleOrder = allScaleData.map(sf => sf.name);
     const aOrder = scaleOrder.indexOf(a.parentScaleName);
     const bOrder = scaleOrder.indexOf(b.parentScaleName);
-    
+
     if (aOrder !== -1 && bOrder !== -1) {
       if (aOrder !== bOrder) return aOrder - bOrder;
       return a.modeIndex - b.modeIndex;
     }
     if (aOrder !== -1) return -1;
     if (bOrder !== -1) return 1;
-    
+
     // For other scales, sort by name then mode index
     const nameCompare = a.parentScaleName.localeCompare(b.parentScaleName);
     if (nameCompare !== 0) return nameCompare;
@@ -92,13 +92,13 @@ export const buildModesFromRoot = (rootNote: string): ModeFromRoot[] => {
  */
 function findPitchClassIndex(noteName: string): number {
   const cleanNote = noteName.trim().toUpperCase();
-  
+
   // Convert common sharp/flat symbols to Unicode
   const normalizedNote = cleanNote
     .replace(/B/g, '♭')
     .replace(/#/g, '♯')
     .replace(/BB/g, '♭♭'); // Handle double flats
-  
+
   return NOTES.findIndex(note => {
     const noteUpper = note.toUpperCase();
     // Split compound note names (like "C♯/D♭") and check each part
@@ -150,12 +150,12 @@ function getCharacterDescription(scaleName: string, modeIndex: number, modeName:
       'Ultra-diminished - extremely unstable'
     ]
   };
-  
+
   const scaleDescriptions = descriptions[scaleName];
   if (scaleDescriptions && scaleDescriptions[modeIndex]) {
     return scaleDescriptions[modeIndex];
   }
-  
+
   // Fallback descriptions based on mode name patterns
   if (modeName.toLowerCase().includes('major') || modeName.toLowerCase().includes('ionian')) {
     return 'Bright, stable major character';
@@ -178,7 +178,7 @@ function getCharacterDescription(scaleName: string, modeIndex: number, modeName:
   if (modeName.toLowerCase().includes('locrian')) {
     return 'Diminished, unstable - rarely used as tonal center';
   }
-  
+
   return 'Unique modal character - explore its distinctive sound';
 }
 

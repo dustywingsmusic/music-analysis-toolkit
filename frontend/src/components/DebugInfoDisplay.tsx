@@ -10,7 +10,7 @@ const DebugInfoDisplay: React.FC<DebugInfoDisplayProps> = ({ prompt, userPrompt,
   return (
     <div className="debug-info">
       <h2 className="debug-info__title">Developer Info</h2>
-      
+
       <div className="debug-info__section">
         <h3 className="debug-info__subtitle">LLM System Prompt</h3>
         <pre className="debug-info__pre">

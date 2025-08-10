@@ -1,31 +1,46 @@
 # /Users/samwachtel/PycharmProjects/music_modes_app/backend/app/utils.py
-import logging
 import base64
+import logging
 from io import BytesIO
-from typing import Dict, List, Tuple, Any
+from typing import Any, Dict, List, Tuple
 
 import librosa
 import librosa.display
 
 # This MUST be done before importing pyplot
 import matplotlib
-matplotlib.use('Agg')
+
+matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
 import numpy as np
 from music21 import key, pitch, scale
 
 # --- Constants and Configuration ---
-PITCH_CLASSES: List[str] = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+PITCH_CLASSES: List[str] = [
+    "C",
+    "C#",
+    "D",
+    "D#",
+    "E",
+    "F",
+    "F#",
+    "G",
+    "G#",
+    "A",
+    "A#",
+    "B",
+]
 
 # Krumhansl-Schmuckler key profiles for correlation
 KS_PROFILES = {
-    'major': [6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88],
-    'minor': [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17]
+    "major": [6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88],
+    "minor": [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17],
 }
 
 
 # --- Core Analysis Functions ---
+
 
 def find_best_key(chroma_vector: np.ndarray) -> Dict[str, Any]:
     """
@@ -33,7 +48,12 @@ def find_best_key(chroma_vector: np.ndarray) -> Dict[str, Any]:
     Returns a dictionary with key, mode, tonic, and confidence.
     """
     if np.linalg.norm(chroma_vector) < 1e-6:
-        return {"key_signature": "N/A", "mode": "N/A", "tonic": "N/A", "confidence": 0.0}
+        return {
+            "key_signature": "N/A",
+            "mode": "N/A",
+            "tonic": "N/A",
+            "confidence": 0.0,
+        }
 
     correlations = {}
     for tonic_pc, tonic_name in enumerate(PITCH_CLASSES):
@@ -51,13 +71,13 @@ def find_best_key(chroma_vector: np.ndarray) -> Dict[str, Any]:
     confidence = (confidence + 1) / 2 if not np.isnan(confidence) else 0.0
 
     tonic_name, mode_name = best_key.split()
-    mode_map = {'major': 'Ionian', 'minor': 'Aeolian'}
+    mode_map = {"major": "Ionian", "minor": "Aeolian"}
 
     return {
         "key_signature": best_key,
         "mode": mode_map.get(mode_name, mode_name),
         "tonic": tonic_name,
-        "confidence": round(confidence, 4)
+        "confidence": round(confidence, 4),
     }
 
 
@@ -88,10 +108,10 @@ def detect_cadences(chroma: np.ndarray, key_obj: key.Key) -> Dict[str, Any]:
 
 
 def classify_region_type(
-        global_key: key.Key,
-        local_key: key.Key,
-        local_key_confidence: float,
-        local_cadence: Dict
+    global_key: key.Key,
+    local_key: key.Key,
+    local_key_confidence: float,
+    local_cadence: Dict,
 ) -> Dict[str, Any]:
     """
     Classifies the local segment as a modulation, modal shift, or stable.
@@ -107,23 +127,32 @@ def classify_region_type(
 
     # Modulation criteria: new key is strongly established with a cadence.
     is_modulation = (
-            local_key_confidence > 0.80 and
-            local_cadence["detected"] and
-            local_cadence["strength"] > 0.60
+        local_key_confidence > 0.80
+        and local_cadence["detected"]
+        and local_cadence["strength"] > 0.60
     )
 
     if is_modulation:
         # Confidence is a weighted average of key and cadence confidence
-        confidence = (local_key_confidence * 0.5) + (local_cadence['strength'] * 0.5)
-        return {"type": "modulation", "confidence": round(confidence, 2), "borrowed": borrowed_notes}
+        confidence = (local_key_confidence * 0.5) + (local_cadence["strength"] * 0.5)
+        return {
+            "type": "modulation",
+            "confidence": round(confidence, 2),
+            "borrowed": borrowed_notes,
+        }
 
     # Otherwise, it's a modal shift (borrowed harmony without a full key change)
     # Confidence is higher if there are fewer borrowed notes
     confidence = max(0.5, 1.0 - (len(borrowed_notes) * 0.15))
-    return {"type": "modal_shift", "confidence": round(confidence, 2), "borrowed": borrowed_notes}
+    return {
+        "type": "modal_shift",
+        "confidence": round(confidence, 2),
+        "borrowed": borrowed_notes,
+    }
 
 
 # --- Helpers and Visualization ---
+
 
 def get_key_object(key_string: str) -> key.Key:
     """Helper to create a music21 key object from a string like 'C minor'."""
@@ -132,29 +161,34 @@ def get_key_object(key_string: str) -> key.Key:
         return key.Key(tonic, mode)
     except (ValueError, AttributeError):
         # Return a default key if parsing fails
-        return key.Key('C', 'major')
+        return key.Key("C", "major")
+
 
 def fig_to_base64(fig) -> str:
     """Converts a matplotlib figure to a base64 encoded PNG string."""
     buf = BytesIO()
     fig.tight_layout()
-    fig.savefig(buf, format='png', bbox_inches='tight')
+    fig.savefig(buf, format="png", bbox_inches="tight")
     plt.close(fig)
     buf.seek(0)
-    return base64.b64encode(buf.read()).decode('utf-8')
+    return base64.b64encode(buf.read()).decode("utf-8")
+
 
 def plot_chromagram(chroma: np.ndarray, sr: int, title: str) -> str:
     """Generates a chromagram plot and returns it as a base64 encoded PNG string."""
     fig, ax = plt.subplots(figsize=(8, 4))
-    img = librosa.display.specshow(chroma, y_axis='chroma', x_axis='time', sr=sr, ax=ax, cmap='coolwarm')
+    img = librosa.display.specshow(
+        chroma, y_axis="chroma", x_axis="time", sr=sr, ax=ax, cmap="coolwarm"
+    )
     fig.colorbar(img, ax=ax)
     ax.set_title(title)
     return fig_to_base64(fig)
 
+
 def plot_histogram(avg_chroma: np.ndarray, title: str) -> str:
     """Generates a histogram of average pitch class activation."""
     fig, ax = plt.subplots(figsize=(6, 3))
-    ax.bar(PITCH_CLASSES, avg_chroma, color='royalblue')
+    ax.bar(PITCH_CLASSES, avg_chroma, color="royalblue")
     ax.set_title(title)
     ax.set_ylabel("Intensity")
     ax.set_ylim(0, 1)  # Normalize y-axis for consistency

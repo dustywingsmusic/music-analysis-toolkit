@@ -216,7 +216,7 @@ const ChordAnalyzer: React.FC<ChordAnalyzerProps> = ({ onSwitchToFinder, showDeb
         {isLoading && <LoadingSpinner />}
         {error && <div className="error-box">{error}</div>}
         {analysisResult && analysisResult.analysis && (
-          <ResultDisplay 
+          <ResultDisplay
             result={analysisResult}
             onSwitchToFinder={onSwitchToFinder}
             userInputTonic={tonic}

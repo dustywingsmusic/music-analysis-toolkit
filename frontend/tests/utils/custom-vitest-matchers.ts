@@ -19,8 +19,8 @@ export const customMatchers = {
   },
 
   toBeValidChord(received: number[]) {
-    const pass = Array.isArray(received) && 
-                 received.length >= 2 && 
+    const pass = Array.isArray(received) &&
+                 received.length >= 2 &&
                  received.every(note => note >= 0 && note <= 127);
     return {
       message: () =>
@@ -32,8 +32,8 @@ export const customMatchers = {
   },
 
   toBeValidScale(received: number[]) {
-    const pass = Array.isArray(received) && 
-                 received.length >= 5 && 
+    const pass = Array.isArray(received) &&
+                 received.length >= 5 &&
                  received.every(note => note >= 0 && note <= 127);
     return {
       message: () =>
