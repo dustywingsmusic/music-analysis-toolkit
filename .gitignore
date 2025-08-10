@@ -35,6 +35,9 @@ frontend/build/
 # Testing
 coverage/
 frontend/tests/reports/
+frontend/tests/generated/
+frontend/comprehensive-modal-test-cases.json
+frontend/modal-test-detailed-results.json
 .nyc_output
 .coverage
 htmlcov/

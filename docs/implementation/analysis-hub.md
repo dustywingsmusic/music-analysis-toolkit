@@ -1,59 +1,158 @@
 # Analysis Hub Implementation
 
 ## Overview
-The Analysis Hub component consolidates functionality from ModeIdentificationTab and EnhancedHarmonyTab into a single, unified interface providing comprehensive music analysis across multiple input types.
+
+The `AnalysisHub` component serves as the central orchestration layer for all music theory analysis in the application. It provides a unified interface that coordinates between different analysis engines, manages user input, and presents results in a coherent, educational format.
+
+## Component Architecture
+
+### Location
+- **Primary Component**: `src/components/AnalysisHub.tsx`
+- **Supporting Context**: `src/contexts/AnalysisContext.tsx`
+- **Integration Point**: Used by `QuestionDrivenMusicTool.tsx`
+
+### Core Responsibilities
+
+1. **Analysis Orchestration**
+   - Routes chord progressions through `ComprehensiveAnalysisEngine`
+   - Manages analysis state and loading indicators
+   - Handles error conditions and fallback scenarios
+
+2. **User Interface Management**
+   - Chord progression input handling
+   - Analysis method selection (functional vs modal focus)
+   - Results presentation and formatting
+
+3. **Educational Enhancement**
+   - Provides theoretical context for analysis results
+   - Suggests related progressions and variations
+   - Offers learning pathways based on analysis outcomes
+
+## Analysis Flow
+
+```
+User Input (Chord Progression)
+        ↓
+AnalysisHub Validation
+        ↓
+ComprehensiveAnalysisEngine
+        ↓
+Parallel Analysis:
+├── FunctionalHarmonyAnalyzer (Roman numerals, cadences)
+├── EnhancedModalAnalyzer (modal characteristics)
+└── ChromaticHarmonyAnalyzer (secondary dominants, etc.)
+        ↓
+Result Synthesis & Confidence Ranking
+        ↓
+UnifiedResultsPanel Display
+```
 
 ## Key Features
 
-### Unified Interface
-- **Analysis Types**: Melody, scale, chord, and chord progression analysis in one component
-- **Input Integration**: Uses UnifiedMusicInput system consistently across all analysis types
-- **Analysis Engine**: Routes all inputs through the ComprehensiveAnalysisEngine
-- **Results Display**: Shows results using sophisticated dual-lens analysis panel
+### 1. **Comprehensive Analysis Engine Integration**
 
-### User Experience
-- **Delightful UX**: Loading states, sparkle effects, musical button animations
-- **MIDI Support**: Full integration with MIDI input and real-time chord detection
-- **Progressive Disclosure**: Analysis types clearly organized with icons and descriptions
-- **Error Recovery**: Graceful error handling with clear user messaging
+The AnalysisHub leverages the multi-layered analysis approach:
 
-## Component Architecture
+```typescript
+const analyzeProgression = async (chords: string[], parentKey?: string) => {
+  // Route through comprehensive engine
+  const results = await comprehensiveAnalysisService.analyzeProgression({
+    chords,
+    parentKey,
+    includeAI: false // Local analysis first
+  });
+
+  // Present results hierarchically
+  return {
+    primary: results.primaryApproach,
+    functional: results.functionalAnalysis,
+    modal: results.modalAnalysis,
+    chromatic: results.chromaticAnalysis
+  };
+};
 ```
-AnalysisHub
-├── Analysis Type Selector (melody/scale/chord/progression)
-├── UnifiedMusicInput (keyboard/mouse/MIDI input methods)
-├── Parent Key Input (for chord progressions)
-├── Action Buttons (Analyze, Example, Clear All)
-├── Loading States (with progress indicators)
-├── Error Handling (graceful error display)
-└── Results Display (DualLensAnalysisPanel)
+
+### 2. **Parent Key + Local Tonic Model**
+
+All modal analysis consistently uses the architectural standard:
+
+```typescript
+// Example modal result display
+{
+  mode: "G Mixolydian",
+  parentKey: "C major",
+  localTonic: "G",
+  keySignature: "no sharps or flats",
+  modalCharacteristics: ["♭VII-I cadence", "Major tonic with lowered 7th"]
+}
 ```
 
-## Analysis Pipeline
-1. **Input Validation**: Real-time validation through UnifiedMusicInput
-2. **Analysis Routing**: Smart routing based on input type
-   - Chord progressions → Direct comprehensive analysis
-   - Melody/Scale → Conversion then comprehensive analysis
-3. **Result Display**: All results shown via DualLensAnalysisPanel
-4. **Legacy Compatibility**: Maintains compatibility with existing analysis services
+### 3. **Progressive Disclosure**
 
-## Integration Status
-- ✅ **Navigation**: Integrated as featured "Analysis" tab with brain icon
-- ✅ **Context**: Seamless integration with existing analysis context
-- ✅ **MIDI**: Full MIDI data passing and real-time input support
-- ✅ **Services**: Connected to ComprehensiveAnalysisEngine
+The interface adapts complexity based on analysis results:
 
-## Usage
-1. Navigate to "Analysis" tab (brain icon, set as default)
-2. Select analysis type: Melody, Scale, Chord, or Chord Progression
-3. Choose input method: Type, Click, or Play (MIDI)
-4. Enter musical content using unified input system
-5. Click "Analyze Music" to run comprehensive analysis
-6. View results in dual-lens analysis panel
+- **Simple Results**: Basic Roman numeral analysis for clear functional progressions
+- **Enhanced Results**: Modal explanations when characteristics detected
+- **Advanced Results**: Chromatic analysis for complex harmonic progressions
+- **Educational Mode**: Detailed theoretical explanations and related examples
 
-## Future Enhancements
-- Audio file upload and analysis
-- Enhanced MIDI analysis modes
-- Analysis history and session management
-- Export features for analysis results
-- Collaborative analysis sharing
+## Current Implementation Status
+
+### Working Features
+- ✅ Comprehensive chord progression analysis
+- ✅ Parent Key + Local Tonic modal analysis
+- ✅ Functional harmony analysis with Roman numerals
+- ✅ Error handling and input validation
+- ✅ Results synthesis and confidence ranking
+
+### Known Issues (High Priority)
+- ❌ **Misleading Button**: "Analyze with AI" should be "Analyze Music" (line ~490)
+- ⚠️ **Complexity**: Interface assumes music theory expertise
+- ⚠️ **Mobile UX**: Chord input modal positioning issues
+
+### Integration Points
+
+#### Context Providers
+
+The AnalysisHub requires proper provider hierarchy:
+
+```tsx
+<InputMethodProvider>
+  <AnalysisProvider>
+    <AnalysisHub />
+  </AnalysisProvider>
+</InputMethodProvider>
+```
+
+#### Service Dependencies
+
+- **`comprehensiveAnalysisService`**: Primary analysis coordination
+- **`chordLogic`**: Chord symbol parsing and validation
+- **`keySuggester`**: Parent key inference from chord collection
+- **`geminiService`**: AI enhancement (optional, graceful degradation)
+
+## Testing Strategy
+
+### Component Tests
+Located in `tests/component/AnalysisHub.test.tsx`:
+
+```typescript
+// Required provider wrappers for testing
+const TestWrapper = ({ children }) => (
+  <TooltipProvider>
+    <InputMethodProvider>
+      <AnalysisProvider>
+        {children}
+      </AnalysisProvider>
+    </InputMethodProvider>
+  </TooltipProvider>
+);
+```
+
+### User Acceptance Criteria
+- Clear functional progressions analyzed correctly (≥95% accuracy)
+- Modal characteristics detected when present (≥75% accuracy)
+- Error messages help users fix input problems
+- Analysis completes within reasonable time (<2 seconds)
+
+This implementation serves as the cornerstone of the music theory toolkit, providing sophisticated analysis capabilities while maintaining usability for musicians at all skill levels.

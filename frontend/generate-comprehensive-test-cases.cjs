@@ -611,3 +611,9 @@ function exportComprehensiveTestCases() {
 if (require.main === module) {
     exportComprehensiveTestCases();
 }
+
+// Export functions for reuse by relocated test script
+module.exports = {
+    exportComprehensiveTestCases,
+    generateComprehensiveTestCases
+};

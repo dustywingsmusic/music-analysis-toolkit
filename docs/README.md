@@ -7,19 +7,26 @@ Interactive web application for music theory analysis and exploration, powered b
 
 ### Architecture
 - **[integration-roadmap.md](architecture/integration-roadmap.md)** - Phase 1 implementation status and architectural principles
+- **[integration-roadmap-comprehensive.md](architecture/integration-roadmap-comprehensive.md)** - Complete strategic integration planning
+- **[modal-analysis.md](architecture/modal-analysis.md)** - Comprehensive modal analysis framework and implementation
+- **[technical-overview.md](architecture/technical-overview.md)** - System architecture and technology stack
 
 ### Development
-- **[setup.md](development/setup.md)** - Environment setup and development commands
 - **[testing.md](development/testing.md)** - Testing strategy and modal logic validation
 - **[deployment.md](development/deployment.md)** - Docker deployment and Google Cloud Run
+- **[guide.md](development/guide.md)** - Development environment, styling system, and best practices
 
 ### Design
+- **[requirements.md](design/requirements.md)** - User needs, use cases, and design requirements
 - **[delightful-components.md](design/delightful-components.md)** - "Duolingo meets music theory" UI components
 - **[contextual-help-system.md](design/contextual-help-system.md)** - Progressive disclosure help system
+- **[comprehensive-analysis-ui.md](design/comprehensive-analysis-ui.md)** - Advanced analysis display specifications
+- **[ui-consolidation-framework.md](design/ui-consolidation-framework.md)** - UI/UX restructuring plan
 
 ### Implementation
 - **[analysis-hub.md](implementation/analysis-hub.md)** - Unified analysis interface implementation
 - **[unified-input-system.md](implementation/unified-input-system.md)** - Comprehensive input system across all analysis types
+- **[help-system-integration.md](implementation/help-system-integration.md)** - Contextual help system integration examples
 
 ## Quick Start
 

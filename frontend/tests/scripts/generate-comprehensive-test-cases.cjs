@@ -1,74 +1,69 @@
 /**
- * Comprehensive Modal Test Case Generator (relocated for tests)
+ * Comprehensive Modal Test Case Generator (Test Harness)
  *
- * This script generates the JSON dataset used by the modal test suite.
- * Location: frontend/tests/scripts/generate-comprehensive-test-cases.cjs
- * Output:   frontend/tests/generated/comprehensive-modal-test-cases.json
+ * Relocated to tests/scripts. Writes JSON to tests/generated so it can be
+ * auto-regenerated on every test run and excluded from version control.
  */
 
 const fs = require('fs');
 const path = require('path');
 
-// Load the original generator implementation and adapt output path
-// We import the class/functions by requiring the legacy file to avoid code duplication if necessary.
-// However, to keep this file standalone, we embed the generator here by requiring the old module
-// and delegating to its exported functions if available.
+// Import the existing generator implementation from the legacy location
+// to avoid code duplication while we complete the migration.
+const legacy = require('../../generate-comprehensive-test-cases.cjs');
 
-let implementation;
-try {
-  // If the legacy file still exists, require it so we can reuse its logic.
-  implementation = require('../../generate-comprehensive-test-cases.cjs');
-} catch (e) {
-  implementation = null;
-}
-
-// If implementation exists and exposes exportComprehensiveTestCases, use it but override write path.
-function ensureDirSync(dirPath) {
+function ensureDir(dirPath) {
   if (!fs.existsSync(dirPath)) {
     fs.mkdirSync(dirPath, { recursive: true });
   }
 }
 
-function exportToTargetPath(jsonString) {
+function main() {
   const outDir = path.resolve(__dirname, '../generated');
-  ensureDirSync(outDir);
-  const outPath = path.join(outDir, 'comprehensive-modal-test-cases.json');
-  fs.writeFileSync(outPath, jsonString);
-  return outPath;
-}
+  const outFile = path.join(outDir, 'comprehensive-modal-test-cases.json');
+  ensureDir(outDir);
 
-function run() {
-  // Case 1: reuse generator from legacy module if present
-  if (implementation && typeof implementation.exportComprehensiveTestCases === 'function') {
-    // Monkey-patch fs.writeFileSync temporarily to redirect the file path inside the legacy module
-    const originalWrite = fs.writeFileSync;
-    fs.writeFileSync = function (targetPath, data, options) {
-      // Ignore the provided targetPath and write to our generated folder
-      const outDir = path.resolve(__dirname, '../generated');
-      ensureDirSync(outDir);
-      const outPath = path.join(outDir, 'comprehensive-modal-test-cases.json');
-      return originalWrite.call(fs, outPath, data, options);
-    };
-    try {
-      implementation.exportComprehensiveTestCases();
-    } finally {
-      fs.writeFileSync = originalWrite;
-    }
-    return;
+  // Use legacy to generate fresh cases and then serialize using its export method
+  const generatorExport = legacy.exportComprehensiveTestCases || legacy.generateComprehensiveTestCases;
+
+  if (!generatorExport) {
+    throw new Error('Unable to load generator functions from legacy generator.');
   }
 
-  // Case 2: fallback — if legacy module not available, provide a minimal shim that fails clearly
-  const message = [
-    'Cannot find legacy generator implementation at frontend/generate-comprehensive-test-cases.cjs.',
-    'Please keep the legacy file (as a thin wrapper) or port its generator class into this script.'
-  ].join('\n');
-  throw new Error(message);
+  // If we only have generateComprehensiveTestCases, we need to build the JSON
+  if (legacy.exportComprehensiveTestCases) {
+    const cases = legacy.exportComprehensiveTestCases(); // returns array of cases
+    const json = JSON.stringify({
+      metadata: {
+        generated: new Date().toISOString(),
+        totalCases: cases.length,
+        categories: cases.reduce((acc, tc) => {
+          acc[tc.category] = (acc[tc.category] || 0) + 1; return acc;
+        }, {})
+      },
+      testCases: cases
+    }, null, 2);
+    fs.writeFileSync(outFile, json);
+  } else {
+    const cases = legacy.generateComprehensiveTestCases();
+    const json = JSON.stringify({
+      metadata: {
+        generated: new Date().toISOString(),
+        totalCases: cases.length,
+        categories: cases.reduce((acc, tc) => {
+          acc[tc.category] = (acc[tc.category] || 0) + 1; return acc;
+        }, {})
+      },
+      testCases: cases
+    }, null, 2);
+    fs.writeFileSync(outFile, json);
+  }
+
+  console.log(`Generated test cases at ${outFile}`);
 }
 
 if (require.main === module) {
-  run();
+  main();
 }
 
-module.exports = {
-  run,
-};
+module.exports = { main };

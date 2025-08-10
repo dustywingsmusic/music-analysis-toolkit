@@ -8,7 +8,7 @@ This document summarizes the comprehensive cleanup work completed on January 10,
 ### ✅ 1. Constants Consolidation
 **Problem**: Duplicate constants across `scales.ts` and `mappings.ts` created maintenance risk and potential inconsistencies.
 
-**Solution**: 
+**Solution**:
 - Created new `constants/music-base.ts` as single source of truth
 - Consolidated `NOTES`, `PARENT_KEY_INDICES`, `PARENT_KEYS`, `PITCH_CLASS_NAMES`, and `NOTE_LETTERS`
 - Updated imports in both files to use shared constants
