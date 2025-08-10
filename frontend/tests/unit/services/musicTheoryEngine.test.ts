@@ -1,6 +1,6 @@
 /**
  * Comprehensive Test Suite for Music Theory Engine
- * 
+ *
  * Tests the new modular, rule-based architecture for:
  * 1. Modal detection accuracy (including G F C G issue)
  * 2. Confidence scoring system
@@ -10,8 +10,8 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { 
-  MusicTheoryEngine, 
+import {
+  MusicTheoryEngine,
   MusicalContext,
   AnalysisResult,
   RuleEngine,
@@ -41,7 +41,7 @@ describe('MusicTheoryEngine Architecture', () => {
       // This would test the internal parseChords method if it were public
       // For now, we test through the main analyze method
       const result = await engine.analyzeComprehensively(context);
-      
+
       expect(result.primaryAnalysis).toBeDefined();
       expect(result.primaryAnalysis.chords).toHaveLength(4);
       expect(result.primaryAnalysis.chords[0].symbol).toBe('C');
@@ -54,7 +54,7 @@ describe('MusicTheoryEngine Architecture', () => {
       };
 
       const result = await engine.analyzeComprehensively(context);
-      
+
       expect(result.primaryAnalysis.chords[0].quality).toBe('major7');
       expect(result.primaryAnalysis.chords[1].quality).toBe('minor7');
       expect(result.primaryAnalysis.chords[2].quality).toBe('dominant7');
@@ -67,7 +67,7 @@ describe('MusicTheoryEngine Architecture', () => {
       };
 
       const result = await engine.analyzeComprehensively(context);
-      
+
       expect(result.primaryAnalysis).toBeDefined();
       expect(result.alternativeAnalyses).toBeInstanceOf(Array);
       expect(result.alternativeAnalyses.length).toBeGreaterThanOrEqual(0);
@@ -81,15 +81,15 @@ describe('MusicTheoryEngine Architecture', () => {
       };
 
       const result = await engine.analyzeWithModalPriority(context);
-      
+
       expect(result.approach).toBe('modal');
       expect(result.confidence).toBeGreaterThan(0.8);
-      
+
       // Should identify as Mixolydian mode
       if ('detectedMode' in result) {
         expect(result.detectedMode).toContain('Mixolydian');
       }
-      
+
       // Should have Roman numerals relative to G as tonic
       const romanNumerals = result.chords.map(c => c.romanNumeral);
       expect(romanNumerals).toEqual(['I', 'bVII', 'IV', 'I']);
@@ -102,10 +102,10 @@ describe('MusicTheoryEngine Architecture', () => {
       };
 
       const result = await engine.analyzeWithModalPriority(context);
-      
+
       expect(result.confidence).toBeGreaterThan(0.85);
       expect(result.keyCenter).toContain('C Major');
-      
+
       if ('detectedMode' in result) {
         expect(result.detectedMode).toContain('G Mixolydian');
       }
@@ -124,16 +124,16 @@ describe('MusicTheoryEngine Architecture', () => {
         };
 
         const result = await engine.analyzeWithModalPriority(context);
-        
+
         expect(result.approach).toBe('modal');
-        
+
         if ('detectedMode' in result) {
           expect(result.detectedMode).toContain(testCase.expectedMode);
         }
-        
+
         // Should have evidence of bVII-I motion
-        const hasModalEvidence = result.evidence.some(e => 
-          e.type === 'modal_characteristic' && 
+        const hasModalEvidence = result.evidence.some(e =>
+          e.type === 'modal_characteristic' &&
           e.description.includes('bVII')
         );
         expect(hasModalEvidence).toBe(true);
@@ -162,15 +162,15 @@ describe('MusicTheoryEngine Architecture', () => {
       };
 
       ruleEngine.registerRule(mockRule);
-      
+
       const mockContext = {
         chords: [],
         parentKey: undefined,
         musicalContext: { chordSymbols: [] }
       };
-      
+
       const results = ruleEngine.evaluateRules(mockContext, 'modal');
-      
+
       expect(results).toHaveLength(1);
       expect(results[0].applies).toBe(true);
       expect(results[0].confidence).toBe(0.8);
@@ -187,7 +187,7 @@ describe('MusicTheoryEngine Architecture', () => {
       };
 
       const lowPriorityRule = {
-        id: 'low_priority', 
+        id: 'low_priority',
         name: 'Low Priority Rule',
         description: 'Low priority test rule',
         priority: 1,
@@ -196,15 +196,15 @@ describe('MusicTheoryEngine Architecture', () => {
       };
 
       ruleEngine.registerRules([lowPriorityRule, highPriorityRule]);
-      
+
       const mockContext = {
         chords: [],
         parentKey: undefined,
         musicalContext: { chordSymbols: [] }
       };
-      
+
       const results = ruleEngine.evaluateRules(mockContext, 'modal');
-      
+
       // High priority rule should come first
       expect(results[0].ruleId).toBe('high_priority');
       expect(results[1].ruleId).toBe('low_priority');
@@ -224,7 +224,7 @@ describe('MusicTheoryEngine Architecture', () => {
       };
 
       const confidence = confidenceCalculator.calculateConfidence(strongEvidence, mockContext);
-      
+
       expect(confidence).toBeGreaterThan(0.8);
       expect(confidence).toBeLessThanOrEqual(1.0);
     });
@@ -281,7 +281,7 @@ describe('MusicTheoryEngine Architecture', () => {
     it('should include all expected modal characteristics', () => {
       expect(MODAL_CHARACTERISTIC_PATTERNS).toBeDefined();
       expect(MODAL_CHARACTERISTIC_PATTERNS.length).toBeGreaterThan(0);
-      
+
       // Should include bVII-I pattern for Mixolydian
       const bVII_I_pattern = MODAL_CHARACTERISTIC_PATTERNS.find(p => p.pattern === 'bVII-I');
       expect(bVII_I_pattern).toBeDefined();
@@ -372,10 +372,10 @@ describe('MusicTheoryEngine Architecture', () => {
       };
 
       const result = await engine.analyzeWithModalPriority(context);
-      
+
       // Should show parent key in key center
       expect(result.keyCenter).toContain('G Major');
-      
+
       // Should show local tonic E in mode description
       if ('detectedMode' in result) {
         expect(result.detectedMode).toContain('E');
@@ -396,7 +396,7 @@ describe('MusicTheoryEngine Architecture', () => {
         };
 
         const result = await engine.analyzeWithModalPriority(context);
-        
+
         expect(result.chords.map(c => c.romanNumeral)).toEqual(testCase.expectedRomans);
       }
     });
@@ -410,7 +410,7 @@ describe('MusicTheoryEngine Architecture', () => {
       };
 
       const result = await engine.analyzeComprehensively(context);
-      
+
       // Should have consensus analysis if multiple approaches agree
       if (result.consensusAnalysis) {
         expect(result.consensusAnalysis.confidence).toBeGreaterThan(0.8);
@@ -424,7 +424,7 @@ describe('MusicTheoryEngine Architecture', () => {
       };
 
       const result = await engine.analyzeComprehensively(context);
-      
+
       // Consensus might not exist for ambiguous progressions
       // This depends on the specific implementation
       expect(result.primaryAnalysis).toBeDefined();

@@ -1,6 +1,6 @@
 /**
  * Enhanced Mouse Input Test Component
- * 
+ *
  * A test component to verify the new enhanced mouse input capabilities work correctly.
  * This component can be temporarily added to test the CompactChordBuilder and CompactNoteSelector.
  */
@@ -31,7 +31,7 @@ const EnhancedMouseInputTest: React.FC = () => {
               <TabsTrigger value="melody">Melody</TabsTrigger>
               <TabsTrigger value="scale">Scale</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="chords" className="space-y-4">
               <div>
                 <h3 className="text-lg font-semibold mb-3">Compact Chord Builder</h3>
@@ -41,7 +41,7 @@ const EnhancedMouseInputTest: React.FC = () => {
                   maxChords={8}
                   showPlayback={false}
                 />
-                
+
                 <div className="mt-4 p-3 bg-muted rounded-md">
                   <div className="text-sm font-medium text-muted-foreground mb-1">Current Value:</div>
                   <div className="font-mono text-sm">
@@ -50,7 +50,7 @@ const EnhancedMouseInputTest: React.FC = () => {
                 </div>
               </div>
             </TabsContent>
-            
+
             <TabsContent value="melody" className="space-y-4">
               <div>
                 <h3 className="text-lg font-semibold mb-3">Compact Note Selector - Melody Mode</h3>
@@ -62,7 +62,7 @@ const EnhancedMouseInputTest: React.FC = () => {
                   maxNotes={20}
                   showOctaves={false}
                 />
-                
+
                 <div className="mt-4 p-3 bg-muted rounded-md">
                   <div className="text-sm font-medium text-muted-foreground mb-1">Current Value:</div>
                   <div className="font-mono text-sm">
@@ -71,7 +71,7 @@ const EnhancedMouseInputTest: React.FC = () => {
                 </div>
               </div>
             </TabsContent>
-            
+
             <TabsContent value="scale" className="space-y-4">
               <div>
                 <h3 className="text-lg font-semibold mb-3">Compact Note Selector - Scale Mode</h3>
@@ -83,7 +83,7 @@ const EnhancedMouseInputTest: React.FC = () => {
                   maxNotes={12}
                   showOctaves={false}
                 />
-                
+
                 <div className="mt-4 p-3 bg-muted rounded-md">
                   <div className="text-sm font-medium text-muted-foreground mb-1">Current Value:</div>
                   <div className="font-mono text-sm">

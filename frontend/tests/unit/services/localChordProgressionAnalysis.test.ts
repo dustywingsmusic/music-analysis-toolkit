@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { analyzeChordProgressionLocally, ProgressionInterpretation, LocalChordAnalysis } from '@/services/localChordProgressionAnalysis';
-import { 
-  comprehensiveMusicTheoryTestDataset, 
+import {
+  comprehensiveMusicTheoryTestDataset,
   getTestCasesByCategory,
   getTestCasesByPrimaryApproach,
   MusicTheoryTestCase
@@ -10,10 +10,10 @@ import {
 describe('localChordProgressionAnalysis', () => {
   it('should analyze a basic chord progression without throwing errors', async () => {
     const progression = 'C - F - G - C';
-    
+
     // Should not throw an error
     const result = await analyzeChordProgressionLocally(progression);
-    
+
     // Should return a valid result structure
     expect(result).toBeDefined();
     expect(result.localAnalysis.chords).toBeInstanceOf(Array);
@@ -28,9 +28,9 @@ describe('localChordProgressionAnalysis', () => {
   it('should prioritize user-provided key context', async () => {
     const progression = 'A - Db - F# - Db - A';
     const knownKey = 'A major';
-    
+
     const result = await analyzeChordProgressionLocally(progression, knownKey);
-    
+
     // Should prioritize user context
     expect(result.localAnalysis.keyCenter).toMatch(/A\s+(Major|major)/);
     expect(result.localAnalysis.source).toBe('user-guided');
@@ -40,13 +40,13 @@ describe('localChordProgressionAnalysis', () => {
 
   it('should provide multiple interpretations when available', async () => {
     const progression = 'A - Db - F# - Db - A';
-    
+
     const result = await analyzeChordProgressionLocally(progression);
-    
+
     // Should have a valid primary analysis
     expect(result.localAnalysis).toBeDefined();
     expect(result.localAnalysis.source).toBeDefined();
-    
+
     // Alternative interpretations are optional but if present, should be valid
     if (result.alternativeInterpretations) {
       expect(result.alternativeInterpretations.length).toBeGreaterThan(0);
@@ -62,9 +62,9 @@ describe('localChordProgressionAnalysis', () => {
 
   it('should handle empty progression gracefully', async () => {
     const progression = '';
-    
+
     const result = await analyzeChordProgressionLocally(progression);
-    
+
     expect(result).toBeDefined();
     expect(result.localAnalysis.chords).toBeInstanceOf(Array);
     expect(result.localAnalysis.chords).toHaveLength(0);
@@ -72,9 +72,9 @@ describe('localChordProgressionAnalysis', () => {
 
   it('should handle single chord', async () => {
     const progression = 'Cmaj7';
-    
+
     const result = await analyzeChordProgressionLocally(progression);
-    
+
     expect(result).toBeDefined();
     expect(result.localAnalysis.chords).toBeInstanceOf(Array);
     expect(result.localAnalysis.chords.length).toBeGreaterThan(0);
@@ -82,26 +82,26 @@ describe('localChordProgressionAnalysis', () => {
 
   it('should detect G Mixolydian for G F C G progression', async () => {
     const progression = 'G F C G';
-    
+
     // Test without known key - should detect G as tonic based on structure
     const result1 = await analyzeChordProgressionLocally(progression);
-    
+
     expect(result1).toBeDefined();
     expect(result1.localAnalysis.chords).toHaveLength(4);
-    
+
     // Test with known key G major - should detect Mixolydian characteristics
     const result2 = await analyzeChordProgressionLocally(progression, 'G major');
-    
+
     expect(result2).toBeDefined();
     expect(result2.localAnalysis.keyCenter).toMatch(/G\s+(Major|major)/);
     expect(result2.localAnalysis.source).toBe('user-guided');
-    
+
     // Check for proper Roman numeral analysis
     const chordRomanNumerals = result2.localAnalysis.chords.map(c => c.romanNumeral);
     expect(chordRomanNumerals).toContain('I'); // G should be I
     expect(chordRomanNumerals).toContain('bVII'); // F should be bVII
     expect(chordRomanNumerals).toContain('IV'); // C should be IV
-    
+
     // Should detect modal characteristics (Mixolydian mode)
     expect(result2.localAnalysis.overallMode).toContain('Mixolydian');
     expect(result2.localAnalysis.modalInterchange).toContain('bVII-I');
@@ -114,10 +114,10 @@ describe('localChordProgressionAnalysis', () => {
       { progression: 'A G A', key: 'A major', expectedMode: 'Mixolydian', bVII: 'G' },
       { progression: 'E D E', key: 'E major', expectedMode: 'Mixolydian', bVII: 'D' }
     ];
-    
+
     for (const testCase of testCases) {
       const result = await analyzeChordProgressionLocally(testCase.progression, testCase.key);
-      
+
       expect(result.localAnalysis.overallMode).toContain(testCase.expectedMode);
       expect(result.localAnalysis.chords.some(c => c.romanNumeral === 'bVII')).toBe(true);
       expect(result.localAnalysis.modalInterchange).toContain('bVII-I');
@@ -233,10 +233,10 @@ describe('localChordProgressionAnalysis', () => {
       const contextTests = getTestCasesByCategory('Context-Dependent');
 
       it('should analyze same progression differently based on parent key context', async () => {
-        const testCase1 = comprehensiveMusicTheoryTestDataset.find(t => 
+        const testCase1 = comprehensiveMusicTheoryTestDataset.find(t =>
           t.input === 'G F C G' && !t.parentKey && t.expectedPrimary === 'modal'
         );
-        const testCase2 = comprehensiveMusicTheoryTestDataset.find(t => 
+        const testCase2 = comprehensiveMusicTheoryTestDataset.find(t =>
           t.input === 'G F C G' && t.parentKey === 'G major'
         );
 
@@ -258,7 +258,7 @@ describe('localChordProgressionAnalysis', () => {
 
     describe('Parent Key + Local Tonic Model Validation', () => {
       it('should consistently use parent key signature + local tonic approach', async () => {
-        const testCase = comprehensiveMusicTheoryTestDataset.find(t => 
+        const testCase = comprehensiveMusicTheoryTestDataset.find(t =>
           t.input === 'Em F# G Em' && t.parentKey === 'G major'
         );
         expect(testCase).toBeDefined();
@@ -267,10 +267,10 @@ describe('localChordProgressionAnalysis', () => {
 
         // Should show parent key signature
         expect(result.localAnalysis.keyCenter).toContain('G Major');
-        
+
         // Should show local tonic (E) in the mode name
         expect(result.localAnalysis.overallMode).toContain('E Dorian');
-        
+
         // Roman numerals should be relative to G major scale but with E as local tonic
         expect(result.localAnalysis.chords.map(c => c.romanNumeral)).toEqual(['vi', 'VII', 'I', 'vi']);
       });
@@ -327,11 +327,11 @@ describe('localChordProgressionAnalysis', () => {
         const result = await analyzeChordProgressionLocally('G F C G');
 
         expect(result.localAnalysis).toBeDefined();
-        
+
         // Should have structural, algorithmic, and potentially user-guided interpretations
         if (result.alternativeInterpretations) {
           expect(result.alternativeInterpretations.length).toBeGreaterThan(0);
-          
+
           result.alternativeInterpretations.forEach(alt => {
             expect(alt.keyCenter).toBeDefined();
             expect(alt.overallMode).toBeDefined();
@@ -413,7 +413,7 @@ describe('localChordProgressionAnalysis', () => {
       // Same first and last chord should increase confidence
       const result1 = await analyzeChordProgressionLocally('C F G C');
       const result2 = await analyzeChordProgressionLocally('C F G Am');
-      
+
       expect(result1.localAnalysis.confidence).toBeGreaterThan(result2.localAnalysis.confidence);
     });
   });
@@ -421,9 +421,9 @@ describe('localChordProgressionAnalysis', () => {
   describe('Performance and Consistency', () => {
     it('should complete analysis within reasonable time', async () => {
       const startTime = performance.now();
-      
+
       await analyzeChordProgressionLocally('G F C G Am F C G Em Am Dm G C');
-      
+
       const endTime = performance.now();
       expect(endTime - startTime).toBeLessThan(200); // Should complete within 200ms
     });

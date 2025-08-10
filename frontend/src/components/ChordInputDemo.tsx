@@ -1,6 +1,6 @@
 /**
  * Chord Input Demo Component
- * 
+ *
  * A demonstration component showcasing the new compact chord input system.
  * This can be used for testing and as a reference for the design patterns.
  */
@@ -38,7 +38,7 @@ export const ChordInputDemo: React.FC = () => {
           Elegant Chord Input System
         </h1>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          A non-obtrusive, modal-based chord progression input that transforms simple placeholders 
+          A non-obtrusive, modal-based chord progression input that transforms simple placeholders
           into powerful chord building tools. Click [+] buttons to experience the compact modal interface.
         </p>
       </div>
@@ -77,7 +77,7 @@ export const ChordInputDemo: React.FC = () => {
 
       {/* Demo Instances */}
       <div className="space-y-6">
-        
+
         {/* Empty Progression - Shows Initial State */}
         <Card>
           <CardHeader>
@@ -128,7 +128,7 @@ export const ChordInputDemo: React.FC = () => {
             />
             <div className="mt-4 space-y-2">
               <div className="text-sm">
-                <strong>Current progression:</strong> 
+                <strong>Current progression:</strong>
                 <Badge variant="outline" className="ml-2 font-mono">
                   {progression2 || 'Empty'}
                 </Badge>

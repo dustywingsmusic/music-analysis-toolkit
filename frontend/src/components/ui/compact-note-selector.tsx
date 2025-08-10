@@ -1,13 +1,13 @@
 /**
  * CompactNoteSelector - Enhanced Mouse Input for Individual Notes (Melodies)
- * 
+ *
  * A space-efficient note selection interface that allows users to:
  * - Select individual notes from a 12-note chromatic selector
  * - Build melodies with clear visual feedback and sequence display
  * - Choose between horizontal and circular layout options
  * - Maintain note order for melodic sequences
  * - Remove duplicates for scale input
- * 
+ *
  * Uses the NOTES constant from scales.ts for consistent note representation.
  */
 
@@ -70,7 +70,7 @@ const CompactNoteSelector: React.FC<CompactNoteSelectorProps> = ({
 }) => {
   // Internal layout state
   const [layout, setLayout] = useState<NoteLayout>(initialLayout);
-  
+
   // Parse current notes
   const currentNotes = useMemo(() => {
     if (!value.trim()) return [];
@@ -93,7 +93,7 @@ const CompactNoteSelector: React.FC<CompactNoteSelectorProps> = ({
   const handleNoteSelect = useCallback((noteData: typeof CHROMATIC_NOTES[0]) => {
     const noteName = showAlternateSpellings && noteData.alternate ? noteData.alternate : noteData.note;
     const finalNoteName = showOctaves ? `${noteName}${selectedOctave}` : noteName;
-    
+
     if (mode === 'melody') {
       // For melody: preserve order and allow duplicates
       const newNotes = [...currentNotes, finalNoteName];
@@ -105,13 +105,13 @@ const CompactNoteSelector: React.FC<CompactNoteSelectorProps> = ({
       const existingPitchClasses = new Set(
         currentNotes.map(note => {
           const cleanNote = note.replace(/[0-9]/g, ''); // Remove octave numbers
-          const pitchClass = CHROMATIC_NOTES.find(n => 
+          const pitchClass = CHROMATIC_NOTES.find(n =>
             n.note === cleanNote || n.alternate === cleanNote
           )?.pitchClass;
           return pitchClass;
         }).filter(pc => pc !== undefined)
       );
-      
+
       if (!existingPitchClasses.has(noteData.pitchClass)) {
         const newNotes = [...currentNotes, finalNoteName];
         if (newNotes.length <= maxNotes) {
@@ -150,7 +150,7 @@ const CompactNoteSelector: React.FC<CompactNoteSelectorProps> = ({
     return new Set(
       currentNotes.map(note => {
         const cleanNote = note.replace(/[0-9]/g, '');
-        const pitchClass = CHROMATIC_NOTES.find(n => 
+        const pitchClass = CHROMATIC_NOTES.find(n =>
           n.note === cleanNote || n.alternate === cleanNote
         )?.pitchClass;
         return pitchClass;
@@ -193,7 +193,7 @@ const CompactNoteSelector: React.FC<CompactNoteSelectorProps> = ({
               {layout === 'horizontal' ? '📏 Linear' : '⭕ Circle'}
             </Button>
           </div>
-          
+
           {/* Alternate Spellings Toggle */}
           <div className="flex items-center gap-1">
             <span className="text-muted-foreground">Spellings:</span>
@@ -228,17 +228,17 @@ const CompactNoteSelector: React.FC<CompactNoteSelectorProps> = ({
       {/* Note Grid */}
       <div className="space-y-2">
         <div className="text-xs font-medium text-muted-foreground">Select notes:</div>
-        
+
         <div className={cn(
           "grid gap-2",
-          layout === 'horizontal' 
-            ? "grid-cols-6 sm:grid-cols-12" 
+          layout === 'horizontal'
+            ? "grid-cols-6 sm:grid-cols-12"
             : "grid-cols-6 sm:grid-cols-6 md:grid-cols-4 lg:grid-cols-6"
         )}>
           {notesInOrder.map((noteData) => {
             const displayNote = showAlternateSpellings && noteData.alternate ? noteData.alternate : noteData.note;
             const isSelected = selectedPitchClasses.has(noteData.pitchClass);
-            
+
             return (
               <DelightfulButton
                 key={noteData.pitchClass}
@@ -266,7 +266,7 @@ const CompactNoteSelector: React.FC<CompactNoteSelectorProps> = ({
           <div className="text-xs font-medium text-muted-foreground">
             Selected notes ({currentNotes.length}/{maxNotes}):
           </div>
-          
+
           <div className="flex items-center gap-1">
             {mode === 'melody' && currentNotes.length > 1 && (
               <Button

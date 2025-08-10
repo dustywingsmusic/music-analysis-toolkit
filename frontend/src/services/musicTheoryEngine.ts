@@ -1,12 +1,18 @@
 /**
  * Music Theory Analysis Engine
+ *
+ * @deprecated This is an experimental/legacy file not currently used in production.
+ * @warning This file is not integrated into the main application runtime.
  * 
  * A comprehensive, modular, and extensible architecture for music theory analysis.
  * Uses a rule-based system with confidence scoring for multiple analytical perspectives.
  * 
+ * Status: EXPERIMENTAL - Not wired to UI components, used only in tests and documentation.
+ * The production app uses enhancedModalAnalyzer.ts and comprehensiveAnalysisService.ts instead.
+ *
  * Key Design Principles:
  * 1. Separation of Concerns - Each analyzer handles one theoretical approach
- * 2. Rule-Based Logic - Extensible rules rather than hardcoded conditionals  
+ * 2. Rule-Based Logic - Extensible rules rather than hardcoded conditionals
  * 3. Confidence-Weighted Results - Multiple interpretations with calculated confidence
  * 4. Testable Components - Each component can be tested in isolation
  * 5. Consistent Data Models - Unified interfaces across all analyzers
@@ -67,11 +73,11 @@ export interface Evidence {
   theoreticalBasis?: string;
 }
 
-export type EvidenceType = 
-  | 'structural_chord' 
-  | 'cadential_motion' 
-  | 'voice_leading' 
-  | 'modal_characteristic' 
+export type EvidenceType =
+  | 'structural_chord'
+  | 'cadential_motion'
+  | 'voice_leading'
+  | 'modal_characteristic'
   | 'chromatic_pattern'
   | 'functional_progression'
   | 'statistical_frequency'
@@ -137,7 +143,7 @@ export class MusicTheoryEngine {
     this.modalAnalyzer = new ModalAnalyzer(this.ruleEngine);
     this.chromaticAnalyzer = new ChromaticHarmonyAnalyzer(this.ruleEngine);
     this.confidenceCalculator = new ConfidenceCalculator();
-    
+
     this.initializeRules();
   }
 
@@ -150,11 +156,11 @@ export class MusicTheoryEngine {
     consensusAnalysis?: AnalysisResult;
   }> {
     const startTime = performance.now();
-    
+
     try {
       // Parse and validate input
       const chords = this.parseChords(context.chordSymbols);
-      
+
       // Run all analyzers in parallel
       const [functionalResult, modalResult, chromaticResult] = await Promise.all([
         this.functionalAnalyzer.analyze(chords, context),
@@ -193,10 +199,10 @@ export class MusicTheoryEngine {
    */
   async analyzeWithModalPriority(context: MusicalContext): Promise<AnalysisResult> {
     const chords = this.parseChords(context.chordSymbols);
-    
+
     // Use modal analyzer with enhanced rules for modal characteristic detection
     const modalResult = await this.modalAnalyzer.analyzeWithEnhancedRules(chords, context);
-    
+
     if (modalResult.confidence > 0.7) {
       return modalResult;
     }
@@ -242,7 +248,7 @@ export class MusicTheoryEngine {
 
   private parseChordQuality(chordSuffix: string): ChordQuality {
     const suffix = chordSuffix.toLowerCase().trim();
-    
+
     // Order matters - check more specific patterns first
     if (suffix.includes('maj7') || suffix.includes('M7')) return 'major7';
     if (suffix.includes('m7') || suffix.includes('min7')) return 'minor7';
@@ -252,7 +258,7 @@ export class MusicTheoryEngine {
     if (suffix.includes('sus4')) return 'sus4';
     if (suffix.includes('sus2')) return 'sus2';
     if (suffix.includes('m') && !suffix.includes('maj')) return 'minor';
-    
+
     return 'major'; // Default
   }
 
@@ -276,14 +282,14 @@ export class MusicTheoryEngine {
 
   private parseExtensions(chordSuffix: string): string[] {
     const extensions: string[] = [];
-    
+
     // Look for common extensions
     if (chordSuffix.includes('9')) extensions.push('9');
     if (chordSuffix.includes('11')) extensions.push('11');
     if (chordSuffix.includes('13')) extensions.push('13');
     if (chordSuffix.includes('add9')) extensions.push('add9');
     if (chordSuffix.includes('6')) extensions.push('6');
-    
+
     return extensions;
   }
 
@@ -292,7 +298,7 @@ export class MusicTheoryEngine {
 
     // Look for agreements between different analytical approaches
     const agreements = this.findAnalyticalAgreements(analyses);
-    
+
     if (agreements.length > 0) {
       // Create a consensus analysis based on common elements
       return this.synthesizeConsensus(analyses, agreements);
@@ -305,7 +311,7 @@ export class MusicTheoryEngine {
     // Implementation would compare Roman numerals, key centers, functions, etc.
     // This is a simplified version
     const agreements: string[] = [];
-    
+
     // Check if all analyses agree on key center
     const keyCenter = analyses[0].keyCenter;
     if (analyses.every(a => a.keyCenter === keyCenter)) {
@@ -314,7 +320,7 @@ export class MusicTheoryEngine {
 
     // Check for Roman numeral agreement
     const firstRomanNumerals = analyses[0].chords.map(c => c.romanNumeral);
-    if (analyses.some(a => 
+    if (analyses.some(a =>
       a.chords.map(c => c.romanNumeral).join('') === firstRomanNumerals.join('')
     )) {
       agreements.push('roman_numerals');
@@ -326,7 +332,7 @@ export class MusicTheoryEngine {
   private synthesizeConsensus(analyses: AnalysisResult[], agreements: string[]): AnalysisResult {
     // Synthesize a consensus analysis from common elements
     const primary = analyses[0];
-    
+
     return {
       approach: 'functional', // Default to functional as baseline
       keyCenter: primary.keyCenter,
@@ -361,7 +367,7 @@ export class MusicTheoryEngine {
   private createConsensusExplanation(analyses: AnalysisResult[], agreements: string[]): string {
     const approaches = analyses.map(a => a.approach).join(', ');
     const agreeText = agreements.length > 0 ? ` with consensus on ${agreements.join(', ')}` : '';
-    
+
     return `Consensus analysis from ${approaches} approaches${agreeText}. Primary interpretation based on highest confidence analysis.`;
   }
 
@@ -410,7 +416,7 @@ export class RuleEngine {
 }
 
 // =====================================================
-// CONFIDENCE CALCULATION SYSTEM  
+// CONFIDENCE CALCULATION SYSTEM
 // =====================================================
 
 export class ConfidenceCalculator {
@@ -422,34 +428,34 @@ export class ConfidenceCalculator {
 
     // Base confidence from evidence strength
     const evidenceConfidence = evidence.reduce((sum, e) => sum + e.strength, 0) / evidence.length;
-    
+
     // Structural bonuses
     const structuralBonus = this.calculateStructuralBonus(context);
-    
+
     // Consistency bonus (if multiple pieces of evidence support same conclusion)
     const consistencyBonus = this.calculateConsistencyBonus(evidence);
-    
+
     // Penalty for ambiguity
     const ambiguityPenalty = this.calculateAmbiguityPenalty(evidence);
 
     let confidence = evidenceConfidence + structuralBonus + consistencyBonus - ambiguityPenalty;
-    
+
     // Ensure confidence is between 0 and 1
     return Math.max(0, Math.min(1, confidence));
   }
 
   calculateConsensusConfidence(analyses: AnalysisResult[]): number {
     if (analyses.length === 0) return 0;
-    
+
     const avgConfidence = analyses.reduce((sum, a) => sum + a.confidence, 0) / analyses.length;
     const consensusBonus = analyses.length > 1 ? 0.1 : 0;
-    
+
     return Math.min(1, avgConfidence + consensusBonus);
   }
 
   private calculateStructuralBonus(context: RuleContext): number {
     let bonus = 0;
-    
+
     // First and last chord same (strong structural evidence)
     if (context.chords.length > 1) {
       const first = context.chords[0];
@@ -470,7 +476,7 @@ export class ConfidenceCalculator {
   private calculateConsistencyBonus(evidence: Evidence[]): number {
     // Count evidence types that appear multiple times
     const evidenceTypeCounts = new Map<EvidenceType, number>();
-    
+
     evidence.forEach(e => {
       evidenceTypeCounts.set(e.type, (evidenceTypeCounts.get(e.type) || 0) + 1);
     });
@@ -482,11 +488,11 @@ export class ConfidenceCalculator {
   private calculateAmbiguityPenalty(evidence: Evidence[]): number {
     // Penalty for conflicting evidence
     const evidenceTypes = new Set(evidence.map(e => e.type));
-    
+
     // If we have both functional and modal evidence, there's some ambiguity
-    const hasConflictingTypes = evidenceTypes.has('functional_progression') && 
+    const hasConflictingTypes = evidenceTypes.has('functional_progression') &&
                                evidenceTypes.has('modal_characteristic');
-    
+
     return hasConflictingTypes ? 0.1 : 0;
   }
 }
@@ -516,7 +522,7 @@ export const CADENCE_DETECTION_RULES: AnalysisRule[] = [];
 // These analyzer classes would be implemented in separate files
 export class FunctionalHarmonyAnalyzer {
   constructor(private ruleEngine: RuleEngine) {}
-  
+
   async analyze(chords: ChordAnalysis[], context: MusicalContext): Promise<AnalysisResult> {
     // Implementation would use rule engine to analyze functional harmony
     throw new Error('Not implemented - see functionalHarmonyAnalyzer.ts');
@@ -525,7 +531,7 @@ export class FunctionalHarmonyAnalyzer {
 
 export class ModalAnalyzer {
   constructor(private ruleEngine: RuleEngine) {}
-  
+
   async analyze(chords: ChordAnalysis[], context: MusicalContext): Promise<AnalysisResult> {
     // Implementation would use rule engine to analyze modal characteristics
     throw new Error('Not implemented - see modalAnalyzer.ts');
@@ -539,7 +545,7 @@ export class ModalAnalyzer {
 
 export class ChromaticHarmonyAnalyzer {
   constructor(private ruleEngine: RuleEngine) {}
-  
+
   async analyze(chords: ChordAnalysis[], context: MusicalContext): Promise<AnalysisResult> {
     // Implementation would use rule engine to analyze chromatic harmony
     throw new Error('Not implemented - see chromaticHarmonyAnalyzer.ts');

@@ -184,7 +184,7 @@
 
 **Core Modal Logic to Extract:**
 1. Mode interval definitions and formulas
-2. Pattern recognition algorithms  
+2. Pattern recognition algorithms
 3. Evidence collection and scoring
 4. Roman numeral generation for modal contexts
 5. Parent key derivation logic

@@ -1,6 +1,6 @@
 /**
  * Enhanced Confidence Display Components
- * 
+ *
  * Provides multi-dimensional confidence visualization with:
  * - Primary confidence meter with animation
  * - Breakdown by analysis source (theoretical vs contextual)
@@ -19,7 +19,7 @@ export interface ComprehensiveConfidence {
   overall: number;
   breakdown?: {
     theoretical: number;    // Local analysis confidence
-    contextual: number;     // AI enhancement confidence  
+    contextual: number;     // AI enhancement confidence
     crossValidation: number; // Agreement between methods
   };
   label: 'High' | 'Medium' | 'Low';
@@ -57,19 +57,19 @@ export const ConfidenceMeter: React.FC<{
   animate?: boolean;
 }> = ({ value, label, size = 'md', showValue = true, animate = true }) => {
   const classes = getConfidenceClasses(value);
-  
+
   const sizeClasses = {
     sm: 'w-12 h-1.5',
     md: 'w-16 h-2',
     lg: 'w-24 h-3'
   };
-  
+
   return (
     <div className="flex items-center gap-2">
       <div className={`bg-gray-200 rounded-full overflow-hidden ${sizeClasses[size]}`}>
-        <div 
+        <div
           className={`h-full transition-all duration-700 ease-out ${classes.bg} ${animate ? 'animate-pulse' : ''}`}
-          style={{ 
+          style={{
             width: `${value}%`,
             animationDuration: animate ? '1s' : '0s',
             animationIterationCount: 1
@@ -98,7 +98,7 @@ export const EnhancedConfidenceDisplay: React.FC<EnhancedConfidenceDisplayProps>
 }) => {
   const [showDetails, setShowDetails] = useState(false);
   const classes = getConfidenceClasses(confidence.overall);
-  
+
   return (
     <div className="enhanced-confidence-display space-y-2">
       {/* Primary Confidence Display */}
@@ -120,29 +120,29 @@ export const EnhancedConfidenceDisplay: React.FC<EnhancedConfidenceDisplayProps>
             )}
           </div>
           <div className="flex items-center gap-2">
-            <Badge 
-              variant="outline" 
+            <Badge
+              variant="outline"
               className={`text-xs font-semibold ${classes.bgLight} ${classes.text} ${classes.border}`}
             >
               {confidence.overall}%
             </Badge>
-            <Badge 
-              variant="outline" 
+            <Badge
+              variant="outline"
               className={`text-xs ${classes.bgLight} ${classes.text} ${classes.border}`}
             >
               {confidence.label}
             </Badge>
           </div>
         </div>
-        
-        <ConfidenceMeter 
+
+        <ConfidenceMeter
           value={confidence.overall}
           size={size}
           showValue={false}
           animate={animate}
         />
       </div>
-      
+
       {/* Confidence Breakdown */}
       {showBreakdown && confidence.breakdown && (
         <Collapsible open={showDetails} onOpenChange={setShowDetails}>
@@ -201,7 +201,7 @@ const ConfidenceBreakdownItem: React.FC<{
           </div>
         </div>
       </div>
-      <ConfidenceMeter 
+      <ConfidenceMeter
         value={value}
         size="sm"
         showValue={true}
@@ -217,7 +217,7 @@ export const AnalysisConfidenceCard: React.FC<{
   children?: React.ReactNode;
 }> = ({ title, confidence, children }) => {
   const classes = getConfidenceClasses(confidence.overall);
-  
+
   return (
     <Card className={`confidence-card border-2 ${classes.border} ${classes.bgLight}/20`}>
       <CardHeader className="pb-2">
@@ -227,7 +227,7 @@ export const AnalysisConfidenceCard: React.FC<{
             {confidence.label}
           </Badge>
         </div>
-        <EnhancedConfidenceDisplay 
+        <EnhancedConfidenceDisplay
           confidence={confidence}
           size="md"
           showBreakdown={true}

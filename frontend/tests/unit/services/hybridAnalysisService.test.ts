@@ -5,8 +5,8 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { analyzeChordProgression, analyzeMusicalInput, HybridAnalysisOptions } from '@/services/hybridAnalysisService';
-import { 
-  comprehensiveMusicTheoryTestDataset, 
+import {
+  comprehensiveMusicTheoryTestDataset,
   getTestCasesByCategory,
   getTestCasesByPrimaryApproach,
   getTestCasesWithChromaticElements,
@@ -36,7 +36,7 @@ describe('HybridAnalysisService', () => {
 
   describe('End-to-End Chord Progression Analysis', () => {
     it('should provide complete analysis for basic functional progressions', async () => {
-      const testCase = comprehensiveMusicTheoryTestDataset.find(t => 
+      const testCase = comprehensiveMusicTheoryTestDataset.find(t =>
         t.input === 'C F G C' && t.expectedPrimary === 'functional'
       );
       expect(testCase).toBeDefined();
@@ -62,7 +62,7 @@ describe('HybridAnalysisService', () => {
     });
 
     it('should handle modal progressions with comprehensive analysis', async () => {
-      const testCase = comprehensiveMusicTheoryTestDataset.find(t => 
+      const testCase = comprehensiveMusicTheoryTestDataset.find(t =>
         t.input === 'G F C G' && t.expectedPrimary === 'modal' && !t.parentKey
       );
       expect(testCase).toBeDefined();
@@ -71,7 +71,7 @@ describe('HybridAnalysisService', () => {
 
       expect(result.localResult).toBeDefined();
       expect(result.comprehensiveResult).toBeDefined();
-      
+
       // Should detect modal characteristics
       if (result.comprehensiveResult.primaryApproach === 'modal') {
         expect(result.comprehensiveResult.modal).toBeDefined();
@@ -83,7 +83,7 @@ describe('HybridAnalysisService', () => {
     });
 
     it('should handle chromatic progressions with secondary dominants', async () => {
-      const testCase = comprehensiveMusicTheoryTestDataset.find(t => 
+      const testCase = comprehensiveMusicTheoryTestDataset.find(t =>
         t.input === 'C D7 G C' && t.expectedPrimary === 'chromatic'
       );
       expect(testCase).toBeDefined();
@@ -101,7 +101,7 @@ describe('HybridAnalysisService', () => {
     });
 
     it('should coordinate all analysis engines for complex jazz progressions', async () => {
-      const testCase = comprehensiveMusicTheoryTestDataset.find(t => 
+      const testCase = comprehensiveMusicTheoryTestDataset.find(t =>
         t.input === 'Cmaj7 A7 Dm7 G7 Em7 A7 Dm7 G7 Cmaj7'
       );
       expect(testCase).toBeDefined();
@@ -151,7 +151,7 @@ describe('HybridAnalysisService', () => {
       // Should still provide local results
       expect(result.localResult).toBeDefined();
       expect(result.comprehensiveResult).toBeDefined();
-      
+
       // AI enhancement should be minimal/fallback
       expect(result.aiEnhancement).toBeDefined();
       expect(result.aiEnhancement!.confidence).toBe(0);
@@ -160,7 +160,7 @@ describe('HybridAnalysisService', () => {
 
     it('should timeout AI requests appropriately', async () => {
       const { analyzeHarmony } = await import('@/services/geminiService');
-      vi.mocked(analyzeHarmony).mockImplementation(() => 
+      vi.mocked(analyzeHarmony).mockImplementation(() =>
         new Promise((resolve) => setTimeout(resolve, 10000)) // Long delay
       );
 
@@ -174,7 +174,7 @@ describe('HybridAnalysisService', () => {
 
       // Should complete quickly due to timeout
       expect(endTime - startTime).toBeLessThan(200);
-      
+
       // Should still have results
       expect(result.localResult).toBeDefined();
       expect(result.comprehensiveResult).toBeDefined();
@@ -216,7 +216,7 @@ describe('HybridAnalysisService', () => {
 
       if (result.crossValidation) {
         expect(['local', 'ai', 'hybrid']).toContain(result.crossValidation.recommendedInterpretation);
-        
+
         // High local confidence should prefer local or hybrid
         if (result.localResult.results.confidence > 0.8) {
           expect(['local', 'hybrid']).toContain(result.crossValidation.recommendedInterpretation);
@@ -227,7 +227,7 @@ describe('HybridAnalysisService', () => {
 
   describe('Integration of All Analysis Engines', () => {
     it('should coordinate functional, modal, and chromatic analyses', async () => {
-      const testCase = comprehensiveMusicTheoryTestDataset.find(t => 
+      const testCase = comprehensiveMusicTheoryTestDataset.find(t =>
         t.input === 'C F Ab G C' && t.expectedPrimary === 'chromatic'
       );
       expect(testCase).toBeDefined();
@@ -256,7 +256,7 @@ describe('HybridAnalysisService', () => {
     it('should handle context-dependent analysis correctly', async () => {
       // Test the same progression with and without parent key
       const progressionInput = 'G F C G';
-      
+
       const resultWithoutKey = await analyzeChordProgression(progressionInput, defaultOptions);
       const resultWithKey = await analyzeChordProgression(progressionInput, {
         ...defaultOptions,
@@ -367,12 +367,12 @@ describe('HybridAnalysisService', () => {
   describe('Performance Metrics', () => {
     it('should complete analysis within reasonable time limits', async () => {
       const startTime = performance.now();
-      
+
       const result = await analyzeChordProgression('Cmaj7 A7 Dm7 G7 Em7 A7 Dm7 G7 Cmaj7', {
         ...defaultOptions,
         knownKey: 'C major'
       });
-      
+
       const endTime = performance.now();
       const totalTime = endTime - startTime;
 
@@ -478,11 +478,11 @@ describe('HybridAnalysisService', () => {
         });
 
         expect(result.comprehensiveResult!.chromatic).toBeDefined();
-        
+
         if (testCase.expectedChromaticElements?.secondaryDominants) {
           expect(result.comprehensiveResult!.chromatic!.secondaryDominants.length).toBeGreaterThan(0);
         }
-        
+
         if (testCase.expectedChromaticElements?.borrowedChords) {
           expect(result.comprehensiveResult!.chromatic!.borrowedChords.length).toBeGreaterThan(0);
         }
@@ -503,7 +503,7 @@ describe('HybridAnalysisService', () => {
       const romans = result.comprehensiveResult!.functional.chords.map(c => c.romanNumeral);
       expect(romans[0]).toBe('V/V');
       expect(romans[1]).toBe('V');
-      
+
       if (result.comprehensiveResult!.chromatic) {
         expect(result.comprehensiveResult!.chromatic.secondaryDominants.length).toBeGreaterThan(0);
       }
@@ -512,7 +512,7 @@ describe('HybridAnalysisService', () => {
     it('should handle G-F-C-G progression with and without parent key context', async () => {
       // Without parent key - should be modal
       const resultWithoutKey = await analyzeChordProgression('G F C G', defaultOptions);
-      
+
       // With parent key - should be functional with modal enhancement
       const resultWithKey = await analyzeChordProgression('G F C G', {
         ...defaultOptions,
@@ -521,7 +521,7 @@ describe('HybridAnalysisService', () => {
 
       // Without key: should detect as Mixolydian
       expect(resultWithoutKey.localResult.results.chordProgression.localAnalysis.overallMode).toContain('Mixolydian');
-      
+
       // With key: should use C major context
       expect(resultWithKey.localResult.results.chordProgression.localAnalysis.keyCenter).toContain('C Major');
       expect(resultWithKey.comprehensiveResult!.functional.keyCenter).toContain('C');
@@ -544,7 +544,7 @@ describe('HybridAnalysisService', () => {
       // Should recognize ambiguity and provide reasonable analysis
       expect(result.comprehensiveResult!.confidence).toBeLessThan(0.8);
       expect(result.comprehensiveResult!.explanation).toBeDefined();
-      
+
       // Should still provide valid Roman numeral analysis
       const romans = result.comprehensiveResult!.functional.chords.map(c => c.romanNumeral);
       expect(romans).toHaveLength(4);

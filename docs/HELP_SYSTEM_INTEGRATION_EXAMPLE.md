@@ -11,14 +11,14 @@ This document shows how to integrate the contextual help system with existing co
 import MusicTermHighlighter from '../help/MusicTermHighlighter';
 
 // Wrap analysis content with contextual help
-<MusicTermHighlighter 
+<MusicTermHighlighter
   context={{ type: 'functional', subtype: 'cadence_analysis' }}
 >
   <p><strong>Analysis:</strong> Features strong V-I authentic cadences</p>
 </MusicTermHighlighter>
 
 // For modal analysis results
-<MusicTermHighlighter 
+<MusicTermHighlighter
   context={{ type: 'modal', subtype: 'mode_identification' }}
 >
   <p><strong>Mode:</strong> {analysis.mode}</p>
@@ -26,7 +26,7 @@ import MusicTermHighlighter from '../help/MusicTermHighlighter';
 </MusicTermHighlighter>
 
 // For chromatic harmony
-<MusicTermHighlighter 
+<MusicTermHighlighter
   context={{ type: 'chromatic', subtype: 'secondary_dominants' }}
 >
   <div className="modal-chord-item">
@@ -48,13 +48,13 @@ import MusicTermHighlighter from '../help/MusicTermHighlighter';
 
 <MusicTermHighlighter context={{ type: 'functional', subtype: 'roman_numerals' }}>
   <p className="input-panel__help text-muted-foreground">
-    Enter chords separated by spaces. Use | to separate measures. 
+    Enter chords separated by spaces. Use | to separate measures.
     Comprehensive analysis with functional, modal, and chromatic perspectives!
   </p>
 </MusicTermHighlighter>
 
 // In results display
-<MusicTermHighlighter 
+<MusicTermHighlighter
   context={{ type: 'functional', subtype: 'chord_analysis' }}
   onViewInTables={handleViewInTables}
 >
@@ -77,7 +77,7 @@ const DualLensAnalysisPanel = ({ result, onViewInTables }) => {
   return (
     <div className="dual-lens-analysis">
       {/* Functional Analysis Section */}
-      <MusicTermHighlighter 
+      <MusicTermHighlighter
         context={{ type: 'functional', subtype: 'roman_numeral_analysis' }}
       >
         <Card className="border-2 border-blue-200 bg-blue-50/30">
@@ -101,7 +101,7 @@ const DualLensAnalysisPanel = ({ result, onViewInTables }) => {
 
       {/* Modal Enhancement Section */}
       {result.modal && (
-        <MusicTermHighlighter 
+        <MusicTermHighlighter
           context={{ type: 'modal', subtype: 'modal_enhancement' }}
         >
           <Card className="border-2 border-purple-200 bg-purple-50/30">
@@ -109,7 +109,7 @@ const DualLensAnalysisPanel = ({ result, onViewInTables }) => {
               <CardTitle>Modal Enhancement</CardTitle>
             </CardHeader>
             <CardContent>
-              <p>This progression contains modal characteristics that suggest 
+              <p>This progression contains modal characteristics that suggest
                  Mixolydian mode due to the bVII-I cadence pattern.</p>
               <p><strong>Modal Chords:</strong> {result.modal.modalChords.join(', ')}</p>
             </CardContent>
@@ -210,7 +210,7 @@ Add these styles to your global CSS or component styles:
   .music-term {
     border-bottom-width: 2px;
   }
-  
+
   .music-term:hover {
     background: #000;
     color: #fff;
@@ -226,7 +226,7 @@ Add these styles to your global CSS or component styles:
 3. Add 20 most common terms to glossary
 4. Test with functional harmony analysis
 
-### Phase 2: Modal Integration  
+### Phase 2: Modal Integration
 1. Extend to `EnhancedHarmonyTab` and modal analysis components
 2. Add modal-specific terms and contextual definitions
 3. Implement "View in Scale Tables" integration
@@ -240,7 +240,7 @@ Add these styles to your global CSS or component styles:
 
 ### Phase 4: Polish & Accessibility
 1. Full WCAG 2.1 AA compliance testing
-2. Mobile touch interaction optimization  
+2. Mobile touch interaction optimization
 3. Performance optimization for large documents
 4. A/B testing for optimal UX patterns
 
@@ -273,7 +273,7 @@ trackHelpEffectiveness('mediant', true, 'Clear explanation helped me understand 
 - Accessibility compliance
 - Performance with large content
 
-### Integration Tests  
+### Integration Tests
 - Help system within analysis flows
 - Cross-component term consistency
 - Mobile touch interactions

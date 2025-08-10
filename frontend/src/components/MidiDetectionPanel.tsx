@@ -72,11 +72,11 @@ const MidiDetectionPanel: React.FC<MidiDetectionPanelProps> = ({
           const pitchClasses = new Set(modeTypeIntervals.map(i => (modeRootPitch + i) % 12));
           const cellId = `${data.tableId}-${keyRowIndex}-${modeIndex}`;
 
-          newProcessedScales.push({ 
-            id: cellId, 
-            pitchClasses, 
+          newProcessedScales.push({
+            id: cellId,
+            pitchClasses,
             rootNote: modeRootPitch,
-            name: data.commonNames ? data.commonNames[modeIndex] : 
+            name: data.commonNames ? data.commonNames[modeIndex] :
                   data.alternateNames ? data.alternateNames[modeIndex] : undefined,
           });
         });

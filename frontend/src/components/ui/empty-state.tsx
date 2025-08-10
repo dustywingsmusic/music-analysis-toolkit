@@ -64,7 +64,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
 }) => {
   const [tipIndex, setTipIndex] = React.useState(0);
   const content = emptyStateContent[variant];
-  
+
   // Rotate tips every 4 seconds
   React.useEffect(() => {
     if (content.tips.length > 1) {
@@ -84,7 +84,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
       <div className="text-6xl animate-bounce-gentle">
         {content.emoji}
       </div>
-      
+
       {/* Content */}
       <div className="space-y-3 max-w-md">
         <h3 className="text-xl font-semibold text-foreground">
@@ -94,7 +94,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
           {description || content.description}
         </p>
       </div>
-      
+
       {/* Rotating Tips */}
       {content.tips.length > 0 && (
         <div className="bg-muted/50 rounded-lg p-4 max-w-sm">
@@ -106,7 +106,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
           </div>
         </div>
       )}
-      
+
       {/* Action Button */}
       {actionLabel && onAction && (
         <DelightfulButton
@@ -118,7 +118,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
           {actionLabel}
         </DelightfulButton>
       )}
-      
+
       {/* Decorative Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 text-primary/10 text-4xl animate-float-1">♪</div>

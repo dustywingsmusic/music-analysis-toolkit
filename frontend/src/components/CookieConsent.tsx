@@ -34,7 +34,7 @@ export const CookieConsent: React.FC<CookieConsentProps> = ({ onAccept, onDeclin
       <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex-1">
           <p className="text-sm">
-            We use cookies to improve your experience and analyze site usage. 
+            We use cookies to improve your experience and analyze site usage.
             This includes Google Analytics for understanding how users interact with our music theory tools.
             <span className="block mt-1 text-xs text-gray-300">
               You can change your preferences at any time in your browser settings.

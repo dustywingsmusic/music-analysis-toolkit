@@ -1,6 +1,6 @@
 /**
  * Compact Analysis Hook
- * 
+ *
  * Lightweight analysis engine optimized for MIDI Widget use cases:
  * - Fast response times (< 100ms)
  * - Minimal memory footprint
@@ -63,7 +63,7 @@ export const useCompactAnalysis = () => {
           const modeRootPitch = (parentKeyIndex + modeStartInterval) % 12;
           const modeTypeIntervals = data.modeIntervals[modeIndex];
           const pitchClasses = new Set(modeTypeIntervals.map(i => (modeRootPitch + i) % 12));
-          
+
           scales.push({
             pitchClasses,
             name: data.commonNames?.[modeIndex] || `Mode ${modeIndex + 1}`,
@@ -84,7 +84,7 @@ export const useCompactAnalysis = () => {
     return [
       // Major triads
       { intervals: [0, 4, 7], symbol: '', quality: 'major' as const, function: 'tonic' as const },
-      // Minor triads  
+      // Minor triads
       { intervals: [0, 3, 7], symbol: 'm', quality: 'minor' as const, function: 'tonic' as const },
       // Dominant 7ths
       { intervals: [0, 4, 7, 10], symbol: '7', quality: 'major' as const, function: 'dominant' as const },
@@ -114,7 +114,7 @@ export const useCompactAnalysis = () => {
     for (const scale of scaleDatabase) {
       if (scale.pitchClasses.size === pitchClasses.size) {
         const isMatch = pitchClassArray.every(pc => scale.pitchClasses.has(pc));
-        
+
         if (isMatch) {
           matches.push({
             name: scale.name,
@@ -133,7 +133,7 @@ export const useCompactAnalysis = () => {
       const commonModes = ['Major', 'Natural Minor', 'Dorian', 'Mixolydian'];
       const aScore = commonModes.indexOf(a.name);
       const bScore = commonModes.indexOf(b.name);
-      
+
       if (aScore !== -1 && bScore !== -1) return aScore - bScore;
       if (aScore !== -1) return -1;
       if (bScore !== -1) return 1;
@@ -151,7 +151,7 @@ export const useCompactAnalysis = () => {
 
     const pitchClassArray = Array.from(pitchClasses).sort();
     const root = pitchClassArray[0];
-    
+
     // Normalize to root position intervals
     const intervals = pitchClassArray.map(pc => (pc - root + 12) % 12).sort();
 
@@ -159,7 +159,7 @@ export const useCompactAnalysis = () => {
     for (const pattern of chordPatterns) {
       if (intervals.length === pattern.intervals.length) {
         const isMatch = intervals.every((interval, idx) => interval === pattern.intervals[idx]);
-        
+
         if (isMatch) {
           return {
             chordSymbol: `${NOTES[root]}${pattern.symbol}`,
@@ -186,7 +186,7 @@ export const useCompactAnalysis = () => {
    * Generate quick insights for display
    */
   const generateInsights = useCallback((
-    modes: CompactModeDetection[], 
+    modes: CompactModeDetection[],
     chord: CompactChordAnalysis | null,
     pitchClasses: Set<number>
   ): string[] => {
@@ -200,7 +200,7 @@ export const useCompactAnalysis = () => {
     if (modes.length > 0) {
       const primaryMode = modes[0];
       insights.push(`${primaryMode.name} mode`);
-      
+
       if (modes.length > 1) {
         insights.push(`${modes.length} possible modes`);
       }
@@ -230,12 +230,12 @@ export const useCompactAnalysis = () => {
       ]);
 
       const quickInsights = generateInsights(detectedModes, chordAnalysis, pitchClasses);
-      
+
       // Calculate overall confidence
       let confidence = 0;
       if (detectedModes.length > 0) confidence += 0.6;
       if (chordAnalysis && chordAnalysis.confidence > 0.8) confidence += 0.4;
-      
+
       const result: CompactAnalysisResult = {
         detectedModes,
         chordAnalysis: chordAnalysis || undefined,
@@ -269,16 +269,16 @@ export const useCompactAnalysis = () => {
   return {
     // Main analysis function
     analyzeQuickly,
-    
+
     // Specialized analysis functions
     detectModesOnly,
     analyzeChordOnly,
-    
+
     // State
     isAnalyzing,
     setIsAnalyzing,
     lastAnalysis,
-    
+
     // Utilities
     scaleDatabase: scaleDatabase.length, // Return count for debugging
     chordPatterns: chordPatterns.length

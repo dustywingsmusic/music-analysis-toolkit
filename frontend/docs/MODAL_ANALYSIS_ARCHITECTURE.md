@@ -21,7 +21,7 @@
 ### All Analysis Types Must Use This Model:
 
 1. **Chord Progression Analysis**
-2. **Melody Analysis**  
+2. **Melody Analysis**
 3. **Scale Analysis**
 4. **Real-time MIDI Input**
 5. **Mode Discovery**
@@ -63,7 +63,7 @@ interface ModalAnalysisResult {
 
 ### Example: G F C G Progression
 
-**Input**: 
+**Input**:
 - Chords: G F C G
 - Parent Key Signature: C major (or auto-detected)
 
@@ -81,7 +81,7 @@ Modal Characteristic: The ♭VII chord (F major) is characteristic of Mixolydian
 
 ### Core Analysis Services
 - `src/services/localChordProgressionAnalysis.ts`
-- `src/services/realTimeModeDetection.ts`  
+- `src/services/realTimeModeDetection.ts`
 - `src/services/hybridAnalysisService.ts`
 - `src/utils/music.ts`
 
@@ -116,7 +116,7 @@ Modal Characteristic: The ♭VII chord (F major) is characteristic of Mixolydian
 
 1. **Document architectural decision** ✓
 2. **Update core analysis algorithms**
-3. **Modify input interfaces** 
+3. **Modify input interfaces**
 4. **Refactor UI components**
 5. **Update context management**
 6. **Test consistency across all features**

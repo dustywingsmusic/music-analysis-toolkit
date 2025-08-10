@@ -1,6 +1,6 @@
 /**
  * Comprehensive Analysis Engine Test Suite
- * 
+ *
  * Integration tests for the ComprehensiveAnalysisEngine class
  * Tests full analysis pipeline, decision tree logic, confidence thresholds,
  * and multiple perspective analysis coordination
@@ -60,7 +60,7 @@ describe('ComprehensiveAnalysisEngine', () => {
     it('should perform comprehensive analysis with all components', async () => {
       // Mock the functional analyzer
       vi.mocked(mockFunctionalAnalyzer.analyzeFunctionally).mockResolvedValue(mockFunctionalResult);
-      
+
       // Mock the modal analyzer
       vi.mocked(mockModalAnalyzer.analyzeModalCharacteristics).mockReturnValue(mockModalResult);
 
@@ -101,7 +101,7 @@ describe('ComprehensiveAnalysisEngine', () => {
         ...mockFunctionalResult,
         cadences: [{ from: 'V', to: 'I', type: 'authentic', strength: 'strong' }]
       };
-      
+
       vi.mocked(mockFunctionalAnalyzer.analyzeFunctionally).mockResolvedValue(functionalWithCadences);
       vi.mocked(mockModalAnalyzer.analyzeModalCharacteristics).mockReturnValue(null);
 
@@ -115,7 +115,7 @@ describe('ComprehensiveAnalysisEngine', () => {
         ...mockFunctionalResult,
         cadences: []
       };
-      
+
       vi.mocked(mockFunctionalAnalyzer.analyzeFunctionally).mockResolvedValue(functionalWithoutCadences);
       vi.mocked(mockModalAnalyzer.analyzeModalCharacteristics).mockReturnValue(mockModalResult);
 
@@ -397,7 +397,7 @@ describe('ComprehensiveAnalysisEngine', () => {
       vi.mocked(mockModalAnalyzer.analyzeModalCharacteristics).mockReturnValue(mockModalResult);
 
       const longProgression = 'C F G Am Dm G Em F C G Am F C';
-      
+
       const start = performance.now();
       const result = await engine.analyzeComprehensively(longProgression);
       const duration = performance.now() - start;

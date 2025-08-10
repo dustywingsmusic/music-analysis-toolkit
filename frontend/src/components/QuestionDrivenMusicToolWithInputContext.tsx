@@ -1,6 +1,6 @@
 /**
  * QuestionDrivenMusicToolWithInputContext - Wrapper with Input Method Context
- * 
+ *
  * This wrapper component provides the InputMethodContext to the main QuestionDrivenMusicTool
  * and integrates the universal input settings system with MIDI state management.
  */
@@ -16,15 +16,15 @@ interface QuestionDrivenMusicToolWithInputContextProps {
 }
 
 // Inner component that uses the input method context
-const QuestionDrivenMusicToolInner: React.FC<QuestionDrivenMusicToolWithInputContextProps> = ({ 
-  showDebugInfo 
+const QuestionDrivenMusicToolInner: React.FC<QuestionDrivenMusicToolWithInputContextProps> = ({
+  showDebugInfo
 }) => {
-  const { 
-    activeInputMethod, 
-    setInputMethod, 
+  const {
+    activeInputMethod,
+    setInputMethod,
     updateMidiAvailability,
     midiAvailable,
-    midiConnected 
+    midiConnected
   } = useInputMethod();
 
   // MIDI integration - placeholder handlers
@@ -61,7 +61,7 @@ const QuestionDrivenMusicToolInner: React.FC<QuestionDrivenMusicToolWithInputCon
   useEffect(() => {
     const isAvailable = midiDevices.length > 0 && !midiError;
     const isConnected = midiEnabled && midiStatus.includes('Listening');
-    
+
     updateMidiAvailability(isAvailable, isConnected);
   }, [midiDevices, midiError, midiEnabled, midiStatus, updateMidiAvailability]);
 
@@ -79,7 +79,7 @@ const QuestionDrivenMusicToolInner: React.FC<QuestionDrivenMusicToolWithInputCon
       {/* Header Section */}
 
       {/* Main Content - Render the original tool but with input context integration */}
-      <QuestionDrivenMusicTool 
+      <QuestionDrivenMusicTool
         showDebugInfo={showDebugInfo}
         // Pass through MIDI data for components that still need it directly
         midiData={{

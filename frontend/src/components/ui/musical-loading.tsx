@@ -38,10 +38,10 @@ const loadingMessages = {
   ]
 };
 
-const MusicalLoading: React.FC<MusicalLoadingProps> = ({ 
-  variant = 'analysis', 
+const MusicalLoading: React.FC<MusicalLoadingProps> = ({
+  variant = 'analysis',
   size = 'md',
-  className 
+  className
 }) => {
   const [messageIndex, setMessageIndex] = React.useState(0);
   const [currentMessage, setCurrentMessage] = React.useState(loadingMessages[variant][0]);
@@ -60,7 +60,7 @@ const MusicalLoading: React.FC<MusicalLoadingProps> = ({
 
   const sizeClasses = {
     sm: 'h-8 w-8',
-    md: 'h-12 w-12', 
+    md: 'h-12 w-12',
     lg: 'h-16 w-16'
   };
 
@@ -77,7 +77,7 @@ const MusicalLoading: React.FC<MusicalLoadingProps> = ({
         )}>
           <span className="text-2xl animate-pulse">🎵</span>
         </div>
-        
+
         {/* Floating notes */}
         <div className="absolute -top-2 -right-2 animate-float-1">
           <span className="text-sm opacity-60">♪</span>

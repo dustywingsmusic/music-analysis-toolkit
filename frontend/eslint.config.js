@@ -8,10 +8,10 @@ import tsParser from '@typescript-eslint/parser';
 export default [
   {
     ignores: [
-      'dist', 
-      'node_modules', 
-      'tests/**/*', 
-      '**/*.test.ts', 
+      'dist',
+      'node_modules',
+      'tests/**/*',
+      '**/*.test.ts',
       '**/*.test.tsx',
       '*.config.ts',
       '*.config.js',
@@ -56,7 +56,7 @@ export default [
       'no-console': 'off', // Allow console logs for debugging
       'no-debugger': 'error',
       'no-unreachable': 'error',
-      'no-unused-vars': ['warn', { 
+      'no-unused-vars': ['warn', {
         argsIgnorePattern: '^_',
         varsIgnorePattern: '^_'
       }]

@@ -45,10 +45,10 @@ Visual feedback for MIDI input
 // Before
 {isLoading && <div>Analyzing...</div>}
 
-// After  
+// After
 {isLoading && (
-  <MusicalLoading 
-    variant="analysis" 
+  <MusicalLoading
+    variant="analysis"
     size="md"
     message="Discovering musical patterns..."
   />

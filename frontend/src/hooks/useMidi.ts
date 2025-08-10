@@ -35,11 +35,11 @@ export const useMidi = (
   const handleNoteOn = useCallback((e: any) => {
     const noteNumber = e.note.number;
     const pitchClass = noteNumber % 12;
-    const newNote: NotePlayed = { 
-        number: noteNumber, 
+    const newNote: NotePlayed = {
+        number: noteNumber,
         name: e.note.name,
         accidental: e.note.accidental,
-        octave: e.note.octave 
+        octave: e.note.octave
     };
 
     console.log('MIDI key pressed:', {
@@ -59,9 +59,10 @@ export const useMidi = (
       if (chordDetectionTimeout) {
         clearTimeout(chordDetectionTimeout);
       } else {
-        // If there's no pending timeout, this is the first note of a new chord
-        setPlayedNotes([]);
-        setPlayedPitchClasses(new Set());
+        // If there's no pending timeout, it means the previous chord was completed
+        // Only clear if we have notes from a previous chord (not on the very first note)
+        setPlayedNotes(prev => prev.length > 0 ? [] : prev);
+        setPlayedPitchClasses(prev => prev.size > 0 ? new Set() : prev);
       }
 
       // Add note if pitch class not already present (for chord mode)
@@ -94,7 +95,7 @@ export const useMidi = (
         });
 
         setChordDetectionTimeout(null);
-      }, 200); // Default chord detection timeout (200ms)
+      }, 1000); // Chord detection timeout (1000ms) - gives users more time to input all chord notes
 
       setChordDetectionTimeout(timeout);
     } else {
@@ -161,13 +162,13 @@ export const useMidi = (
         input.removeListener('noteoff');
         input.removeListener('controlchange');
       });
-      
+
       // Clear timeouts
       if (chordDetectionTimeout) {
         clearTimeout(chordDetectionTimeout);
         setChordDetectionTimeout(null);
       }
-      
+
       // Clear state
       setPlayedNotes([]);
       setPlayedPitchClasses(new Set());
@@ -180,7 +181,7 @@ export const useMidi = (
     try {
       // Force cleanup
       forceCleanup();
-      
+
       // Disable and re-enable WebMidi
       if (typeof WebMidi !== 'undefined' && WebMidi.enabled) {
         await WebMidi.disable();
@@ -188,7 +189,7 @@ export const useMidi = (
         await WebMidi.enable({ sysex: false });
         refreshDevices();
       }
-      
+
       setError(null);
       setStatus('Reset complete');
     } catch (err: any) {
@@ -253,7 +254,7 @@ export const useMidi = (
           input.removeListener('noteoff');
           input.removeListener('controlchange');
         });
-        
+
         // Clear any pending timeouts
         if (chordDetectionTimeout) {
           clearTimeout(chordDetectionTimeout);
@@ -306,7 +307,7 @@ export const useMidi = (
       // Remove any existing listeners first (prevent duplicates)
       input.removeListener('noteon', handleNoteOn);
       input.removeListener('noteoff'); // Add noteoff cleanup too
-      
+
       // Add the listener
       input.addListener('noteon', handleNoteOn);
       setStatus(`Listening on: ${input.name}`);
@@ -318,7 +319,7 @@ export const useMidi = (
         input.removeListener('noteon', handleNoteOn);
         input.removeListener('noteoff');
         input.removeListener('controlchange');
-        
+
         // Clear any device-specific state
         if (chordDetectionTimeout) {
           clearTimeout(chordDetectionTimeout);

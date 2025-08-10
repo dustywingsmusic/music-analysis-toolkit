@@ -139,7 +139,7 @@ const logData = {
 if (cloudLoggingEnabled && log) {
   try {
     const entry = log.entry({
-      resource: { 
+      resource: {
         type: 'cloud_run_revision',
         labels: {
           service_name: 'music-theory-toolkit',
@@ -374,19 +374,19 @@ app.get('/health', (req, res) => {
 **Log Filtering Examples:**
 ```bash
 # View all application logs
-resource.type="cloud_run_revision" 
+resource.type="cloud_run_revision"
 resource.labels.service_name="music-theory-toolkit"
 
 # Filter by interaction type
-resource.type="cloud_run_revision" 
+resource.type="cloud_run_revision"
 jsonPayload.interaction_type="mode_identification"
 
 # Filter by severity
-resource.type="cloud_run_revision" 
+resource.type="cloud_run_revision"
 severity>=WARNING
 
 # Filter by user session
-resource.type="cloud_run_revision" 
+resource.type="cloud_run_revision"
 jsonPayload.session_id="session_123456"
 ```
 
@@ -411,7 +411,7 @@ jsonPayload.session_id="session_123456"
 #### 1. Deployment Failures
 
 **Issue**: Docker build failures
-**Solution**: 
+**Solution**:
 - Check Dockerfile syntax
 - Verify all dependencies are listed in package.json
 - Ensure build context includes all necessary files

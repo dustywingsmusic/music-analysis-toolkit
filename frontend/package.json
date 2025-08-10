@@ -4,9 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently \"vite\" \"npm run dev:server\"",
+    "dev:pw": "playwright codegen --target=javascript --save-storage=storage.json --output=recorded-test.spec.cjs http://localhost:5173",
     "build": "vite build",
-    "preview": "vite preview",
+    "preview": "npm run build && node server/index.js",
     "start": "node server/index.js",
     "dev:server": "NODE_ENV=development node server/index.js",
     "// --- Primary Test Commands ---": "--------------------------------",
@@ -28,7 +29,21 @@
     "// --- Linting & Type Checking ---": "-------------------------------",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext ts,tsx --fix",
-    "type-check": "npx tsc --noEmit --project tsconfig.json"
+    "type-check": "npx tsc --noEmit --project tsconfig.json",
+
+    "// --- Pre-commit & Setup ---": "---------------------------------",
+    "precommit:install": "pre-commit install && pre-commit install --hook-type pre-push",
+    "precommit:run": "pre-commit run --all-files",
+    "setup:hooks": "npm run precommit:install && echo 'Pre-commit hooks installed successfully!'",
+    "setup:dev": "../setup-dev.sh",
+
+    "// --- Quality & Maintenance ---": "--------------------------------",
+    "clean": "rm -rf node_modules dist tests/reports coverage .nyc_output",
+    "clean:cache": "rm -rf node_modules/.cache .eslintcache",
+    "deps:check": "npm audit --audit-level=moderate",
+    "deps:update": "npm update && npm audit fix",
+    "format": "npm run lint:fix",
+    "quality": "npm run type-check && npm run lint && npm run test:run"
   },
   "dependencies": {
     "@google-cloud/logging": "^11.2.0",
@@ -52,6 +67,7 @@
     "cmdk": "^1.1.1",
     "express": "^4.21.2",
     "lucide-react": "^0.525.0",
+    "playwright": "^1.54.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "tailwind-merge": "^3.3.1",
@@ -78,7 +94,8 @@
     "tailwindcss": "^3.4.17",
     "typescript": "~5.7.2",
     "vite": "^6.2.0",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "concurrently": "^9.1.0"
   },
   "engines": {
     "node": ">=20.0.0",

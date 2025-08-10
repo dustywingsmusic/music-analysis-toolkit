@@ -1,10 +1,10 @@
 /**
  * Chord Progression Input Component
- * 
+ *
  * An elegant chord progression input system with clickable placeholders that
  * open compact modal chord builders. Supports editing existing chords and
  * maintains a clean, minimal interface when not in use.
- * 
+ *
  * Features:
  * - Clickable [+] placeholders for new chords
  * - Clickable existing chords for editing
@@ -13,15 +13,17 @@
  * - Auto-saves progression state
  */
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Button } from './button';
 import { Input } from './input';
 import { Label } from './label';
 import { Badge } from './badge';
 import MinimalChordBuilderModal from './chord-builder-modal-minimal';
 import ParentKeyBuilderModal from './parent-key-builder-modal';
-import { Plus, Edit2, X, RotateCcw, Keyboard, Key, ChevronRight } from 'lucide-react';
+import { Plus, Edit2, X, Keyboard, Key, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useInputMethodFor, useInputMethod, InputMethod } from '../../contexts/InputMethodContext';
+import { findChordMatches } from '../../services/chordLogic';
 
 interface ChordProgressionInputProps {
   value: string;
@@ -36,6 +38,10 @@ interface ChordProgressionInputProps {
   // Parent key signature support
   parentKey?: string;
   onParentKeyChange?: (parentKey: string) => void;
+  // Input method support
+  useGlobalInputMethod?: boolean;
+  componentId?: string;
+  midiData?: any;
 }
 
 interface ChordSlot {
@@ -55,8 +61,26 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
   label = "Chord Progression",
   helpText = "Click [+] to add chords",
   parentKey = '',
-  onParentKeyChange
+  onParentKeyChange,
+  useGlobalInputMethod = true,
+  componentId,
+  midiData
 }) => {
+  // Use global input method context
+  const globalInputMethod = useInputMethodFor(componentId || 'chord-progression-input');
+  const rawGlobalContext = useInputMethod();
+  
+  // Use raw global input method to bypass component-specific preferences
+  const activeInputMethod = useGlobalInputMethod ? rawGlobalContext.activeInputMethod : 'mouse';
+  
+  // Force re-render when input method changes
+  const [forceUpdateKey, setForceUpdateKey] = useState(0);
+  useEffect(() => {
+    if (useGlobalInputMethod) {
+      setForceUpdateKey(prev => prev + 1);
+    }
+  }, [activeInputMethod, useGlobalInputMethod]);
+
   const [chordSlots, setChordSlots] = useState<ChordSlot[]>(() => {
     // Initialize slots from value prop
     if (value.trim()) {
@@ -67,7 +91,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
         isBarLine: chord === '|'
       }));
     }
-    
+
     // Default: 4 empty slots with bar lines
     return [
       { id: 'slot-0', chord: null },
@@ -98,6 +122,29 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
 
   const [keyboardMode, setKeyboardMode] = useState(false);
   const [keyboardValue, setKeyboardValue] = useState(value);
+
+  // Debug keyboardMode changes
+  useEffect(() => {
+    console.log('⌨️ keyboardMode changed to:', keyboardMode);
+  }, [keyboardMode]);
+
+  // Update keyboard mode based on global input method
+  useEffect(() => {
+    if (useGlobalInputMethod) {
+      const shouldBeKeyboard = activeInputMethod === 'keyboard';
+      if (keyboardMode !== shouldBeKeyboard) {
+        if (shouldBeKeyboard) {
+          // Switching to keyboard mode - create simple chord string
+          const chordString = chordSlots
+            .filter(slot => !slot.isBarLine && slot.chord)
+            .map(slot => slot.chord)
+            .join(' ');
+          setKeyboardValue(chordString);
+        }
+        setKeyboardMode(shouldBeKeyboard);
+      }
+    }
+  }, [activeInputMethod, useGlobalInputMethod, keyboardMode, chordSlots]);
   const [parentKeyModalState, setParentKeyModalState] = useState<{
     isOpen: boolean;
     position: { x: number; y: number };
@@ -140,20 +187,20 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
 
   const handleSlotClick = (slotId: string, event: React.MouseEvent) => {
     if (keyboardMode) return;
-    
+
     const slot = chordSlots.find(s => s.id === slotId);
     if (slot?.isBarLine) return;
 
     const rect = (event.target as HTMLElement).getBoundingClientRect();
     const editableIndex = getCurrentEditableIndex(slotId);
-    
+
     console.log('📍 Slot Click:', {
       slotId,
       editableIndex,
       currentChord: slot?.chord || '',
       rectPosition: { x: rect.left + (rect.width / 2), y: rect.top - 10 }
     });
-    
+
     setModalState({
       isOpen: true,
       slotId,
@@ -187,29 +234,22 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
       }
       return slot;
     });
-    
+
     updateProgression(newSlots);
   };
 
   const handleRemoveChord = (slotId: string, event: React.MouseEvent) => {
     event.stopPropagation();
-    
-    const newSlots = chordSlots.map(slot => 
-      slot.id === slotId 
+
+    const newSlots = chordSlots.map(slot =>
+      slot.id === slotId
         ? { ...slot, chord: null }
         : slot
     );
-    
+
     updateProgression(newSlots);
   };
 
-  const handleClearAll = () => {
-    const clearedSlots = chordSlots.map(slot => ({ ...slot, chord: null }));
-    updateProgression(clearedSlots);
-    if (onParentKeyChange) {
-      onParentKeyChange('');
-    }
-  };
 
   const handleParentKeyClick = (event: React.MouseEvent) => {
     const rect = (event.target as HTMLElement).getBoundingClientRect();
@@ -230,7 +270,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
 
   const handleAddMeasure = () => {
     if (chordSlots.length >= maxChords) return;
-    
+
     const nextId = chordSlots.length;
     const newSlots = [
       ...chordSlots,
@@ -240,62 +280,87 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
       { id: `slot-${nextId + 2}`, chord: null },
       { id: `slot-${nextId + 3}`, chord: null },
     ];
-    
+
     updateProgression(newSlots.slice(0, maxChords));
   };
 
   const toggleKeyboardMode = () => {
-    if (keyboardMode) {
-      // Switching from keyboard to visual mode
-      // Parse the keyboard input and update slots
-      const chords = keyboardValue.trim().split(/\s+/).filter(c => c.length > 0);
-      const newSlots = chords.map((chord, index) => ({
-        id: `slot-${index}`,
-        chord: chord === '|' ? null : chord,
-        isBarLine: chord === '|'
-      }));
+    if (useGlobalInputMethod) {
+      // Cycle through input methods: midi → keyboard → mouse → midi
+      const currentMethod = globalInputMethod.activeInputMethod;
+      let nextMethod: InputMethod;
       
-      // Fill remaining slots up to current length
-      while (newSlots.length < chordSlots.length) {
-        newSlots.push({
-          id: `slot-${newSlots.length}`,
-          chord: null
-        });
+      switch (currentMethod) {
+        case 'midi':
+          nextMethod = 'keyboard';
+          break;
+        case 'keyboard':
+          nextMethod = 'mouse';
+          break;
+        case 'mouse':
+          nextMethod = 'midi';
+          break;
+        default:
+          nextMethod = 'keyboard';
       }
       
-      updateProgression(newSlots);
+      // Use the component-specific setInputMethod to update both global and component preference
+      globalInputMethod.setInputMethod(nextMethod);
     } else {
-      // Switching from visual to keyboard mode
-      setKeyboardValue(slotsToString(chordSlots));
+      // Legacy local keyboard mode toggle
+      if (keyboardMode) {
+        // Switching from keyboard to visual mode
+        // Parse the keyboard input and update slots
+        const chords = keyboardValue.trim().split(/\s+/).filter(c => c.length > 0);
+        const newSlots = chords.map((chord, index) => ({
+          id: `slot-${index}`,
+          chord: chord === '|' ? null : chord,
+          isBarLine: chord === '|'
+        }));
+
+        // Fill remaining slots up to current length
+        while (newSlots.length < chordSlots.length) {
+          newSlots.push({
+            id: `slot-${newSlots.length}`,
+            chord: null
+          });
+        }
+
+        updateProgression(newSlots);
+      } else {
+        // Switching from visual to keyboard mode
+        setKeyboardValue(slotsToString(chordSlots));
+      }
+
+      setKeyboardMode(!keyboardMode);
     }
-    
-    setKeyboardMode(!keyboardMode);
   };
 
   const handleKeyboardSubmit = () => {
     onChange(keyboardValue);
-    setKeyboardMode(false);
+    // Don't automatically switch back to visual mode - keep keyboard mode active
+    // User can manually switch modes or press Escape to exit
   };
 
   // Calculate progressive position for any slot based on its visual position
   const calculateProgressivePosition = useCallback((slotIndex: number, fallbackPosition?: { x: number; y: number }) => {
     // Try to get actual button size from first existing chord button
     const firstChordButton = document.querySelector('[data-slot-id]') as HTMLElement;
-    
+
     if (firstChordButton) {
       const firstRect = firstChordButton.getBoundingClientRect();
       const actualButtonWidth = firstRect.width;
       const actualGap = 8; // Conservative gap between buttons
-      
+
       // Calculate progressive position based on actual button size
       const progressiveX = firstRect.left + (slotIndex * (actualButtonWidth + actualGap));
-      
+
       return {
         x: progressiveX + (actualButtonWidth / 2), // Center on the calculated position
         y: firstRect.top - 10
       };
     }
-    
+
     // Get the chord container as backup
     const chordContainer = document.querySelector('.chord-list .flex-wrap');
     if (chordContainer) {
@@ -303,15 +368,15 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
       // Use much smaller, more realistic spacing
       const estimatedButtonWidth = 45; // More realistic chord button width (was 80!)
       const chordGap = 8;
-      
+
       const progressiveX = containerRect.left + (slotIndex * (estimatedButtonWidth + chordGap)) + (estimatedButtonWidth / 2);
-      
+
       return {
         x: progressiveX,
         y: containerRect.top - 10
       };
     }
-    
+
     // Fallback to provided position with small incremental movement
     if (fallbackPosition) {
       return {
@@ -319,7 +384,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
         y: fallbackPosition.y
       };
     }
-    
+
     // Last resort fallback
     return { x: 400, y: 100 };
   }, [modalState.currentSlotIndex]);
@@ -328,21 +393,21 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
   const handleNavigateToPrevious = useCallback(() => {
     const editableSlots = getEditableSlots();
     const currentIndex = modalState.currentSlotIndex;
-    
+
     console.log('🔙 Navigate Previous:', {
       currentIndex,
       totalSlots: editableSlots.length,
       canNavigate: currentIndex > 0
     });
-    
+
     if (currentIndex <= 0 || editableSlots.length === 0) return;
-    
+
     const previousSlot = editableSlots[currentIndex - 1];
     let position: { x: number; y: number };
-    
+
     // Check if element exists in DOM
     const slotElement = document.querySelector(`[data-slot-id="${previousSlot.slot.id}"]`) as HTMLElement;
-    
+
     if (slotElement) {
       // Use actual element position for existing chords
       const rect = slotElement.getBoundingClientRect();
@@ -354,7 +419,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
       // Calculate progressive position for empty slots (this is the key fix)
       position = calculateProgressivePosition(currentIndex - 1, modalState.position);
     }
-    
+
     console.log('🔍 Previous slot positioning:', {
       slotId: previousSlot.slot.id,
       chord: previousSlot.slot.chord,
@@ -362,7 +427,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
       calculatedPosition: position,
       slotIndex: currentIndex - 1
     });
-    
+
     setModalState({
       isOpen: true,
       slotId: previousSlot.slot.id,
@@ -375,21 +440,21 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
   const handleNavigateToNext = useCallback(() => {
     const editableSlots = getEditableSlots();
     const currentIndex = modalState.currentSlotIndex;
-    
+
     console.log('▶️ Navigate Next:', {
       currentIndex,
       totalSlots: editableSlots.length,
       canNavigate: currentIndex < editableSlots.length - 1
     });
-    
+
     if (currentIndex < 0 || currentIndex >= editableSlots.length - 1) return;
-    
+
     const nextSlot = editableSlots[currentIndex + 1];
     let position: { x: number; y: number };
-    
+
     // Check if element exists in DOM
     const slotElement = document.querySelector(`[data-slot-id="${nextSlot.slot.id}"]`) as HTMLElement;
-    
+
     if (slotElement) {
       // Use actual element position for existing chords
       const rect = slotElement.getBoundingClientRect();
@@ -401,7 +466,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
       // Calculate progressive position for empty slots (this is the key fix)
       position = calculateProgressivePosition(currentIndex + 1, modalState.position);
     }
-    
+
     console.log('🔍 Next slot positioning:', {
       slotId: nextSlot.slot.id,
       chord: nextSlot.slot.chord,
@@ -409,7 +474,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
       calculatedPosition: position,
       slotIndex: currentIndex + 1
     });
-    
+
     setModalState({
       isOpen: true,
       slotId: nextSlot.slot.id,
@@ -421,13 +486,13 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
 
   // Check if navigation is available
   const canNavigatePrevious = modalState.currentSlotIndex > 0;
-  const canNavigateNext = modalState.currentSlotIndex >= 0 && 
+  const canNavigateNext = modalState.currentSlotIndex >= 0 &&
     modalState.currentSlotIndex < getEditableSlots().length - 1;
 
   const renderChordSlot = (slot: ChordSlot, index: number) => {
     if (slot.isBarLine) {
       return (
-        <div 
+        <div
           key={slot.id}
           className="flex items-center justify-center w-4 h-10 text-gray-400 text-xl font-thin select-none"
         >
@@ -437,7 +502,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
     }
 
     const hasChord = slot.chord !== null && slot.chord !== '';
-    
+
     return (
       <div
         key={slot.id}
@@ -478,7 +543,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
   };
 
   return (
-    <div className={cn("chord-progression-input space-y-3", className)}>
+    <div key={`input-method-${activeInputMethod}-${forceUpdateKey}`} className={cn("chord-progression-input space-y-3", className)}>
       {/* Simplified Header */}
       <div className="flex items-center justify-between">
         <Label className="text-sm font-medium">{label}</Label>
@@ -489,22 +554,18 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
               variant="ghost"
               size="sm"
               className="h-6 px-2 text-xs"
-              title={keyboardMode ? "Switch to visual mode" : "Switch to keyboard mode"}
+              title={useGlobalInputMethod
+                ? `Current: ${activeInputMethod.charAt(0).toUpperCase() + activeInputMethod.slice(1)} - Click to switch`
+                : (keyboardMode ? "Switch to visual mode" : "Switch to keyboard mode")
+              }
             >
               <Keyboard className="h-3 w-3 mr-1" />
-              {keyboardMode ? 'Visual' : 'Type'}
+              {useGlobalInputMethod
+                ? activeInputMethod.charAt(0).toUpperCase() + activeInputMethod.slice(1)
+                : (keyboardMode ? 'Visual' : 'Type')
+              }
             </Button>
           )}
-          <Button
-            onClick={handleClearAll}
-            variant="ghost"
-            size="sm"
-            className="h-7 px-2 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
-            title="Clear all chords and parent key"
-          >
-            <RotateCcw className="h-3 w-3 mr-1" />
-            Clear All
-          </Button>
         </div>
       </div>
 
@@ -535,8 +596,10 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
       </div>
 
       {/* Input Interface */}
-      {keyboardMode ? (
-        <div className="space-y-2">
+      {(() => {
+        if (activeInputMethod === 'keyboard') {
+          return (
+            <div className="space-y-2">
           <Input
             ref={inputRef}
             value={keyboardValue}
@@ -547,22 +610,205 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
               if (e.key === 'Enter') {
                 handleKeyboardSubmit();
               } else if (e.key === 'Escape') {
-                setKeyboardMode(false);
+                if (useGlobalInputMethod) {
+                  globalInputMethod.setInputMethod('mouse');
+                } else {
+                  setKeyboardMode(false);
+                }
               }
             }}
+            onBlur={handleKeyboardSubmit} // Auto-apply when focus is lost
             autoFocus
           />
-          <div className="flex gap-2">
-            <Button onClick={handleKeyboardSubmit} size="sm">
-              Apply
-            </Button>
-            <Button onClick={() => setKeyboardMode(false)} variant="outline" size="sm">
-              Cancel
-            </Button>
-          </div>
+          <p className="text-xs text-muted-foreground">
+            Type chord names separated by spaces. Press <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Enter</kbd> to apply or <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Escape</kbd> to return to visual mode.
+          </p>
         </div>
-      ) : (
-        <div className="chord-list-container">
+          );
+        } else if (activeInputMethod === 'midi') {
+          return (
+        <div className="space-y-4">
+          {/* MIDI Input Interface */}
+          <div className="midi-input-section bg-muted/20 border border-muted rounded-lg p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-sm font-medium">MIDI Input Active</span>
+                {midiData?.deviceName && (
+                  <span className="text-xs text-muted-foreground">({midiData.deviceName})</span>
+                )}
+              </div>
+            </div>
+
+            {/* MIDI Analysis Focus */}
+            {midiData && midiData.setAnalysisFocus && (
+              <div className="flex items-center gap-2 text-xs mb-3">
+                <span className="text-muted-foreground">Detection mode:</span>
+                <div className="flex gap-1">
+                  {(['automatic', 'chord', 'complete'] as const).map(focus => {
+                    const focusLabels = {
+                      automatic: { label: 'Smart', tooltip: 'Automatically detects chords, scales, or individual notes' },
+                      chord: { label: 'Chords', tooltip: 'Focus on chord detection - best for chord progressions' },
+                      complete: { label: 'Full Scale', tooltip: 'Analyze complete scales and modes' }
+                    };
+
+                    return (
+                      <button
+                        key={focus}
+                        onClick={() => midiData.setAnalysisFocus(focus)}
+                        className={cn(
+                          "px-2 py-1 rounded transition-colors text-xs",
+                          midiData.analysisFocus === focus
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted hover:bg-muted/80 text-muted-foreground"
+                        )}
+                        title={focusLabels[focus].tooltip}
+                      >
+                        {focusLabels[focus].label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Current MIDI Detection */}
+            {midiData?.playedNotes && midiData.playedNotes.length > 0 ? (
+              <div className="space-y-2">
+                <div className="text-xs text-muted-foreground">Currently playing:</div>
+                <div className="flex flex-wrap gap-1">
+                  {Array.from(new Set(midiData.playedNotes)).map((note: any, idx: number) => {
+                    // Handle both string notes and note objects
+                    let noteName;
+                    if (typeof note === 'string') {
+                      noteName = note;
+                    } else {
+                      // For note objects, include accidental if present
+                      const baseName = note.name || note.noteName || '';
+                      const accidental = note.accidental || '';
+                      noteName = baseName + accidental || `${note.number || ''}`;
+                    }
+                    return (
+                      <Badge key={idx} variant="outline" className="text-xs">
+                        {noteName}
+                      </Badge>
+                    );
+                  })}
+                </div>
+
+                {/* Try to detect chord from played notes using proper chord detection */}
+                {(() => {
+                  // Only show chord detection when in chord mode or smart mode (not in Full Scale mode)
+                  if (midiData.playedNotes.length >= 3 && midiData.analysisFocus !== 'complete') {
+                    // Convert notes to MIDI numbers for chord detection
+                    const midiNumbers = midiData.playedNotes.map((note: any) => {
+                      return typeof note === 'number' ? note : (note.number || note.noteNumber || 60);
+                    });
+
+                    // Use existing chord detection logic
+                    const detectedChords = findChordMatches(midiNumbers);
+                    const bestChord = detectedChords[0];
+
+                    if (bestChord) {
+                      return (
+                        <div className="mt-2">
+                          <span className="text-xs text-muted-foreground">Detected chord:</span>
+                          <Badge variant="secondary" className="ml-2 text-sm font-semibold bg-green-100 text-green-800 border-green-300">
+                            {bestChord.chordSymbol}
+                          </Badge>
+                          <div className="inline-flex items-center gap-2 ml-2">
+                            <Button
+                              size="sm"
+                              variant="default"
+                              className="h-6 text-xs bg-blue-600 hover:bg-blue-700 text-white"
+                              onClick={() => {
+                                // Find next empty slot and add the detected chord
+                                const emptySlot = chordSlots.find(slot => !slot.isBarLine && !slot.chord);
+                                if (emptySlot) {
+                                  handleChordSelect(bestChord.chordSymbol, emptySlot.id);
+                                  // Clear the currently playing notes after adding to progression
+                                  if (midiData?.clearPlayedNotes) {
+                                    midiData.clearPlayedNotes();
+                                  }
+                                }
+                              }}
+                            >
+                              Add to Progression
+                            </Button>
+                            {midiData?.clearPlayedNotes && midiData?.playedNotes?.length > 0 && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={midiData.clearPlayedNotes}
+                                className="text-xs h-6 px-2 text-muted-foreground hover:text-foreground"
+                                title="Clear currently playing MIDI notes"
+                              >
+                                Clear Notes
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    } else {
+                      // Show notes if no chord detected
+                      const noteNames = midiData.playedNotes.map((note: any) => {
+                        return typeof note === 'string' ? note : (note.name || note.noteName || `Note${note.number || ''}`);
+                      });
+                      const noteSet = Array.from(new Set(noteNames));
+
+                      return (
+                        <div className="mt-2">
+                          <span className="text-xs text-muted-foreground">Playing {noteSet.length} notes:</span>
+                          <Badge className="ml-2 text-sm font-medium" variant="outline">
+                            {noteSet.join(' ')}
+                          </Badge>
+                          <span className="ml-2 text-xs text-muted-foreground">
+                            (No chord detected)
+                          </span>
+                          {midiData?.clearPlayedNotes && midiData?.playedNotes?.length > 0 && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={midiData.clearPlayedNotes}
+                              className="ml-2 text-xs h-6 px-2 text-muted-foreground hover:text-foreground"
+                              title="Clear currently playing MIDI notes"
+                            >
+                              Clear Notes
+                            </Button>
+                          )}
+                        </div>
+                      );
+                    }
+                  }
+                  return null;
+                })()}
+              </div>
+            ) : (
+              <div className="text-center py-4 text-muted-foreground text-sm">
+                {midiData ? (
+                  <>Play chords on your MIDI device to detect and add them to your progression</>
+                ) : (
+                  <>MIDI not connected. Connect a MIDI device to use this feature.</>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Show current progression even in MIDI mode */}
+          {slotsToString(chordSlots) && (
+            <div className="mt-3">
+              <div className="text-xs font-medium text-muted-foreground mb-1">Current progression:</div>
+              <Badge variant="outline" className="font-mono text-xs">
+                {slotsToString(chordSlots)}
+              </Badge>
+            </div>
+          )}
+        </div>
+          );
+        } else {
+          // Default mouse/visual interface
+          return (
+            <div className="chord-list-container">
           {/* Simplified Chord List - Consistent Left-Aligned Layout */}
           <div className="chord-list bg-card rounded-lg border border-border p-3 pt-4">
             {/* Progression direction indicator */}
@@ -572,7 +818,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
             </div>
             <div className="flex flex-wrap gap-2 items-center">
               {/* Always show existing chords first */}
-              {chordSlots.map((slot, index) => {
+              {chordSlots.map((slot, _index) => {
                 if (slot.isBarLine || !slot.chord) return null;
                 return (
                   <div key={slot.id} className="relative group">
@@ -595,7 +841,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
                   </div>
                 );
               })}
-              
+
               {/* Add chord button - always present */}
               <button
                 onClick={(e) => {
@@ -618,7 +864,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
                 </span>
               </button>
             </div>
-            
+
             {/* Compact Progression Summary */}
             {slotsToString(chordSlots) && (
               <div className="mt-2 pt-2 border-t border-border/50">
@@ -633,22 +879,17 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
           </div>
         </div>
       )}
+      })()}
 
-      {/* Contextual Help Text */}
-      {keyboardMode && (
-        <p className="text-xs text-muted-foreground">
-          Type chord names separated by spaces. Press Enter to apply or Escape to cancel.
-        </p>
-      )}
 
       {/* Chord Builder Modal */}
       <MinimalChordBuilderModal
         isOpen={modalState.isOpen}
-        onClose={() => setModalState(prev => ({ 
-          ...prev, 
-          isOpen: false, 
-          slotId: null, 
-          currentSlotIndex: -1 
+        onClose={() => setModalState(prev => ({
+          ...prev,
+          isOpen: false,
+          slotId: null,
+          currentSlotIndex: -1
         }))}
         onChordSelect={(chord) => {
           console.log('🎯 Parent chord select called:', {
@@ -657,7 +898,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
             currentModalState: modalState,
             stackTrace: new Error().stack
           });
-          handleChordSelect(chord, modalState.slotId);
+          handleChordSelect(chord, modalState.slotId || undefined);
         }}
         position={modalState.position}
         currentChord={modalState.currentChord}

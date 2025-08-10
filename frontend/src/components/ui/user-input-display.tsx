@@ -1,6 +1,6 @@
 /**
  * User Input Display Component
- * 
+ *
  * Shows the user's original input within analysis results to provide context
  * without requiring scrolling back to the input form.
  */
@@ -85,8 +85,8 @@ export const UserInputDisplay: React.FC<UserInputDisplayProps> = ({
             <div className="flex gap-2 flex-wrap">
               {chords.map((chord, index) => (
                 <div key={index} className="flex items-center">
-                  <Badge 
-                    variant="outline" 
+                  <Badge
+                    variant="outline"
                     className="bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-300 font-mono text-base px-3 py-1"
                   >
                     {chord}

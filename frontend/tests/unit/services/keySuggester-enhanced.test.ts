@@ -57,20 +57,20 @@ const mockScaleData = [
 describe('KeySuggester Enhanced Analysis', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Initialize keySuggester with mock scale data
     // We need to provide mock DOM elements for the init function
     const mockMelodyElement = document.createElement('div');
     mockMelodyElement.id = 'melody-overlay';
     const mockChordElement = document.createElement('div');
     mockChordElement.id = 'chord-overlay';
-    
+
     document.body.appendChild(mockMelodyElement);
     document.body.appendChild(mockChordElement);
-    
+
     // Initialize with mock scale data
     keySuggester.init('melody-overlay', 'chord-overlay', mockScaleData);
-    
+
     // Register mock callbacks
     keySuggester.registerMelodySuggestionCallback(mockMelodyCallback);
     keySuggester.registerChordSuggestionCallback(mockChordCallback);
@@ -80,13 +80,13 @@ describe('KeySuggester Enhanced Analysis', () => {
     it('should prioritize pentatonic matches over complete scales for 5 notes', () => {
       // Test with C Major Pentatonic: C, D, E, G, A (pitch classes: 0, 2, 4, 7, 9)
       const pentatonicPitchClasses = new Set([0, 2, 4, 7, 9]);
-      
+
       const result = keySuggester.updateUnifiedDetection(pentatonicPitchClasses, 'automatic');
-      
+
       expect(result.suggestions.length).toBeGreaterThan(0);
       expect(result.category).toBe('pentatonic');
       expect(result.closeness).toBeGreaterThan(0.8); // Should be high completeness for pentatonic match
-      
+
       // First suggestion should be pentatonic match
       const firstSuggestion = result.suggestions[0];
       expect(firstSuggestion.matchType).toBe('exact');
@@ -96,14 +96,14 @@ describe('KeySuggester Enhanced Analysis', () => {
     it('should handle hexatonic scales for 6 notes', () => {
       // Test with 6-note pattern: C, D, E, F#, G, A (pitch classes: 0, 2, 4, 6, 7, 9)
       const hexatonicPitchClasses = new Set([0, 2, 4, 6, 7, 9]);
-      
+
       const result = keySuggester.updateUnifiedDetection(hexatonicPitchClasses, 'automatic');
-      
+
       expect(result.suggestions.length).toBeGreaterThan(0);
       expect(result.closeness).toBeGreaterThan(0.8); // Should be high completeness
-      
+
       // Should find hexatonic or complete scale matches
-      const hasHexatonicOrComplete = result.suggestions.some(s => 
+      const hasHexatonicOrComplete = result.suggestions.some(s =>
         s.name.includes('Hexatonic') || s.matchType === 'exact'
       );
       expect(hasHexatonicOrComplete).toBe(true);
@@ -112,20 +112,20 @@ describe('KeySuggester Enhanced Analysis', () => {
     it('should calculate completeness correctly', () => {
       // Test with partial pentatonic: C, D, E (pitch classes: 0, 2, 4)
       const partialPitchClasses = new Set([0, 2, 4]);
-      
+
       const result = keySuggester.updateUnifiedDetection(partialPitchClasses, 'pentatonic');
-      
+
       if (result.suggestions.length > 0) {
         // For 3 notes, the function doesn't use enhanced 5-6 note analysis
         // It falls back to standard analysis which finds complete matches
         // So we should expect high completeness (1.0) for exact matches
         const firstSuggestion = result.suggestions[0];
         expect(firstSuggestion.closeness).toBeGreaterThan(0.5);
-        
+
         // Alternative test: Test with 5 notes to trigger enhanced analysis
         const fiveNotePitchClasses = new Set([0, 2, 4, 7, 9]); // C Major Pentatonic
         const fiveNoteResult = keySuggester.updateUnifiedDetection(fiveNotePitchClasses, 'automatic');
-        
+
         if (fiveNoteResult.suggestions.length > 0) {
           // For 5 notes matching a 5-note pentatonic scale, completeness should be 1.0
           expect(fiveNoteResult.suggestions[0].closeness).toBe(1.0);
@@ -136,19 +136,19 @@ describe('KeySuggester Enhanced Analysis', () => {
     it('should sort suggestions by priority and completeness', () => {
       // Test with mixed pattern that could match both pentatonic and complete scales
       const mixedPitchClasses = new Set([0, 2, 4, 7, 9]); // C Major Pentatonic
-      
+
       const result = keySuggester.updateUnifiedDetection(mixedPitchClasses, 'automatic');
-      
+
       if (result.suggestions.length > 1) {
         // First suggestion should have highest priority/completeness
         const first = result.suggestions[0];
         const second = result.suggestions[1];
-        
+
         // Either first has better match type or higher completeness
-        const firstIsBetter = 
+        const firstIsBetter =
           (first.matchType === 'exact' && second.matchType === 'partial') ||
           (first.matchType === second.matchType && first.closeness >= second.closeness);
-        
+
         expect(firstIsBetter).toBe(true);
       }
     });
@@ -157,9 +157,9 @@ describe('KeySuggester Enhanced Analysis', () => {
   describe('Unified Detection Function', () => {
     it('should handle empty input gracefully', () => {
       const emptyPitchClasses = new Set<number>();
-      
+
       const result = keySuggester.updateUnifiedDetection(emptyPitchClasses, 'automatic');
-      
+
       expect(result.suggestions).toHaveLength(0);
       expect(result.category).toBe('none');
       expect(result.closeness).toBe(0);
@@ -167,15 +167,15 @@ describe('KeySuggester Enhanced Analysis', () => {
 
     it('should adapt analysis focus based on parameter', () => {
       const testPitchClasses = new Set([0, 2, 4, 7, 9]);
-      
+
       // Test automatic mode
       const autoResult = keySuggester.updateUnifiedDetection(testPitchClasses, 'automatic');
       expect(autoResult.suggestions.length).toBeGreaterThan(0);
-      
+
       // Test pentatonic focus
       const pentResult = keySuggester.updateUnifiedDetection(testPitchClasses, 'pentatonic');
       expect(pentResult.suggestions.length).toBeGreaterThan(0);
-      
+
       // Test complete focus
       const completeResult = keySuggester.updateUnifiedDetection(testPitchClasses, 'complete');
       expect(completeResult.suggestions.length).toBeGreaterThan(0);
@@ -183,9 +183,9 @@ describe('KeySuggester Enhanced Analysis', () => {
 
     it('should provide proper match type indicators', () => {
       const testPitchClasses = new Set([0, 4, 7]); // C Major Triad
-      
+
       const result = keySuggester.updateUnifiedDetection(testPitchClasses, 'automatic');
-      
+
       result.suggestions.forEach(suggestion => {
         expect(['exact', 'partial', 'possible']).toContain(suggestion.matchType);
         expect(suggestion.closeness).toBeGreaterThanOrEqual(0);
@@ -197,17 +197,17 @@ describe('KeySuggester Enhanced Analysis', () => {
   describe('Legacy Callback Integration', () => {
     it('should trigger melody suggestions for sidebar', () => {
       const testPitchClasses = new Set([0, 2, 4, 7, 9]);
-      
+
       // Call the sidebar-specific function
       keySuggester.updateMelodySuggestionsForSidebar(testPitchClasses);
-      
+
       // Should have called the melody callback
       expect(mockMelodyCallback).toHaveBeenCalled();
-      
+
       const callArgs = mockMelodyCallback.mock.calls[0][0];
       expect(Array.isArray(callArgs)).toBe(true);
       expect(callArgs.length).toBeGreaterThan(0);
-      
+
       // Each suggestion should have required properties
       callArgs.forEach((suggestion: any) => {
         expect(suggestion).toHaveProperty('name');
@@ -219,19 +219,19 @@ describe('KeySuggester Enhanced Analysis', () => {
 
     it('should handle chord suggestions for sidebar', () => {
       const chordPitchClasses = new Set([0, 4, 7]); // C Major Triad
-      
+
       // Call the chord-specific function
       keySuggester.updateChordSuggestionsForSidebar(chordPitchClasses);
-      
+
       // The chord callback might not be called if no chord matches are found
       // or if the chord detection logic requires different setup
       // Let's check if the callback was called, and if not, that's acceptable
       // since chord detection might require additional setup or different data
-      
+
       if (mockChordCallback.mock.calls.length > 0) {
         const callArgs = mockChordCallback.mock.calls[0][0];
         expect(Array.isArray(callArgs)).toBe(true);
-        
+
         if (callArgs.length > 0) {
           // Each chord suggestion should have required properties
           callArgs.forEach((suggestion: any) => {
@@ -253,9 +253,9 @@ describe('KeySuggester Enhanced Analysis', () => {
     it('should handle invalid pitch classes gracefully', () => {
       // Test with out-of-range pitch classes
       const invalidPitchClasses = new Set([0, 2, 4, 12, 15]); // 12 and 15 are invalid
-      
+
       const result = keySuggester.updateUnifiedDetection(invalidPitchClasses, 'automatic');
-      
+
       // Should still return a valid result structure
       expect(result).toHaveProperty('suggestions');
       expect(result).toHaveProperty('category');
@@ -266,9 +266,9 @@ describe('KeySuggester Enhanced Analysis', () => {
     it('should handle large pitch class sets', () => {
       // Test with all 12 pitch classes (chromatic)
       const chromaticPitchClasses = new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
-      
+
       const result = keySuggester.updateUnifiedDetection(chromaticPitchClasses, 'automatic');
-      
+
       expect(result.suggestions.length).toBeGreaterThan(0);
       expect(result.category).toBe('complete');
       expect(result.closeness).toBeGreaterThan(0);
@@ -276,17 +276,17 @@ describe('KeySuggester Enhanced Analysis', () => {
 
     it('should maintain performance with repeated calls', () => {
       const testPitchClasses = new Set([0, 2, 4, 7, 9]);
-      
+
       const startTime = performance.now();
-      
+
       // Make multiple calls to test performance
       for (let i = 0; i < 10; i++) {
         keySuggester.updateUnifiedDetection(testPitchClasses, 'automatic');
       }
-      
+
       const endTime = performance.now();
       const totalTime = endTime - startTime;
-      
+
       // Should complete 10 calls in reasonable time (< 500ms)
       expect(totalTime).toBeLessThan(500);
     });

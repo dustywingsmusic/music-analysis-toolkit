@@ -1,6 +1,6 @@
 /**
  * Music Term Highlighter Component
- * 
+ *
  * Automatically detects and wraps music theory terms with contextual tooltips
  * Provides intelligent text parsing to identify terms without interfering with
  * existing formatting or interactive elements.
@@ -38,15 +38,15 @@ interface TermMatch {
 // Build a comprehensive list of terms and their aliases for pattern matching
 const buildTermPatterns = () => {
   const patterns: Array<{ pattern: RegExp; term: string; priority: number }> = [];
-  
+
   Object.values(musicTheoryGlossary).forEach(glossaryTerm => {
     const allTerms = [glossaryTerm.term, ...glossaryTerm.aliases];
-    
+
     allTerms.forEach(termVariant => {
       // Create word boundary pattern that handles musical terms
       // Handle terms like "V-I cadence", "plagal cadence", "chromatic mediant"
       const escapedTerm = termVariant.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      
+
       // Create pattern that optionally matches plural forms
       // For terms ending in 't', allow 'ts' (dominant -> dominants)
       // For terms ending in 'd', allow 'ds' (chord -> chords)
@@ -55,12 +55,12 @@ const buildTermPatterns = () => {
         patternString += 's?';
       }
       patternString += '\\b';
-      
+
       const pattern = new RegExp(patternString, 'gi');
-      
+
       // Priority based on term length and specificity
       const priority = termVariant.length + (termVariant.includes(' ') ? 10 : 0);
-      
+
       patterns.push({
         pattern,
         term: glossaryTerm.term, // Use canonical term name
@@ -68,7 +68,7 @@ const buildTermPatterns = () => {
       });
     });
   });
-  
+
   // Sort by priority (longer, more specific terms first)
   return patterns.sort((a, b) => b.priority - a.priority);
 };
@@ -80,7 +80,7 @@ const termPatterns = buildTermPatterns();
 const findTermMatches = (text: string): TermMatch[] => {
   const matches: TermMatch[] = [];
   // console.log('Searching for terms in text:', text); // Debug log
-  
+
   termPatterns.forEach(({ pattern, term, priority }) => {
     // Reset lastIndex for each pattern to ensure proper matching
     pattern.lastIndex = 0;
@@ -99,52 +99,52 @@ const findTermMatches = (text: string): TermMatch[] => {
       }
     }
   });
-  
+
   // Sort by start position and priority
   matches.sort((a, b) => {
     if (a.start !== b.start) return a.start - b.start;
     return b.priority - a.priority;
   });
-  
+
   // Remove overlapping matches (keep higher priority ones)
   const nonOverlapping: TermMatch[] = [];
   matches.forEach(match => {
-    const hasOverlap = nonOverlapping.some(existing => 
+    const hasOverlap = nonOverlapping.some(existing =>
       (match.start < existing.end && match.end > existing.start)
     );
     if (!hasOverlap) {
       nonOverlapping.push(match);
     }
   });
-  
+
   return nonOverlapping.sort((a, b) => a.start - b.start);
 };
 
 // Function to process text and wrap terms with ContextualTooltip
 const processTextWithTooltips = (
-  text: string, 
+  text: string,
   context: AnalysisContext,
   disabled: boolean
 ): React.ReactNode[] => {
   if (disabled || typeof text !== 'string' || text.length === 0) {
     return [text];
   }
-  
+
   const matches = findTermMatches(text);
-  
+
   if (matches.length === 0) {
     return [text];
   }
-  
+
   const result: React.ReactNode[] = [];
   let lastIndex = 0;
-  
+
   matches.forEach((match, index) => {
     // Add text before the match
     if (match.start > lastIndex) {
       result.push(text.slice(lastIndex, match.start));
     }
-    
+
     // Add the wrapped term
     const matchedText = text.slice(match.start, match.end);
     result.push(
@@ -157,21 +157,21 @@ const processTextWithTooltips = (
         {matchedText}
       </ContextualTooltip>
     );
-    
+
     lastIndex = match.end;
   });
-  
+
   // Add remaining text
   if (lastIndex < text.length) {
     result.push(text.slice(lastIndex));
   }
-  
+
   return result;
 };
 
 // Function to recursively process React nodes
 const processReactNode = (
-  node: React.ReactNode, 
+  node: React.ReactNode,
   context: AnalysisContext,
   disabled: boolean
 ): React.ReactNode => {
@@ -179,39 +179,39 @@ const processReactNode = (
   if (typeof node === 'string') {
     return processTextWithTooltips(node, context, disabled);
   }
-  
+
   if (typeof node === 'number' || typeof node === 'boolean' || node === null || node === undefined) {
     return node;
   }
-  
+
   if (React.isValidElement(node)) {
     // Don't process certain elements that shouldn't have tooltips
     const skipElements = ['code', 'pre', 'kbd', 'input', 'textarea', 'button', 'a'];
     if (typeof node.type === 'string' && skipElements.includes(node.type)) {
       return node;
     }
-    
+
     // Don't process if it already has a data-no-highlight attribute
     if (node.props && node.props['data-no-highlight']) {
       return node;
     }
-    
+
     // Process children
     const processedChildren = React.Children.map(node.props.children, child =>
       processReactNode(child, context, disabled)
     );
-    
+
     return React.cloneElement(node, {}, processedChildren);
   }
-  
+
   if (Array.isArray(node)) {
-    return node.map((child, index) => 
+    return node.map((child, index) =>
       <React.Fragment key={index}>
         {processReactNode(child, context, disabled)}
       </React.Fragment>
     );
   }
-  
+
   return node;
 };
 
@@ -225,7 +225,7 @@ export const MusicTermHighlighter: React.FC<MusicTermHighlighterProps> = ({
     if (disabled) return children;
     return processReactNode(children, context, disabled);
   }, [children, context, disabled]);
-  
+
   return (
     <div className={`music-term-highlighter ${className}`}>
       {processedContent}
@@ -240,10 +240,10 @@ export const FunctionalAnalysisHighlighter: React.FC<{
   className?: string;
 }> = ({ children, keyCenter, className }) => (
   <MusicTermHighlighter
-    context={{ 
-      type: 'functional', 
+    context={{
+      type: 'functional',
       subtype: 'chord_progression',
-      keyCenter 
+      keyCenter
     }}
     className={className}
   >
@@ -257,10 +257,10 @@ export const ModalAnalysisHighlighter: React.FC<{
   className?: string;
 }> = ({ children, mode, className }) => (
   <MusicTermHighlighter
-    context={{ 
-      type: 'modal', 
+    context={{
+      type: 'modal',
       subtype: 'modal_identification',
-      mode 
+      mode
     }}
     className={className}
   >
@@ -274,10 +274,10 @@ export const ChromaticAnalysisHighlighter: React.FC<{
   className?: string;
 }> = ({ children, keyCenter, className }) => (
   <MusicTermHighlighter
-    context={{ 
-      type: 'chromatic', 
+    context={{
+      type: 'chromatic',
       subtype: 'chromatic_harmony',
-      keyCenter 
+      keyCenter
     }}
     className={className}
   >

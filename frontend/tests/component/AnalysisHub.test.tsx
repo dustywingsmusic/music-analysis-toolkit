@@ -141,7 +141,7 @@ describe('AnalysisHub Integration', () => {
     fireEvent.change(input, { target: { value: 'Am F C G' } });
 
     // Click analyze button
-    const analyzeButton = screen.getByRole('button', { name: /Analyze with AI/i });
+    const analyzeButton = screen.getByRole('button', { name: /Analyze Music/i });
     fireEvent.click(analyzeButton);
 
     // Should show loading state
@@ -202,7 +202,7 @@ describe('AnalysisHub Integration', () => {
     const mockEngine = {
       analyzeComprehensively: vi.fn().mockRejectedValue(new Error('Analysis failed'))
     };
-    
+
     vi.doMock('@/services/comprehensiveAnalysisService', () => ({
       ComprehensiveAnalysisEngine: vi.fn().mockImplementation(() => mockEngine)
     }));
@@ -218,7 +218,7 @@ describe('AnalysisHub Integration', () => {
     fireEvent.change(input, { target: { value: 'Invalid Input' } });
 
     // Click analyze
-    const analyzeButton = screen.getByRole('button', { name: /Analyze with AI/i });
+    const analyzeButton = screen.getByRole('button', { name: /Analyze Music/i });
     fireEvent.click(analyzeButton);
 
     // Should show error message

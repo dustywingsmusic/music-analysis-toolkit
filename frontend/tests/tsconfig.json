@@ -22,7 +22,6 @@
       "@mocks/*": ["./mocks/*"],
       "@utils/*": ["utils/*"],
       "@types/*": ["types/*"]
-
     },
     "typeRoots": ["./types", "./node_modules/@types"],
     "allowSyntheticDefaultImports": true
@@ -33,12 +32,10 @@
     "**/*.js",
     "**/*.jsx",
     "types/**/*"
-
   ],
   "exclude": [
     "node_modules",
     "dist",
     "reports"
-  ],
-
+  ]
 }

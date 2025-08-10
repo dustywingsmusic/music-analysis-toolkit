@@ -1,6 +1,6 @@
 /**
  * UnifiedMusicInput Integration Demo
- * 
+ *
  * This component demonstrates how to integrate and use the UnifiedMusicInput component
  * across different contexts in the music theory application.
  */
@@ -80,7 +80,7 @@ const UnifiedMusicInputDemo: React.FC = () => {
   };
 
   const handleValidation = (type: keyof DemoState) => (
-    isValid: boolean, 
+    isValid: boolean,
     suggestions?: string[]
   ) => {
     setValidationStates(prev => ({ ...prev, [type]: isValid }));

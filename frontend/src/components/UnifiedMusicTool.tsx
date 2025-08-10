@@ -32,7 +32,7 @@ const UnifiedMusicTool: React.FC<UnifiedMusicToolProps> = ({ showDebugInfo }) =>
             <h3 className="analysis-sidebar__title">
               {analysisPanelCollapsed ? 'Analysis' : 'Chord & Scale Analysis'}
             </h3>
-            <button 
+            <button
               onClick={toggleAnalysisPanel}
               className="analysis-sidebar__toggle"
               title={analysisPanelCollapsed ? 'Expand analysis panel' : 'Collapse analysis panel'}
@@ -42,7 +42,7 @@ const UnifiedMusicTool: React.FC<UnifiedMusicToolProps> = ({ showDebugInfo }) =>
           </div>
 
           <div className="analysis-sidebar__content">
-            <ChordAnalyzer 
+            <ChordAnalyzer
               onSwitchToFinder={handleSwitchToFinderWithHighlight}
               showDebugInfo={showDebugInfo}
               compact={true}
@@ -53,7 +53,7 @@ const UnifiedMusicTool: React.FC<UnifiedMusicToolProps> = ({ showDebugInfo }) =>
 
         {/* Main Scale Tables Area */}
         <div className="scale-main-area">
-          <ScaleFinder 
+          <ScaleFinder
             initialHighlightId={highlightIdForFinder}
             embedded={true}
           />

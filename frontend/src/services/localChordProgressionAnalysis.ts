@@ -8,9 +8,9 @@ import { findChordMatches, ChordMatch } from './chordLogic';
 import { RealTimeModeDetector, ModeSuggestion, ModeDetectionResult } from './realTimeModeDetection';
 import { allScaleData, PITCH_CLASS_NAMES } from '../constants/scales';
 import { generateScaleFromIntervals } from '../utils/music';
-import { 
-  detectModalCharacteristics, 
-  generateModalRomanNumerals, 
+import {
+  detectModalCharacteristics,
+  generateModalRomanNumerals,
   isKnownModalPattern,
   ModalDetectionResult
 } from './modalDetectionFix';
@@ -56,7 +56,7 @@ export interface ChordProgressionAnalysis {
 }
 
 export interface ModalCharacteristic {
-  movement: string;        // e.g., "bVII-I", "bII-I"  
+  movement: string;        // e.g., "bVII-I", "bII-I"
   modes: string[];         // Which modes feature this characteristic
   strength: number;        // How definitive this movement is (0-1)
   context: 'cadential' | 'color_tone' | 'structural';
@@ -78,15 +78,15 @@ export const NOTE_TO_PITCH_CLASS: Record<string, number> = {
  */
 function formatParentKeyScale(tonic: string, isMinor: boolean): string {
   const keyName = `${tonic} ${isMinor ? 'Minor' : 'Major'}`;
-  
+
   // Get the appropriate scale intervals
   const scaleIntervals = isMinor ? [0, 2, 3, 5, 7, 8, 10] : [0, 2, 4, 5, 7, 9, 11];
   const tonicPitch = NOTE_TO_PITCH_CLASS[tonic];
-  
+
   if (tonicPitch === undefined) {
     return keyName; // Fallback if tonic not found
   }
-  
+
   try {
     const scaleNotes = generateScaleFromIntervals(tonicPitch, tonic, scaleIntervals);
     return `${keyName} (${scaleNotes.join(' ')})`;
@@ -102,34 +102,34 @@ function formatParentKeyScale(tonic: string, isMinor: boolean): string {
  */
 function formatModeWithDegrees(tonic: string, modeName: string, parentTonic: string, isMinor: boolean): string {
   const modeDisplayName = `${tonic} ${modeName}`;
-  
-  // Get the mode intervals based on the parent scale and mode type  
+
+  // Get the mode intervals based on the parent scale and mode type
   const parentPitch = NOTE_TO_PITCH_CLASS[parentTonic];
   const tonicPitch = NOTE_TO_PITCH_CLASS[tonic];
-  
+
   if (parentPitch === undefined || tonicPitch === undefined) {
     return modeDisplayName;
   }
-  
+
   try {
     // Find the mode data for this specific mode
     const scaleFamily = allScaleData.find(scale => {
       const familyModes = scale.commonNames || scale.alternateNames || [];
       return familyModes.includes(modeName);
     });
-    
+
     if (!scaleFamily) {
       return modeDisplayName;
     }
-    
+
     const modeIndex = (scaleFamily.commonNames || scaleFamily.alternateNames || []).indexOf(modeName);
     if (modeIndex === -1 || !scaleFamily.modeIntervals || !scaleFamily.modeIntervals[modeIndex]) {
       return modeDisplayName;
     }
-    
+
     const modeIntervals = scaleFamily.modeIntervals[modeIndex];
     const modeNotes = generateScaleFromIntervals(tonicPitch, tonic, modeIntervals);
-    
+
     // Generate scale degrees relative to the tonic
     const scaleDegrees = modeIntervals.map(interval => {
       switch (interval) {
@@ -148,7 +148,7 @@ function formatModeWithDegrees(tonic: string, modeName: string, parentTonic: str
         default: return interval.toString();
       }
     });
-    
+
     return `${modeDisplayName} (${modeNotes.join(' ')}) - ${scaleDegrees.join(' ')}`;
   } catch (error) {
     console.warn('Error formatting mode with degrees:', error);
@@ -165,7 +165,7 @@ function getModeNameFromInterval(intervalFromParent: number, isParentMinor: bool
     // For minor parent keys (natural minor/Aeolian modes)
     const minorModes: Record<number, string> = {
       0: 'Aeolian',      // A minor -> A Aeolian
-      2: 'Locrian',      // A minor -> B Locrian  
+      2: 'Locrian',      // A minor -> B Locrian
       3: 'Ionian',       // A minor -> C Ionian
       5: 'Dorian',       // A minor -> D Dorian
       7: 'Phrygian',     // A minor -> E Phrygian
@@ -203,7 +203,7 @@ const MODAL_CHARACTERISTICS: ModalCharacteristic[] = [
     context: 'cadential'
   },
   {
-    movement: 'bII-I', 
+    movement: 'bII-I',
     modes: ['Phrygian'],
     strength: 0.95,
     context: 'cadential'
@@ -260,7 +260,7 @@ async function generateMultipleInterpretations(
   knownKey?: string
 ): Promise<ProgressionInterpretation[]> {
   const interpretations: ProgressionInterpretation[] = [];
-  
+
   // Interpretation 1: User-guided analysis (if known key provided)
   if (knownKey) {
     const userInterpretation = analyzeWithKnownKey(chordAnalyses, chordSymbols, knownKey);
@@ -268,19 +268,19 @@ async function generateMultipleInterpretations(
       interpretations.push(userInterpretation);
     }
   }
-  
+
   // Interpretation 2: Structural analysis (based on first/last chords)
   const structuralInterpretation = analyzeStructurally(chordAnalyses, chordSymbols, knownKey);
   if (structuralInterpretation) {
     interpretations.push(structuralInterpretation);
   }
-  
+
   // Interpretation 3: Algorithmic analysis (original pitch-class based)
   const algorithmicInterpretation = await analyzeAlgorithmically(chordAnalyses, allPitchClasses, chordSymbols);
   if (algorithmicInterpretation) {
     interpretations.push(algorithmicInterpretation);
   }
-  
+
   // Sort by confidence (highest first)
   return interpretations.sort((a, b) => b.confidence - a.confidence);
 }
@@ -297,37 +297,37 @@ function analyzeWithKnownKey(
 ): ProgressionInterpretation | null {
   const parentKeyInfo = parseUserKey(knownKey);
   if (!parentKeyInfo) return null;
-  
+
   const parentKeyRoot = NOTE_TO_PITCH_CLASS[parentKeyInfo.tonic];
   if (parentKeyRoot === undefined) return null;
-  
+
   // ENHANCED: Use modal detection fix for better tonic and mode detection
   const modalDetection = detectModalCharacteristics(chordSymbols, knownKey);
-  
+
   // CROSS-VALIDATION: Use Enhanced Modal Analyzer for consistency
   const enhancedAnalyzer = new EnhancedModalAnalyzer();
   const enhancedResult = enhancedAnalyzer.analyzeModalCharacteristics(chordSymbols, knownKey);
-  
+
   // Use Enhanced Modal Analyzer as authoritative source
   // CRITICAL FIX: Check confidence threshold, not just null result
   let isModalConsistent = enhancedResult !== null && enhancedResult.confidence >= 0.7;
   let detectedModeConsistent = enhancedResult?.modeName || null;
-  
+
   // Log any discrepancies for debugging
   if (modalDetection.isModal !== isModalConsistent) {
     console.log(`🔄 Modal detection discrepancy: Local (${modalDetection.isModal}) vs Enhanced (${isModalConsistent}). Using Enhanced as authoritative.`);
   }
-  
+
   if (modalDetection.detectedMode !== detectedModeConsistent) {
     console.log(`🔄 Mode detection discrepancy: Local (${modalDetection.detectedMode}) vs Enhanced (${detectedModeConsistent}). Using Enhanced as authoritative.`);
   }
-  
+
   const localTonic = modalDetection.localTonic;
-  
+
   // ENHANCED: Use modal Roman numerals if modal characteristics detected
   const enhancedChords = chordAnalyses.map((chord, index) => {
     let romanNumeral: string;
-    
+
     if (isModalConsistent && (modalDetection.confidence > 0.7 || (enhancedResult && enhancedResult.confidence > 0.6))) {
       // Use modal Roman numerals relative to local tonic
       const modalRomanNumerals = generateModalRomanNumerals(
@@ -336,7 +336,7 @@ function analyzeWithKnownKey(
           symbol,
           quality: chordAnalyses[i].chordName,
           position: i
-        })), 
+        })),
         localTonic
       );
       romanNumeral = modalRomanNumerals[index];
@@ -345,7 +345,7 @@ function analyzeWithKnownKey(
       const intervalFromLocalTonic = (chord.root - localTonic + 12) % 12;
       romanNumeral = getRomanNumeral(intervalFromLocalTonic, false, chord.chordName);
     }
-    
+
     return {
       ...chord,
       romanNumeral,
@@ -353,31 +353,31 @@ function analyzeWithKnownKey(
       isModal: isModalConsistent // Use authoritative Enhanced modal analysis
     };
   });
-  
+
   // Create a temporary key info for local tonic to analyze modal characteristics
   const localTonicName = Object.keys(NOTE_TO_PITCH_CLASS).find(name => NOTE_TO_PITCH_CLASS[name] === localTonic) || 'C';
   const localKeyInfo = { tonic: localTonicName, isMinor: false };
-  
+
   // Analyze modal characteristics to determine the mode
   const modalAnalysis = analyzeModalCharacteristicsInProgression(enhancedChords, localKeyInfo);
-  
+
   // ENHANCED: Confidence based on modal detection + user context
   let confidence = 0.85 + (enhancedChords.length > 0 ? 0.05 : 0);
-  
+
   // Boost confidence if modal characteristics are clearly detected by Enhanced analyzer
   if (isModalConsistent && enhancedResult && enhancedResult.confidence > 0.7) {
     confidence = Math.min(0.95, confidence + 0.05);
   }
-  
+
   // Ensure confidence doesn't exceed maximum
   confidence = Math.min(0.95, confidence);
-  
+
   // Format parent key scale and mode properly
   const parentKeyScale = formatParentKeyScale(parentKeyInfo.tonic, parentKeyInfo.isMinor);
-  
+
   // ENHANCED: Use modal detection result for mode determination
   // localTonicName already declared above
-  
+
   let formattedMode: string;
   if (detectedModeConsistent) {
     // Use the cross-validated detected mode
@@ -414,46 +414,46 @@ function analyzeStructurally(
   parentKey?: string
 ): ProgressionInterpretation | null {
   if (chordAnalyses.length === 0) return null;
-  
+
   // ENHANCED: Check for known modal patterns first
   const modalDetection = detectModalCharacteristics(chordSymbols);
-  
+
   // CROSS-VALIDATION: Use Enhanced Modal Analyzer for consistency
   const enhancedAnalyzer = new EnhancedModalAnalyzer();
   const enhancedResult = enhancedAnalyzer.analyzeModalCharacteristics(chordSymbols, parentKey);
-  
+
   // Use Enhanced Modal Analyzer as authoritative source
   // CRITICAL FIX: Check confidence threshold, not just null result
   let isModalConsistent = enhancedResult !== null && enhancedResult.confidence >= 0.7;
   let detectedModeConsistent = enhancedResult?.modeName || null;
-  
+
   // Weight first and last chords more heavily (common practice in analysis)
   const firstChord = chordAnalyses[0];
   const lastChord = chordAnalyses[chordAnalyses.length - 1];
-  
+
   // Use modal detection result for tonic if available
   let tonicCandidate = chordAnalyses.find(c => c.root === modalDetection.localTonic) || firstChord;
   let confidence = modalDetection.isModal ? 0.65 : 0.6;
-  
+
   if (firstChord.root === lastChord.root) {
     confidence += 0.15; // Strong structural evidence
   }
-  
+
   // Additional confidence boost for known modal patterns
   if (isKnownModalPattern(chordSymbols)) {
     confidence += 0.1;
   }
-  
+
   // Ensure confidence doesn't exceed maximum
   confidence = Math.min(0.9, confidence);
-  
+
   const keyRoot = modalDetection.localTonic; // Use modal detection result
   const isMinor = tonicCandidate.chordName.includes('m') && !tonicCandidate.chordName.includes('M');
-  
+
   // ENHANCED: Use modal Roman numerals if modal characteristics detected
   const enhancedChords = chordAnalyses.map((chord, index) => {
     let romanNumeral: string;
-    
+
     if (isModalConsistent && enhancedResult && enhancedResult.confidence > 0.4) {
       const modalRomanNumerals = generateModalRomanNumerals(
         chordSymbols.map((symbol, i) => ({
@@ -461,7 +461,7 @@ function analyzeStructurally(
           symbol,
           quality: chordAnalyses[i].chordName,
           position: i
-        })), 
+        })),
         keyRoot
       );
       romanNumeral = modalRomanNumerals[index];
@@ -469,7 +469,7 @@ function analyzeStructurally(
       const intervalFromKey = (chord.root - keyRoot + 12) % 12;
       romanNumeral = getRomanNumeral(intervalFromKey, isMinor, chord.chordName);
     }
-    
+
     return {
       ...chord,
       romanNumeral,
@@ -477,20 +477,20 @@ function analyzeStructurally(
       isModal: isModalConsistent // Use Enhanced modal analyzer result
     };
   });
-  
+
   const tonicName = Object.keys(NOTE_TO_PITCH_CLASS).find(name => NOTE_TO_PITCH_CLASS[name] === keyRoot) || 'C';
   const keyInfo = { tonic: tonicName, isMinor };
-  
+
   // Analyze modal characteristics
   const modalAnalysis = analyzeModalCharacteristicsInProgression(enhancedChords, keyInfo);
-  
+
   // Format parent key scale and mode properly for structural analysis
   const parentKeyScale = formatParentKeyScale(tonicName, isMinor);
-  
+
   // ENHANCED: Use modal detection result for mode formatting
   // tonicName redefined for modal detection
   const modalTonicName = Object.keys(NOTE_TO_PITCH_CLASS).find(name => NOTE_TO_PITCH_CLASS[name] === keyRoot) || 'C';
-  
+
   let formattedMode: string;
   if (modalDetection.detectedMode) {
     // Use detected mode from enhanced modal detection
@@ -527,32 +527,32 @@ async function analyzeAlgorithmically(
 ): Promise<ProgressionInterpretation | null> {
   const modeDetector = new RealTimeModeDetector();
   const uniquePitchClasses = [...new Set(allPitchClasses)];
-  
+
   let modeResult: ModeDetectionResult | null = null;
   uniquePitchClasses.forEach(pc => {
     modeResult = modeDetector.addNote(pc + 60, pc);
   });
-  
+
   const primaryMode = modeResult?.suggestions?.[0];
   if (!primaryMode) return null;
-  
-  // Add modal detection to match other analysis functions  
+
+  // Add modal detection to match other analysis functions
   const modalDetection = detectModalCharacteristics(originalChordSymbols);
-  
+
   // CROSS-VALIDATION: Use Enhanced Modal Analyzer for consistency
   const enhancedAnalyzer = new EnhancedModalAnalyzer();
   const enhancedResult = enhancedAnalyzer.analyzeModalCharacteristics(originalChordSymbols);
-  
+
   // Use Enhanced Modal Analyzer as authoritative source
   // CRITICAL FIX: Check confidence threshold, not just null result
   let isModalConsistent = enhancedResult !== null && enhancedResult.confidence >= 0.7;
   let detectedModeConsistent = enhancedResult?.modeName || null;
-  
+
   const keyRoot = NOTE_TO_PITCH_CLASS[primaryMode.fullName.split(' ')[0]];
   if (keyRoot === undefined) return null;
-  
+
   const isMinorMode = primaryMode.name.includes('Aeolian') || primaryMode.name.includes('Minor');
-  
+
   const enhancedChords = chordAnalyses.map(chord => {
     const intervalFromKey = (chord.root - keyRoot + 12) % 12;
     return {
@@ -562,9 +562,9 @@ async function analyzeAlgorithmically(
       isModal: isModalConsistent // Use Enhanced modal analyzer result
     };
   });
-  
+
   const confidence = primaryMode.matchCount / (primaryMode.matchCount + primaryMode.mismatchCount);
-  
+
   return {
     chords: enhancedChords,
     keyCenter: primaryMode.fullName.split(' ')[0] + (isMinorMode ? ' Minor' : ' Major'),
@@ -583,16 +583,16 @@ async function analyzeAlgorithmically(
  */
 function parseUserKey(keyString: string): { tonic: string; isMinor: boolean } | null {
   const normalized = keyString.trim().toLowerCase();
-  
+
   // Handle common formats: "A major", "Bb minor", "F# major", etc.
   const match = normalized.match(/^([a-g][#b]?)\s*(major|minor|maj|min|m)?$/i);
   if (!match) return null;
-  
+
   const tonic = match[1].charAt(0).toUpperCase() + match[1].slice(1);
   const quality = match[2];
-  
+
   const isMinor = quality && (quality.includes('min') || quality === 'm');
-  
+
   return { tonic, isMinor: !!isMinor };
 }
 
@@ -608,11 +608,11 @@ function analyzeModalInterchangeInKey(
     // Simple heuristic: chords that don't fit the basic diatonic pattern
     return chord.romanNumeral.includes('b') || chord.romanNumeral.includes('#');
   });
-  
+
   if (borrowedChords.length === 0) {
     return `Diatonic progression in ${keyInfo.tonic} ${keyInfo.isMinor ? 'minor' : 'major'}`;
   }
-  
+
   return `Contains ${borrowedChords.length} borrowed chord(s): ${borrowedChords.map(c => c.romanNumeral).join(', ')}`;
 }
 
@@ -622,24 +622,24 @@ function analyzeModalInterchangeInKey(
 export async function analyzeChordProgressionLocally(progressionInput: string, knownKey?: string): Promise<ChordProgressionAnalysis> {
   // Parse chord symbols from input
   const chordSymbols = parseChordProgression(progressionInput);
-  
+
   if (chordSymbols.length === 0) {
     return createEmptyAnalysis(progressionInput, knownKey);
   }
-  
+
   // Convert chord symbols to pitch classes and identify chords
   const chordAnalyses: LocalChordAnalysis[] = [];
   const allPitchClasses: number[] = [];
-  
+
   for (let i = 0; i < chordSymbols.length; i++) {
     const chordSymbol = chordSymbols[i];
     const pitchClasses = chordSymbolToPitchClasses(chordSymbol);
     allPitchClasses.push(...pitchClasses);
-    
+
     // Use existing chord detection logic
     const chordMatches = findChordMatches(pitchClasses.map(pc => pc + 60)); // Convert to MIDI notes
     const bestMatch = chordMatches[0];
-    
+
     if (bestMatch) {
       const localAnalysis: LocalChordAnalysis = {
         ...bestMatch,
@@ -651,40 +651,40 @@ export async function analyzeChordProgressionLocally(progressionInput: string, k
       chordAnalyses.push(localAnalysis);
     }
   }
-  
+
   // Generate multiple interpretations
   const interpretations = await generateMultipleInterpretations(
-    chordAnalyses, 
-    allPitchClasses, 
+    chordAnalyses,
+    allPitchClasses,
     chordSymbols,
     knownKey
   );
-  
+
   // ENHANCED: Choose primary interpretation with modal pattern priority
   let primaryInterpretation: ProgressionInterpretation | undefined;
-  
+
   // Priority 1: User-guided analysis (if available)
   primaryInterpretation = interpretations.find(i => i.source === 'user-guided');
-  
+
   // Priority 2: If no user guidance, check for known modal patterns
   if (!primaryInterpretation && isKnownModalPattern(chordSymbols)) {
     // Prefer structural analysis for known modal patterns
     primaryInterpretation = interpretations.find(i => i.source === 'structural');
     console.log('🎵 Using structural analysis for known modal pattern:', chordSymbols.join(' '));
   }
-  
+
   // Priority 3: Fallback to highest confidence
   if (!primaryInterpretation) {
     primaryInterpretation = interpretations[0];
   }
-  
+
   if (!primaryInterpretation) {
     return createEmptyAnalysis(progressionInput, knownKey);
   }
-  
+
   // Filter out alternative interpretations (exclude primary)
   const alternatives = interpretations.filter(i => i !== primaryInterpretation);
-  
+
   return {
     method: 'progression',
     progression: progressionInput,
@@ -712,15 +712,15 @@ function chordSymbolToPitchClasses(chordSymbol: string): number[] {
   // Basic parsing - this could be enhanced with a full chord parser
   const rootMatch = chordSymbol.match(/^([A-G][#b]?)/);
   if (!rootMatch) return [];
-  
+
   const rootNote = rootMatch[1];
   const rootPitch = NOTE_TO_PITCH_CLASS[rootNote];
   if (rootPitch === undefined) return [];
-  
+
   // Determine chord type from symbol
   const chordType = determineChordType(chordSymbol);
   const intervals = getChordIntervals(chordType);
-  
+
   return intervals.map(interval => (rootPitch + interval) % 12);
 }
 
@@ -729,7 +729,7 @@ function chordSymbolToPitchClasses(chordSymbol: string): number[] {
  */
 function determineChordType(symbol: string): string {
   const lowerSymbol = symbol.toLowerCase();
-  
+
   if (lowerSymbol.includes('maj7')) return 'major7';
   if (lowerSymbol.includes('m7')) return 'minor7';
   if (lowerSymbol.includes('7')) return 'dominant7';
@@ -737,7 +737,7 @@ function determineChordType(symbol: string): string {
   if (lowerSymbol.includes('sus4')) return 'sus4';
   if (lowerSymbol.includes('sus2')) return 'sus2';
   if (lowerSymbol.includes('m')) return 'minor';
-  
+
   return 'major'; // Default
 }
 
@@ -755,7 +755,7 @@ function getChordIntervals(chordType: string): number[] {
     'sus4': [0, 5, 7],
     'sus2': [0, 2, 7]
   };
-  
+
   return chordTemplates[chordType] || [0, 4, 7];
 }
 
@@ -766,27 +766,27 @@ function getRomanNumeral(intervalFromKey: number, isMinor: boolean, chordType: s
   const templates = isMinor ? ROMAN_NUMERAL_TEMPLATES.minor : ROMAN_NUMERAL_TEMPLATES.major;
   const diatonicIntervals = [0, 2, 4, 5, 7, 9, 11];
   const scaleIndex = diatonicIntervals.indexOf(intervalFromKey);
-  
+
   if (scaleIndex !== -1) {
     let numeral = templates[scaleIndex];
-    
+
     // Adjust for chord quality
     if (chordType.includes('7')) {
       numeral += '7';
     }
-    
+
     return numeral;
   }
-  
+
   // Handle chromatic/modal chords with proper Roman numeral notation
   const chromaticRomanNumerals: Record<number, string> = {
     1: isMinor ? '♭II' : '♭II',    // flat 2 (Phrygian)
-    3: isMinor ? '♭III' : '♭III',  // flat 3 
+    3: isMinor ? '♭III' : '♭III',  // flat 3
     6: isMinor ? '♭VI' : '♭VI',    // flat 6
     8: isMinor ? '♭VI' : '♭VI',    // flat 6 enharmonic
     10: isMinor ? '♭VII' : 'bVII', // flat 7 (Mixolydian characteristic)
   };
-  
+
   return chromaticRomanNumerals[intervalFromKey] || `?${intervalFromKey}`;
 }
 
@@ -794,10 +794,10 @@ function getRomanNumeral(intervalFromKey: number, isMinor: boolean, chordType: s
  * Determine chord function within key
  */
 function getChordFunction(intervalFromKey: number, isMinor: boolean): ChordFunction {
-  const functionMap = isMinor 
+  const functionMap = isMinor
     ? { 0: 'tonic', 2: 'predominant', 4: 'predominant', 5: 'subdominant', 7: 'dominant', 9: 'subdominant', 10: 'leading_tone' }
     : { 0: 'tonic', 2: 'predominant', 4: 'predominant', 5: 'subdominant', 7: 'dominant', 9: 'tonic', 11: 'leading_tone' };
-    
+
   return functionMap[intervalFromKey as keyof typeof functionMap] || 'other';
 }
 
@@ -805,34 +805,34 @@ function getChordFunction(intervalFromKey: number, isMinor: boolean): ChordFunct
  * Analyze modal characteristics in progression and determine mode
  */
 function analyzeModalCharacteristicsInProgression(
-  chords: LocalChordAnalysis[], 
+  chords: LocalChordAnalysis[],
   keyInfo: { tonic: string; isMinor: boolean }
 ): { detectedMode: string | null; explanation: string; modalCharacteristics: ModalCharacteristic[] } {
   const detectedCharacteristics: ModalCharacteristic[] = [];
   const modalModes: string[] = [];
-  
+
   // Mark chords with modal characteristics
   for (let i = 0; i < chords.length - 1; i++) {
     const currentChord = chords[i];
     const nextChord = chords[i + 1];
-    
+
     // Check for characteristic modal movements
     MODAL_CHARACTERISTICS.forEach(characteristic => {
       if (matchesModalMovement(currentChord, nextChord, characteristic)) {
         currentChord.isModal = true;
         nextChord.isModal = true;
-        
+
         if (!currentChord.modalCharacteristics) currentChord.modalCharacteristics = [];
         currentChord.modalCharacteristics.push(characteristic);
-        
+
         detectedCharacteristics.push(characteristic);
         modalModes.push(...characteristic.modes);
-        
+
         console.log(`🎵 Detected modal movement: ${characteristic.movement} (${characteristic.modes.join(', ')})`);
       }
     });
   }
-  
+
   if (detectedCharacteristics.length === 0) {
     return {
       detectedMode: null,
@@ -840,24 +840,24 @@ function analyzeModalCharacteristicsInProgression(
       modalCharacteristics: []
     };
   }
-  
+
   // Determine the most likely mode based on detected characteristics
   const modeFrequency: Record<string, number> = {};
   modalModes.forEach(mode => {
     modeFrequency[mode] = (modeFrequency[mode] || 0) + 1;
   });
-  
+
   // Sort modes by frequency and strength of evidence
   const rankedModes = Object.entries(modeFrequency)
     .sort(([a, countA], [b, countB]) => countB - countA)
     .map(([mode]) => mode);
-  
+
   const topMode = rankedModes[0];
   const detectedMode = topMode ? `${keyInfo.tonic} ${topMode}` : null;
-  
+
   const movements = detectedCharacteristics.map(c => c.movement).join(', ');
   const explanation = `Modal characteristics detected: ${movements}. Suggests ${detectedMode || 'modal interpretation'}.`;
-  
+
   return {
     detectedMode,
     explanation,
@@ -876,13 +876,13 @@ function analyzeModalCharacteristics(chords: LocalChordAnalysis[], primaryMode: 
 /**
  * Check if chord movement matches a modal characteristic
  */
-function matchesModalMovement(chord1: LocalChordAnalysis, chord2: LocalChordAnalysis, 
+function matchesModalMovement(chord1: LocalChordAnalysis, chord2: LocalChordAnalysis,
                              characteristic: ModalCharacteristic): boolean {
   const movement = characteristic.movement;
-  
+
   // Parse the movement pattern (e.g., "bVII-I", "I-bVII", etc.)
   const [from, to] = movement.split('-');
-  
+
   if (movement === 'bVII-I') {
     // Check if we have a flatted seventh moving to tonic
     // bVII to I: if chord1 is bVII and chord2 is I relative to the key
@@ -890,31 +890,31 @@ function matchesModalMovement(chord1: LocalChordAnalysis, chord2: LocalChordAnal
     const interval = (chord2.root - chord1.root + 12) % 12;
     return interval === 2 && chord1.romanNumeral === 'bVII' && chord2.romanNumeral === 'I';
   }
-  
+
   if (movement === 'I-bVII') {
     // Check if we have tonic moving to flatted seventh
     const interval = (chord2.root - chord1.root + 12) % 12;
     return interval === 10 && chord1.romanNumeral === 'I' && chord2.romanNumeral === 'bVII'; // I to bVII is 10 semitones (major seventh up)
   }
-  
+
   if (movement === 'bVII-IV') {
     // Check for bVII to IV movement (common in Mixolydian)
     const interval = (chord2.root - chord1.root + 12) % 12;
     return interval === 7 && chord1.romanNumeral === 'bVII' && chord2.romanNumeral === 'IV'; // bVII to IV is 7 semitones (perfect fifth up)
   }
-  
+
   if (movement === 'bII-I') {
     // Phrygian characteristic
     const interval = (chord2.root - chord1.root + 12) % 12;
     return interval === 1 && chord1.romanNumeral === '♭II' && chord2.romanNumeral === 'I'; // bII to I is 1 semitone
   }
-  
+
   if (movement === '#IV-V') {
-    // Lydian characteristic  
+    // Lydian characteristic
     const interval = (chord2.root - chord1.root + 12) % 12;
     return interval === 1 && chord1.romanNumeral.includes('#IV') && chord2.romanNumeral === 'V'; // #IV to V is 1 semitone
   }
-  
+
   return false;
 }
 
@@ -923,16 +923,16 @@ function matchesModalMovement(chord1: LocalChordAnalysis, chord2: LocalChordAnal
  */
 function determineModalInterchange(chords: LocalChordAnalysis[], primaryMode: any): string {
   const modalChords = chords.filter(chord => chord.isModal);
-  
+
   if (modalChords.length === 0) {
     return `No modal interchange detected - all chords are diatonic to ${primaryMode.fullName}`;
   }
-  
-  const modalSources = modalChords.map(chord => 
+
+  const modalSources = modalChords.map(chord =>
     chord.modalCharacteristics?.map(mc => mc.modes).flat() || []
   ).flat();
-  
+
   const uniqueSources = [...new Set(modalSources)];
-  
+
   return `Modal interchange detected from: ${uniqueSources.join(', ')}`;
 }

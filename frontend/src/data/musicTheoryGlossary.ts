@@ -1,6 +1,6 @@
 /**
  * Comprehensive Music Theory Glossary with Contextual Definitions
- * 
+ *
  * Provides context-aware explanations for music theory terms based on
  * analysis type and harmonic context.
  */
@@ -523,10 +523,10 @@ export const musicTheoryGlossary: Record<string, GlossaryTerm> = {
 // Helper functions for contextual lookup
 export const findTermByAlias = (searchTerm: string): GlossaryTerm | null => {
   const normalizedSearch = searchTerm.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
-  
+
   for (const term of Object.values(musicTheoryGlossary)) {
     if (term.term.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim() === normalizedSearch ||
-        term.aliases.some(alias => 
+        term.aliases.some(alias =>
           alias.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim() === normalizedSearch
         )) {
       return term;
@@ -536,19 +536,19 @@ export const findTermByAlias = (searchTerm: string): GlossaryTerm | null => {
 };
 
 export const getContextualDefinition = (
-  termId: string, 
+  termId: string,
   context: 'functional' | 'modal' | 'chromatic' | 'jazz' = 'functional'
 ): string => {
   const term = musicTheoryGlossary[termId];
   if (!term) return '';
-  
+
   return term.contexts[context] || term.quickDefinition;
 };
 
 export const getRelatedTerms = (termId: string): GlossaryTerm[] => {
   const term = musicTheoryGlossary[termId];
   if (!term) return [];
-  
+
   return term.relatedTerms
     .map(id => musicTheoryGlossary[id])
     .filter(Boolean);
@@ -556,7 +556,7 @@ export const getRelatedTerms = (termId: string): GlossaryTerm[] => {
 
 export const searchGlossary = (query: string): GlossaryTerm[] => {
   const normalizedQuery = query.toLowerCase();
-  
+
   return Object.values(musicTheoryGlossary).filter(term =>
     term.term.toLowerCase().includes(normalizedQuery) ||
     term.aliases.some(alias => alias.toLowerCase().includes(normalizedQuery)) ||

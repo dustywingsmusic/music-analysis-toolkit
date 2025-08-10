@@ -11,7 +11,7 @@ The project documentation is organized into five comprehensive documents:
 ### 1. 🎯 [DESIGN_AND_REQUIREMENTS.md](./DESIGN_AND_REQUIREMENTS.md)
 **User needs, use cases, and design specifications**
 - 28 specific use cases organized by category
-- Question-driven navigation structure  
+- Question-driven navigation structure
 - UI wireframes and interaction patterns
 - Feature implementation status and roadmap
 
@@ -161,7 +161,7 @@ The Music Theory Toolkit uses a question-driven interface that directly addresse
 
 ### Question-Driven Navigation
 - **"What mode is this?"** → Mode Identification Tab
-- **"What modes can I explore?"** → Mode Discovery Tab  
+- **"What modes can I explore?"** → Mode Discovery Tab
 - **"How do modes work with chords?"** → Harmony Tab
 - **"Show me mode information"** → Reference Tab
 

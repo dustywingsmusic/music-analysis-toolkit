@@ -36,10 +36,10 @@ const FriendlyError: React.FC<FriendlyErrorProps> = ({
   onClear,
   className
 }) => {
-  const [currentMessage] = React.useState(() => 
+  const [currentMessage] = React.useState(() =>
     encouragingMessages[Math.floor(Math.random() * encouragingMessages.length)]
   );
-  
+
   const [currentTip] = React.useState(() =>
     helpfulTips[Math.floor(Math.random() * helpfulTips.length)]
   );
@@ -61,7 +61,7 @@ const FriendlyError: React.FC<FriendlyErrorProps> = ({
           </p>
         </div>
       </div>
-      
+
       {/* Helpful suggestion */}
       <div className="bg-muted/50 rounded-md p-3">
         <div className="flex items-start space-x-2">
@@ -71,7 +71,7 @@ const FriendlyError: React.FC<FriendlyErrorProps> = ({
           </p>
         </div>
       </div>
-      
+
       {/* Custom suggestions */}
       {suggestions && suggestions.length > 0 && (
         <div className="space-y-2">
@@ -86,7 +86,7 @@ const FriendlyError: React.FC<FriendlyErrorProps> = ({
           </ul>
         </div>
       )}
-      
+
       {/* Actions */}
       <div className="flex items-center space-x-3 pt-2">
         {onRetry && (
@@ -110,7 +110,7 @@ const FriendlyError: React.FC<FriendlyErrorProps> = ({
           </DelightfulButton>
         )}
       </div>
-      
+
       {/* Encouragement footer */}
       <div className="text-center pt-2 border-t border-border">
         <p className="text-xs text-muted-foreground italic">

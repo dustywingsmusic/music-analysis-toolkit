@@ -45,7 +45,7 @@ const NavigationDebugger: React.FC = () => {
           <h4 className="font-medium mb-2">Direct Navigation (dispatch):</h4>
           <div className="flex gap-2 flex-wrap">
             {tabs.map(tab => (
-              <Button 
+              <Button
                 key={`direct-${tab}`}
                 onClick={() => handleDirectNavigation(tab)}
                 variant={state.activeTab === tab ? "default" : "outline"}
@@ -61,7 +61,7 @@ const NavigationDebugger: React.FC = () => {
           <h4 className="font-medium mb-2">Action Navigation (useAnalysisActions):</h4>
           <div className="flex gap-2 flex-wrap">
             {tabs.map(tab => (
-              <Button 
+              <Button
                 key={`action-${tab}`}
                 onClick={() => handleActionNavigation(tab)}
                 variant={state.activeTab === tab ? "default" : "outline"}
@@ -76,7 +76,7 @@ const NavigationDebugger: React.FC = () => {
         <div>
           <h4 className="font-medium mb-2">State Raw Data:</h4>
           <pre className="bg-gray-50 p-2 rounded text-xs overflow-auto max-h-32">
-            {JSON.stringify({ 
+            {JSON.stringify({
               activeTab: state.activeTab,
               lastAnalysisTab: state.lastAnalysisTab,
               isAnalyzing: state.isAnalyzing,

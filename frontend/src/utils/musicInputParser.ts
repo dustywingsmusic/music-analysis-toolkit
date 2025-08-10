@@ -1,6 +1,6 @@
 /**
  * Music Input Parser and Validation Utilities
- * 
+ *
  * This module provides comprehensive parsing and validation for various types of musical input
  * including notes, chords, progressions, and Roman numerals.
  */
@@ -36,7 +36,7 @@ const SLASH_CHORD_PATTERN = /^[A-G][#b♯♭]?(maj|min|m|M|\+|dim|aug|sus|add|°
  */
 export function parseToken(token: string): ParsedToken {
   const trimmed = token.trim();
-  
+
   if (NOTE_PATTERN.test(trimmed)) {
     const pitchClass = noteToPitchClass(trimmed);
     return {
@@ -47,7 +47,7 @@ export function parseToken(token: string): ParsedToken {
       isValid: pitchClass !== -1
     };
   }
-  
+
   if (CHORD_PATTERN.test(trimmed) || SLASH_CHORD_PATTERN.test(trimmed)) {
     return {
       original: token,
@@ -56,7 +56,7 @@ export function parseToken(token: string): ParsedToken {
       isValid: true
     };
   }
-  
+
   if (ROMAN_PATTERN.test(trimmed)) {
     return {
       original: token,
@@ -65,7 +65,7 @@ export function parseToken(token: string): ParsedToken {
       isValid: true
     };
   }
-  
+
   return {
     original: token,
     normalized: trimmed,
@@ -116,13 +116,13 @@ export function validateMusicInput(input: string, inputType: InputType): Validat
           suggestions.push(`'${token.original}' is not a valid note name. Try: C, D, E, F, G, A, B (with optional # or ♭)`);
         }
       });
-      
+
       // Try chord detection for scale input if we have enough notes
       if (inputType === 'scale' && parsedTokens.length >= 3) {
         const validPitchClasses = parsedTokens
           .filter(t => t.isValid && t.pitchClass !== undefined)
           .map(t => t.pitchClass!);
-        
+
         if (validPitchClasses.length >= 3) {
           const midiNotes = validPitchClasses.map(pc => pc + 60);
           detectedChords = findChordMatches(midiNotes);
@@ -135,7 +135,7 @@ export function validateMusicInput(input: string, inputType: InputType): Validat
       if (parsedTokens.length > 1) {
         suggestions.push('Chord input should contain only one chord symbol');
       }
-      
+
       parsedTokens.forEach(token => {
         if (token.type !== 'chord' || !token.isValid) {
           suggestions.push(`'${token.original}' is not a valid chord symbol. Try: C, Am, Fmaj7, etc.`);
@@ -147,11 +147,11 @@ export function validateMusicInput(input: string, inputType: InputType): Validat
       // Can contain chords or Roman numerals, but should be consistent
       const hasChords = parsedTokens.some(t => t.type === 'chord');
       const hasRoman = parsedTokens.some(t => t.type === 'roman');
-      
+
       if (hasChords && hasRoman) {
         suggestions.push('Mix of chord symbols and Roman numerals detected. Try using one format consistently.');
       }
-      
+
       parsedTokens.forEach(token => {
         if (token.type === 'unknown' || !token.isValid) {
           suggestions.push(`'${token.original}' is not a valid chord symbol or Roman numeral`);
@@ -162,7 +162,7 @@ export function validateMusicInput(input: string, inputType: InputType): Validat
   }
 
   const isValid = suggestions.length === 0;
-  
+
   return {
     isValid,
     suggestions,
@@ -180,15 +180,15 @@ export function analyzeProgression(tokens: ParsedToken[]): {
   romanNumerals?: string[];
 } {
   const chordTokens = tokens.filter(t => t.type === 'chord' && t.isValid);
-  
+
   if (chordTokens.length === 0) {
     return { pattern: 'unknown' };
   }
-  
+
   // Simple pattern recognition for common progressions
   const chordNames = chordTokens.map(t => t.normalized);
   const pattern = chordNames.join('-');
-  
+
   // Check for common patterns
   const commonPatterns = {
     'C-G-Am-F': 'vi-IV-I-V (Pop progression)',
@@ -197,7 +197,7 @@ export function analyzeProgression(tokens: ParsedToken[]): {
     'F-G-C-Am': 'IV-V-I-vi',
     'Dm-G-C': 'ii-V-I (Jazz turnaround)'
   };
-  
+
   return {
     pattern: commonPatterns[pattern as keyof typeof commonPatterns] || pattern,
     key: inferKeyFromChords(chordNames)
@@ -221,7 +221,7 @@ function inferKeyFromChords(chords: string[]): string | undefined {
  */
 export function generateSuggestions(input: string, inputType: InputType): string[] {
   const suggestions: string[] = [];
-  
+
   if (!input.trim()) {
     switch (inputType) {
       case 'melody':
@@ -238,7 +238,7 @@ export function generateSuggestions(input: string, inputType: InputType): string
         break;
     }
   }
-  
+
   return suggestions;
 }
 
@@ -248,7 +248,7 @@ export function generateSuggestions(input: string, inputType: InputType): string
 export function formatMusicInput(input: string, inputType: InputType): string {
   const tokens = input.split(/[\s,]+/).filter(t => t.length > 0);
   const parsedTokens = tokens.map(parseToken);
-  
+
   return parsedTokens
     .map(token => token.normalized)
     .join(' ');

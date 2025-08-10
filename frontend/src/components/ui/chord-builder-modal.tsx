@@ -1,10 +1,10 @@
 /**
  * Compact Chord Builder Modal
- * 
+ *
  * A simplified, compact chord input interface that appears as a small modal
  * next to chord positions. Features compact grid note selection, chord quality buttons,
  * quick presets, and navigation arrows for chord progression building.
- * 
+ *
  * Design Philosophy: "Single mode, all controls visible, maximum 280×250px"
  */
 
@@ -81,13 +81,13 @@ export const ChordBuilderModal: React.FC<ChordBuilderModalProps> = ({
       const match = currentChord.match(/^([A-G][#♯♭b]?)(.*)$/);
       if (match) {
         const [, root, quality] = match;
-        const rootIndex = NOTE_DISPLAY.findIndex(note => 
+        const rootIndex = NOTE_DISPLAY.findIndex(note =>
           note === root || note.includes(root.replace('♯', '#').replace('♭', 'b'))
         );
         if (rootIndex !== -1) {
           setSelectedRoot(rootIndex);
         }
-        
+
         const qualityMatch = CHORD_QUALITIES.find(q => q.symbol === quality);
         if (qualityMatch) {
           setSelectedQuality(qualityMatch);
@@ -124,23 +124,23 @@ export const ChordBuilderModal: React.FC<ChordBuilderModalProps> = ({
   // Auto-position modal to stay within viewport (compact size)
   const getModalStyle = () => {
     if (!isOpen) return { display: 'none' };
-    
+
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     const modalWidth = 160; // Minimal modal width
     const modalHeight = 140; // Minimal modal height
-    
+
     // Center the modal horizontally above the clicked element
     let x = position.x - (modalWidth / 2);
     let y = position.y;
-    
+
     // Adjust horizontal position to stay within viewport
     if (x < 10) {
       x = 10; // Left edge padding
     } else if (x + modalWidth > viewportWidth - 10) {
       x = viewportWidth - modalWidth - 10; // Right edge padding
     }
-    
+
     // Adjust vertical position to stay within viewport
     if (y < modalHeight + 20) {
       // If there's not enough space above, position below the element
@@ -149,12 +149,12 @@ export const ChordBuilderModal: React.FC<ChordBuilderModalProps> = ({
       // Position above the element with some padding
       y = position.y - modalHeight - 10;
     }
-    
+
     // Final check to ensure modal stays within viewport
     if (y + modalHeight > viewportHeight - 10) {
       y = viewportHeight - modalHeight - 10;
     }
-    
+
     return {
       position: 'fixed' as const,
       left: x,
@@ -179,11 +179,11 @@ export const ChordBuilderModal: React.FC<ChordBuilderModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
       className="chord-builder-modal-overlay fixed inset-0 z-50"
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.1)' }}
     >
-      <Card 
+      <Card
         ref={modalRef}
         className={cn(
           "chord-builder-modal shadow-xl border-2 animate-in fade-in-0 zoom-in-95 duration-200",
@@ -228,9 +228,9 @@ export const ChordBuilderModal: React.FC<ChordBuilderModalProps> = ({
                 <ChevronRight className="h-3 w-3" />
               </Button>
             </div>
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => {
                 const chord = buildChord();
                 onChordSelect(chord);
@@ -299,10 +299,10 @@ export const ChordBuilderModal: React.FC<ChordBuilderModalProps> = ({
 
           {/* Section Separator */}
           <div className="border-t border-gray-200 my-1.5"></div>
-          
+
           {/* Action Button - Single Done button */}
           <div className="flex gap-2 pt-0.5">
-            <Button 
+            <Button
               onClick={onClose}
               className="flex-1 bg-green-600 hover:bg-green-700 h-6"
               size="sm"

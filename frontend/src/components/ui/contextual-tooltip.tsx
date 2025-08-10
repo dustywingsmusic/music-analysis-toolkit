@@ -1,6 +1,6 @@
 /**
  * Contextual Tooltip Component
- * 
+ *
  * Provides context-aware tooltips for music theory terms with:
  * - Quick hover definitions
  * - Click for detailed explanations
@@ -36,16 +36,16 @@ interface DetailModalProps {
 const DetailModal: React.FC<DetailModalProps> = ({ term, context = 'functional', isOpen, onClose }) => {
   const [playingExample, setPlayingExample] = useState<number | null>(null);
   const [selectedExample, setSelectedExample] = useState(0);
-  
+
   const contextualDefinition = getContextualDefinition(term.id, context);
   const relatedTerms = getRelatedTerms(term.id);
-  
+
   const handlePlayExample = (index: number) => {
     setPlayingExample(index);
     // TODO: Implement audio playback
     setTimeout(() => setPlayingExample(null), 2000);
   };
-  
+
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'beginner': return 'bg-green-100 text-green-800 border-green-300';
@@ -54,7 +54,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ term, context = 'functional',
       default: return 'bg-gray-100 text-gray-800 border-gray-300';
     }
   };
-  
+
   const getContextColor = (contextType: string) => {
     switch (contextType) {
       case 'functional': return 'bg-blue-100 text-blue-800 border-blue-300';
@@ -64,7 +64,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ term, context = 'functional',
       default: return 'bg-gray-100 text-gray-800 border-gray-300';
     }
   };
-  
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
@@ -75,14 +75,14 @@ const DetailModal: React.FC<DetailModalProps> = ({ term, context = 'functional',
               {term.term}
             </DialogTitle>
             <div className="flex gap-2">
-              <Badge 
-                variant="outline" 
+              <Badge
+                variant="outline"
                 className={getDifficultyColor(term.difficulty)}
               >
                 {term.difficulty}
               </Badge>
-              <Badge 
-                variant="outline" 
+              <Badge
+                variant="outline"
                 className={getContextColor(context)}
               >
                 {context}
@@ -93,7 +93,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ term, context = 'functional',
             {term.category} · {contextualDefinition}
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="space-y-6">
           {/* Detailed Definition */}
           <div>
@@ -102,7 +102,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ term, context = 'functional',
               {term.detailedDefinition}
             </p>
           </div>
-          
+
           {/* Context-Specific Information */}
           {Object.entries(term.contexts).filter(([_, value]) => value).length > 1 && (
             <div>
@@ -111,19 +111,19 @@ const DetailModal: React.FC<DetailModalProps> = ({ term, context = 'functional',
                 {Object.entries(term.contexts).map(([contextType, definition]) => {
                   if (!definition) return null;
                   const isCurrentContext = contextType === context;
-                  
+
                   return (
-                    <div 
+                    <div
                       key={contextType}
                       className={`p-3 rounded-lg border ${
-                        isCurrentContext 
-                          ? `${getContextColor(contextType)} border-2` 
+                        isCurrentContext
+                          ? `${getContextColor(contextType)} border-2`
                           : 'bg-gray-50 border-gray-200'
                       }`}
                     >
                       <div className="flex items-center gap-2 mb-1">
-                        <Badge 
-                          variant="outline" 
+                        <Badge
+                          variant="outline"
                           className={`text-xs ${getContextColor(contextType)}`}
                         >
                           {contextType}
@@ -141,7 +141,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ term, context = 'functional',
               </div>
             </div>
           )}
-          
+
           {/* Musical Examples */}
           {term.examples.length > 0 && (
             <div>
@@ -171,15 +171,15 @@ const DetailModal: React.FC<DetailModalProps> = ({ term, context = 'functional',
                           </span>
                         </Button>
                       </div>
-                      
+
                       {example.chords && (
                         <div className="mb-2">
                           <span className="text-xs text-blue-600 font-medium">Chords:</span>
                           <div className="flex gap-1 mt-1">
                             {example.chords.map((chord, chordIndex) => (
                               <React.Fragment key={chordIndex}>
-                                <Badge 
-                                  variant="outline" 
+                                <Badge
+                                  variant="outline"
                                   className="bg-blue-100 text-blue-800 font-mono"
                                 >
                                   {chord}
@@ -192,7 +192,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ term, context = 'functional',
                           </div>
                         </div>
                       )}
-                      
+
                       {example.notes && (
                         <div className="mb-2">
                           <span className="text-xs text-blue-600 font-medium">Notes:</span>
@@ -201,7 +201,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ term, context = 'functional',
                           </div>
                         </div>
                       )}
-                      
+
                       <p className="text-sm text-blue-700">{example.description}</p>
                     </CardContent>
                   </Card>
@@ -209,7 +209,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ term, context = 'functional',
               </div>
             </div>
           )}
-          
+
           {/* Related Terms */}
           {relatedTerms.length > 0 && (
             <div>
@@ -235,16 +235,16 @@ const DetailModal: React.FC<DetailModalProps> = ({ term, context = 'functional',
               </div>
             </div>
           )}
-          
+
           {/* Aliases */}
           {term.aliases.length > 0 && (
             <div>
               <h4 className="font-semibold mb-2 text-gray-900">Also Known As</h4>
               <div className="flex flex-wrap gap-1">
                 {term.aliases.map((alias, index) => (
-                  <Badge 
-                    key={index} 
-                    variant="outline" 
+                  <Badge
+                    key={index}
+                    variant="outline"
                     className="text-xs bg-gray-100 text-gray-700"
                   >
                     {alias}
@@ -272,7 +272,7 @@ export const ContextualTooltip: React.FC<ContextualTooltipProps> = ({
   const [isHoveringTooltip, setIsHoveringTooltip] = useState(false);
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const glossaryTerm = findTermByAlias(term);
-  
+
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
@@ -281,22 +281,22 @@ export const ContextualTooltip: React.FC<ContextualTooltipProps> = ({
       }
     };
   }, []);
-  
+
   // If term not found, return children without tooltip
   if (!glossaryTerm) {
     return <>{children}</>;
   }
-  
+
   const contextualDefinition = getContextualDefinition(glossaryTerm.id, context);
   const quickDefinition = contextualDefinition || glossaryTerm.quickDefinition;
-  
+
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setTooltipOpen(false);
     setShowDetail(true);
   };
-  
+
   const handleMouseEnter = () => {
     if (closeTimeoutRef.current) {
       clearTimeout(closeTimeoutRef.current);
@@ -304,7 +304,7 @@ export const ContextualTooltip: React.FC<ContextualTooltipProps> = ({
     }
     setTooltipOpen(true);
   };
-  
+
   const handleMouseLeave = () => {
     if (!isHoveringTooltip) {
       closeTimeoutRef.current = setTimeout(() => {
@@ -312,7 +312,7 @@ export const ContextualTooltip: React.FC<ContextualTooltipProps> = ({
       }, 200); // 200ms delay
     }
   };
-  
+
   const handleTooltipEnter = () => {
     if (closeTimeoutRef.current) {
       clearTimeout(closeTimeoutRef.current);
@@ -320,28 +320,28 @@ export const ContextualTooltip: React.FC<ContextualTooltipProps> = ({
     }
     setIsHoveringTooltip(true);
   };
-  
+
   const handleTooltipLeave = () => {
     setIsHoveringTooltip(false);
     closeTimeoutRef.current = setTimeout(() => {
       setTooltipOpen(false);
     }, 100);
   };
-  
-  const containerClasses = inline 
+
+  const containerClasses = inline
     ? `inline-flex items-center gap-1 ${className}`
     : `cursor-help ${className}`;
-  
+
   const termClasses = inline
     ? "text-blue-600 hover:text-blue-800 font-medium underline decoration-dotted decoration-1 underline-offset-2"
     : "text-blue-600 hover:text-blue-800 border-b border-dotted border-blue-400 hover:border-blue-600";
-  
+
   return (
     <>
       <TooltipProvider>
         <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
           <TooltipTrigger asChild>
-            <span 
+            <span
               className={containerClasses}
               onClick={handleClick}
               onMouseEnter={handleMouseEnter}
@@ -355,8 +355,8 @@ export const ContextualTooltip: React.FC<ContextualTooltipProps> = ({
               )}
             </span>
           </TooltipTrigger>
-          <TooltipContent 
-            side="top" 
+          <TooltipContent
+            side="top"
             className="max-w-xs p-3 bg-white border border-gray-200 shadow-lg"
             onPointerDownOutside={() => setTooltipOpen(false)}
             onMouseEnter={handleTooltipEnter}
@@ -367,8 +367,8 @@ export const ContextualTooltip: React.FC<ContextualTooltipProps> = ({
                 <span className="font-semibold text-sm text-gray-900">
                   {glossaryTerm.term}
                 </span>
-                <Badge 
-                  variant="outline" 
+                <Badge
+                  variant="outline"
                   className={`text-xs ${
                     context === 'functional' ? 'bg-blue-100 text-blue-800' :
                     context === 'modal' ? 'bg-purple-100 text-purple-800' :
@@ -391,7 +391,7 @@ export const ContextualTooltip: React.FC<ContextualTooltipProps> = ({
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-      
+
       <DetailModal
         term={glossaryTerm}
         context={context}

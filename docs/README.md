@@ -25,7 +25,7 @@ Interactive web application for music theory analysis and exploration, powered b
 
 ### Prerequisites
 - Node.js >=20.0.0
-- npm >=10.0.0  
+- npm >=10.0.0
 - Python 3.8+ (for backend)
 
 ### Development Commands
@@ -66,7 +66,7 @@ docker-compose up --build
 
 ### UX Issues (High Priority)
 1. **Misleading "Analyze with AI" button** - Change to "Analyze Music"
-2. **Navigation confusion** - Simplify tab structure and labels  
+2. **Navigation confusion** - Simplify tab structure and labels
 3. **Beginner barriers** - Add tooltips and progressive disclosure
 4. **Chord input complexity** - Simplify modal system
 5. **Mobile usability** - Fix positioning and touch interactions

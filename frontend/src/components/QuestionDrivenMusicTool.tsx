@@ -8,11 +8,12 @@
  * - Reference a complete library of musical scales and modes
  *
  * The tool integrates with Gemini AI for advanced music theory analysis and maintains a history
- * of analysis results that can be revisited. It features a unified results display system that 
+ * of analysis results that can be revisited. It features a unified results display system that
  * persists across different tool sections.
  */
 
 import React, {useCallback, useEffect, useState} from 'react';
+import { Music } from 'lucide-react';
 import EnhancedNavigationTabs, {TabType} from './EnhancedNavigationTabs';
 import { IdentificationMethod } from '../types/analysis';
 import ReferenceTab from './ReferenceTab';
@@ -106,10 +107,10 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
   } = useMidi(handleChordDetected, handleMelodyUpdate);
 
   // Input method context integration
-  const { 
-    activeInputMethod, 
+  const {
+    activeInputMethod,
     setInputMethod,
-    updateMidiAvailability 
+    updateMidiAvailability
   } = useInputMethod();
 
   // App initialization logging
@@ -426,8 +427,8 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
           };
 
         } catch (scaleError) {
-          result = { 
-            error: scaleError instanceof Error ? scaleError.message : 'Unknown error in scale data service' 
+          result = {
+            error: scaleError instanceof Error ? scaleError.message : 'Unknown error in scale data service'
           };
           debug = {
             method: 'root',
@@ -707,10 +708,10 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
 
 
     // Show loading state in unified results
-    const loadingResult = { 
-      method: 'mode-analysis', 
-      data, 
-      loading: true, 
+    const loadingResult = {
+      method: 'mode-analysis',
+      data,
+      loading: true,
       timestamp: Date.now(),
       selectedMode: mode
     };
@@ -810,7 +811,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
                   Real-time MIDI analysis with compact comprehensive insights
                 </p>
               </div>
-              
+
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Primary MIDI Widget */}
                 <div className="space-y-4">
@@ -829,7 +830,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
                     pluginMode={false}
                   />
                 </div>
-                
+
                 {/* Compact Widget Preview */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Compact Mode Preview</h3>
@@ -882,45 +883,58 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Header Section */}
-      <header className="bg-background border-b border-border p-4 shadow-lg z-10">
-        <div className="w-full px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          {/* Left: Title */}
-          <div className="flex items-center gap-3">
-            <span className="text-3xl animate-pulse">🎶</span>
-            <h1 className="text-2xl font-bold text-foreground">Music Theory Toolkit</h1>
+      {/* Professional Header Section */}
+      <header className="bg-background/95 backdrop-blur-sm border-b border-border/50 shadow-sm z-50 sticky top-0">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Top Bar - Branding */}
+          <div className="flex items-center justify-between py-4 border-b border-border/30">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
+                <Music className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-xl font-semibold text-foreground tracking-tight">
+                  Music Theory Toolkit
+                </h1>
+                <p className="text-sm text-muted-foreground font-medium">
+                  Professional music analysis & theory exploration
+                </p>
+              </div>
+            </div>
+
+            {/* Settings and Debug */}
+            <div className="flex items-center gap-2">
+              <InputSettingsPanel
+                activeInputMethod={activeInputMethod}
+                onInputMethodChange={setInputMethod}
+                midiStatus={midiStatus}
+                midiDevices={midiDevices}
+                selectedMidiDevice={midiSelectedDevice}
+                setSelectedMidiDevice={setMidiSelectedDevice}
+                midiError={midiError}
+                midiEnabled={midiEnabled}
+                enableMidi={enableMidi}
+                disableMidi={disableMidi}
+                showDetailedConfig={true}
+              />
+              {showDebugInfo && (
+                <button
+                  onClick={() => {
+                    trackInteraction('Question Driven Tool - Show Mapping Debugger', 'Debug Tools');
+                    setShowMappingDebugger(true);
+                  }}
+                  className="px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-all duration-200"
+                  title="Open Mapping System Debugger"
+                >
+                  Debug Tools
+                </button>
+              )}
+            </div>
           </div>
 
-          {/* Right: Navigation & MIDI Settings */}
-          <div className="flex items-center gap-4">
-            <EnhancedNavigationTabs 
-              onTabChange={handleTabChange}
-            />
-            <InputSettingsPanel 
-              activeInputMethod={activeInputMethod}
-              onInputMethodChange={setInputMethod}
-              midiStatus={midiStatus}
-              midiDevices={midiDevices}
-              selectedMidiDevice={midiSelectedDevice}
-              setSelectedMidiDevice={setMidiSelectedDevice}
-              midiError={midiError}
-              midiEnabled={midiEnabled}
-              enableMidi={enableMidi}
-              disableMidi={disableMidi}
-              showDetailedConfig={true}
-            />
-            {showDebugInfo && (
-              <button 
-                onClick={() => {
-                  trackInteraction('Question Driven Tool - Show Mapping Debugger', 'Debug Tools');
-                  setShowMappingDebugger(true);
-                }}
-                className="text-muted-foreground hover:text-foreground transition-colors duration-200"
-                title="Open Mapping System Debugger"
-              >
-                🔧 Debug
-              </button>
-            )}
+          {/* Navigation Bar */}
+          <div className="py-3">
+            <EnhancedNavigationTabs onTabChange={handleTabChange} />
           </div>
         </div>
       </header>
@@ -955,7 +969,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
       {/* Analysis Results Toggle Button (FAB) - Always visible when results exist but panel is hidden */}
       {!unifiedResults.isVisible && unifiedResults.currentResults && (
         <div className="analysis-toggle-fab">
-          <button 
+          <button
             onClick={() => {
               trackInteraction('Question Driven Tool - Show Analysis Results', 'Navigation');
               showUnifiedResults(unifiedResults.currentResults);
@@ -976,10 +990,10 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
         <div className="debug-panel space-y-4">
           <NavigationDebugger />
           <IntegrationTestPanel />
-          
+
           <div className="legacy-debug">
             <h3>Debug: Legacy Chord Analyzer</h3>
-            <ChordAnalyzer 
+            <ChordAnalyzer
               onSwitchToFinder={handleSwitchToReference}
               showDebugInfo={showDebugInfo}
               compact={true}
@@ -990,7 +1004,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
       )}
 
       {/* Mapping System Debugger */}
-      <MappingDebugger 
+      <MappingDebugger
         isVisible={showMappingDebugger}
         onClose={() => setShowMappingDebugger(false)}
       />

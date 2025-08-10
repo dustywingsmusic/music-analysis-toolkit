@@ -1,7 +1,7 @@
 /**
  * Dual-Lens Analysis Panel
  * Presents functional and modal analyses as equally valid analytical perspectives
- * 
+ *
  * Design Principles:
  * - Equal visual weight for both analytical approaches
  * - Educational clarity about when to use each lens
@@ -33,7 +33,7 @@ interface DualLensAnalysisPanelProps {
 
 // Helper function to convert simple confidence to comprehensive confidence structure
 const createComprehensiveConfidence = (
-  confidence: number, 
+  confidence: number,
   explanation?: string,
   breakdown?: { theoretical: number; contextual: number; crossValidation: number }
 ): ComprehensiveConfidence => ({
@@ -106,17 +106,17 @@ interface AnalysisLensCardProps {
   children: React.ReactNode;
 }
 
-const AnalysisLensCard: React.FC<AnalysisLensCardProps> = ({ 
-  title, 
-  icon, 
-  description, 
-  confidence, 
-  themeColor, 
-  children 
+const AnalysisLensCard: React.FC<AnalysisLensCardProps> = ({
+  title,
+  icon,
+  description,
+  confidence,
+  themeColor,
+  children
 }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
-  
+
   const themeClasses = {
     blue: {
       card: 'border-2 border-blue-200 bg-blue-50/20',
@@ -137,9 +137,9 @@ const AnalysisLensCard: React.FC<AnalysisLensCardProps> = ({
       icon: 'text-orange-600'
     }
   };
-  
+
   const theme = themeClasses[themeColor];
-  
+
   return (
     <Card className={`h-full ${theme.card} transition-shadow hover:shadow-lg`}>
       <CardHeader className="pb-3">
@@ -168,7 +168,7 @@ const AnalysisLensCard: React.FC<AnalysisLensCardProps> = ({
       </CardHeader>
       <CardContent className="space-y-4">
         {children}
-        
+
         <div className="space-y-2">
           <Collapsible open={showDetails} onOpenChange={setShowDetails}>
             <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium hover:underline">
@@ -185,7 +185,7 @@ const AnalysisLensCard: React.FC<AnalysisLensCardProps> = ({
               </div>
             </CollapsibleContent>
           </Collapsible>
-          
+
           <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
             <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium hover:underline text-orange-600">
               {showAdvanced ? (
@@ -207,15 +207,15 @@ const AnalysisLensCard: React.FC<AnalysisLensCardProps> = ({
   );
 };
 
-const FunctionalAnalysisLens: React.FC<{ 
+const FunctionalAnalysisLens: React.FC<{
   result: ComprehensiveAnalysisResult;
 }> = ({ result }) => {
   const functional = result.functional;
-  
+
   const formatChordFunction = (func: string): string => {
     const functionLabels: Record<string, string> = {
       'tonic': 'Tonic (T)',
-      'predominant': 'Predominant (PD)', 
+      'predominant': 'Predominant (PD)',
       'dominant': 'Dominant (D)',
       'subdominant': 'Subdominant (S)',
       'leading_tone': 'Leading Tone (LT)',
@@ -223,11 +223,11 @@ const FunctionalAnalysisLens: React.FC<{
     };
     return functionLabels[func] || func;
   };
-  
+
   // Get scale information for the functional key center
   const scaleInfo = getMajorScaleInfo(functional.keyCenter);
   const compactScale = getCompactScaleDisplay(scaleInfo);
-  
+
   return (
     <AnalysisLensCard
       title="Functional Lens"
@@ -238,7 +238,7 @@ const FunctionalAnalysisLens: React.FC<{
         </FunctionalAnalysisHighlighter>
       }
       confidence={createComprehensiveConfidence(
-        functional.confidence, 
+        functional.confidence,
         "Based on Roman numeral analysis and chord function relationships",
         {
           theoretical: functional.confidence * 1.1, // Functional analysis is theoretically grounded
@@ -260,15 +260,15 @@ const FunctionalAnalysisLens: React.FC<{
             <div className="text-lg font-bold text-blue-900 dark:text-blue-100">{functional.keySignature}</div>
           </div>
         </div>
-        
+
         {/* Roman Numerals Display */}
         <div>
           <h4 className="font-semibold mb-2 text-blue-700 dark:text-blue-300">Roman Numeral Analysis</h4>
           <div className="flex flex-wrap gap-2 mb-2">
             {functional.chords.map((chord: FunctionalChordAnalysis, index: number) => (
               <div key={index} className="group relative">
-                <Badge 
-                  variant="outline" 
+                <Badge
+                  variant="outline"
                   className={`bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-600 text-base font-bold px-3 py-1 cursor-help transition-all hover:scale-105 hover:shadow-md ${
                     chord.isChromatic ? 'ring-2 ring-orange-300' : ''
                   }`}
@@ -292,7 +292,7 @@ const FunctionalAnalysisLens: React.FC<{
             )}
           </div>
         </div>
-        
+
         {/* Scale Information */}
         <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200">
           <strong className="text-sm font-semibold text-blue-700 dark:text-blue-300">{compactScale.derivation}:</strong>
@@ -301,7 +301,7 @@ const FunctionalAnalysisLens: React.FC<{
             <div><strong>Scale:</strong> {compactScale.scaleString}</div>
           </div>
         </div>
-        
+
         {/* When to Use */}
         <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200">
           <strong className="text-sm font-semibold text-blue-700 dark:text-blue-300">When to Use Functional Analysis:</strong>
@@ -319,21 +319,21 @@ const FunctionalAnalysisLens: React.FC<{
   );
 };
 
-const ModalAnalysisLens: React.FC<{ 
+const ModalAnalysisLens: React.FC<{
   result: ComprehensiveAnalysisResult;
   onViewInTables?: (mode: string, tonic: string) => void;
 }> = ({ result, onViewInTables }) => {
   const modal = result.modal;
   const enhanced = modal?.enhancedAnalysis;
-  
+
   if (!modal || !enhanced) {
     return null;
   }
-  
+
   // Get scale information for the modal analysis
   const modalScaleInfo = getModalScaleInfo(enhanced.modeName);
   const compactModalScale = getCompactScaleDisplay(modalScaleInfo);
-  
+
   return (
     <AnalysisLensCard
       title="Modal Lens"
@@ -366,15 +366,15 @@ const ModalAnalysisLens: React.FC<{
             <div className="text-lg font-bold text-purple-900 dark:text-purple-100">{enhanced.modeName}</div>
           </div>
         </div>
-        
+
         {/* Modal Roman Numerals */}
         <div>
           <h4 className="font-semibold mb-2 text-purple-700 dark:text-purple-300">Modal Roman Numerals</h4>
           <div className="flex flex-wrap gap-2 mb-2">
             {enhanced.romanNumerals.map((numeral, index) => (
-              <Badge 
-                key={index} 
-                variant="outline" 
+              <Badge
+                key={index}
+                variant="outline"
                 className="bg-purple-100 dark:bg-purple-800 text-purple-800 dark:text-purple-200 border-purple-300 dark:border-purple-600 text-base font-bold px-3 py-1"
               >
                 {numeral}
@@ -385,7 +385,7 @@ const ModalAnalysisLens: React.FC<{
             Analysis relative to {enhanced.detectedTonicCenter} as tonal center
           </div>
         </div>
-        
+
         {/* Enhanced Supporting Evidence */}
         {enhanced.evidence.length > 0 && (
           <EnhancedEvidenceDisplay
@@ -396,7 +396,7 @@ const ModalAnalysisLens: React.FC<{
             themeColor="purple"
           />
         )}
-        
+
         {/* Modal Scale Information */}
         <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200">
           <strong className="text-sm font-semibold text-purple-700 dark:text-purple-300">{compactModalScale.derivation}:</strong>
@@ -405,7 +405,7 @@ const ModalAnalysisLens: React.FC<{
             <div><strong>Scale:</strong> {compactModalScale.scaleString}</div>
           </div>
         </div>
-        
+
         {/* When to Use */}
         <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200">
           <strong className="text-sm font-semibold text-purple-700 dark:text-purple-300">When to Use Modal Analysis:</strong>
@@ -418,7 +418,7 @@ const ModalAnalysisLens: React.FC<{
             </ul>
           </ModalAnalysisHighlighter>
         </div>
-        
+
         {/* View in Tables Link */}
         {onViewInTables && (
           <Button
@@ -441,25 +441,25 @@ const ModalAnalysisLens: React.FC<{
   );
 };
 
-const ChromaticAnalysisLens: React.FC<{ 
+const ChromaticAnalysisLens: React.FC<{
   result: ComprehensiveAnalysisResult;
 }> = ({ result }) => {
   const chromatic = result.chromatic;
-  
+
   if (!chromatic || (
-    chromatic.secondaryDominants.length === 0 && 
-    chromatic.borrowedChords.length === 0 && 
+    chromatic.secondaryDominants.length === 0 &&
+    chromatic.borrowedChords.length === 0 &&
     chromatic.chromaticMediants.length === 0
   )) {
     return null;
   }
-  
+
   // Calculate confidence based on number of chromatic elements detected
-  const chromaticElementsCount = chromatic.secondaryDominants.length + 
-                                chromatic.borrowedChords.length + 
+  const chromaticElementsCount = chromatic.secondaryDominants.length +
+                                chromatic.borrowedChords.length +
                                 chromatic.chromaticMediants.length;
   const estimatedConfidence = Math.min(0.9, 0.6 + (chromaticElementsCount * 0.1));
-  
+
   return (
     <AnalysisLensCard
       title="Chromatic Lens"
@@ -530,7 +530,7 @@ const ChromaticAnalysisLens: React.FC<{
             </div>
           </div>
         )}
-        
+
         {/* Borrowed Chords */}
         {chromatic.borrowedChords.length > 0 && (
           <div>
@@ -567,7 +567,7 @@ const ChromaticAnalysisLens: React.FC<{
             </div>
           </div>
         )}
-        
+
         {/* Chromatic Mediants */}
         {chromatic.chromaticMediants.length > 0 && (
           <div>
@@ -598,7 +598,7 @@ const ChromaticAnalysisLens: React.FC<{
             </div>
           </div>
         )}
-        
+
         {/* Resolution Patterns */}
         {chromatic.resolutionPatterns.length > 0 && (
           <div>
@@ -621,8 +621,8 @@ const ChromaticAnalysisLens: React.FC<{
                         {pattern.to}
                       </span>
                     </div>
-                    <Badge 
-                      variant="outline" 
+                    <Badge
+                      variant="outline"
                       className={`text-xs font-medium ${
                         pattern.type === 'strong' ? 'bg-green-100 dark:bg-green-800/30 text-green-800 dark:text-green-200 border-green-300' :
                         pattern.type === 'weak' ? 'bg-yellow-100 dark:bg-yellow-800/30 text-yellow-800 dark:text-yellow-200 border-yellow-300' :
@@ -640,7 +640,7 @@ const ChromaticAnalysisLens: React.FC<{
             </div>
           </div>
         )}
-        
+
         {/* Summary and When to Use */}
         <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200">
           <div className="mb-3">
@@ -663,7 +663,7 @@ const ChromaticAnalysisLens: React.FC<{
               )}
             </div>
           </div>
-          
+
           <div className="border-t border-orange-200 pt-3">
             <strong className="text-sm font-semibold text-orange-700 dark:text-orange-300">When to Use Chromatic Analysis:</strong>
             <ChromaticAnalysisHighlighter keyCenter={result.functional.keyCenter}>
@@ -682,12 +682,12 @@ const ChromaticAnalysisLens: React.FC<{
   );
 };
 
-const AnalysisComparison: React.FC<{ 
-  result: ComprehensiveAnalysisResult 
+const AnalysisComparison: React.FC<{
+  result: ComprehensiveAnalysisResult
 }> = ({ result }) => {
   const functional = result.functional;
   const modal = result.modal?.enhancedAnalysis;
-  
+
   if (!modal) {
     return (
       <Card className="border-2 border-gray-200 bg-gray-50/20">
@@ -703,7 +703,7 @@ const AnalysisComparison: React.FC<{
       </Card>
     );
   }
-  
+
   return (
     <Card className="border-2 border-gray-200 bg-gray-50/20">
       <CardHeader>
@@ -756,7 +756,7 @@ const AnalysisComparison: React.FC<{
             </TableRow>
           </TableBody>
         </Table>
-        
+
         {/* Alternative Interpretations */}
         <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200">
           <strong className="text-sm font-semibold text-amber-700 dark:text-amber-300">Alternative Interpretations:</strong>
@@ -771,12 +771,12 @@ const AnalysisComparison: React.FC<{
             </div>
           </div>
         </div>
-        
+
         {/* Pedagogical Guidance */}
         <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200">
           <strong className="text-sm font-semibold text-green-700 dark:text-green-300">Pedagogical Insight:</strong>
           <p className="text-sm text-green-800 dark:text-green-200 mt-1">
-            Both analyses are simultaneously true and musically valuable. Functional analysis emphasizes 
+            Both analyses are simultaneously true and musically valuable. Functional analysis emphasizes
             how chords relate within {functional.keyCenter} tonality, while modal analysis
             emphasizes {modal.detectedTonicCenter} as the tonal center with characteristic modal relationships.
             Choose your analytical lens based on whether you're focusing on harmonic function or scale relationships.
@@ -790,16 +790,16 @@ const AnalysisComparison: React.FC<{
 const AnalysisSummary: React.FC<{ result: ComprehensiveAnalysisResult }> = ({ result }) => {
   const functional = result.functional;
   const modal = result.modal?.enhancedAnalysis;
-  
+
   return (
     <div className="space-y-4">
       {/* User Input Display */}
-      <UserInputDisplay 
+      <UserInputDisplay
         userInput={result.userInput}
         compact={true}
         showAnalysisType={false}
       />
-      
+
       {/* Analysis Summary */}
       <Card className="border-2 border-gray-300 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950">
         <CardHeader className="pb-3">
@@ -827,7 +827,7 @@ const AnalysisSummary: React.FC<{ result: ComprehensiveAnalysisResult }> = ({ re
               <div className="text-xs text-purple-600">{modal ? `${Math.round(modal.confidence * 100)}% confidence` : 'Functional only'}</div>
             </div>
           </div>
-          
+
           <div className="mt-4 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg border">
             <div className="text-sm font-semibold mb-1">Roman Numerals:</div>
             <div className="text-lg font-mono">{functional.chords.map(c => c.romanNumeral).join(' - ')}</div>
@@ -838,20 +838,20 @@ const AnalysisSummary: React.FC<{ result: ComprehensiveAnalysisResult }> = ({ re
   );
 };
 
-const DualLensAnalysisPanel: React.FC<DualLensAnalysisPanelProps> = ({ 
-  result, 
-  onViewInTables 
+const DualLensAnalysisPanel: React.FC<DualLensAnalysisPanelProps> = ({
+  result,
+  onViewInTables
 }) => {
   const hasModal = result.modal?.enhancedAnalysis;
   const hasChromatic = result.chromatic && (
-    result.chromatic.secondaryDominants.length > 0 || 
-    result.chromatic.borrowedChords.length > 0 || 
+    result.chromatic.secondaryDominants.length > 0 ||
+    result.chromatic.borrowedChords.length > 0 ||
     result.chromatic.chromaticMediants.length > 0
   );
-  
+
   // Determine the number of available lenses
   const lensCount = 1 + (hasModal ? 1 : 0) + (hasChromatic ? 1 : 0);
-  
+
   if (!hasModal && !hasChromatic) {
     // Show only functional analysis if no other lenses available
     return (
@@ -861,12 +861,12 @@ const DualLensAnalysisPanel: React.FC<DualLensAnalysisPanelProps> = ({
       </div>
     );
   }
-  
+
   return (
     <div className="space-y-6">
       {/* Analysis Summary - Always shown first */}
       <AnalysisSummary result={result} />
-      
+
       {/* Desktop: Responsive grid layout */}
       <div className="hidden md:block">
         <div className={`grid gap-6 ${
@@ -878,14 +878,14 @@ const DualLensAnalysisPanel: React.FC<DualLensAnalysisPanelProps> = ({
           {hasModal && <ModalAnalysisLens result={result} onViewInTables={onViewInTables} />}
           {hasChromatic && <ChromaticAnalysisLens result={result} />}
           <div className={`${
-            lensCount === 3 ? 'lg:col-span-2 xl:col-span-3' : 
+            lensCount === 3 ? 'lg:col-span-2 xl:col-span-3' :
             lensCount === 2 ? 'lg:col-span-2' : 'col-span-1'
           }`}>
             <AnalysisComparison result={result} />
           </div>
         </div>
       </div>
-      
+
       {/* Mobile: Dynamic tabbed layout */}
       <div className="md:hidden">
         <Tabs defaultValue="summary" className="w-full">
@@ -917,27 +917,27 @@ const DualLensAnalysisPanel: React.FC<DualLensAnalysisPanelProps> = ({
               <span className="text-xs">Compare</span>
             </TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="summary" className="mt-4">
             <AnalysisSummary result={result} />
           </TabsContent>
-          
+
           <TabsContent value="functional" className="mt-4">
             <FunctionalAnalysisLens result={result} />
           </TabsContent>
-          
+
           {hasModal && (
             <TabsContent value="modal" className="mt-4">
               <ModalAnalysisLens result={result} onViewInTables={onViewInTables} />
             </TabsContent>
           )}
-          
+
           {hasChromatic && (
             <TabsContent value="chromatic" className="mt-4">
               <ChromaticAnalysisLens result={result} />
             </TabsContent>
           )}
-          
+
           <TabsContent value="compare" className="mt-4">
             <AnalysisComparison result={result} />
           </TabsContent>

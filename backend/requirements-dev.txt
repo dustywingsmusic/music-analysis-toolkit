@@ -1,0 +1,36 @@
+# Production dependencies
+-r requirements.txt
+
+# Development and Testing
+pytest==8.3.4
+pytest-asyncio==0.25.1
+pytest-cov==6.0.0
+pytest-mock==3.14.0
+httpx==0.28.1  # For testing FastAPI endpoints
+pytest-xdist==3.6.1  # For parallel test execution
+
+# Code Quality and Formatting
+black==24.10.0
+isort==5.13.2
+flake8==7.1.1
+flake8-docstrings==1.7.0
+flake8-import-order==0.18.2
+flake8-bugbear==24.10.31
+mypy==1.13.0
+bandit[toml]==1.8.0
+
+# Type Stubs
+types-requests==2.32.0.20241016
+types-setuptools>=75.6.0
+
+# Security and Dependency Scanning  
+safety==3.2.11
+pip-audit>=2.7.0
+
+# Development Tools
+pre-commit==4.0.1
+python-dotenv==1.0.1  # For environment management
+
+# Performance and Profiling (optional)
+pytest-benchmark==4.0.0
+memory-profiler==0.61.0

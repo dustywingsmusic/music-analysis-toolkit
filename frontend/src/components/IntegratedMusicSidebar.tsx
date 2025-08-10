@@ -43,13 +43,13 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
 }) => {
   // melodySuggestions removed as part of consolidation - functionality moved to unified detection
   const [chordSuggestions, setChordSuggestions] = useState<ChordSuggestion[]>([]);
-  
+
   // Sidebar visibility state - default hidden as per requirements
   const [isVisible, setIsVisible] = useState<boolean>(false);
-  
+
   // Define a type for detection categories - must match keySuggester service
   type DetectionCategory = 'complete' | 'pentatonic' | 'partial' | 'minimal' | 'none' | 'incomplete';
-  
+
   // Type for unifiedDetectionResults
   interface UnifiedDetectionResult {
     suggestions: DetectionSuggestion[];
@@ -57,19 +57,19 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
     closeness: number;
     // TODO: Implement confidence calculation system for unified detection results
   }
-  
+
   const [unifiedDetectionResults, setUnifiedDetectionResults] = useState<UnifiedDetectionResult | null>(null);
-  
+
   // Computed values for conditional rendering
   const hasUnifiedDetection = unifiedDetectionResults && unifiedDetectionResults.suggestions.length > 0;
-  
+
   // Real-time mode detection state
   const [modeDetector, setModeDetector] = useState(() => new RealTimeModeDetector());
   const [modeDetectionResult, setModeDetectionResult] = useState<ModeDetectionResult | null>(null);
   const [rootPitch, setRootPitch] = useState<number | null>(null);
   const [rootLocked, setRootLocked] = useState(false);
   const [notesHistory, setNotesHistory] = useState<number[]>([]);
-  
+
   // Progressive disclosure state management
   const [viewMode, setViewMode] = useState<'quick' | 'detailed'>('quick');
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
@@ -201,7 +201,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
   const renderGroupedSuggestions = (suggestions: ModeSuggestion[]) => {
     // Group suggestions by family
     const familyGroups = new Map<ScaleFamily, ModeSuggestion[]>();
-    
+
     suggestions.forEach(suggestion => {
       if (!familyGroups.has(suggestion.family)) {
         familyGroups.set(suggestion.family, []);
@@ -289,7 +289,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
     if (!debugInfo) {
       return null;
     }
-    
+
     return (
       <div className="debug-info-panel" style={{
         background: '#1a1a1a',
@@ -311,11 +311,11 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
         <div style={{ color: '#ccc', marginBottom: '8px' }}>
           <strong>Played Notes:</strong> {debugInfo.playedNotes || 'None'}
         </div>
-        
+
         <div style={{ color: '#87ceeb', fontWeight: 'bold', marginBottom: '4px' }}>
           Suggestion Sorting Details:
         </div>
-        
+
         {debugInfo.sortingDetails.map((detail, index) => (
           <div key={index} style={{
             background: index === 0 ? '#2d4a2d' : '#2a2a2a',
@@ -335,11 +335,11 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
             </div>
           </div>
         ))}
-        
+
         <div style={{ color: '#ffa500', fontSize: '10px', marginTop: '8px' }}>
           <strong>Sorting Logic:</strong> 1) Match Count (higher = better), 2) Mode Popularity (lower = better), 3) Contains Played Note as Root (true = better)
         </div>
-        
+
         {debugInfo.playedNotes === 'F' && (
           <div style={{ color: '#ff6b6b', fontSize: '10px', marginTop: '4px' }}>
             <strong>F Note Issue:</strong> If F Ionian is not first, check if it has containsPlayedNoteAsRoot=true
@@ -391,8 +391,8 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
     if (!hasUnifiedResults && !hasChordSuggestions) {
       return (
         <div className="no-results">
-          {(!midiData?.playedPitchClasses || midiData.playedPitchClasses.size === 0) 
-            ? "Play some notes to see analysis" 
+          {(!midiData?.playedPitchClasses || midiData.playedPitchClasses.size === 0)
+            ? "Play some notes to see analysis"
             : "No analysis available for current notes"}
         </div>
       );
@@ -466,7 +466,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
                     </div>
                   )}
                   {onSwitchToReferenceWithHighlight && (
-                    <button 
+                    <button
                       className="view-in-tables-btn"
                       onClick={() => {
                         trackInteraction(`View in Tables - Analysis Results - ${mode} ${tonic}`, 'Navigation');
@@ -526,7 +526,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
             <div className="section-header-with-controls">
               <h5>Musical Analysis Results</h5>
               <div className="progressive-disclosure-controls">
-                <button 
+                <button
                   className="toggle-analysis-btn"
                   onClick={toggleViewMode}
                   aria-label={`Switch to ${viewMode === 'quick' ? 'detailed' : 'quick'} view`}
@@ -534,7 +534,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
                   {viewMode === 'quick' ? '📊 Show Details' : '⚡ Quick View'}
                 </button>
                 {viewMode === 'detailed' && (
-                  <button 
+                  <button
                     className="toggle-options-btn"
                     onClick={toggleAdvancedOptions}
                     aria-label={`${showAdvancedOptions ? 'Hide' : 'Show'} advanced options`}
@@ -590,7 +590,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
                       ({Math.round(unifiedDetectionResults.closeness * 100)}% overall completeness)
                     </span>
                   </div>
-                  
+
                   {unifiedDetectionResults.suggestions.map((suggestion, index) => (
                     <div key={index} className="suggestion-item detailed">
                       <div className="suggestion-header">
@@ -710,10 +710,10 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
         element.classList.remove('sidebar-highlighted');
       }, 2000);
 
-      element.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'center', 
-        inline: 'center' 
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'center'
       });
     }
   };
@@ -723,7 +723,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
     // Register melody suggestion callback - converted to unified detection
     keySuggester.registerMelodySuggestionCallback((suggestions: MelodySuggestion[]) => {
       console.log('🎵 Sidebar received melody suggestions (unified):', suggestions);
-      
+
       // Convert to unified detection format
       setUnifiedDetectionResults({
         suggestions: suggestions.map(s => ({ ...s, type: 'melody' as const })),
@@ -777,35 +777,35 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
 
     // Use real-time mode detection for sequential note analysis
     console.log('🎵 Processing notes with real-time mode detection');
-    
+
     // Process only new notes that haven't been processed yet
     let currentResult = modeDetectionResult;
     let hasNewNotes = false;
-    
+
     // Create a key for each note to track uniqueness (MIDI number + timestamp or index)
     const newProcessedNotes = new Set(processedNotes);
-    
+
     midiData.playedNotes.forEach((note, index) => {
       const noteKey = `${note.number}-${index}`; // Use index to ensure uniqueness
-      
+
       if (!newProcessedNotes.has(noteKey)) {
         const pitchClass = note.number % 12;
         console.log('🎵 Adding new note to real-time detector:', pitchClass, 'MIDI:', note.number);
-        
+
         const newResult = modeDetector.addNote(note.number, pitchClass);
         // Only update result if we got a valid result (not null for duplicate pitch classes)
         if (newResult !== null) {
           currentResult = newResult;
           hasNewNotes = true;
         }
-        
+
         newProcessedNotes.add(noteKey);
       }
     });
 
     // Update processed notes tracking
     setProcessedNotes(newProcessedNotes);
-    
+
     // Update mode detection result only if we processed new notes
     if (hasNewNotes && currentResult) {
       setModeDetectionResult(currentResult);
@@ -832,7 +832,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
     }
 
     // Update debugging information
-    const playedNoteNames = midiData.playedNotes.map(note => 
+    const playedNoteNames = midiData.playedNotes.map(note =>
       `${note.name}${note.accidental || ''}${note.octave}`
     ).join(', ');
 
@@ -857,7 +857,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
     if (midiData?.playedPitchClasses && midiData.playedPitchClasses.size > 0) {
       const noteCount = midiData.playedPitchClasses.size;
       const adaptiveMode = getAdaptiveViewMode(noteCount);
-      
+
       // Only auto-switch if user hasn't manually overridden (we can track this with a flag if needed)
       // For now, we'll auto-switch for 7+ notes to detailed view
       if (noteCount >= 7 && viewMode === 'quick') {
@@ -881,7 +881,7 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
   return (
     <>
       {/* Sidebar Toggle Button - Always visible */}
-      <button 
+      <button
         className="sidebar-toggle-btn"
         onClick={toggleSidebarVisibility}
         aria-label={`${isVisible ? 'Hide' : 'Show'} music analysis sidebar`}
@@ -910,15 +910,15 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
         <div className={`integrated-music-sidebar ${className}`}>
           {/* MIDI Detection Section */}
           <div className="sidebar-section">
-            <div 
+            <div
               className="sidebar-section-header"
               onClick={() => toggleSection('midi')}
             >
               <h3 className="sidebar-section-title">
-                <span 
+                <span
                   className={`sidebar-status-indicator ${
-                    midiData?.playedPitchClasses && midiData.playedPitchClasses.size > 0 
-                      ? 'detecting' 
+                    midiData?.playedPitchClasses && midiData.playedPitchClasses.size > 0
+                      ? 'detecting'
                       : 'inactive'
                   }`}
                 ></span>
@@ -948,12 +948,12 @@ const IntegratedMusicSidebar: React.FC<IntegratedMusicSidebarProps> = ({
 
           {/* Musical Analysis Section - Consolidated */}
           <div className="sidebar-section">
-            <div 
+            <div
               className="sidebar-section-header"
               onClick={() => toggleSection('results')}
             >
               <h3 className="sidebar-section-title">
-                <span 
+                <span
                   className={`sidebar-status-indicator ${
                     (unifiedResults?.isVisible && unifiedResults?.currentResults) ||
                     (modeDetectionResult && modeDetectionResult.suggestions.length > 0) ||

@@ -51,7 +51,7 @@ export const ParentKeyBuilderModal: React.FC<ParentKeyBuilderModalProps> = ({
       setSelectedQuality(null);
       return;
     }
-    
+
     if (currentKey && currentKey.trim()) {
       // Parse existing key (e.g., "C Major", "Dm", "F♯ Minor")
       if (currentKey.includes('Major')) {
@@ -102,25 +102,25 @@ export const ParentKeyBuilderModal: React.FC<ParentKeyBuilderModalProps> = ({
 
   const getModalStyle = () => {
     if (!isOpen) return { display: 'none' };
-    
+
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     const modalWidth = 200;
     const modalHeight = 140;
-    
+
     let x = position.x;
     let y = position.y;
-    
+
     if (x + modalWidth > viewportWidth - 20) {
       x = position.x - modalWidth - 20;
     } else {
       x = position.x + 20;
     }
-    
+
     if (y + modalHeight > viewportHeight - 20) {
       y = viewportHeight - modalHeight - 20;
     }
-    
+
     return {
       position: 'fixed' as const,
       left: x,
@@ -129,13 +129,16 @@ export const ParentKeyBuilderModal: React.FC<ParentKeyBuilderModalProps> = ({
     };
   };
 
-  const buildKey = () => {
-    if (selectedRoot === null || selectedQuality === null) return '';
-    const rootNote = NOTE_DISPLAY[selectedRoot];
-    if (selectedQuality.symbol === '') {
+  const buildKey = (rootIndex?: number | null, quality?: KeyQuality | null) => {
+    const root = rootIndex !== undefined ? rootIndex : selectedRoot;
+    const qual = quality !== undefined ? quality : selectedQuality;
+
+    if (root === null || qual === null) return '';
+    const rootNote = NOTE_DISPLAY[root];
+    if (qual.symbol === '') {
       return `${rootNote} Major`;
     } else {
-      return `${rootNote}${selectedQuality.symbol}`;
+      return `${rootNote}${qual.symbol}`;
     }
   };
 
@@ -148,7 +151,7 @@ export const ParentKeyBuilderModal: React.FC<ParentKeyBuilderModalProps> = ({
 
   return (
     <div className="parent-key-modal-overlay fixed inset-0 z-50" style={{ backgroundColor: 'rgba(0, 0, 0, 0.1)' }}>
-      <Card 
+      <Card
         ref={modalRef}
         className="parent-key-modal shadow-xl border-2 animate-in fade-in-0 zoom-in-95 duration-200"
         style={{...getModalStyle(), width: '200px', height: '140px'}}
@@ -160,9 +163,9 @@ export const ParentKeyBuilderModal: React.FC<ParentKeyBuilderModalProps> = ({
             <div className="text-sm font-bold text-blue-700">
               {buildKey() || '—'}
             </div>
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={onClose}
               className="h-4 w-4 p-0 hover:bg-red-100"
             >
@@ -176,10 +179,24 @@ export const ParentKeyBuilderModal: React.FC<ParentKeyBuilderModalProps> = ({
             {NOTE_DISPLAY.map((note, index) => (
               <Button
                 key={note}
-                onClick={() => setSelectedRoot(index)}
+                onClick={() => {
+                  setSelectedRoot(index);
+                  // Auto-apply and close if quality is also selected
+                  if (selectedQuality) {
+                    const key = buildKey(index, selectedQuality);
+                    if (key) {
+                      handleKeySelect(key);
+                    }
+                  }
+                }}
                 variant={selectedRoot === index ? "default" : "outline"}
                 size="sm"
-                className="h-4 text-xs font-medium min-w-0 p-0"
+                className={cn(
+                  "h-4 text-xs font-medium min-w-0 p-0 shadow-sm transition-all duration-200",
+                  selectedRoot === index
+                    ? "bg-primary hover:bg-primary/90 text-primary-foreground border-primary/20 shadow-lg shadow-primary/20"
+                    : "bg-card/50 hover:bg-primary/20 hover:border-primary/40 hover:text-primary hover:shadow-md border-border/60 text-muted-foreground hover:text-primary backdrop-blur-sm"
+                )}
               >
                 {note}
               </Button>
@@ -192,10 +209,24 @@ export const ParentKeyBuilderModal: React.FC<ParentKeyBuilderModalProps> = ({
             {KEY_QUALITIES.map((quality) => (
               <Button
                 key={quality.symbol}
-                onClick={() => setSelectedQuality(quality)}
+                onClick={() => {
+                  setSelectedQuality(quality);
+                  // Auto-apply and close if root is also selected
+                  if (selectedRoot !== null) {
+                    const key = buildKey(selectedRoot, quality);
+                    if (key) {
+                      handleKeySelect(key);
+                    }
+                  }
+                }}
                 variant={selectedQuality?.symbol === quality.symbol ? "default" : "outline"}
                 size="sm"
-                className="text-xs h-5 font-medium min-w-0 p-1"
+                className={cn(
+                  "text-xs h-5 font-medium min-w-0 p-1 shadow-sm transition-all duration-200",
+                  selectedQuality?.symbol === quality.symbol
+                    ? "bg-primary hover:bg-primary/90 text-primary-foreground border-primary/20 shadow-lg shadow-primary/20"
+                    : "bg-card/50 hover:bg-primary/20 hover:border-primary/40 hover:text-primary hover:shadow-md border-border/60 text-muted-foreground hover:text-primary backdrop-blur-sm"
+                )}
                 title={quality.name}
               >
                 {quality.display}
@@ -205,14 +236,18 @@ export const ParentKeyBuilderModal: React.FC<ParentKeyBuilderModalProps> = ({
               onClick={() => handleKeySelect('')}
               variant="outline"
               size="sm"
-              className="text-xs h-5 font-medium min-w-0 p-1 text-gray-500 hover:text-gray-700"
+              className={cn(
+                "text-xs h-5 font-medium min-w-0 p-1 shadow-sm transition-all duration-200",
+                "bg-card/30 hover:bg-warning/20 hover:border-warning/40 hover:text-warning hover:shadow-md border-border/40 text-muted-foreground/70 hover:text-warning backdrop-blur-sm"
+              )}
               title="Clear parent key"
             >
               Not Set
             </Button>
           </div>
 
-          {/* Apply button */}
+          {/* Apply button - now hidden since we auto-apply */}
+          {/* Keeping for reference but commented out since auto-apply is active
           {selectedRoot !== null && selectedQuality !== null && (
             <div className="pt-1">
               <Button
@@ -224,6 +259,7 @@ export const ParentKeyBuilderModal: React.FC<ParentKeyBuilderModalProps> = ({
               </Button>
             </div>
           )}
+          */}
         </CardContent>
       </Card>
     </div>

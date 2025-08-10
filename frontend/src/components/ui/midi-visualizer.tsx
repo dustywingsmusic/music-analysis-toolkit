@@ -31,9 +31,9 @@ const MidiVisualizer: React.FC<MidiVisualizerProps> = ({
         timestamp: Date.now(),
         velocity: Math.random() * 0.5 + 0.5 // Random velocity between 0.5-1
       }));
-      
+
       setActiveNotes(prev => [...prev, ...newNotes]);
-      
+
       // Create ripple effects
       const newRipples = newNotes.map(note => ({
         id: note.id,
@@ -41,7 +41,7 @@ const MidiVisualizer: React.FC<MidiVisualizerProps> = ({
         y: Math.random() * 100
       }));
       setRipples(prev => [...prev, ...newRipples]);
-      
+
       // Clean up old notes after animation
       setTimeout(() => {
         setActiveNotes(prev => prev.filter(n => !newNotes.some(nn => nn.id === n.id)));
@@ -77,7 +77,7 @@ const MidiVisualizer: React.FC<MidiVisualizerProps> = ({
           isActive ? "bg-green-400 animate-pulse" : "bg-muted-foreground/50"
         )} />
       </div>
-      
+
       {/* Active notes display */}
       <div className="absolute inset-0 flex items-center justify-center space-x-2 z-10">
         {activeNotes.slice(-5).map((note, index) => (
@@ -93,7 +93,7 @@ const MidiVisualizer: React.FC<MidiVisualizerProps> = ({
           </div>
         ))}
       </div>
-      
+
       {/* Ripple effects */}
       {ripples.map(ripple => (
         <div
@@ -108,13 +108,13 @@ const MidiVisualizer: React.FC<MidiVisualizerProps> = ({
           <div className="w-8 h-8 border-2 border-primary/30 rounded-full" />
         </div>
       ))}
-      
+
       {/* Background waves */}
       <div className="absolute inset-0 opacity-20">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent animate-wave-1" />
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/10 to-transparent animate-wave-2" />
       </div>
-      
+
       {/* Musical notes floating */}
       {isActive && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">

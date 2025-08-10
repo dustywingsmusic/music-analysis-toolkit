@@ -63,7 +63,7 @@ import { useMidi } from '../hooks/useMidi';
 function MyAnalysisComponent() {
   const [input, setInput] = useState('');
   const midiData = useMidi(/* callbacks */);
-  
+
   return (
     <UnifiedMusicInput
       value={input}

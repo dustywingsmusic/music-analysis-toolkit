@@ -54,14 +54,14 @@ const SuccessCelebration: React.FC<SuccessCelebrationProps> = ({
         const randomMessage = messages[Math.floor(Math.random() * messages.length)];
         setCurrentMessage(randomMessage);
       }
-      
+
       setIsVisible(true);
-      
+
       // Auto-hide after animation
       const timer = setTimeout(() => {
         setIsVisible(false);
       }, 3000);
-      
+
       return () => clearTimeout(timer);
     }
   }, [trigger, message, variant]);
@@ -77,7 +77,7 @@ const SuccessCelebration: React.FC<SuccessCelebrationProps> = ({
         <div className="flex items-center space-x-2">
           <span className="animate-bounce text-lg">{currentMessage}</span>
         </div>
-        
+
         {/* Confetti effect */}
         <div className="absolute -inset-1 overflow-hidden rounded-lg pointer-events-none">
           {[...Array(8)].map((_, i) => (
@@ -86,7 +86,7 @@ const SuccessCelebration: React.FC<SuccessCelebrationProps> = ({
               className={cn(
                 "absolute w-2 h-2 rounded-full animate-confetti",
                 i % 4 === 0 && "bg-yellow-400",
-                i % 4 === 1 && "bg-pink-400", 
+                i % 4 === 1 && "bg-pink-400",
                 i % 4 === 2 && "bg-blue-400",
                 i % 4 === 3 && "bg-green-400"
               )}

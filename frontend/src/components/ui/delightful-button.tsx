@@ -23,20 +23,20 @@ const DelightfulButton: React.FC<DelightfulButtonProps> = ({
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     setIsPressed(true);
-    
+
     if (sparkle) {
       setShowSparkle(true);
       setTimeout(() => setShowSparkle(false), 600);
     }
-    
+
     // Haptic feedback for mobile devices
     if (hapticFeedback && 'vibrate' in navigator) {
       navigator.vibrate(50);
     }
-    
+
     // Reset pressed state
     setTimeout(() => setIsPressed(false), 150);
-    
+
     onClick?.(e);
   };
 
@@ -48,16 +48,16 @@ const DelightfulButton: React.FC<DelightfulButtonProps> = ({
         "relative overflow-hidden transition-all duration-200 ease-out",
         "hover:shadow-lg hover:shadow-primary/25",
         "active:scale-95",
-        
+
         // Musical styling
         musical && "hover:rotate-1 active:rotate-0",
-        
+
         // Pressed state
         isPressed && "scale-95 shadow-inner",
-        
+
         // Sparkle effect container
         sparkle && "hover:bg-gradient-to-r hover:from-primary hover:to-primary/80",
-        
+
         className
       )}
       onClick={handleClick}
@@ -69,7 +69,7 @@ const DelightfulButton: React.FC<DelightfulButtonProps> = ({
           isPressed && "opacity-100 scale-150"
         )} />
       </div>
-      
+
       {/* Sparkle particles */}
       {sparkle && showSparkle && (
         <div className="absolute inset-0 pointer-events-none">
@@ -88,7 +88,7 @@ const DelightfulButton: React.FC<DelightfulButtonProps> = ({
           ))}
         </div>
       )}
-      
+
       {/* Button content */}
       <span className="relative z-10 flex items-center justify-center gap-2">
         {musical && <span className="animate-pulse">🎵</span>}

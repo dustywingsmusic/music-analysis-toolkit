@@ -12,8 +12,8 @@ interface ScaleTableProps {
   setHoveredNote: (note: string | null) => void;
 }
 
-const ScaleTable: React.FC<ScaleTableProps> = ({ 
-    scaleData, 
+const ScaleTable: React.FC<ScaleTableProps> = ({
+    scaleData,
     highlightedCellId,
     hoveredCell,
     setHoveredCell,
@@ -42,7 +42,7 @@ const ScaleTable: React.FC<ScaleTableProps> = ({
   }
 
   return (
-    <table 
+    <table
         className="scale-table"
         onMouseLeave={() => {
             setHoveredCell(null);

@@ -198,7 +198,7 @@ useEffect(() => {
     const suggestions = sharedScaleTablesService.getMidiScaleSuggestions(
       midiData.playedPitchClasses
     );
-    
+
     if (suggestions.length > 0) {
       const bestMatch = suggestions[0];
       sharedScaleTablesService.setHighlight({
@@ -289,19 +289,19 @@ import { sharedScaleTablesService, scaleTableNavigation } from '../services/Shar
 const ScaleTableComponent: React.FC = () => {
   const [scales, setScales] = useState([]);
   const [filter, setFilter] = useState({});
-  
+
   useEffect(() => {
     const filteredScales = sharedScaleTablesService.getFilteredScales(filter);
     setScales(filteredScales);
   }, [filter]);
-  
+
   const handleViewInTables = (mode: string, tonic: string) => {
     scaleTableNavigation.viewInTables(mode, tonic, (highlightId) => {
       // Handle navigation complete
       console.log(`Highlighted: ${highlightId}`);
     });
   };
-  
+
   return (
     <div>
       {/* Scale table UI */}
@@ -316,7 +316,7 @@ const ScaleTableComponent: React.FC = () => {
 // In DualLensAnalysisPanel
 const handleViewInTables = () => {
   scaleTableNavigation.viewModalInTables(
-    enhanced.modeName,  // "G Mixolydian" 
+    enhanced.modeName,  // "G Mixolydian"
     onViewInTables      // Callback from props
   );
 };
@@ -336,7 +336,7 @@ const searchScales = (query: string) => {
     searchQuery: query,
     maxResults: 20
   });
-  
+
   return results.map(scale => ({
     id: scale.id,
     display: `${scale.rootNoteName} ${scale.name}`,

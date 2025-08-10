@@ -1,6 +1,6 @@
 /**
  * Enhanced Evidence Display Components
- * 
+ *
  * Provides sophisticated evidence visualization with:
  * - Strength meters with color coding
  * - Evidence type categorization
@@ -69,7 +69,7 @@ const getEvidenceTypeInfo = (type: string) => {
       description: 'Based on harmonic function analysis'
     }
   };
-  
+
   return typeMap[type as keyof typeof typeMap] || {
     label: type,
     color: 'bg-gray-100 text-gray-700 border-gray-300',
@@ -86,7 +86,7 @@ const EvidenceItem: React.FC<{
   const [showDetails, setShowDetails] = useState(false);
   const [playingExample, setPlayingExample] = useState(false);
   const typeInfo = getEvidenceTypeInfo(evidence.type);
-  
+
   const handlePlayExample = () => {
     if (evidence.musicalExample) {
       setPlayingExample(true);
@@ -94,7 +94,7 @@ const EvidenceItem: React.FC<{
       setTimeout(() => setPlayingExample(false), 2000);
     }
   };
-  
+
   return (
     <Card className="evidence-item border hover:shadow-md transition-all duration-200">
       <CardHeader className="pb-2">
@@ -105,7 +105,7 @@ const EvidenceItem: React.FC<{
               {typeInfo.label}
             </Badge>
           </div>
-          <ConfidenceMeter 
+          <ConfidenceMeter
             value={Math.round(evidence.strength * 100)}
             size="sm"
             showValue={true}
@@ -116,7 +116,7 @@ const EvidenceItem: React.FC<{
           {evidence.description}
         </CardDescription>
       </CardHeader>
-      
+
       {(evidence.musicalExample || evidence.theoreticalBasis) && (
         <CardContent className="pt-0">
           <Collapsible open={showDetails} onOpenChange={setShowDetails}>
@@ -136,7 +136,7 @@ const EvidenceItem: React.FC<{
                     <strong>Theoretical Basis:</strong> {evidence.theoreticalBasis}
                   </div>
                 )}
-                
+
                 {/* Musical Example */}
                 {evidence.musicalExample && showMusicalExample && (
                   <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-200">
@@ -156,7 +156,7 @@ const EvidenceItem: React.FC<{
                         )}
                       </Button>
                     </div>
-                    
+
                     {evidence.musicalExample.chords && (
                       <div className="mb-1">
                         <span className="text-xs text-blue-600">Chords:</span>
@@ -169,7 +169,7 @@ const EvidenceItem: React.FC<{
                         </div>
                       </div>
                     )}
-                    
+
                     {evidence.musicalExample.notes && (
                       <div className="mb-1">
                         <span className="text-xs text-blue-600">Notes:</span>
@@ -178,7 +178,7 @@ const EvidenceItem: React.FC<{
                         </div>
                       </div>
                     )}
-                    
+
                     <div className="text-xs text-blue-700">
                       {evidence.musicalExample.explanation}
                     </div>
@@ -201,14 +201,14 @@ export const EnhancedEvidenceDisplay: React.FC<EnhancedEvidenceDisplayProps> = (
   themeColor = 'purple'
 }) => {
   const [showAll, setShowAll] = useState(false);
-  
+
   const visibleEvidence = showAll ? evidence : evidence.slice(0, maxVisible);
   const hasMore = evidence.length > maxVisible;
-  
+
   // Calculate overall evidence strength
-  const overallStrength = evidence.length > 0 ? 
+  const overallStrength = evidence.length > 0 ?
     evidence.reduce((sum, e) => sum + e.strength, 0) / evidence.length : 0;
-  
+
   // Group evidence by type
   const evidenceByType = evidence.reduce((groups, item) => {
     const type = item.type;
@@ -216,11 +216,11 @@ export const EnhancedEvidenceDisplay: React.FC<EnhancedEvidenceDisplayProps> = (
     groups[type].push(item);
     return groups;
   }, {} as Record<string, AnalysisEvidence[]>);
-  
+
   if (evidence.length === 0) {
     return null;
   }
-  
+
   return (
     <div className="enhanced-evidence-display space-y-3">
       {/* Evidence Summary */}
@@ -230,7 +230,7 @@ export const EnhancedEvidenceDisplay: React.FC<EnhancedEvidenceDisplayProps> = (
             {title}
           </h5>
           <div className="flex items-center gap-2">
-            <ConfidenceMeter 
+            <ConfidenceMeter
               value={Math.round(overallStrength * 100)}
               label="Overall Strength"
               size="sm"
@@ -238,12 +238,12 @@ export const EnhancedEvidenceDisplay: React.FC<EnhancedEvidenceDisplayProps> = (
             />
           </div>
         </div>
-        
+
         <div className="text-xs text-gray-600 mb-3">
           {evidence.length} piece{evidence.length !== 1 ? 's' : ''} of evidence across {Object.keys(evidenceByType).length} categor{Object.keys(evidenceByType).length !== 1 ? 'ies' : 'y'}
         </div>
       </div>
-      
+
       {/* Evidence Items */}
       <div className="evidence-items space-y-2">
         {visibleEvidence.map((item, index) => (
@@ -255,7 +255,7 @@ export const EnhancedEvidenceDisplay: React.FC<EnhancedEvidenceDisplayProps> = (
           />
         ))}
       </div>
-      
+
       {/* Show More/Less Button */}
       {hasMore && (
         <Button
@@ -264,13 +264,13 @@ export const EnhancedEvidenceDisplay: React.FC<EnhancedEvidenceDisplayProps> = (
           className={`text-xs text-${themeColor}-600 hover:text-${themeColor}-800 p-0 h-auto`}
           onClick={() => setShowAll(!showAll)}
         >
-          {showAll 
+          {showAll
             ? `Hide ${evidence.length - maxVisible} evidence items`
             : `Show ${evidence.length - maxVisible} more evidence items...`
           }
         </Button>
       )}
-      
+
       {/* Evidence Type Summary */}
       {Object.keys(evidenceByType).length > 1 && (
         <div className="evidence-type-summary p-2 bg-gray-50 dark:bg-gray-800/20 rounded border">
@@ -279,9 +279,9 @@ export const EnhancedEvidenceDisplay: React.FC<EnhancedEvidenceDisplayProps> = (
             {Object.entries(evidenceByType).map(([type, items]) => {
               const typeInfo = getEvidenceTypeInfo(type);
               return (
-                <Badge 
-                  key={type} 
-                  variant="outline" 
+                <Badge
+                  key={type}
+                  variant="outline"
                   className={`text-xs ${typeInfo.color}`}
                   title={typeInfo.description}
                 >

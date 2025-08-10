@@ -1,6 +1,6 @@
 /**
  * Mini Results Display Component
- * 
+ *
  * Compact display optimized for widget constraints:
  * - Minimal vertical space usage
  * - Essential information only
@@ -41,16 +41,16 @@ export const MiniResultsDisplay: React.FC<MiniResultsDisplayProps> = ({
   compact = false,
   className
 }) => {
-  const confidenceColor = result.confidence >= 0.8 
-    ? 'text-green-600' 
-    : result.confidence >= 0.6 
-    ? 'text-yellow-600' 
+  const confidenceColor = result.confidence >= 0.8
+    ? 'text-green-600'
+    : result.confidence >= 0.6
+    ? 'text-yellow-600'
     : 'text-red-600';
 
-  const confidenceText = result.confidence >= 0.8 
-    ? 'High' 
-    : result.confidence >= 0.6 
-    ? 'Medium' 
+  const confidenceText = result.confidence >= 0.8
+    ? 'High'
+    : result.confidence >= 0.6
+    ? 'Medium'
     : 'Low';
 
   if (compact) {
@@ -100,13 +100,13 @@ export const MiniResultsDisplay: React.FC<MiniResultsDisplayProps> = ({
             </div>
           </div>
         )}
-        
+
         {result.parentKey && result.parentKey !== result.detectedMode && (
           <div className="text-xs text-muted-foreground">
             Parent: {result.parentKey}
           </div>
         )}
-        
+
         {result.chordFunction && (
           <div className="text-xs text-muted-foreground">
             Function: {result.chordFunction}
@@ -147,7 +147,7 @@ export const MiniResultsDisplay: React.FC<MiniResultsDisplayProps> = ({
             Tables
           </Button>
         )}
-        
+
         {onNavigateToFullAnalysis && (
           <Button
             variant="outline"
@@ -159,7 +159,7 @@ export const MiniResultsDisplay: React.FC<MiniResultsDisplayProps> = ({
             Analyze
           </Button>
         )}
-        
+
         {onShowDetails && (
           <Button
             variant="ghost"

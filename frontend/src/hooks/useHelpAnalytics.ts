@@ -1,6 +1,6 @@
 /**
  * useHelpAnalytics - Custom hook for tracking contextual help usage
- * 
+ *
  * Provides analytics tracking for help system interactions to understand
  * user learning patterns and optimize educational content.
  */
@@ -135,12 +135,12 @@ const storeHelpInteraction = (data: HelpInteractionData) => {
     const sessionKey = 'help_interactions';
     const existing = JSON.parse(sessionStorage.getItem(sessionKey) || '[]');
     const updated = [...existing, { ...data, timestamp: Date.now() }];
-    
+
     // Keep only last 100 interactions to prevent storage bloat
     if (updated.length > 100) {
       updated.splice(0, updated.length - 100);
     }
-    
+
     sessionStorage.setItem(sessionKey, JSON.stringify(updated));
   } catch (error) {
     console.warn('Failed to store help interaction:', error);
@@ -172,7 +172,7 @@ export const getHelpAnalytics = () => {
         acc[interaction.termId] = (acc[interaction.termId] || 0) + 1;
         return acc;
       }, {});
-      
+
       return Object.entries(termCounts)
         .map(([termId, count]) => ({ termId, count: count as number }))
         .sort((a, b) => b.count - a.count);

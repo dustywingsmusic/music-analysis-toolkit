@@ -10,16 +10,16 @@ graph TD
     A[Input: chordSymbols, parentKey?] --> B{Edge Cases Check}
     B -->|Empty/Single chord| C[Return null]
     B -->|Valid input| D[Parse Chord Symbols]
-    
+
     D --> E[detectTonicCandidates]
     E --> F[Generate Tonic Candidates Array]
     F --> G[For each candidate: analyzeWithTonic]
-    
+
     G --> H[Multiple ModalAnalysisResults]
     H --> I[Check for Foil Patterns Across ALL Results]
     I -->|Foil detected| J[Force low confidence 0.3]
     I -->|No foil| K[Select highest confidence result]
-    
+
     J --> L[Apply confidence threshold ≥0.4]
     K --> L
     L -->|Pass threshold| M[Return ModalAnalysisResult]
@@ -54,22 +54,22 @@ graph TD
     B --> C[Detect Modal Patterns]
     C --> D[Collect Evidence]
     D --> E[Calculate Base Confidence]
-    
+
     E --> F[Determine Mode Name]
     F --> G[Apply Foil Detection]
     G -->|Foil detected| H[Reduce to confidence 0.3]
     G -->|No foil| I[Check for confidence boosts]
-    
+
     I -->|I-IV-I pattern| J[Boost to 0.75]
     I -->|Other| K[Keep base confidence]
-    
+
     H --> L[Check ambiguous context]
     J --> L
     K --> L
-    
+
     L -->|No parent key provided| M[Cap at 0.65]
     L -->|Parent key provided| N[Keep confidence]
-    
+
     M --> O[Return ModalAnalysisResult]
     N --> O
 ```
@@ -85,13 +85,13 @@ graph TD
     C -->|diminished| F[Use diminished Roman numeral]
     C -->|augmented| G[Add + suffix]
     C -->|suspended| H[Add sus suffix]
-    
+
     D --> I[Return Roman numeral]
     E --> I
     F --> I
     G --> I
     H --> I
-    
+
     subgraph "Roman Numeral Map"
         J[0: I/i/i°<br/>1: bII/bii/bii°<br/>2: II/ii/ii°<br/>3: bIII/biii/biii°<br/>4: III/iii/iii°<br/>5: IV/iv/iv°<br/>6: #IV/#iv/#iv°<br/>7: V/v/v°<br/>8: bVI/bvi/bvi°<br/>9: VI/vi/vi°<br/>10: bVII/bvii/bvii°<br/>11: VII/vii/vii°]
     end
@@ -107,7 +107,7 @@ graph TD
     C -->|No| E[Check partial matches]
     E --> F[Sort by strength × matches]
     F --> G[Return sorted pattern results]
-    
+
     subgraph "Pattern Library Examples"
         H[Ionian: I-IV-I<br/>Dorian: i-IV-i<br/>Phrygian: i-bII-i<br/>Lydian: I-II-I<br/>Mixolydian: I-bVII-I<br/>Aeolian: i-bVI-bVII-i<br/>Locrian: i°-bII-i°]
     end
@@ -128,7 +128,7 @@ graph TD
     H -->|No| J{Functional patterns?}
     J -->|High functional| K[Cap at 0.5]
     J -->|Low functional| L[Keep calculated confidence]
-    
+
     G --> M[Return final confidence]
     I --> M
     K --> M
@@ -144,7 +144,7 @@ graph TD
     C --> D{Check foil patterns}
     D -->|Match found| E[Return true]
     D -->|No match| F[Return false]
-    
+
     subgraph "Foil Patterns"
         G[I-V-I: Pure functional<br/>I-IV-V-I: Functional progression<br/>ii-V-I: Jazz cadence<br/>i-iv-i: Dorian foil → Aeolian<br/>i-II-i: Phrygian foil<br/>i-V-i: Minor functional<br/>i°-V-i°: Locrian foil]
     end
@@ -157,20 +157,20 @@ graph TD
     A[determineModeName] --> B{Pattern-based detection available?}
     B -->|Yes| C[Use best pattern match]
     B -->|No| D[Evidence-based detection]
-    
+
     C --> E{Ambiguous pattern like I-IV?}
     E -->|Yes| F[Check parent key context]
     E -->|No| G[Return pattern mode]
-    
+
     F -->|Tonic = parent root| H[Return Ionian]
     F -->|Tonic = 5th of parent| I[Return Mixolydian]
     F -->|Other relationship| J[Calculate mode from interval]
-    
+
     D --> K[Check chord qualities]
     K --> L{Has bVII, bII, II, etc.?}
     L -->|Yes| M[Determine by characteristics]
     L -->|No| N[Use parent key calculation]
-    
+
     G --> O[Return mode name]
     H --> O
     I --> O

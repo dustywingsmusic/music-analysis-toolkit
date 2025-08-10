@@ -248,7 +248,7 @@ function MyComponent() {
     <div className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="melody">Melody Notes</Label>
-        <Input 
+        <Input
           id="melody"
           placeholder="C D E F G A B C"
           className="bg-slate-700 border-slate-600"
@@ -296,7 +296,7 @@ const noteButtonVariants = cva(
   }
 )
 
-interface NoteButtonProps 
+interface NoteButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof noteButtonVariants> {
   note: 'c' | 'd' | 'e' | 'f' | 'g' | 'a' | 'b'
@@ -352,8 +352,8 @@ const ScaleGrid: React.FC<ScaleGridProps> = ({
             </div>
             <p className="text-xs text-slate-500">{scale.character}</p>
             {showDeeperAnalysis && (
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => onScaleSelect?.(scale)}
               >
@@ -430,7 +430,7 @@ const componentVariants = cva(
 )
 
 // Define props interface
-interface ComponentProps 
+interface ComponentProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof componentVariants> {
   // Additional props
@@ -664,10 +664,10 @@ interface UnifiedAnalysisContext {
 class MusicAnalyzer {
   // 1. Primary analysis using existing local algorithms
   analyzeLocally(input: MusicalInput): LocalResult;
-  
-  // 2. AI enhancement for context and examples  
+
+  // 2. AI enhancement for context and examples
   enhanceWithAI(localResult: LocalResult): Promise<AIEnhancement>;
-  
+
   // 3. Cross-validation between results
   validateResults(local: LocalResult, ai: AIEnhancement): ValidatedResult;
 }

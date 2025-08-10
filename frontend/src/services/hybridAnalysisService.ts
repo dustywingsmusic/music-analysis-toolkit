@@ -7,11 +7,11 @@
 import { analyzeChordProgressionLocally } from './localChordProgressionAnalysis';
 import { ComprehensiveAnalysisEngine, ComprehensiveAnalysisResult } from './comprehensiveAnalysisService';
 import * as geminiService from './geminiService';
-import { 
-  LocalAnalysisResult, 
-  AIEnhancementResult, 
+import {
+  LocalAnalysisResult,
+  AIEnhancementResult,
   CrossValidationResult,
-  AnalysisInputType 
+  AnalysisInputType
 } from '../contexts/AnalysisContext';
 
 export interface HybridAnalysisOptions {
@@ -39,14 +39,14 @@ export async function analyzeChordProgression(
   aiEnhancement?: AIEnhancementResult;
   crossValidation?: CrossValidationResult;
 }> {
-  
+
   const startTime = performance.now();
-  
+
   try {
     // Step 1: Always perform local analysis first (for compatibility)
     console.log('🎼 Starting local chord progression analysis...');
     const localAnalysis = await analyzeChordProgressionLocally(progressionInput, options.knownKey);
-    
+
     const localResult: LocalAnalysisResult = {
       type: 'chord_progression',
       inputData: progressionInput,
@@ -60,18 +60,18 @@ export async function analyzeChordProgression(
         processingTime: performance.now() - startTime,
       }
     };
-    
+
     console.log('✅ Local analysis completed:', localResult);
-    
+
     // Step 1.5: Perform comprehensive analysis (functional + modal + chromatic)
     console.log('🎯 Starting comprehensive analysis...');
     const comprehensiveEngine = new ComprehensiveAnalysisEngine();
     const comprehensiveResult = await comprehensiveEngine.analyzeComprehensively(
-      progressionInput, 
+      progressionInput,
       options.knownKey
     );
     console.log('✅ Comprehensive analysis completed:', comprehensiveResult);
-    
+
     // Step 2: AI Enhancement (if enabled)
     let aiEnhancement: AIEnhancementResult | undefined;
     if (options.enableAIEnhancement) {
@@ -84,7 +84,7 @@ export async function analyzeChordProgression(
         // Don't fail the entire analysis if AI fails
       }
     }
-    
+
     // Step 3: Cross-validation (if both local and AI results exist)
     let crossValidation: CrossValidationResult | undefined;
     if (options.enableCrossValidation && aiEnhancement) {
@@ -92,17 +92,17 @@ export async function analyzeChordProgression(
       crossValidation = performCrossValidation(localAnalysis, aiEnhancement);
       console.log('✅ Cross-validation completed');
     }
-    
+
     return {
       localResult,
       comprehensiveResult,
       aiEnhancement,
       crossValidation
     };
-    
+
   } catch (error) {
     console.error('❌ Hybrid analysis failed:', error);
-    
+
     // Return minimal local result with error state
     return {
       localResult: {
@@ -130,25 +130,25 @@ async function performAIEnhancement(
   localAnalysis: any,
   timeoutMs: number
 ): Promise<AIEnhancementResult> {
-  
+
   // Create AI prompt based on local analysis results
   const enhancementPrompt = createAIEnhancementPrompt(localAnalysis);
-  
+
   try {
     // Use existing Gemini service with timeout
     const aiResponse = await Promise.race([
       geminiService.analyzeHarmony('progression', { progression: localAnalysis.progression }),
-      new Promise<never>((_, reject) => 
+      new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('AI enhancement timeout')), timeoutMs)
       )
     ]);
-    
+
     // Extract enhancement data from AI response
     return extractAIEnhancement(aiResponse);
-    
+
   } catch (error) {
     console.warn('AI enhancement failed:', error);
-    
+
     // Return minimal enhancement
     return {
       songExamples: [],
@@ -165,22 +165,22 @@ async function performAIEnhancement(
  */
 function createAIEnhancementPrompt(localAnalysis: any): string {
   const { localAnalysis: analysis } = localAnalysis;
-  
+
   return `
     Based on this local music theory analysis, provide contextual enhancement:
-    
+
     Progression: ${localAnalysis.progression}
     Key Center: ${analysis.keyCenter}
     Mode: ${analysis.overallMode}
     Modal Chords: ${analysis.modalChords.length > 0 ? analysis.modalChords.map(c => c.chordSymbol).join(', ') : 'None'}
     Confidence: ${analysis.confidence}
-    
+
     Please provide:
     1. Song examples that use similar progressions
     2. Genre contexts where this progression is common
     3. Theoretical insights about the progression's character
     4. Additional context about any modal elements
-    
+
     Focus on educational value and real-world musical examples.
   `;
 }
@@ -191,7 +191,7 @@ function createAIEnhancementPrompt(localAnalysis: any): string {
 function extractAIEnhancement(aiResponse: any): AIEnhancementResult {
   // Parse AI response to extract structured enhancement data
   // This would need to be adapted based on the actual AI response format
-  
+
   return {
     songExamples: aiResponse.result?.songExamples || [],
     theoreticalExplanation: aiResponse.result?.explanation || '',
@@ -208,14 +208,14 @@ function performCrossValidation(
   localAnalysis: any,
   aiEnhancement: AIEnhancementResult
 ): CrossValidationResult {
-  
+
   const local = localAnalysis.localAnalysis;
-  
+
   // Compare key findings
   let agreements = 0;
   let totalComparisons = 0;
   const discrepancies: string[] = [];
-  
+
   // Check key center agreement (simplified comparison)
   totalComparisons++;
   if (aiEnhancement.theoreticalExplanation.includes(local.keyCenter)) {
@@ -223,20 +223,20 @@ function performCrossValidation(
   } else {
     discrepancies.push(`Key center: Local detected ${local.keyCenter}, AI suggests different key`);
   }
-  
+
   // Check modal analysis agreement
   totalComparisons++;
   const hasModalContent = local.modalChords.length > 0;
   const aiMentionsModal = aiEnhancement.theoreticalExplanation.toLowerCase().includes('modal');
-  
+
   if (hasModalContent === aiMentionsModal) {
     agreements++;
   } else {
     discrepancies.push(`Modal content: Local found ${hasModalContent ? 'modal elements' : 'no modal elements'}, AI suggests otherwise`);
   }
-  
+
   const agreement = agreements / totalComparisons;
-  
+
   // Determine recommended interpretation
   let recommendedInterpretation: 'local' | 'ai' | 'hybrid';
   if (agreement > 0.8) {
@@ -246,7 +246,7 @@ function performCrossValidation(
   } else {
     recommendedInterpretation = 'ai';
   }
-  
+
   return {
     agreement,
     discrepancies,
@@ -271,21 +271,21 @@ export async function analyzeMusicalInput(
   aiEnhancement?: AIEnhancementResult;
   crossValidation?: CrossValidationResult;
 }> {
-  
+
   switch (inputType) {
     case 'chord_progression':
       return analyzeChordProgression(inputData as string, options);
-      
+
     case 'melody':
     case 'scale':
     case 'notes_collection':
       // These would use the existing realTimeModeDetection.ts logic
       return analyzeNotesCollection(inputData as number[], options);
-      
+
     case 'midi_realtime':
       // Real-time analysis using existing MIDI integration
       return analyzeRealtimeMIDI(inputData as number[], options);
-      
+
     default:
       throw new Error(`Unsupported input type: ${inputType}`);
   }
@@ -301,10 +301,10 @@ async function analyzeNotesCollection(
   localResult: LocalAnalysisResult;
   aiEnhancement?: AIEnhancementResult;
 }> {
-  
+
   // This would integrate with existing realTimeModeDetection.ts
   // For now, return placeholder structure
-  
+
   const localResult: LocalAnalysisResult = {
     type: 'notes_collection',
     inputData: notes,
@@ -317,7 +317,7 @@ async function analyzeNotesCollection(
       processingTime: 50,
     }
   };
-  
+
   return { localResult };
 }
 
@@ -330,10 +330,10 @@ async function analyzeRealtimeMIDI(
 ): Promise<{
   localResult: LocalAnalysisResult;
 }> {
-  
+
   // This would integrate with existing MIDI detection logic
   // For now, return placeholder structure
-  
+
   const localResult: LocalAnalysisResult = {
     type: 'midi_realtime',
     inputData: notes,
@@ -346,6 +346,6 @@ async function analyzeRealtimeMIDI(
       processingTime: 10,
     }
   };
-  
+
   return { localResult };
 }

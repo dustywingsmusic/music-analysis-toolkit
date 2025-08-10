@@ -28,9 +28,9 @@ interface ReferenceTabProps {
   onDismissAnalysisPanel?: () => void;
 }
 
-const ReferenceTab: React.FC<ReferenceTabProps> = ({ 
-  highlightId, 
-  showDebugInfo = false, 
+const ReferenceTab: React.FC<ReferenceTabProps> = ({
+  highlightId,
+  showDebugInfo = false,
   onShowUnifiedResults,
   midiData,
   unifiedResults,
@@ -52,12 +52,12 @@ const ReferenceTab: React.FC<ReferenceTabProps> = ({
           targetMode: mode,
           targetTonic: tonic
         });
-        
+
         if (highlight) {
           setMidiHighlightId(highlight.cellId);
         }
       };
-      
+
       // This would be called by other components via props
       // The actual implementation is handled through the existing prop system
     }
@@ -66,7 +66,7 @@ const ReferenceTab: React.FC<ReferenceTabProps> = ({
   // Callback to handle scale highlighting from MIDI detection
   const handleScaleHighlight = useCallback((scaleId: string | null) => {
     setMidiHighlightId(scaleId);
-    
+
     // Update shared service with MIDI highlight
     if (scaleId) {
       const highlight: ScaleHighlight = {
@@ -89,7 +89,7 @@ const ReferenceTab: React.FC<ReferenceTabProps> = ({
     return [
       {
         category: 'Major Scale Modes',
-        modes: scaleFamilies.includes('Major Scale') ? 
+        modes: scaleFamilies.includes('Major Scale') ?
           scaleService.findScalesByRoot('C').filter(scale => scale.scaleFamily === 'Major Scale')
             .map(scale => ({
               name: `${scale.name} (${scale.rootNoteName})`,
@@ -122,7 +122,7 @@ const ReferenceTab: React.FC<ReferenceTabProps> = ({
       </div>
 
       {/* Integrated Music Sidebar */}
-      <IntegratedMusicSidebar 
+      <IntegratedMusicSidebar
         onScaleHighlight={handleScaleHighlight}
         midiData={midiData}
         unifiedResults={unifiedResults}
@@ -159,7 +159,7 @@ const ReferenceTab: React.FC<ReferenceTabProps> = ({
           </p>
 
           <div className="scale-finder-container">
-            <ScaleFinder 
+            <ScaleFinder
               initialHighlightId={midiHighlightId || highlightId || null}
               embedded={true}
               showDebugInfo={showDebugInfo}

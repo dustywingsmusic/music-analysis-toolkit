@@ -71,7 +71,7 @@ describe('SharedScaleTablesService', () => {
         showOnlyMatches: true,
         playedPitchClasses: cMajorPitchClasses
       });
-      
+
       expect(matchingScales.length).toBeGreaterThan(0);
       matchingScales.forEach(scale => {
         // All played notes should be in the scale
@@ -87,7 +87,7 @@ describe('SharedScaleTablesService', () => {
       const scales = service.getFilteredScales();
       const firstScale = scales[0];
       const foundScale = service.findScaleById(firstScale.id);
-      
+
       expect(foundScale).toBeDefined();
       expect(foundScale?.id).toBe(firstScale.id);
     });
@@ -113,13 +113,13 @@ describe('SharedScaleTablesService', () => {
     it('should provide MIDI scale suggestions', () => {
       const cMajorPitchClasses = new Set([0, 2, 4, 5, 7, 9, 11]);
       const suggestions = service.getMidiScaleSuggestions(cMajorPitchClasses);
-      
+
       expect(suggestions.length).toBeGreaterThan(0);
-      
+
       // Should include major scale modes
       const hasIonian = suggestions.some(s => s.name?.includes('Ionian') && s.rootNoteName === 'C');
       const hasDorian = suggestions.some(s => s.name?.includes('Dorian') && s.rootNoteName === 'D');
-      
+
       expect(hasIonian || hasDorian).toBe(true);
     });
 
@@ -136,7 +136,7 @@ describe('SharedScaleTablesService', () => {
         targetMode: 'Mixolydian',
         targetTonic: 'G'
       });
-      
+
       expect(highlight).toBeDefined();
       expect(highlight?.reason).toBe('analysis');
     });
@@ -147,7 +147,7 @@ describe('SharedScaleTablesService', () => {
         targetMode: 'InvalidMode',
         targetTonic: 'X'
       });
-      
+
       expect(highlight).toBeNull();
     });
   });
@@ -156,16 +156,16 @@ describe('SharedScaleTablesService', () => {
     it('should set and clear highlights', () => {
       const scales = service.getFilteredScales();
       const testScale = scales[0];
-      
+
       service.setHighlight({
         cellId: testScale.id,
         reason: 'analysis',
         temporary: false
       });
-      
+
       const highlights = service.getHighlights();
       expect(highlights.has(testScale.id)).toBe(true);
-      
+
       service.clearHighlight(testScale.id);
       const clearedHighlights = service.getHighlights();
       expect(clearedHighlights.has(testScale.id)).toBe(false);
@@ -173,7 +173,7 @@ describe('SharedScaleTablesService', () => {
 
     it('should clear all highlights', () => {
       const scales = service.getFilteredScales().slice(0, 3);
-      
+
       scales.forEach(scale => {
         service.setHighlight({
           cellId: scale.id,
@@ -181,10 +181,10 @@ describe('SharedScaleTablesService', () => {
           temporary: false
         });
       });
-      
+
       let highlights = service.getHighlights();
       expect(highlights.size).toBe(3);
-      
+
       service.clearAllHighlights();
       highlights = service.getHighlights();
       expect(highlights.size).toBe(0);
@@ -195,7 +195,7 @@ describe('SharedScaleTablesService', () => {
     it('should create plugin-optimized instance', () => {
       const pluginService = SharedScaleTablesService.createPluginInstance();
       expect(pluginService).toBeDefined();
-      
+
       const exportData = pluginService.exportForPlugin();
       expect(exportData.scales).toBeDefined();
       expect(exportData.families).toBeDefined();
@@ -205,7 +205,7 @@ describe('SharedScaleTablesService', () => {
 
     it('should export data for plugin packaging', () => {
       const exportData = service.exportForPlugin();
-      
+
       expect(exportData.scales.length).toBeGreaterThan(0);
       expect(exportData.families.length).toBeGreaterThan(0);
       expect(exportData.rootNotes.length).toBe(12);
@@ -227,7 +227,7 @@ describe('SharedScaleTablesService', () => {
   describe('Navigation Interface', () => {
     it('should create navigation interface', () => {
       const navigation = service.createNavigation();
-      
+
       expect(navigation.highlightScale).toBeDefined();
       expect(navigation.clearHighlights).toBeDefined();
       expect(navigation.scrollToScale).toBeDefined();

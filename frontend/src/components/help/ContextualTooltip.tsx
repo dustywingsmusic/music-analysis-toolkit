@@ -1,6 +1,6 @@
 /**
  * ContextualTooltip - Smart tooltip component for music theory terms
- * 
+ *
  * Provides quick definitions with contextual relevance based on current analysis.
  * Features adaptive positioning, touch-friendly interactions, and progressive
  * disclosure to detailed explanations.
@@ -29,32 +29,32 @@ interface ContextualTooltipProps {
  * Calculate optimal tooltip position to stay within viewport
  */
 const calculatePosition = (
-  triggerX: number, 
-  triggerY: number, 
-  tooltipWidth: number, 
+  triggerX: number,
+  triggerY: number,
+  tooltipWidth: number,
   tooltipHeight: number
 ) => {
   const viewport = {
     width: window.innerWidth,
     height: window.innerHeight
   };
-  
+
   const padding = 16;
   let x = triggerX - tooltipWidth / 2;
   let y = triggerY - tooltipHeight - 12; // Position above trigger
-  
+
   // Horizontal constraints
   if (x < padding) {
     x = padding;
   } else if (x + tooltipWidth > viewport.width - padding) {
     x = viewport.width - tooltipWidth - padding;
   }
-  
+
   // Vertical constraints - flip to bottom if not enough space above
   if (y < padding) {
     y = triggerY + 32; // Position below trigger
   }
-  
+
   return { x, y };
 };
 
@@ -68,7 +68,7 @@ const getContextualContent = (term: MusicTerm, context?: AnalysisContext) => {
       contextNote: null
     };
   }
-  
+
   const contextualDef = term.definitions.contextual[context.type];
   return {
     definition: contextualDef,
@@ -110,17 +110,17 @@ export const ContextualTooltip: React.FC<ContextualTooltipProps> = ({
       const timer = setTimeout(() => {
         onClose();
       }, 5000); // 5 second auto-close on mobile
-      
+
       return () => clearTimeout(timer);
     }
   }, [onClose]);
 
   // Get content based on context
   const { definition, contextNote } = getContextualContent(term, context);
-  
+
   // Determine if this term has examples that could link to scale tables
   const hasScaleTableLink = term.category === 'modal' && onViewInTables;
-  
+
   // Get difficulty badge color
   const difficultyColors = {
     beginner: 'bg-green-100 text-green-800 border-green-200',
@@ -146,8 +146,8 @@ export const ContextualTooltip: React.FC<ContextualTooltipProps> = ({
         <div className="contextual-tooltip__title-section">
           <h4 className="contextual-tooltip__title">{term.term}</h4>
           <div className="contextual-tooltip__badges">
-            <Badge 
-              variant="outline" 
+            <Badge
+              variant="outline"
               className={`contextual-tooltip__difficulty ${difficultyColors[term.difficulty]}`}
             >
               {term.difficulty}
@@ -159,7 +159,7 @@ export const ContextualTooltip: React.FC<ContextualTooltipProps> = ({
             )}
           </div>
         </div>
-        
+
         <Button
           variant="ghost"
           size="sm"
@@ -174,7 +174,7 @@ export const ContextualTooltip: React.FC<ContextualTooltipProps> = ({
       {/* Definition */}
       <div className="contextual-tooltip__content">
         <p className="contextual-tooltip__definition">{definition}</p>
-        
+
         {/* Quick Examples */}
         {term.examples.musical.length > 0 && (
           <div className="contextual-tooltip__examples">
@@ -199,7 +199,7 @@ export const ContextualTooltip: React.FC<ContextualTooltipProps> = ({
           <BookOpenIcon className="w-4 h-4 mr-1" />
           Learn More
         </Button>
-        
+
         {hasScaleTableLink && (
           <Button
             variant="outline"
@@ -208,7 +208,7 @@ export const ContextualTooltip: React.FC<ContextualTooltipProps> = ({
               // Extract mode and tonic from first musical example
               const firstExample = term.examples.musical[0];
               if (firstExample.notation) {
-                // Parse notation like "F→C in key of C major" 
+                // Parse notation like "F→C in key of C major"
                 // or look for mode indicators
                 onViewInTables?.(term.term, 'C'); // Default fallback
               }
@@ -219,7 +219,7 @@ export const ContextualTooltip: React.FC<ContextualTooltipProps> = ({
             View Tables
           </Button>
         )}
-        
+
         {term.examples.audio && term.examples.audio.length > 0 && (
           <Button
             variant="outline"
@@ -381,11 +381,11 @@ const tooltipStyles = `
     max-width: calc(100vw - 32px);
     min-width: 280px;
   }
-  
+
   .contextual-tooltip__actions {
     justify-content: space-between;
   }
-  
+
   .contextual-tooltip__action-btn {
     flex: 1;
     min-width: 0;
@@ -399,19 +399,19 @@ const tooltipStyles = `
     border-color: rgba(0, 102, 204, 0.3);
     color: #f9fafb;
   }
-  
+
   .contextual-tooltip__title {
     color: #f9fafb;
   }
-  
+
   .contextual-tooltip__definition {
     color: #e5e7eb;
   }
-  
+
   .contextual-tooltip__example {
     color: #9ca3af;
   }
-  
+
   .contextual-tooltip__arrow {
     background: rgba(31, 41, 55, 0.95);
     border-color: rgba(0, 102, 204, 0.3);

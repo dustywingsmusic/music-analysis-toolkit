@@ -1,9 +1,9 @@
 /**
  * InputSettingsPanel - Universal Input Settings System
- * 
+ *
  * Replaces MidiSettingsPanel with comprehensive input method management.
  * Provides global input method selection (keyboard/mouse/midi) and MIDI device configuration.
- * 
+ *
  * Features:
  * - Global input method preference with persistence
  * - Quick method switching via dropdown
@@ -12,18 +12,18 @@
  * - Mobile-responsive design
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import '../styles/input-settings.css';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
 } from './ui/dropdown-menu';
 import { ChevronDownIcon, Settings2Icon, KeyboardIcon, MouseIcon, PianoIcon } from 'lucide-react';
 import type { MidiDevice } from '../types';
@@ -34,7 +34,7 @@ import { useInputMethod } from '../contexts/InputMethodContext';
 import type { InputMethod } from '../contexts/InputMethodContext';
 
 interface InputSettingsPanelProps {
-  
+
   // MIDI configuration (when method is 'midi')
   midiStatus?: string;
   midiDevices?: MidiDevice[];
@@ -44,7 +44,7 @@ interface InputSettingsPanelProps {
   midiEnabled?: boolean;
   enableMidi?: () => void;
   disableMidi?: () => void;
-  
+
   // Display configuration
   className?: string;
   showDetailedConfig?: boolean;
@@ -64,9 +64,13 @@ const InputSettingsPanel: React.FC<InputSettingsPanelProps> = ({
 }) => {
   // Use global input method context
   const { activeInputMethod, setInputMethod, midiAvailable, midiConnected, updateMidiAvailability } = useInputMethod();
-  
+
   const [isExpanded, setIsExpanded] = useState(false);
   const [showQuickSwitcher, setShowQuickSwitcher] = useState(false);
+
+  // Refs for dynamic positioning
+  const panelRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   // Input method configurations
   const inputMethods = [
@@ -126,14 +130,14 @@ const InputSettingsPanel: React.FC<InputSettingsPanelProps> = ({
 
     setInputMethod(method, 'header-control');
     setShowQuickSwitcher(false);
-    
+
     trackInteraction(`Input Settings - ${method}`, 'Input Method');
   }, [activeInputMethod, setInputMethod]);
 
   const toggleExpanded = useCallback(() => {
     const newState = !isExpanded;
     setIsExpanded(newState);
-    
+
     trackInteraction(`Input Settings Panel - ${newState ? 'Open' : 'Close'}`, 'Navigation');
     logger.webClick('Input settings panel toggled', {
       component: 'InputSettingsPanel',
@@ -154,7 +158,7 @@ const InputSettingsPanel: React.FC<InputSettingsPanelProps> = ({
       enableMidi();
     }
   }, [midiEnabled, enableMidi, disableMidi, activeInputMethod, handleMethodChange]);
-  
+
   // Update MIDI availability in context when MIDI status changes
   React.useEffect(() => {
     const available = midiEnabled && !midiError;
@@ -162,8 +166,89 @@ const InputSettingsPanel: React.FC<InputSettingsPanelProps> = ({
     updateMidiAvailability(available, connected);
   }, [midiEnabled, midiError, midiStatus, updateMidiAvailability]);
 
+  // Dynamic positioning to prevent overflow
+  useEffect(() => {
+    const updateModalPosition = () => {
+      if (isExpanded && modalRef.current && panelRef.current) {
+        const modal = modalRef.current;
+        const panel = panelRef.current;
+        const viewport = window.innerWidth;
+
+        // Get panel position
+        const panelRect = panel.getBoundingClientRect();
+        const modalWidth = 320; // min-width: 20rem = 320px
+
+        // Check if modal would overflow viewport
+        const rightEdge = panelRect.right;
+        const wouldOverflow = rightEdge + modalWidth > viewport;
+
+        if (wouldOverflow) {
+          // Position modal to align with the left edge of trigger instead
+          const spaceOnLeft = panelRect.left;
+          const spaceOnRight = viewport - panelRect.right;
+
+          if (spaceOnLeft >= modalWidth) {
+            // Align to left edge
+            modal.style.right = 'auto';
+            modal.style.left = '0';
+          } else if (spaceOnRight >= 200) {
+            // Keep right-aligned but reduce width
+            modal.style.right = '0';
+            modal.style.left = 'auto';
+            modal.style.maxWidth = `${spaceOnRight - 20}px`;
+          } else {
+            // Center the modal with available space
+            const availableSpace = Math.min(viewport - 40, modalWidth);
+            modal.style.right = 'auto';
+            modal.style.left = '50%';
+            modal.style.transform = 'translateX(-50%)';
+            modal.style.maxWidth = `${availableSpace}px`;
+          }
+        } else {
+          // Reset to default positioning
+          modal.style.right = '0';
+          modal.style.left = 'auto';
+          modal.style.transform = 'none';
+          modal.style.maxWidth = 'min(24rem, calc(100vw - 2rem))';
+        }
+      }
+    };
+
+    // Update position when modal opens or window resizes
+    updateModalPosition();
+
+    if (isExpanded) {
+      window.addEventListener('resize', updateModalPosition);
+
+      // Add click outside handler for mobile
+      const handleClickOutside = (event: MouseEvent) => {
+        if (modalRef.current && panelRef.current &&
+            !modalRef.current.contains(event.target as Node) &&
+            !panelRef.current.contains(event.target as Node)) {
+          setIsExpanded(false);
+        }
+      };
+
+      // Add escape key handler
+      const handleEscape = (event: KeyboardEvent) => {
+        if (event.key === 'Escape') {
+          setIsExpanded(false);
+        }
+      };
+
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEscape);
+
+      return () => {
+        window.removeEventListener('resize', updateModalPosition);
+        document.removeEventListener('mousedown', handleClickOutside);
+        document.removeEventListener('keydown', handleEscape);
+      };
+    }
+  }, [isExpanded]);
+
   return (
-    <div className={cn("input-settings-panel", className)}>
+    <div ref={panelRef} className={cn("input-settings-panel", className)}>
       {/* Main Control Button */}
       <div className="flex items-center gap-2">
         {/* Quick Method Switcher Dropdown */}
@@ -186,18 +271,18 @@ const InputSettingsPanel: React.FC<InputSettingsPanelProps> = ({
               <ChevronDownIcon className="w-3 h-3 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
-          
+
           <DropdownMenuContent align="end" className="w-56">
             <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
               Input Method
             </div>
             <DropdownMenuSeparator />
-            
+
             {inputMethods.map((method) => {
               const Icon = method.icon;
               const isActive = method.id === activeInputMethod;
               const isDisabled = method.id === 'midi' && midiError;
-              
+
               return (
                 <DropdownMenuItem
                   key={method.id}
@@ -233,7 +318,7 @@ const InputSettingsPanel: React.FC<InputSettingsPanelProps> = ({
                 </DropdownMenuItem>
               );
             })}
-            
+
             {/* MIDI Settings Link */}
             {(isMidiMethod || midiDevices.length > 0) && (
               <>
@@ -266,7 +351,7 @@ const InputSettingsPanel: React.FC<InputSettingsPanelProps> = ({
 
       {/* Expanded Configuration Panel */}
       {isExpanded && (
-        <div className="input-settings-expanded-panel">
+        <div ref={modalRef} className="input-settings-expanded-panel">
           <div className="input-settings-card">
             {/* Current Method Display */}
             <div className="mb-4">

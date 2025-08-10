@@ -1,6 +1,6 @@
 /**
  * DetailModal - Comprehensive modal for in-depth music theory explanations
- * 
+ *
  * Provides detailed definitions, contextual explanations, musical examples,
  * and related concept navigation for deep learning.
  */
@@ -9,10 +9,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { 
-  BookOpenIcon, 
-  VolumeIcon, 
-  ExternalLinkIcon, 
+import {
+  BookOpenIcon,
+  VolumeIcon,
+  ExternalLinkIcon,
   ArrowLeftIcon,
   ArrowRightIcon,
   XIcon,
@@ -51,7 +51,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
   // Track modal open
   useEffect(() => {
     trackHelpInteraction(term.id, 'modal_open', context?.type);
-    
+
     const startTime = Date.now();
     return () => {
       const timeSpent = Date.now() - startTime;
@@ -62,7 +62,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
         interactionPath: navigationHistory,
         completedRelatedTerms: []
       });
-      
+
       localStorage.setItem(`help_viewed_${term.id}`, 'true');
     };
   }, [term.id, context?.type, navigationHistory, trackHelpInteraction, trackLearningProgress]);
@@ -110,13 +110,13 @@ export const DetailModal: React.FC<DetailModalProps> = ({
     if (!relatedTerm) return;
 
     trackHelpInteraction(termId, 'related_term_click', context?.type);
-    
+
     // Update navigation history
     const newHistory = navigationHistory.slice(0, currentIndex + 1);
     newHistory.push(termId);
     setNavigationHistory(newHistory);
     setCurrentIndex(newHistory.length - 1);
-    
+
     onNavigateToTerm(termId);
   };
 
@@ -197,7 +197,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
 
   return (
     <div className="detail-modal-overlay" onClick={onClose}>
-      <div 
+      <div
         ref={modalRef}
         className="detail-modal"
         onClick={(e) => e.stopPropagation()}
@@ -218,7 +218,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
               <ArrowLeftIcon className="w-4 h-4" />
             </Button>
             <Button
-              variant="ghost" 
+              variant="ghost"
               size="sm"
               onClick={navigateForward}
               disabled={currentIndex === navigationHistory.length - 1}
@@ -283,7 +283,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
               </CardHeader>
               <CardContent>
                 <p className="detail-modal__context-explanation">
-                  This term is particularly relevant to your {context.type} analysis. 
+                  This term is particularly relevant to your {context.type} analysis.
                   {context.subtype && ` Specifically in the context of ${context.subtype}.`}
                 </p>
               </CardContent>
@@ -421,7 +421,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                 View in Scale Tables
               </Button>
             )}
-            
+
             <Button
               onClick={onClose}
               className="detail-modal__action-btn detail-modal__action-btn--primary"
@@ -620,27 +620,27 @@ const modalStyles = `
   .detail-modal-overlay {
     padding: 8px;
   }
-  
+
   .detail-modal {
     max-height: 95vh;
   }
-  
+
   .detail-modal__header {
     padding: 16px 20px 12px;
   }
-  
+
   .detail-modal__title {
     font-size: 20px;
   }
-  
+
   .detail-modal__content {
     padding: 20px;
   }
-  
+
   .detail-modal__actions {
     flex-direction: column;
   }
-  
+
   .detail-modal__action-btn {
     width: 100%;
   }
@@ -652,31 +652,31 @@ const modalStyles = `
     background: #1f2937;
     color: #f9fafb;
   }
-  
+
   .detail-modal__header {
     background: #111827;
     border-color: #374151;
   }
-  
+
   .detail-modal__title {
     color: #f9fafb;
   }
-  
+
   .detail-modal__definition-card {
     background: #1e3a8a;
     border-color: #3b82f6;
   }
-  
+
   .detail-modal__context-card {
     background: #312e81;
     border-color: #6366f1;
   }
-  
+
   .detail-modal__example {
     background: #374151;
     border-color: #4b5563;
   }
-  
+
   .detail-modal__actions {
     border-color: #374151;
   }

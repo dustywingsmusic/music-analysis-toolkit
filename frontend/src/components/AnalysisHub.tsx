@@ -1,10 +1,10 @@
 /**
  * Analysis Hub - Unified Music Analysis Interface
- * 
+ *
  * Consolidates functionality from ModeIdentificationTab and EnhancedHarmonyTab
  * into a single, unified interface that routes all analysis through the
  * Comprehensive Analysis Engine.
- * 
+ *
  * Features:
  * - Unified music input system (UnifiedMusicInput)
  * - Support for melody, scale, chord, and chord progression analysis
@@ -61,10 +61,10 @@ interface LoadingState {
   message: string;
 }
 
-const AnalysisHub: React.FC<AnalysisHubProps> = ({ 
+const AnalysisHub: React.FC<AnalysisHubProps> = ({
   hasResults = false,
   midiData,
-  onSwitchToReferenceWithHighlight 
+  onSwitchToReferenceWithHighlight
 }) => {
   // State management
   const [activeAnalysisType, setActiveAnalysisType] = useState<AnalysisType>('progression');
@@ -75,20 +75,20 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
     progression: '',
     parentKey: ''
   });
-  
+
   const [validationStates, setValidationStates] = useState<Record<AnalysisType, boolean>>({
     melody: true,
     scale: true,
     chord: true,
     progression: true
   });
-  
+
   const [loadingState, setLoadingState] = useState<LoadingState>({
     isLoading: false,
     stage: 'complete',
     message: ''
   });
-  
+
   const [analysisResult, setAnalysisResult] = useState<ComprehensiveAnalysisResult | null>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [detectedChords, setDetectedChords] = useState<ChordMatch[]>([]);
@@ -101,33 +101,33 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
 
   // Analysis type configurations
   const analysisTypes = [
-    { 
-      id: 'melody' as AnalysisType, 
-      label: 'Melody Analysis', 
+    {
+      id: 'melody' as AnalysisType,
+      label: 'Melody Analysis',
       icon: '🎵',
       description: 'Analyze modal characteristics from melodic sequences',
       placeholder: 'Enter melody notes (e.g., C D E F G A B C)',
       example: 'C D E F G A B C'
     },
-    { 
-      id: 'scale' as AnalysisType, 
-      label: 'Scale Analysis', 
+    {
+      id: 'scale' as AnalysisType,
+      label: 'Scale Analysis',
       icon: '🎶',
       description: 'Identify modes and scales from note collections',
       placeholder: 'Enter scale notes (e.g., C D E F G A B)',
       example: 'C D E F G A B'
     },
-    { 
-      id: 'chord' as AnalysisType, 
-      label: 'Chord Analysis', 
+    {
+      id: 'chord' as AnalysisType,
+      label: 'Chord Analysis',
       icon: '🎹',
       description: 'Analyze individual chords and their harmonic context',
       placeholder: 'Enter chord symbol (e.g., Cmaj7)',
       example: 'Cmaj7'
     },
-    { 
-      id: 'progression' as AnalysisType, 
-      label: 'Chord Progression', 
+    {
+      id: 'progression' as AnalysisType,
+      label: 'Chord Progression',
       icon: '🎼',
       description: 'Comprehensive analysis with functional, modal, and chromatic perspectives',
       placeholder: 'Enter chord progression (e.g., Am F C G)',
@@ -144,7 +144,7 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
   }, []);
 
   const handleValidation = useCallback((type: AnalysisType) => (
-    isValid: boolean, 
+    isValid: boolean,
     _suggestions?: string[]
   ) => {
     setValidationStates(prev => ({ ...prev, [type]: isValid }));
@@ -152,7 +152,7 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
 
   const handleChordDetected = useCallback((chords: ChordMatch[]) => {
     setDetectedChords(chords);
-    
+
     // Auto-fill chord input if we're in chord analysis mode
     if (activeAnalysisType === 'chord' && chords.length > 0) {
       setInputs(prev => ({ ...prev, chord: chords[0].chordSymbol }));
@@ -173,7 +173,7 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
   const handleAnalyze = useCallback(async () => {
     const currentInput = inputs[activeAnalysisType].trim();
     const parentKey = inputs.parentKey.trim();
-    
+
     if (!currentInput) {
       setAnalysisError('Please enter some musical content to analyze');
       return;
@@ -185,7 +185,7 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
         stage: 'parsing',
         message: 'Parsing musical input...'
       });
-      
+
       setAnalysisError(null);
       setAnalysisResult(null);
 
@@ -200,7 +200,7 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
 
       // Stage 1: Parse and validate input
       await new Promise(resolve => setTimeout(resolve, 500));
-      
+
       setLoadingState(prev => ({
         ...prev,
         stage: 'analyzing',
@@ -209,7 +209,7 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
 
       // Stage 2: Route to appropriate analysis based on type
       let result: ComprehensiveAnalysisResult;
-      
+
       if (activeAnalysisType === 'progression' || activeAnalysisType === 'chord') {
         // Use comprehensive analysis engine for chord-based analysis
         result = await analysisEngine.analyzeComprehensively(currentInput, parentKey || undefined);
@@ -217,18 +217,18 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
         // For melody/scale analysis, we need to convert to a chord progression format
         // This is a simplified approach - in a full implementation, you'd want
         // melody-specific analysis engines
-        
+
         setLoadingState(prev => ({
           ...prev,
           stage: 'enhancing',
           message: 'Enhancing with modal analysis...'
         }));
-        
+
         // Convert notes to a basic progression for comprehensive analysis
         // This is a placeholder - you'd implement proper melody/scale analysis
         const basicProgression = await convertNotesToProgression(currentInput, activeAnalysisType);
         result = await analysisEngine.analyzeComprehensively(basicProgression, parentKey || undefined);
-        
+
         // Update the user input context to reflect the original input
         result.userInput = {
           chordProgression: currentInput,
@@ -238,7 +238,7 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
       }
 
       await new Promise(resolve => setTimeout(resolve, 300));
-      
+
       setLoadingState(prev => ({
         ...prev,
         stage: 'complete',
@@ -246,12 +246,12 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
       }));
 
       setAnalysisResult(result);
-      
-      // Update context for legacy compatibility  
+
+      // Update context for legacy compatibility
       startAnalysis(activeAnalysisType as any, currentInput);
-      
+
       trackInteraction(`Analysis Hub - ${activeAnalysisType} analysis`, 'Analysis');
-      
+
       // Log successful analysis
       logger.webClick('Comprehensive analysis completed', {
         component: 'AnalysisHub',
@@ -266,7 +266,7 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
     } catch (error) {
       console.error('Analysis failed:', error);
       setAnalysisError(error instanceof Error ? error.message : 'Analysis failed');
-      
+
       logger.webClick('Analysis failed', {
         component: 'AnalysisHub',
         action: 'analyze_error',
@@ -286,7 +286,7 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
   const convertNotesToProgression = async (notes: string, type: AnalysisType): Promise<string> => {
     // This is a simplified conversion for demo purposes
     // In a full implementation, you'd have sophisticated melody/scale analysis
-    
+
     if (type === 'melody') {
       // For melody, create a simple I-V-vi-IV progression as a starting point
       return 'C G Am F';
@@ -294,7 +294,7 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
       // For scale, create a progression that emphasizes the scale tones
       return 'C Dm Em F G Am';
     }
-    
+
     return notes; // Fallback
   };
 
@@ -317,7 +317,7 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
     setAnalysisResult(null);
     setAnalysisError(null);
     setDetectedChords([]);
-    
+
     trackInteraction('Analysis Hub - Clear All Inputs', 'Action');
   }, []);
 
@@ -328,14 +328,14 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
       chord: { input: 'Cmaj7' },
       progression: { input: 'Am F C G', parentKey: 'C major' }
     };
-    
+
     const example = exampleInputs[type];
     setInputs(prev => ({
       ...prev,
       [type]: example.input,
       parentKey: example.parentKey || prev.parentKey
     }));
-    
+
     trackInteraction(`Analysis Hub - Load ${type} Example`, 'Action');
   }, []);
 
@@ -434,6 +434,9 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
                 showBarLines={false}
                 allowKeyboardInput={true}
                 helpText="Click to add chords to your progression"
+                useGlobalInputMethod={true}
+                componentId="chord-progression-analysis"
+                midiData={midiData}
               />
             ) : (
               <UnifiedMusicInput
@@ -487,11 +490,11 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
                 ) : (
                   <>
                     <SparklesIcon className="w-4 h-4 mr-2" />
-                    Analyze with AI
+                    Analyze Music
                   </>
                 )}
               </DelightfulButton>
-              
+
               <DelightfulButton
                 onClick={() => handleLoadExample(activeAnalysisType)}
                 variant="outline"
@@ -500,7 +503,7 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
                 <Music2Icon className="w-4 h-4 mr-2" />
                 Example
               </DelightfulButton>
-              
+
               <DelightfulButton
                 onClick={handleClearAll}
                 variant="outline"
@@ -522,10 +525,10 @@ const AnalysisHub: React.FC<AnalysisHubProps> = ({
 
       {/* Results Display */}
       {loadingState.isLoading && <LoadingDisplay />}
-      
+
       {analysisResult && !loadingState.isLoading && (
         <div className="mt-6">
-          <DualLensAnalysisPanel 
+          <DualLensAnalysisPanel
             result={analysisResult}
             onViewInTables={handleViewInTables}
           />

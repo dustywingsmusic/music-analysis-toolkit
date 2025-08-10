@@ -5,8 +5,8 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ComprehensiveAnalysisEngine, ComprehensiveAnalysisResult } from '@/services/comprehensiveAnalysisService';
-import { 
-  comprehensiveMusicTheoryTestDataset, 
+import {
+  comprehensiveMusicTheoryTestDataset,
   getTestCasesByCategory,
   getTestCasesByPrimaryApproach,
   getAmbiguousTestCases,
@@ -22,7 +22,7 @@ describe('ComprehensiveAnalysisEngine', () => {
 
   describe('Primary Approach Selection', () => {
     it('should select functional approach for basic tonal progressions', async () => {
-      const testCase = comprehensiveMusicTheoryTestDataset.find(t => 
+      const testCase = comprehensiveMusicTheoryTestDataset.find(t =>
         t.input === 'C F G C' && t.expectedPrimary === 'functional'
       );
       expect(testCase).toBeDefined();
@@ -35,7 +35,7 @@ describe('ComprehensiveAnalysisEngine', () => {
     });
 
     it('should select modal approach for characteristic modal progressions', async () => {
-      const testCase = comprehensiveMusicTheoryTestDataset.find(t => 
+      const testCase = comprehensiveMusicTheoryTestDataset.find(t =>
         t.input === 'G F C G' && t.expectedPrimary === 'modal' && !t.parentKey
       );
       expect(testCase).toBeDefined();
@@ -48,7 +48,7 @@ describe('ComprehensiveAnalysisEngine', () => {
     });
 
     it('should select chromatic approach for secondary dominant progressions', async () => {
-      const testCase = comprehensiveMusicTheoryTestDataset.find(t => 
+      const testCase = comprehensiveMusicTheoryTestDataset.find(t =>
         t.input === 'C E7 Am F G C' && t.expectedPrimary === 'chromatic'
       );
       expect(testCase).toBeDefined();
@@ -62,7 +62,7 @@ describe('ComprehensiveAnalysisEngine', () => {
     });
 
     it('should handle V/V (dominant of dominant) correctly', async () => {
-      const testCase = comprehensiveMusicTheoryTestDataset.find(t => 
+      const testCase = comprehensiveMusicTheoryTestDataset.find(t =>
         t.input === 'C D7 G C' && t.expectedPrimary === 'chromatic'
       );
       expect(testCase).toBeDefined();
@@ -78,7 +78,7 @@ describe('ComprehensiveAnalysisEngine', () => {
 
   describe('Multi-Perspective Analysis Coordination', () => {
     it('should provide both functional and modal perspectives when applicable', async () => {
-      const testCase = comprehensiveMusicTheoryTestDataset.find(t => 
+      const testCase = comprehensiveMusicTheoryTestDataset.find(t =>
         t.input === 'G F C G' && t.parentKey === 'C major'
       );
       expect(testCase).toBeDefined();
@@ -92,7 +92,7 @@ describe('ComprehensiveAnalysisEngine', () => {
     });
 
     it('should provide chromatic analysis for borrowed chords', async () => {
-      const testCase = comprehensiveMusicTheoryTestDataset.find(t => 
+      const testCase = comprehensiveMusicTheoryTestDataset.find(t =>
         t.input === 'C F Ab G C' && t.expectedPrimary === 'chromatic'
       );
       expect(testCase).toBeDefined();
@@ -107,7 +107,7 @@ describe('ComprehensiveAnalysisEngine', () => {
     });
 
     it('should coordinate functional foundation with modal enhancement', async () => {
-      const testCase = comprehensiveMusicTheoryTestDataset.find(t => 
+      const testCase = comprehensiveMusicTheoryTestDataset.find(t =>
         t.input === 'Am Bb C Am' && t.expectedPrimary === 'modal'
       );
       expect(testCase).toBeDefined();
@@ -131,10 +131,10 @@ describe('ComprehensiveAnalysisEngine', () => {
       const result = await engine.analyzeComprehensively(testCase!.input);
 
       expect(result.functional).toBeDefined();
-      
+
       // Should identify the ambiguity in analysis
       expect(result.explanation).toContain('analysis') || expect(result.pedagogicalValue).toContain('multiple');
-      
+
       // The functional analysis should handle the ambiguity appropriately
       const romanNumerals = result.functional.chords.map(c => c.romanNumeral);
       expect(romanNumerals).toEqual(['vi', 'IV', 'I', 'V']) || expect(romanNumerals).toEqual(['i', 'VI', 'III', 'VII']);
@@ -152,7 +152,7 @@ describe('ComprehensiveAnalysisEngine', () => {
     });
 
     it('should explain when functional vs modal analysis is preferred', async () => {
-      const functionalTest = comprehensiveMusicTheoryTestDataset.find(t => 
+      const functionalTest = comprehensiveMusicTheoryTestDataset.find(t =>
         t.input === 'C Am F G' && t.expectedPrimary === 'functional'
       );
       expect(functionalTest).toBeDefined();
@@ -161,9 +161,9 @@ describe('ComprehensiveAnalysisEngine', () => {
 
       expect(result.primaryApproach).toBe('functional');
       expect(result.pedagogicalValue).toContain('functional harmony');
-      
+
       if (result.modal) {
-        expect(result.modal.whenToUseModal).toContain('less applicable') || 
+        expect(result.modal.whenToUseModal).toContain('less applicable') ||
                expect(result.modal.whenToUseModal).toContain('functional harmony');
       }
     });
@@ -172,10 +172,10 @@ describe('ComprehensiveAnalysisEngine', () => {
   describe('Context-Dependent Analysis', () => {
     it('should change analysis approach based on parent key context', async () => {
       // Same progression with different parent key contexts
-      const contextTest1 = comprehensiveMusicTheoryTestDataset.find(t => 
+      const contextTest1 = comprehensiveMusicTheoryTestDataset.find(t =>
         t.input === 'G F C G' && t.parentKey === 'G major'
       );
-      const contextTest2 = comprehensiveMusicTheoryTestDataset.find(t => 
+      const contextTest2 = comprehensiveMusicTheoryTestDataset.find(t =>
         t.input === 'G F C G' && !t.parentKey
       );
 
@@ -191,7 +191,7 @@ describe('ComprehensiveAnalysisEngine', () => {
     });
 
     it('should maintain modal analysis preference when context confirms it', async () => {
-      const testCase = comprehensiveMusicTheoryTestDataset.find(t => 
+      const testCase = comprehensiveMusicTheoryTestDataset.find(t =>
         t.input === 'Am Bb C Am' && t.parentKey === 'C major'
       );
       expect(testCase).toBeDefined();
@@ -315,7 +315,7 @@ describe('ComprehensiveAnalysisEngine', () => {
 
       expect(result.confidence).toBeGreaterThan(0);
       expect(result.confidence).toBeLessThanOrEqual(1);
-      
+
       if (result.modal && result.functional) {
         expect(result.confidence).toBeGreaterThanOrEqual(Math.min(result.functional.confidence * 0.8, 1));
       }
@@ -372,7 +372,7 @@ describe('ComprehensiveAnalysisEngine', () => {
           expect(result.modal).toBeDefined();
           expect(result.modal!.modalCharacteristics.length).toBeGreaterThan(0);
         }
-        
+
         expect(result.functional.chords.map(c => c.romanNumeral)).toEqual(testCase.expectedRomanNumerals);
       }
     });
@@ -385,11 +385,11 @@ describe('ComprehensiveAnalysisEngine', () => {
 
         expect(result.primaryApproach).toBe('chromatic');
         expect(result.chromatic).toBeDefined();
-        
+
         if (testCase.expectedChromaticElements?.secondaryDominants) {
           expect(result.chromatic!.secondaryDominants.length).toBeGreaterThan(0);
         }
-        
+
         if (testCase.expectedChromaticElements?.borrowedChords) {
           expect(result.chromatic!.borrowedChords.length).toBeGreaterThan(0);
         }
@@ -400,9 +400,9 @@ describe('ComprehensiveAnalysisEngine', () => {
   describe('Performance and Reliability', () => {
     it('should complete analysis within reasonable time', async () => {
       const startTime = performance.now();
-      
+
       await engine.analyzeComprehensively('Cmaj7 A7 Dm7 G7 Em7 A7 Dm7 G7 Cmaj7', 'C major');
-      
+
       const endTime = performance.now();
       expect(endTime - startTime).toBeLessThan(200); // Should complete within 200ms
     });

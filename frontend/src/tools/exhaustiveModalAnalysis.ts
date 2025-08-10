@@ -1,9 +1,15 @@
 /**
  * Exhaustive Modal Analysis Output Generator
+ *
+ * @deprecated This is a development/testing tool, not used in production runtime.
+ * @warning This file is not imported by UI components - CLI/dev tool only.
  * 
  * Generates comprehensive test results for all possible modal inputs
  * to enable external analysis and validation of modal logic correctness.
- * 
+ *
+ * Status: DEV TOOL - Used for analysis validation and development only.
+ * Not part of the application runtime. Referenced in documentation.
+ *
  * This will test:
  * - All 12 chromatic notes as roots
  * - All 7 modes (Ionian, Dorian, Phrygian, Lydian, Mixolydian, Aeolian, Locrian)
@@ -211,25 +217,25 @@ export class ExhaustiveModalAnalysisGenerator {
     return [
       // Single chord
       { progression: ['C'], description: 'Single chord - should not detect modal' },
-      
+
       // Repeated chord
       { progression: ['G', 'G', 'G'], description: 'Repeated chord - ambiguous' },
-      
+
       // Chromatic progression
       { progression: ['C', 'C#', 'D', 'D#'], description: 'Chromatic progression - non-modal' },
-      
+
       // Enharmonic equivalents
       { progression: ['F#', 'Gb', 'F#'], description: 'Enharmonic equivalents' },
-      
+
       // Very short progressions
       { progression: ['G', 'F'], description: 'Two chord progression - minimal context' },
-      
+
       // Long progressions
       { progression: ['C', 'Am', 'F', 'G', 'Em', 'Am', 'Dm', 'G', 'C'], description: 'Long functional progression' },
-      
+
       // Modal vs functional ambiguity
       { progression: ['G', 'C', 'D', 'G'], description: 'G major (functional) vs G Mixolydian (modal) ambiguity' },
-      
+
       // Parallel mode confusion
       { progression: ['C', 'Cm', 'F', 'G'], description: 'Major/minor mode mixture' }
     ];
@@ -255,7 +261,7 @@ export class ExhaustiveModalAnalysisGenerator {
     const chromatic = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     const rootIndex = chromatic.indexOf(root.replace('b', '#')); // Normalize flats to sharps
     if (rootIndex === -1) return root; // Fallback for complex enharmonics
-    
+
     const targetIndex = (rootIndex + semitones) % 12;
     return chromatic[targetIndex];
   }
@@ -293,7 +299,7 @@ export class ExhaustiveModalAnalysisGenerator {
    * Run complete analysis on a chord progression
    */
   private async analyzeProgression(
-    chordSymbols: string[], 
+    chordSymbols: string[],
     parentKey?: string
   ): Promise<ExhaustiveTestCase['results']> {
     const results: ExhaustiveTestCase['results'] = {
@@ -320,7 +326,7 @@ export class ExhaustiveModalAnalysisGenerator {
     try {
       // Comprehensive Analysis
       const comprehensiveResult = await this.comprehensiveEngine.analyzeComprehensively(
-        chordSymbols.join(' '), 
+        chordSymbols.join(' '),
         parentKey
       );
       results.comprehensiveAnalysis = {
@@ -364,7 +370,7 @@ export class ExhaustiveModalAnalysisGenerator {
    * Determine theoretical expectations for a progression
    */
   private determineTheoreticalExpectations(
-    chordSymbols: string[], 
+    chordSymbols: string[],
     parentKey?: string,
     description?: string
   ): ExhaustiveTestCase['expectedTheory'] {
@@ -372,7 +378,7 @@ export class ExhaustiveModalAnalysisGenerator {
     // For now, basic heuristics:
 
     const progression = chordSymbols.join(' ');
-    
+
     // Mixolydian indicators
     if (progression.includes('bVII') || description?.includes('Mixolydian')) {
       return {
@@ -461,10 +467,10 @@ export class ExhaustiveModalAnalysisGenerator {
    */
   public async generateExhaustiveDataset(): Promise<ExhaustiveTestCase[]> {
     console.log('🔍 Generating exhaustive modal analysis dataset...');
-    
+
     const progressions = this.generateChordProgressions();
     const testCases: ExhaustiveTestCase[] = [];
-    
+
     let caseId = 1;
 
     for (const {progression, description} of progressions) {
@@ -561,10 +567,10 @@ export class ExhaustiveModalAnalysisGenerator {
     for (let i = 1; i < chordSymbols.length; i++) {
       const prev = chordSymbols[i-1].replace(/[^A-G#b]/g, '');
       const curr = chordSymbols[i].replace(/[^A-G#b]/g, '');
-      
+
       const prevIndex = chromatic.indexOf(prev);
       const currIndex = chromatic.indexOf(curr);
-      
+
       if (prevIndex !== -1 && currIndex !== -1) {
         intervals.push((currIndex - prevIndex + 12) % 12);
       }
@@ -580,15 +586,15 @@ export class ExhaustiveModalAnalysisGenerator {
 export async function generateAndSaveExhaustiveDataset(): Promise<void> {
   const generator = new ExhaustiveModalAnalysisGenerator();
   const dataset = await generator.generateExhaustiveDataset();
-  
+
   // Save to file for external analysis
   const fs = await import('fs');
   const path = './exhaustive-modal-analysis-dataset.json';
-  
+
   fs.writeFileSync(path, JSON.stringify(dataset, null, 2));
-  
+
   console.log(`✅ Saved exhaustive dataset with ${dataset.length} test cases to ${path}`);
-  
+
   // Generate summary statistics
   const summary = {
     totalCases: dataset.length,
@@ -598,6 +604,6 @@ export async function generateAndSaveExhaustiveDataset(): Promise<void> {
     modalDetectionRate: dataset.filter(tc => tc.results.enhancedModalAnalyzer.confidence >= 0.7).length,
     averageConfidence: dataset.reduce((sum, tc) => sum + tc.results.enhancedModalAnalyzer.confidence, 0) / dataset.length
   };
-  
+
   console.log('📊 Dataset Summary:', summary);
 }

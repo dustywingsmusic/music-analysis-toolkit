@@ -171,7 +171,7 @@ This architecture supports rapid development of music theory features while main
 **CRITICAL: This application uses the Parent Key Signature + Local Tonic approach for ALL modal analysis.**
 
 ### Core Principle
-- **Parent Key Signature**: The underlying scale and key signature (e.g., C major, no sharps/flats)  
+- **Parent Key Signature**: The underlying scale and key signature (e.g., C major, no sharps/flats)
 - **Local Tonic**: The note that functions as the tonal center (e.g., G)
 - **Mode**: The combination (e.g., G Mixolydian = C major scale with G as tonic)
 
@@ -317,7 +317,7 @@ Based on comprehensive UX analysis, the application suffers from expert-bias des
 ### Success Metrics for UX Improvements
 
 - Reduced bounce rate on first analysis attempt
-- Increased completion rate of analysis workflows  
+- Increased completion rate of analysis workflows
 - Improved user retention (return visits)
 - Reduced support requests about basic functionality
 - Higher satisfaction scores from user feedback
@@ -330,7 +330,7 @@ For detailed information, refer to the organized documentation in `/docs/`:
 
 ### Architecture & Implementation
 - @import docs/architecture/integration-roadmap.md
-- @import docs/implementation/analysis-hub.md  
+- @import docs/implementation/analysis-hub.md
 - @import docs/implementation/unified-input-system.md
 
 ### Design & User Experience

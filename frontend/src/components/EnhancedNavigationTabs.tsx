@@ -5,7 +5,6 @@
 
 import React from 'react';
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
-import { Badge } from "./ui/badge";
 import { trackNavClick } from '../utils/tracking';
 import { useAnalysis, useAnalysisActions } from '../contexts/AnalysisContext';
 
@@ -20,32 +19,23 @@ const EnhancedNavigationTabs: React.FC<EnhancedNavigationTabsProps> = ({ onTabCh
   const { navigateToReference } = useAnalysisActions();
 
   const tabs = [
-    { 
-      id: 'analysis' as TabType, 
-      label: '📊 Analysis Hub', 
-      title: 'Analysis Hub',
-      icon: '📊',
-      color: 'text-primary',
-      description: 'Unified music analysis with comprehensive insights',
-      enhanced: true,
-      featured: true
+    {
+      id: 'analysis' as TabType,
+      label: 'Analyze Music',
+      title: 'Analyze Music',
+      description: 'Analyze chord progressions, melodies, and scales with comprehensive music theory insights'
     },
-    { 
-      id: 'reference' as TabType, 
-      label: '📚 Explore & Reference', 
-      title: 'Explore & Reference',
-      icon: '📚',
-      color: 'text-accent',
-      description: 'Scale tables, mode exploration & comparative analysis'
+    {
+      id: 'reference' as TabType,
+      label: 'Explore Scales',
+      title: 'Explore Scales',
+      description: 'Browse scale tables, explore modes, and discover musical relationships'
     },
-    { 
-      id: 'widget' as TabType, 
-      label: '🔧 Analysis Widget', 
-      title: 'MIDI Widget & Tools',
-      icon: '🔧',
-      color: 'text-secondary',
-      description: 'Real-time MIDI analysis widget & settings',
-      enhanced: true
+    {
+      id: 'widget' as TabType,
+      label: 'MIDI Tools',
+      title: 'MIDI Tools',
+      description: 'Real-time MIDI input analysis and device settings'
     },
   ];
 
@@ -82,78 +72,64 @@ const EnhancedNavigationTabs: React.FC<EnhancedNavigationTabsProps> = ({ onTabCh
 
   return (
     <>
-      {/* Analysis Status Indicators */}
+      {/* Analysis Status - Simplified */}
       {state.currentAnalysis && (
-        <div className="analysis-status mb-2 flex gap-2">
-          <Badge variant="outline" className="bg-green-50 text-green-700">
-            Analysis Ready: {state.currentAnalysis.type.replace('_', ' ')}
-          </Badge>
-          {state.preferences.useLocalAnalysisFirst && (
-            <Badge variant="outline" className="bg-blue-50 text-blue-700">
-              Local Analysis First ✨
-            </Badge>
-          )}
+        <div className="mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-sm font-medium">
+            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+            Analysis ready
+          </div>
         </div>
       )}
 
-      {/* Main Navigation Tabs */}
+      {/* Main Navigation Tabs - Clean Design */}
       <Tabs value={state.activeTab} onValueChange={(value) => handleTabChange(value as TabType)}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-3 bg-muted/30 p-1 h-auto">
           {tabs.map((tab) => (
-            <TabsTrigger 
+            <TabsTrigger
               key={tab.id}
               value={tab.id}
-              className={`relative ${tab.color}`}
-              title={`${tab.title} - ${tab.description}`}
+              className="relative px-4 py-3 text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200"
+              title={tab.description}
             >
-              <div className="flex items-center gap-2">
-                <span>{tab.icon}</span>
-                <span>{tab.label.replace(/🎼|🔍|🎵|📚\s/, '')}</span>
-                {tab.enhanced && (
-                  <Badge variant="secondary" className="text-xs">
-                    Enhanced
-                  </Badge>
+              <div className="flex flex-col items-center gap-1 sm:flex-row sm:gap-2">
+                <span className="whitespace-nowrap">{tab.label}</span>
+
+                {/* Subtle status indicator */}
+                {getTabStatus(tab.id) === 'active' && (
+                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
                 )}
-                {tab.featured && (
-                  <Badge variant="outline" className="text-xs bg-green-100 text-green-800">
-                    New
-                  </Badge>
+                {getTabStatus(tab.id) === 'has-results' && (
+                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
                 )}
               </div>
-              
-              {/* Status indicators */}
-              {getTabStatus(tab.id) === 'active' && (
-                <div className="absolute -top-1 -right-1">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                </div>
-              )}
-              {getTabStatus(tab.id) === 'has-results' && (
-                <div className="absolute -top-1 -right-1">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                </div>
-              )}
             </TabsTrigger>
           ))}
         </TabsList>
       </Tabs>
 
-      {/* Alert Messages */}
+      {/* Status Messages - Professional Styling */}
       {state.pendingNavigation && (
-        <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-sm">
-          <span className="text-yellow-600">⏳</span>
-          <span className="text-yellow-800 ml-2">
-            Navigating to {state.pendingNavigation.targetTab}
-            {state.pendingNavigation.targetMode && ` (${state.pendingNavigation.targetMode})`}
-          </span>
+        <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 border-2 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
+            <span className="text-amber-800 font-medium text-sm">
+              Navigating to {state.pendingNavigation.targetTab.replace('_', ' ')}
+              {state.pendingNavigation.targetMode && ` (${state.pendingNavigation.targetMode})`}
+            </span>
+          </div>
         </div>
       )}
 
       {state.lastError && (
-        <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-sm">
-          <span className="text-red-600">❌</span>
-          <span className="text-red-800 ml-2">
-            Analysis Error: {state.lastError}
-          </span>
+        <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex items-start gap-2">
+            <div className="w-4 h-4 bg-red-500 rounded-full flex-shrink-0 mt-0.5"></div>
+            <div>
+              <p className="text-red-800 font-medium text-sm">Analysis Error</p>
+              <p className="text-red-700 text-xs mt-1">{state.lastError}</p>
+            </div>
+          </div>
         </div>
       )}
     </>

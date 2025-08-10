@@ -13,16 +13,16 @@ export type InputMethod = 'keyboard' | 'mouse' | 'midi';
 interface InputMethodContextState {
   // Current active input method
   activeInputMethod: InputMethod;
-  
+
   // Input method preference history for smart defaults
   methodPreferences: {
     [key: string]: InputMethod; // Component-specific preferences
   };
-  
+
   // MIDI availability state
   midiAvailable: boolean;
   midiConnected: boolean;
-  
+
   // Persistence flag
   hasPersistedPreference: boolean;
 }
@@ -30,16 +30,16 @@ interface InputMethodContextState {
 interface InputMethodContextActions {
   // Primary method for changing input method globally
   setInputMethod: (method: InputMethod, componentId?: string) => void;
-  
+
   // Get preferred input method for a specific component
   getPreferredMethodFor: (componentId: string) => InputMethod;
-  
+
   // Update MIDI availability (called by MIDI hook)
   updateMidiAvailability: (available: boolean, connected: boolean) => void;
-  
+
   // Reset to defaults
   resetToDefaults: () => void;
-  
+
   // Force keyboard fallback (when MIDI disconnects)
   fallbackToKeyboard: () => void;
 }
@@ -76,7 +76,7 @@ export const InputMethodProvider: React.FC<{ children: React.ReactNode }> = ({ c
       const savedPreferences = JSON.parse(
         localStorage.getItem(STORAGE_KEYS.METHOD_PREFERENCES) || '{}'
       );
-      
+
       if (savedMethod && ['keyboard', 'mouse', 'midi'].includes(savedMethod)) {
         setState(prev => ({
           ...prev,
@@ -84,7 +84,7 @@ export const InputMethodProvider: React.FC<{ children: React.ReactNode }> = ({ c
           methodPreferences: savedPreferences,
           hasPersistedPreference: true
         }));
-        
+
         logger.appInit('Input method restored from storage', {
           component: 'InputMethodContext',
           method: savedMethod,
@@ -111,22 +111,22 @@ export const InputMethodProvider: React.FC<{ children: React.ReactNode }> = ({ c
     setState(prev => {
       // If trying to set MIDI but it's not available, fallback to keyboard
       const finalMethod = method === 'midi' && !prev.midiAvailable ? 'keyboard' : method;
-      
+
       // Update component-specific preference if provided
-      const newPreferences = componentId 
+      const newPreferences = componentId
         ? { ...prev.methodPreferences, [componentId]: finalMethod }
         : prev.methodPreferences;
-      
+
       const newState = {
         ...prev,
         activeInputMethod: finalMethod,
         methodPreferences: newPreferences,
         hasPersistedPreference: true
       };
-      
+
       // Persist to localStorage
       persistState(finalMethod, newPreferences);
-      
+
       // Log the change
       logger.webClick('Global input method changed', {
         component: 'InputMethodContext',
@@ -137,7 +137,7 @@ export const InputMethodProvider: React.FC<{ children: React.ReactNode }> = ({ c
         componentId: componentId || 'global',
         midiAvailable: prev.midiAvailable
       });
-      
+
       return newState;
     });
   }, [persistState]);
@@ -145,7 +145,7 @@ export const InputMethodProvider: React.FC<{ children: React.ReactNode }> = ({ c
   // Get preferred method for specific component
   const getPreferredMethodFor = useCallback((componentId: string): InputMethod => {
     const componentPreference = state.methodPreferences[componentId];
-    
+
     // Return component preference if it exists and is available
     if (componentPreference) {
       if (componentPreference === 'midi' && !state.midiAvailable) {
@@ -153,12 +153,12 @@ export const InputMethodProvider: React.FC<{ children: React.ReactNode }> = ({ c
       }
       return componentPreference;
     }
-    
+
     // Fallback to global active method
     if (state.activeInputMethod === 'midi' && !state.midiAvailable) {
       return 'keyboard';
     }
-    
+
     return state.activeInputMethod;
   }, [state.methodPreferences, state.activeInputMethod, state.midiAvailable]);
 
@@ -170,26 +170,26 @@ export const InputMethodProvider: React.FC<{ children: React.ReactNode }> = ({ c
         midiAvailable: available,
         midiConnected: connected
       };
-      
+
       // Auto-fallback to keyboard if MIDI was active but becomes unavailable
       if (!available && prev.activeInputMethod === 'midi') {
         newState.activeInputMethod = 'keyboard';
         persistState('keyboard', prev.methodPreferences);
-        
+
         logger.webClick('Auto-fallback from MIDI to keyboard', {
           component: 'InputMethodContext',
           action: 'auto_fallback',
           reason: 'midi_unavailable'
         });
       }
-      
+
       // Auto-switch to MIDI if user previously preferred it and it becomes available
       else if (available && connected && !prev.midiConnected) {
         const userPrefersMiddi = localStorage.getItem(STORAGE_KEYS.MIDI_PREFERRED) === 'true';
         if (userPrefersMiddi && prev.activeInputMethod !== 'midi') {
           newState.activeInputMethod = 'midi';
           persistState('midi', prev.methodPreferences);
-          
+
           logger.webClick('Auto-switch to MIDI on connection', {
             component: 'InputMethodContext',
             action: 'auto_switch',
@@ -197,7 +197,7 @@ export const InputMethodProvider: React.FC<{ children: React.ReactNode }> = ({ c
           });
         }
       }
-      
+
       return newState;
     });
   }, [persistState]);
@@ -205,7 +205,7 @@ export const InputMethodProvider: React.FC<{ children: React.ReactNode }> = ({ c
   // Reset to defaults
   const resetToDefaults = useCallback(() => {
     setState(defaultState);
-    
+
     try {
       localStorage.removeItem(STORAGE_KEYS.ACTIVE_METHOD);
       localStorage.removeItem(STORAGE_KEYS.METHOD_PREFERENCES);
@@ -213,7 +213,7 @@ export const InputMethodProvider: React.FC<{ children: React.ReactNode }> = ({ c
     } catch (error) {
       console.warn('Failed to clear input method preferences:', error);
     }
-    
+
     logger.webClick('Input method preferences reset', {
       component: 'InputMethodContext',
       action: 'reset_preferences'
@@ -241,7 +241,7 @@ export const InputMethodProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const contextValue: InputMethodContextValue = {
     // State
     ...state,
-    
+
     // Actions
     setInputMethod,
     getPreferredMethodFor,
@@ -269,13 +269,13 @@ export const useInputMethod = () => {
 // Hook for components that need input method with automatic component-specific preferences
 export const useInputMethodFor = (componentId: string) => {
   const context = useInputMethod();
-  
+
   const preferredMethod = context.getPreferredMethodFor(componentId);
-  
+
   const setMethodForComponent = useCallback((method: InputMethod) => {
     context.setInputMethod(method, componentId);
   }, [context, componentId]);
-  
+
   return {
     activeInputMethod: preferredMethod,
     setInputMethod: setMethodForComponent,

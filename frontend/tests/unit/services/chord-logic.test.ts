@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { CHORD_INTERVALS, createChord, TEST_CHORDS, TEST_INVERSIONS } from '@fixtures/musical-data';
 import { musicalAssertions } from '@utils/test-helpers';
-import { findChordMatches } from '@/services/chordLogic';
+import { findChordMatches, detectPartialSusChords } from '@/services/chordLogic';
 
 const noteNames = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'];
 
@@ -183,6 +183,181 @@ describe('Chord Logic Service', () => {
       expect(match.chordSymbol).toBe(testInversion.expectedChord.symbol);
       expect(match.bassNote).toBe(testInversion.expectedChord.bassNote);
       expect(match.inversion).toBe(testInversion.expectedChord.inversion);
+    });
+  });
+
+  describe('Partial Suspended Chord Detection', () => {
+    describe('A-C#-D Pattern (Major 3rd + 4th)', () => {
+      it('detects as Asus4(no5) - primary interpretation', () => {
+        const notes = [69, 73, 74]; // A4-C#5-D5 (A-C#-D)
+        const matches = findChordMatches(notes);
+
+        expect(matches).toBeTruthy();
+        expect(matches.length).toBeGreaterThan(0);
+
+        // Should detect as partial sus4
+        const sus4Match = matches.find(m => m.chordSymbol.includes('sus4'));
+        expect(sus4Match).toBeTruthy();
+        expect(sus4Match?.rootName).toBe('A');
+        expect(sus4Match?.isPartial).toBe(true);
+        expect(sus4Match?.missingNotes).toContain('E');
+        expect(sus4Match?.confidence).toBeGreaterThan(0.8);
+      });
+
+      it('provides pedagogical guidance for A-C#-D', () => {
+        const notes = [69, 73, 74]; // A4-C#5-D5
+        const matches = findChordMatches(notes);
+
+        const sus4Match = matches.find(m => m.chordSymbol.includes('sus4'));
+        expect(sus4Match?.pedagogicalNote).toContain('tension');
+        expect(sus4Match?.completionSuggestion).toContain('A-D-E');
+      });
+    });
+
+    describe('A-C-D Pattern (Minor 3rd + 4th)', () => {
+      it('detects as Am(add4) - not suspended', () => {
+        const notes = [69, 72, 74]; // A4-C5-D5 (A-C-D)
+        const matches = findChordMatches(notes);
+
+        expect(matches).toBeTruthy();
+        expect(matches.length).toBeGreaterThan(0);
+
+        // Should detect as minor add4, not sus chord
+        const add4Match = matches.find(m => m.chordSymbol.includes('add4'));
+        expect(add4Match).toBeTruthy();
+        expect(add4Match?.rootName).toBe('A');
+        expect(add4Match?.chordName).toBe('Minor add 4th');
+        expect(add4Match?.confidence).toBeGreaterThan(0.8);
+
+        // Should NOT be labeled as suspended
+        const susMatch = matches.find(m => m.chordSymbol.includes('sus'));
+        expect(susMatch).toBeFalsy();
+      });
+
+      it('provides correct pedagogical note for Am(add4)', () => {
+        const notes = [69, 72, 74]; // A4-C5-D5
+        const matches = findChordMatches(notes);
+
+        const add4Match = matches.find(m => m.chordSymbol.includes('add4'));
+        expect(add4Match?.pedagogicalNote).toContain('retains minor 3rd');
+        expect(add4Match?.pedagogicalNote).toContain('contemporary');
+      });
+    });
+
+    describe('Two-Note Partial Chords', () => {
+      it('detects A-D as sus4(no5)', () => {
+        const notes = [69, 74]; // A4-D5 (A-D)
+        const matches = findChordMatches(notes);
+
+        expect(matches).toBeTruthy();
+        const sus4Match = matches.find(m => m.chordSymbol.includes('sus4'));
+        expect(sus4Match).toBeTruthy();
+        expect(sus4Match?.isPartial).toBe(true);
+        expect(sus4Match?.missingNotes).toEqual(['E']);
+      });
+
+      it('detects A-B as sus2(no5)', () => {
+        const notes = [69, 71]; // A4-B5 (A-B)
+        const matches = findChordMatches(notes);
+
+        expect(matches).toBeTruthy();
+        const sus2Match = matches.find(m => m.chordSymbol.includes('sus2'));
+        expect(sus2Match).toBeTruthy();
+        expect(sus2Match?.isPartial).toBe(true);
+      });
+    });
+
+    describe('Extended Partial Cases', () => {
+      it('handles F-G-C pattern (Fsus2 missing 5th)', () => {
+        const notes = [65, 67, 72]; // F4-G4-C5 (F-G-C)
+        const matches = findChordMatches(notes);
+
+        expect(matches).toBeTruthy();
+        const fSusMatch = matches.find(m =>
+          m.rootName === 'F' && m.chordSymbol.includes('sus2')
+        );
+        expect(fSusMatch).toBeTruthy();
+      });
+
+      it('handles G-C-D pattern (Gsus4 missing 5th)', () => {
+        const notes = [67, 72, 74]; // G4-C5-D5 (G-C-D)
+        const matches = findChordMatches(notes);
+
+        expect(matches).toBeTruthy();
+        const gSusMatch = matches.find(m =>
+          m.rootName === 'G' && m.chordSymbol.includes('sus4')
+        );
+        expect(gSusMatch).toBeTruthy();
+      });
+    });
+
+    describe('Confidence Scoring for Partial Chords', () => {
+      it('gives higher confidence to exact partial matches', () => {
+        const notes = [69, 74]; // A4-D5 (perfect sus4 partial)
+        const matches = findChordMatches(notes);
+
+        const sus4Match = matches.find(m => m.chordSymbol.includes('sus4'));
+        expect(sus4Match?.confidence).toBeGreaterThan(0.8);
+      });
+
+      it('distinguishes between sus and add interpretations', () => {
+        const notesWithThird = [69, 73, 74]; // A4-C#5-D5 (has major 3rd + 4th)
+        const matches = findChordMatches(notesWithThird);
+
+        const sus4Match = matches.find(m => m.chordSymbol.includes('sus4'));
+        const add4Match = matches.find(m => m.chordSymbol.includes('add4'));
+
+        // Both should be detected but with appropriate confidence levels
+        expect(sus4Match).toBeTruthy();
+        expect(add4Match).toBeTruthy();
+
+        // Sus4 should have higher confidence for this pattern
+        if (sus4Match && add4Match) {
+          expect(sus4Match.confidence).toBeGreaterThan(add4Match.confidence);
+        }
+      });
+    });
+  });
+
+  describe('Specialized Partial Sus Chord Detector', () => {
+    describe('detectPartialSusChords function', () => {
+      it('correctly identifies A-C#-D as partial sus4', () => {
+        const notes = [69, 73, 74]; // A4-C#5-D5
+        const matches = detectPartialSusChords(notes);
+
+        expect(matches).toBeTruthy();
+        expect(matches.length).toBeGreaterThan(0);
+
+        const sus4Match = matches.find(m => m.chordSymbol.includes('sus4'));
+        expect(sus4Match).toBeTruthy();
+        expect(sus4Match?.confidence).toBe(0.88);
+        expect(sus4Match?.pedagogicalNote).toContain('Partial sus4 chord');
+      });
+
+      it('correctly identifies A-C-D as minor add4', () => {
+        const notes = [69, 72, 74]; // A4-C5-D5
+        const matches = detectPartialSusChords(notes);
+
+        expect(matches).toBeTruthy();
+        const add4Match = matches.find(m => m.chordSymbol.includes('add4'));
+        expect(add4Match).toBeTruthy();
+        expect(add4Match?.confidence).toBe(0.85);
+        expect(add4Match?.chordName).toBe('Minor add 4th');
+      });
+
+      it('returns empty for non-3-note inputs', () => {
+        expect(detectPartialSusChords([69, 74])).toEqual([]); // 2 notes
+        expect(detectPartialSusChords([69, 72, 74, 77])).toEqual([]); // 4 notes
+      });
+
+      it('handles different octaves correctly', () => {
+        const notes = [57, 61, 62]; // A3-C#4-D4 (same pattern, different octave)
+        const matches = detectPartialSusChords(notes);
+
+        expect(matches).toBeTruthy();
+        const sus4Match = matches.find(m => m.chordSymbol.includes('sus4'));
+        expect(sus4Match?.rootName).toBe('A');
+      });
     });
   });
 

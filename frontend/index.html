@@ -6,39 +6,39 @@
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      
+
       // Initialize gtag with current date
       gtag('js', new Date());
-      
+
       // Detect user's region for GDPR/CCPA compliance
       function getDefaultConsentForRegion() {
         // In production, you might use a geolocation service
         // For now, we'll check timezone as a simple heuristic
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const isEURegion = timezone.includes('Europe') || 
-                          timezone.includes('London') || 
+        const isEURegion = timezone.includes('Europe') ||
+                          timezone.includes('London') ||
                           timezone.includes('Dublin');
-        
+
         // Check localStorage first
         const storedConsent = localStorage.getItem('cookie-consent');
         if (storedConsent) {
           return storedConsent === 'accepted' ? 'granted' : 'denied';
         }
-        
+
         // Default to denied for EU regions (GDPR), granted for others (like US)
         return isEURegion ? 'denied' : 'granted';
       }
-      
+
       // Set default consent state with region-specific behavior
       const defaultConsentState = getDefaultConsentForRegion();
-      
+
       gtag('consent', 'default', {
         analytics_storage: defaultConsentState,
         ad_storage: 'denied', // Always deny ad storage by default
         ad_user_data: 'denied',
         ad_personalization: 'denied'
       });
-      
+
       // ALWAYS configure Google Analytics (Advanced Consent Mode)
       // This enables cookieless pings and behavioral modeling when consent is denied
       gtag('config', 'G-EV1FDWXP7C', {

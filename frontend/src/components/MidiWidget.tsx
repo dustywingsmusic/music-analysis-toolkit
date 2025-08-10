@@ -1,13 +1,13 @@
 /**
  * MIDI Widget - Standalone Real-time Analysis Widget
- * 
+ *
  * Chrome Plugin Ready Architecture:
  * - Self-contained analysis capabilities
  * - Minimal dependencies on main app state
  * - Compact UI optimized for small screen real estate
  * - Direct integration with shared scale tables
  * - Independent MIDI management
- * 
+ *
  * Features:
  * - Real-time MIDI chord/scale detection
  * - Compact comprehensive analysis display
@@ -35,16 +35,16 @@ interface MidiWidgetProps {
   isDocked?: boolean;
   onToggleExpanded?: () => void;
   onToggleDocked?: () => void;
-  
+
   // Navigation callbacks
   onNavigateToReference?: (highlightId?: string) => void;
   onNavigateToAnalysis?: (analysisData: any) => void;
-  
+
   // Widget configuration
   showSettings?: boolean;
   compactMode?: boolean;
   className?: string;
-  
+
   // Plugin mode (for Chrome extension compatibility)
   pluginMode?: boolean;
 }
@@ -75,17 +75,17 @@ export const MidiWidget: React.FC<MidiWidgetProps> = ({
   // Widget state
   const [isActive, setIsActive] = useState(true);
   const [analysisResult, setAnalysisResult] = useState<CompactAnalysisResult | null>(null);
-  
+
   // Compact analysis hook
   const { analyzeQuickly, isAnalyzing, setIsAnalyzing, lastAnalysis } = useCompactAnalysis();
 
   // MIDI integration with analysis callbacks
   const handleChordDetected = useCallback((noteNumbers: number[]) => {
     if (!isActive) return;
-    
+
     setIsAnalyzing(true);
     console.log('MIDI Widget - Chord detected:', noteNumbers);
-    
+
     // Use compact analysis hook for quick results
     // This will be implemented separately as a lightweight version
     // of the comprehensive analysis engine
@@ -93,10 +93,10 @@ export const MidiWidget: React.FC<MidiWidgetProps> = ({
 
   const handleMelodyUpdate = useCallback((pitchClasses: Set<number>) => {
     if (!isActive) return;
-    
+
     setIsAnalyzing(true);
     console.log('MIDI Widget - Melody updated:', Array.from(pitchClasses));
-    
+
     // Trigger compact scale/mode analysis
   }, [isActive]);
 
@@ -153,7 +153,7 @@ export const MidiWidget: React.FC<MidiWidgetProps> = ({
     try {
       // Use the compact analysis hook
       const hookResult = await analyzeQuickly(playedPitchClasses);
-      
+
       // Convert to widget-specific format
       const result: CompactAnalysisResult = {
         detectedMode: hookResult.detectedModes[0]?.name,
@@ -178,14 +178,14 @@ export const MidiWidget: React.FC<MidiWidgetProps> = ({
       // Use the shared scale tables service to find the appropriate scale
       const modeName = analysisResult.detectedMode;
       const rootNote = Array.from(playedPitchClasses).map(pc => NOTES[pc])[0]; // Use first played note as root
-      
+
       if (modeName && rootNote) {
         const highlight = sharedScaleTablesService.navigateFromAnalysis({
           sourceTab: 'external',
           targetMode: modeName,
           targetTonic: rootNote
         });
-        
+
         if (highlight) {
           onNavigateToReference(highlight.cellId);
         }
@@ -232,12 +232,12 @@ export const MidiWidget: React.FC<MidiWidgetProps> = ({
             </Button>
           )}
         </div>
-        
+
         {isActive && (
           <div className="space-y-1">
             <div className="text-xs text-muted-foreground">
-              {playedPitchClasses.size > 0 ? 
-                Array.from(playedPitchClasses).map(pc => NOTES[pc]).join(' ') : 
+              {playedPitchClasses.size > 0 ?
+                Array.from(playedPitchClasses).map(pc => NOTES[pc]).join(' ') :
                 'Play MIDI...'
               }
             </div>
@@ -301,7 +301,7 @@ export const MidiWidget: React.FC<MidiWidgetProps> = ({
               {midiStatus}
             </span>
           </div>
-          
+
           {midiError && (
             <div className="text-xs text-destructive bg-destructive/10 p-1 rounded">
               {midiError}
@@ -315,14 +315,14 @@ export const MidiWidget: React.FC<MidiWidgetProps> = ({
         {isActive && (
           <div className="space-y-2">
             <div className="text-xs font-medium text-muted-foreground">Live Input</div>
-            <MidiVisualizer 
-              playedNotes={playedNotes.map(note => 
+            <MidiVisualizer
+              playedNotes={playedNotes.map(note =>
                 note.accidental ? `${note.name}${note.accidental}` : note.name
               )}
               isActive={midiEnabled && midiStatus.includes('Listening')}
               compact={true}
             />
-            
+
             {playedPitchClasses.size > 0 && (
               <div className="flex flex-wrap gap-1">
                 {Array.from(playedPitchClasses).map((pc, idx) => (
@@ -332,7 +332,7 @@ export const MidiWidget: React.FC<MidiWidgetProps> = ({
                 ))}
               </div>
             )}
-            
+
             {playedNotes.length > 0 && (
               <Button
                 variant="outline"
@@ -357,7 +357,7 @@ export const MidiWidget: React.FC<MidiWidgetProps> = ({
                   <div className="h-3 w-3 rounded-full bg-blue-500 animate-pulse" />
                 )}
               </div>
-              
+
               <MiniResultsDisplay
                 result={{
                   detectedMode: analysisResult.detectedMode,

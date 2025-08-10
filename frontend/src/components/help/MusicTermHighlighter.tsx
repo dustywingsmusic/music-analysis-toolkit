@@ -1,9 +1,9 @@
 /**
  * MusicTermHighlighter - Core component for contextual music theory help
- * 
+ *
  * This component automatically detects music theory terms in text content and
  * provides contextual help through hover tooltips and click-through modals.
- * 
+ *
  * Features:
  * - Automatic term detection with regex patterns
  * - Context-aware explanations based on current analysis
@@ -48,7 +48,7 @@ const useHelpInteraction = () => {
     position: { x: number; y: number };
     context?: AnalysisContext;
   } | null>(null);
-  
+
   const [activeModal, setActiveModal] = useState<{
     term: MusicTerm;
     context?: AnalysisContext;
@@ -72,17 +72,17 @@ const useHelpInteraction = () => {
  */
 const createTermPatterns = (): Map<string, MusicTerm> => {
   const patterns = new Map<string, MusicTerm>();
-  
+
   Object.values(musicTheoryGlossary).forEach(term => {
     // Add main term
     patterns.set(term.term.toLowerCase(), term);
-    
+
     // Add aliases
     term.aliases.forEach(alias => {
       patterns.set(alias.toLowerCase(), term);
     });
   });
-  
+
   return patterns;
 };
 
@@ -97,7 +97,7 @@ const MusicTermHighlighter: React.FC<MusicTermHighlighterProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const termPatternsRef = useRef<Map<string, MusicTerm>>();
   const { trackHelpInteraction } = useHelpAnalytics();
-  
+
   const {
     activeTooltip,
     setActiveTooltip,
@@ -137,7 +137,7 @@ const MusicTermHighlighter: React.FC<MusicTermHighlighterProps> = ({
     textNodes.forEach(textNode => {
       const text = textNode.textContent || '';
       const parent = textNode.parentElement;
-      
+
       if (!parent || parent.classList.contains('music-term-highlighted')) {
         return; // Skip already processed nodes
       }
@@ -149,13 +149,13 @@ const MusicTermHighlighter: React.FC<MusicTermHighlighterProps> = ({
       for (const [pattern, term] of termPatterns) {
         const regex = new RegExp(`\\b${pattern}\\b`, 'gi');
         let match;
-        
+
         while ((match = regex.exec(text)) !== null) {
           // Check if this position is already covered by a longer term
-          const isOverlapped = terms.some(existing => 
+          const isOverlapped = terms.some(existing =>
             match.index < existing.end && match.index + match[0].length > existing.start
           );
-          
+
           if (!isOverlapped) {
             terms.push({
               term,
@@ -175,9 +175,9 @@ const MusicTermHighlighter: React.FC<MusicTermHighlighterProps> = ({
         const termText = text.substring(start, end);
         const beforeText = modifiedText.substring(0, start);
         const afterText = modifiedText.substring(end);
-        
-        const termSpan = `<span 
-          class="music-term" 
+
+        const termSpan = `<span
+          class="music-term"
           data-term-id="${term.id}"
           role="button"
           tabindex="0"
@@ -185,7 +185,7 @@ const MusicTermHighlighter: React.FC<MusicTermHighlighterProps> = ({
           aria-label="Get help with ${term.term}"
           title="Click for help with ${term.term}"
         >${termText}</span>`;
-        
+
         modifiedText = beforeText + termSpan + afterText;
       });
 
@@ -212,7 +212,7 @@ const MusicTermHighlighter: React.FC<MusicTermHighlighterProps> = ({
 
     const target = event.target as HTMLElement;
     const rect = target.getBoundingClientRect();
-    
+
     trackHelpInteraction(term.id, interactionType, context?.type);
 
     if (interactionType === 'hover') {
@@ -256,7 +256,7 @@ const MusicTermHighlighter: React.FC<MusicTermHighlighterProps> = ({
       // Add small delay to prevent tooltip flicker
       setTimeout(() => {
         if (!activeTooltip) return;
-        
+
         // Check if mouse is over tooltip
         const tooltipElement = document.querySelector('.contextual-tooltip');
         if (!tooltipElement?.matches(':hover')) {
@@ -331,7 +331,7 @@ const MusicTermHighlighter: React.FC<MusicTermHighlighterProps> = ({
 
   return (
     <>
-      <div 
+      <div
         ref={containerRef}
         className={`music-term-highlighter ${className}`}
         data-context-type={context?.type}
@@ -348,9 +348,9 @@ const MusicTermHighlighter: React.FC<MusicTermHighlighterProps> = ({
           context={activeTooltip.context}
           onClose={closeTooltip}
           onShowDetail={() => {
-            setActiveModal({ 
-              term: activeTooltip.term, 
-              context: activeTooltip.context 
+            setActiveModal({
+              term: activeTooltip.term,
+              context: activeTooltip.context
             });
             closeTooltip();
           }}

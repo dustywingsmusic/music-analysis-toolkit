@@ -1,11 +1,11 @@
 /**
  * CRITICAL MODAL ANALYSIS TESTS
- * 
+ *
  * This test suite contains only the most critical modal analysis functionality
  * that MUST work for production deployment. These tests should NEVER fail.
- * 
+ *
  * Success Criteria: 100% pass rate required for production deployment
- * 
+ *
  * Test Categories:
  * - Core modal detection (Ionian, Dorian, Mixolydian, etc.)
  * - Functional harmony rejection (I-V-I, ii-V-I should NOT be modal)
@@ -54,7 +54,7 @@ describe('Critical Modal Analysis Tests - Production Gate', () => {
 
     it('should NOT detect ii-V-I as modal (jazz progression)', () => {
       const result = analyzer.analyzeModalCharacteristics(['Dm', 'G', 'C']);
-      // Should either be null or have very low confidence  
+      // Should either be null or have very low confidence
       if (result !== null) {
         expect(result.confidence).toBeLessThan(0.7);
       }

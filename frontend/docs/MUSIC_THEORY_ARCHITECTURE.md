@@ -9,7 +9,7 @@ This document describes the new modular, rule-based architecture for music theor
 ### 1. Modal Detection Issues (G F C G Problem)
 **Problem**: The progression G F C G was being incorrectly analyzed as C major functional harmony instead of G Mixolydian modal harmony.
 
-**Solution**: 
+**Solution**:
 - Enhanced modal characteristic detection with specific rules for bVII-I motion
 - Priority-based analysis that considers modal interpretations when appropriate
 - Structural pattern recognition for complete modal progressions (I-bVII-IV-I)
@@ -220,9 +220,9 @@ describe('ModalAnalyzer', () => {
     const analyzer = new ModalAnalyzer(new RuleEngine());
     const chords = [/* parsed chord objects */];
     const context = { chordSymbols: ['G', 'F', 'C', 'G'] };
-    
+
     const result = await analyzer.analyze(chords, context);
-    
+
     expect(result.detectedMode).toContain('Mixolydian');
     expect(result.chords.map(c => c.romanNumeral)).toEqual(['I', 'bVII', 'IV', 'I']);
   });
@@ -237,7 +237,7 @@ Test the complete flow with known problematic cases:
 describe('G F C G Modal Detection Fix', () => {
   it('should correctly identify G Mixolydian with high confidence', async () => {
     const result = await analyzeChordProgressionEnhanced('G F C G');
-    
+
     expect(result.localAnalysis.overallMode).toContain('Mixolydian');
     expect(result.localAnalysis.confidence).toBeGreaterThan(0.8);
     expect(result.localAnalysis.chords.map(c => c.romanNumeral)).toEqual(['I', 'bVII', 'IV', 'I']);
@@ -254,7 +254,7 @@ it('should complete analysis within reasonable time', async () => {
   const startTime = performance.now();
   await engine.analyzeComprehensively(complexProgression);
   const endTime = performance.now();
-  
+
   expect(endTime - startTime).toBeLessThan(500); // 500ms max
 });
 ```

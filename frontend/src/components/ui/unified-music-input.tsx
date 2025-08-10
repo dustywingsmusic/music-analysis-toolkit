@@ -82,11 +82,11 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
   // Use global input method context or local state
   const globalInputMethod = useInputMethodFor(componentId || `unified-input-${inputType}`);
   const [localInputMethod, setLocalInputMethod] = useState<InputMethod>('keyboard');
-  
+
   // Choose between global and local input method management
   const activeInputMethod = useGlobalInputMethod ? globalInputMethod.activeInputMethod : localInputMethod;
   const setActiveInputMethod = useGlobalInputMethod ? globalInputMethod.setInputMethod : setLocalInputMethod;
-  
+
   const [selectedNotes, setSelectedNotes] = useState<string[]>([]);
   const [validationState, setValidationState] = useState<{
     isValid: boolean;
@@ -149,14 +149,14 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
   const handleNoteToggle = useCallback((note: string) => {
     const currentNotes = value.split(/[\s,]+/).filter(n => n.trim());
     const isSelected = currentNotes.includes(note);
-    
+
     let newNotes;
     if (isSelected) {
       newNotes = currentNotes.filter(n => n !== note);
     } else {
       newNotes = [...currentNotes, note];
     }
-    
+
     const newValue = newNotes.join(' ');
     onChange(newValue);
     setSelectedNotes(newNotes);
@@ -182,29 +182,29 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
   useEffect(() => {
     if (midiData && midiData.playedNotes.length > 0) {
       setActiveInputMethod('midi');
-      
+
       // Convert MIDI notes to note names
       const noteNames = midiData.playedNotes.map(note => {
         const noteName = note.accidental ? `${note.name}${note.accidental}` : note.name;
         return noteName;
       });
-      
+
       // For chord input type, detect chords from simultaneous notes
       if (inputType === 'chord' && enableChordRecognition && midiData.analysisFocus === 'chord') {
         if (noteNames.length >= 3) {
           const midiNumbers = midiData.playedNotes.map(note => note.number);
           const chords = findChordMatches(midiNumbers);
-          
+
           if (chords.length > 0) {
             // Use the best matching chord
             const bestChord = chords[0];
             onChange(bestChord.chordSymbol);
-            
+
             setValidationState(prev => ({
               ...prev,
               detectedChords: chords
             }));
-            
+
             if (onChordDetected) {
               onChordDetected(chords);
             }
@@ -212,7 +212,7 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
           }
         }
       }
-      
+
       // For melody/scale input, accumulate notes
       if (inputType === 'melody' || inputType === 'scale') {
         // Use pitch classes to avoid duplicates but preserve order for melody
@@ -226,18 +226,18 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
           const currentNotes = value.split(/[\s,]+/).filter(n => n.trim());
           const existingPitchClasses = new Set(notesToPitchClasses(currentNotes));
           const newPitchClasses = notesToPitchClasses(noteNames);
-          
-          const uniqueNewNotes = noteNames.filter((_, idx) => 
+
+          const uniqueNewNotes = noteNames.filter((_, idx) =>
             !existingPitchClasses.has(newPitchClasses[idx])
           );
-          
+
           if (uniqueNewNotes.length > 0) {
             const allNotes = [...currentNotes, ...uniqueNewNotes];
             onChange(allNotes.join(' '));
           }
         }
       }
-      
+
       // Trigger callbacks (removed from dependency array to prevent infinite loops)
       if (onNotesChanged) {
         const pitchClasses = noteNames.map(note => {
@@ -272,29 +272,29 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
 
   // Enhanced input method configuration
   const inputMethods = useMemo(() => [
-    { 
-      id: 'keyboard' as const, 
-      label: 'Type', 
+    {
+      id: 'keyboard' as const,
+      label: 'Type',
       icon: '⌨️',
-      shortIcon: '⌨️', 
+      shortIcon: '⌨️',
       description: `Type ${inputType === 'progression' ? 'chord symbols or Roman numerals' : inputType === 'chord' ? 'chord name' : 'note names'} directly`
     },
-    { 
-      id: 'mouse' as const, 
-      label: 'Click', 
+    {
+      id: 'mouse' as const,
+      label: 'Click',
       icon: '🖱️',
-      shortIcon: '🖱️', 
+      shortIcon: '🖱️',
       description: `Click to select ${inputType === 'chord' || inputType === 'progression' ? 'chords' : 'notes'}`
     },
-    { 
-      id: 'midi' as const, 
-      label: 'Play', 
+    {
+      id: 'midi' as const,
+      label: 'Play',
       icon: '🎹',
-      shortIcon: '🎹', 
+      shortIcon: '🎹',
       description: `Play your MIDI keyboard${inputType === 'chord' ? ' (hold notes for chords)' : ''}`
     },
   ], [inputType]);
-  
+
   const currentMethod = inputMethods.find(method => method.id === activeInputMethod);
 
   // Dynamic input data based on type
@@ -312,11 +312,11 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
   }, [inputType]);
 
   const currentValueArray = value.split(/[\s,]+/).filter(n => n.trim());
-  
+
   // Enhanced placeholder text
   const dynamicPlaceholder = useMemo(() => {
     if (placeholder !== "Enter notes or chords...") return placeholder;
-    
+
     switch (inputType) {
       case 'melody':
         return "Enter melody notes (e.g., C D E F G)";
@@ -339,13 +339,13 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
         <div className="flex items-center justify-between">
           <Label className="text-sm font-medium flex items-center gap-2">
             <span>
-              {inputType === 'chord' ? '🎹' : 
+              {inputType === 'chord' ? '🎹' :
                inputType === 'progression' ? '🎼' :
                inputType === 'melody' ? '🎵' : '🎶'}
             </span>
             {label}
           </Label>
-          
+
           {/* Status Indicators */}
           <div className="flex items-center gap-2">
             {midiData?.isActive && (
@@ -417,7 +417,7 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
           })}
         </div>
       )}
-      
+
 
       {/* Input Method Content */}
       <div className="space-y-3">
@@ -447,7 +447,7 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
                 </Button>
               )}
             </div>
-            
+
             {/* Validation feedback */}
             {!validationState.isValid && validationState.suggestions.length > 0 && (
               <div className="space-y-2">
@@ -462,7 +462,7 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
                 </ul>
               </div>
             )}
-            
+
             {/* Input format help */}
             <div className="text-xs text-muted-foreground space-y-1">
               <p className="font-medium">Format examples:</p>
@@ -481,7 +481,7 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
                 )}
               </div>
             </div>
-            
+
             {/* Input history */}
             {inputHistory.length > 0 && (
               <div className="space-y-2">
@@ -515,7 +515,7 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
                 allowKeyboardInput={true}
               />
             )}
-            
+
             {/* Single Chord Builder */}
             {inputType === 'chord' && (
               <CompactChordBuilder
@@ -525,7 +525,7 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
                 showPlayback={false}
               />
             )}
-            
+
             {/* Note Selector for Melodies/Scales */}
             {(inputType === 'melody' || inputType === 'scale') && (
               <CompactNoteSelector
@@ -565,15 +565,15 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
                 </div>
               </div>
             )}
-            
-            <MidiVisualizer 
+
+            <MidiVisualizer
               playedNotes={midiData?.playedNotes?.map(note => {
                 const noteName = note.accidental ? `${note.name}${note.accidental}` : note.name;
                 return noteName;
               }) || []}
               isActive={midiData?.isActive || false}
             />
-            
+
             {/* Enhanced MIDI input display */}
             <div className="space-y-2">
               {midiData?.status && (
@@ -587,7 +587,7 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
                   </span>
                 </div>
               )}
-              
+
               {value && (
                 <div className="bg-muted/50 rounded-md p-3">
                   <div className="flex items-center gap-2">
@@ -596,7 +596,7 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
                   </div>
                 </div>
               )}
-              
+
               {midiData?.playedPitchClasses && midiData.playedPitchClasses.size > 0 && (
                 <div className="bg-primary/5 rounded-md p-3 border border-primary/20">
                   <div className="flex items-center gap-2 text-xs">
@@ -612,16 +612,16 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
                 </div>
               )}
             </div>
-            
+
             {/* MIDI controls */}
             <div className="flex items-center justify-between">
               <p className="text-xs text-muted-foreground">
-                {midiData?.isActive 
+                {midiData?.isActive
                   ? "🎹 MIDI connected - play your keyboard!"
                   : "🔌 Connect a MIDI keyboard to use this input method"
                 }
               </p>
-              
+
               {midiData?.clearPlayedNotes && (
                 <Button
                   variant="outline"
@@ -674,7 +674,7 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
                 </DelightfulButton>
               </>
             )}
-            
+
             {inputType === 'scale' && (
               <>
                 <DelightfulButton
@@ -704,7 +704,7 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
                 </DelightfulButton>
               </>
             )}
-            
+
             {inputType === 'chord' && (
               <>
                 <DelightfulButton
@@ -734,7 +734,7 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
                 </DelightfulButton>
               </>
             )}
-            
+
             {inputType === 'progression' && (
               <>
                 <DelightfulButton

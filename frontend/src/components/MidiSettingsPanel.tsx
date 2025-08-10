@@ -54,10 +54,10 @@ const MidiSettingsPanel: React.FC<MidiSettingsPanelProps> = ({
           <span className="text-lg">🎹</span>
           <span className="text-sm font-medium">MIDI</span>
           <div className={`status-indicator ${error ? 'status-error' : status.includes('Listening') ? 'status-active' : 'status-inactive'}`}></div>
-          <svg 
-            className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} 
-            fill="none" 
-            stroke="currentColor" 
+          <svg
+            className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
             viewBox="0 0 24 24"
           >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>

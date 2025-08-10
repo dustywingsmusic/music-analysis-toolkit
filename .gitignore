@@ -122,10 +122,78 @@ celerybeat-schedule
 # mkdocs documentation
 /site
 
-# mypy
+# Type Checking and Linting
 .mypy_cache/
 .dmypy.json
 dmypy.json
+.eslintcache
+.ruff_cache/
 
-# local documents
+# Pre-commit and Quality Tools
+.pre-commit-cache/
+.secrets.baseline
+*.json.backup
+bandit-report.json
+safety-report.json
+pip-audit-report.json
+flake8-report.txt
+
+# Code Coverage and Analysis
+.coverage.*
+coverage.xml
+coverage.json
+lcov.info
+.codecov/
+
+# Security and Audit Reports
+audit-results.json
+dependency-check-report.xml
+semgrep-report.json
+
+# Development Tools
+.vscode/settings.json
+.vscode/launch.json
+.idea/workspace.xml
+.idea/tasks.xml
+
+# Build and Deployment
+.docker/
+docker-compose.override.yml
+.dockerfile.swp
+.dockerignore.swp
+
+# Reports and Documentation
+reports/
+*.html
+*.xml
+junit-results.xml
+test-results.json
+vitest-results.json
+vitest-report.html
+
+# Cache directories
+.cache/
+.parcel-cache/
+.npm/
+.yarn/cache/
+.pnpm-store/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*~
+.#*
+
+# Local development overrides
+docker-compose.local.yml
+.env.override
+local.json
+
+# Auto-generated files
+package-lock.json.backup
+yarn.lock.backup
+
+# Local documents and notes
 /.local_docs/

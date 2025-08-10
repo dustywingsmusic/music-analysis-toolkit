@@ -26,29 +26,29 @@ const IntegrationTestPanel: React.FC = () => {
   const runQuickTest = async (progression: string, expectedKey: string) => {
     try {
       console.log(`🧪 Testing: ${progression}`);
-      
+
       startAnalysis('chord_progression', progression);
-      
+
       const result = await analyzeChordProgression(progression, {
         useLocalFirst: true,
         enableAIEnhancement: false, // Skip AI for quick test
         enableCrossValidation: false
       });
-      
+
       completeLocalAnalysis(result.localResult);
-      
+
       const actualKey = result.localResult.results.chordProgression?.localAnalysis.keyCenter || 'Unknown';
       const confidence = result.localResult.results.confidence || 0;
-      
+
       const success = actualKey.includes(expectedKey.split('/')[0]);
-      
+
       return {
         success,
         actualKey,
         confidence,
         processingTime: result.localResult.metadata.processingTime
       };
-      
+
     } catch (error) {
       console.error('Test failed:', error);
       return {
@@ -60,13 +60,13 @@ const IntegrationTestPanel: React.FC = () => {
 
   const runAllTests = async () => {
     setTestResults('🚀 Running Phase 1 Integration Tests...\n\n');
-    
+
     let passedTests = 0;
     let totalTests = testProgressions.length;
-    
+
     for (const test of testProgressions) {
       const result = await runQuickTest(test.progression, test.expectedKey);
-      
+
       const resultText = `📋 ${test.name} (${test.progression})\n` +
         `   Expected: ${test.expectedKey}\n` +
         `   Actual: ${result.actualKey || 'ERROR'}\n` +
@@ -74,19 +74,19 @@ const IntegrationTestPanel: React.FC = () => {
         `   ${result.confidence ? `Confidence: ${(result.confidence * 100).toFixed(1)}%` : ''}\n` +
         `   ${result.processingTime ? `Time: ${result.processingTime.toFixed(2)}ms` : ''}\n` +
         `   ${result.error ? `Error: ${result.error}` : ''}\n\n`;
-      
+
       setTestResults(prev => prev + resultText);
-      
+
       if (result.success) passedTests++;
-      
+
       // Small delay between tests
       await new Promise(resolve => setTimeout(resolve, 100));
     }
-    
+
     const summary = `🎯 Test Summary: ${passedTests}/${totalTests} tests passed\n` +
       `📊 Success Rate: ${((passedTests / totalTests) * 100).toFixed(1)}%\n\n` +
       `${passedTests === totalTests ? '🎉 All tests passed! Phase 1 integration successful.' : '⚠️ Some tests failed. Check implementation.'}`;
-    
+
     setTestResults(prev => prev + summary);
   };
 

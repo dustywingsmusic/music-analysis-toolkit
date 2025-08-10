@@ -51,7 +51,7 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         // Enable WebMIDI API for testing
         launchOptions: {
@@ -62,7 +62,7 @@ export default defineConfig({
 
     {
       name: 'firefox',
-      use: { 
+      use: {
         ...devices['Desktop Firefox'],
         // Firefox MIDI support configuration
         launchOptions: {
@@ -91,8 +91,8 @@ export default defineConfig({
     /* Test against branded browsers. */
     {
       name: 'Microsoft Edge',
-      use: { 
-        ...devices['Desktop Edge'], 
+      use: {
+        ...devices['Desktop Edge'],
         channel: 'msedge',
         launchOptions: {
           args: ['--enable-web-midi']
@@ -101,8 +101,8 @@ export default defineConfig({
     },
     {
       name: 'Google Chrome',
-      use: { 
-        ...devices['Desktop Chrome'], 
+      use: {
+        ...devices['Desktop Chrome'],
         channel: 'chrome',
         launchOptions: {
           args: ['--enable-web-midi']

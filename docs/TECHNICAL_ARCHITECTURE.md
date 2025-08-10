@@ -285,11 +285,11 @@ The application has been successfully transformed from a tool-centric layout to 
 ### Phase 1: Foundation Integration (Immediate - 2-4 weeks)
 **Priority: CRITICAL**
 1. **Chord Progression Analysis Redesign** - Replace AI dependency with local chord templates and mode detection algorithms from Reference section
-2. **Shared Analysis Context** - Create unified analysis state that persists across tabs using existing Reference section capabilities  
+2. **Shared Analysis Context** - Create unified analysis state that persists across tabs using existing Reference section capabilities
 3. **Cross-Feature Navigation** - Extend "View in Tables" pattern to all analysis features for seamless learning workflows
 
 ### Phase 2: Enhanced Theoretical Foundation (4-8 weeks)
-**Priority: HIGH** 
+**Priority: HIGH**
 1. **Modal Context Analysis System** - Implement local detection of characteristic modal movements using existing scale database
 2. **Roman Numeral Analysis Engine** - Proper functional harmony analysis without AI dependency
 3. **Enhanced Chord Template System** - Expand existing chord recognition for extended harmony and modal-specific chords
@@ -303,7 +303,7 @@ The application has been successfully transformed from a tool-centric layout to 
 ### Legacy Roadmap (Superseded by Integration Plan)
 ~~The following items are superseded by the Music Theory Integration Roadmap priorities:~~
 - ~~Enhanced Analysis Results Panel~~ → Integrated into Phase 1 shared context
-- ~~Advanced Mode Discovery~~ → Will leverage existing Reference section capabilities  
+- ~~Advanced Mode Discovery~~ → Will leverage existing Reference section capabilities
 - ~~Audio Analysis~~ → Moved to Phase 3 after theoretical foundation is solid
 - ~~Enhanced Harmony Tools~~ → Critical redesign needed in Phase 1-2
 

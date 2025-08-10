@@ -1,9 +1,9 @@
 /**
  * Shared Scale Tables Service
- * 
+ *
  * This service provides a unified API for scale table functionality that can be used
  * across different contexts: main app, Analysis Widget, and future Chrome plugin.
- * 
+ *
  * Key Features:
  * - Scale data management and filtering
  * - Mode relationship navigation
@@ -82,7 +82,7 @@ export class SharedScaleTablesService {
       pluginMode: false,
       ...config
     };
-    
+
     this.initializeScales();
   }
 
@@ -92,22 +92,22 @@ export class SharedScaleTablesService {
    */
   private initializeScales(): void {
     this.processedScales = [];
-    
+
     // Process each scale family
     allScaleData.forEach((scaleFamily: ScaleData) => {
       // For each root note
       NOTES.forEach((rootNoteCompound: string, rootIndex: number) => {
         const rootNote = rootNoteCompound.split('/')[0]; // Use primary name (C instead of C♯/D♭)
-        
+
         // For each mode in the scale family
         scaleFamily.modeIntervals.forEach((intervals: number[], modeIndex: number) => {
           const pitchClasses = new Set(intervals.map(interval => (rootIndex + interval) % 12));
           const notes = generateScaleFromIntervals(rootIndex, rootNote, intervals);
-          
+
           // Calculate parent scale information
           const parentRootIndex = (rootIndex - modeIndex + 12) % 12;
           const parentRootNote = NOTES[parentRootIndex].split('/')[0];
-          
+
           const processedScale: ProcessedScale = {
             id: `${scaleFamily.tableId}-${rootIndex}-${modeIndex}`,
             tableId: scaleFamily.tableId,
@@ -179,7 +179,7 @@ export class SharedScaleTablesService {
     // Search query filter
     if (filter.searchQuery) {
       const query = filter.searchQuery.toLowerCase();
-      filteredScales = filteredScales.filter(scale => 
+      filteredScales = filteredScales.filter(scale =>
         scale.name?.toLowerCase().includes(query) ||
         scale.rootNoteName.toLowerCase().includes(query) ||
         scale.scaleFamily.toLowerCase().includes(query) ||
@@ -189,21 +189,21 @@ export class SharedScaleTablesService {
 
     // Root note filter
     if (filter.rootNote && isValidRootNote(filter.rootNote)) {
-      filteredScales = filteredScales.filter(scale => 
+      filteredScales = filteredScales.filter(scale =>
         scale.rootNoteName === filter.rootNote
       );
     }
 
     // Scale family filter
     if (filter.scaleFamily) {
-      filteredScales = filteredScales.filter(scale => 
+      filteredScales = filteredScales.filter(scale =>
         scale.scaleFamily === filter.scaleFamily
       );
     }
 
     // Mode index filter
     if (typeof filter.modeIndex === 'number') {
-      filteredScales = filteredScales.filter(scale => 
+      filteredScales = filteredScales.filter(scale =>
         scale.modeIndex === filter.modeIndex
       );
     }
@@ -238,7 +238,7 @@ export class SharedScaleTablesService {
     }
 
     const { targetMode, targetTonic } = context;
-    
+
     if (!targetMode || !targetTonic) {
       return null;
     }
@@ -256,7 +256,7 @@ export class SharedScaleTablesService {
         reason: 'analysis',
         temporary: false
       };
-      
+
       this.setHighlight(highlight);
       return highlight;
     }
@@ -269,7 +269,7 @@ export class SharedScaleTablesService {
    */
   public setHighlight(highlight: ScaleHighlight): void {
     this.currentHighlights.set(highlight.cellId, highlight);
-    
+
     // Clear temporary highlights after duration
     if (highlight.temporary && highlight.duration) {
       setTimeout(() => {
@@ -307,7 +307,7 @@ export class SharedScaleTablesService {
     if (!isValidRootNote(rootNote)) {
       return [];
     }
-    
+
     return buildModesFromRoot(rootNote);
   }
 
@@ -322,7 +322,7 @@ export class SharedScaleTablesService {
    * Find scales by mode name (e.g., "Dorian", "Mixolydian")
    */
   public findScalesByMode(modeName: string): ProcessedScale[] {
-    return this.processedScales.filter(scale => 
+    return this.processedScales.filter(scale =>
       scale.name?.toLowerCase().includes(modeName.toLowerCase())
     );
   }
@@ -331,7 +331,7 @@ export class SharedScaleTablesService {
    * Find scales by root note
    */
   public findScalesByRoot(rootNote: string): ProcessedScale[] {
-    return this.processedScales.filter(scale => 
+    return this.processedScales.filter(scale =>
       scale.rootNoteName === rootNote
     );
   }
@@ -441,11 +441,11 @@ export class SharedScaleTablesService {
     };
 
     const service = new SharedScaleTablesService(config);
-    
+
     if (data?.scales) {
       service.processedScales = data.scales;
     }
-    
+
     return service;
   }
 }
@@ -474,13 +474,13 @@ export const scaleTableNavigation = {
       targetMode: mode,
       targetTonic: tonic
     };
-    
+
     const highlight = sharedScaleTablesService.navigateFromAnalysis(context);
-    
+
     if (highlight && onNavigate) {
       onNavigate(highlight.cellId);
     }
-    
+
     return highlight;
   },
 
@@ -488,23 +488,23 @@ export const scaleTableNavigation = {
    * Navigate from modal analysis result
    */
   viewModalInTables: (
-    modeName: string, 
+    modeName: string,
     onNavigate?: (mode: string, tonic: string) => void
   ) => {
     const modeParts = modeName.split(' ');
     const tonic = modeParts[0];
     const mode = modeParts.slice(1).join(' ');
-    
+
     if (onNavigate) {
       onNavigate(mode, tonic);
     }
-    
+
     const context: CrossNavigationContext = {
       sourceTab: 'modal',
       targetMode: mode,
       targetTonic: tonic
     };
-    
+
     return sharedScaleTablesService.navigateFromAnalysis(context);
   },
 

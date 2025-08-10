@@ -1,7 +1,7 @@
 /**
  * Analytics Manager
  * Handles Google Analytics Advanced Consent Mode
- * 
+ *
  * This implementation follows Google's Advanced Consent Mode best practices:
  * - Google Analytics is always loaded and configured
  * - When consent is denied, GA sends cookieless pings for behavioral modeling
@@ -28,11 +28,11 @@ export class AnalyticsManager {
    */
   static initialize(): void {
     if (this.initialized) return;
-    
+
     const consent = localStorage.getItem('cookie-consent');
     this.consentGiven = consent === 'accepted';
     this.initialized = true;
-    
+
     // Note: In Advanced Consent Mode, GA is always configured in index.html
     // This ensures cookieless pings are sent even when consent is denied
   }
@@ -44,7 +44,7 @@ export class AnalyticsManager {
   static grantConsent(): void {
     this.consentGiven = true;
     localStorage.setItem('cookie-consent', 'accepted');
-    
+
     if (typeof window !== 'undefined' && window.gtag) {
       // Update consent mode for all relevant consent types
       window.gtag('consent', 'update', {
@@ -63,7 +63,7 @@ export class AnalyticsManager {
   static revokeConsent(): void {
     this.consentGiven = false;
     localStorage.setItem('cookie-consent', 'declined');
-    
+
     if (typeof window !== 'undefined' && window.gtag) {
       // Update consent mode to deny all storage
       // GA will continue to send cookieless pings for behavioral modeling
@@ -99,10 +99,10 @@ export class AnalyticsManager {
     try {
       // Detect user's region using timezone as a heuristic
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const isEURegion = timezone.includes('Europe') || 
-                        timezone.includes('London') || 
+      const isEURegion = timezone.includes('Europe') ||
+                        timezone.includes('London') ||
                         timezone.includes('Dublin');
-      
+
       // Default to denied for EU regions (GDPR), granted for others (like US)
       return isEURegion ? 'denied' : 'granted';
     } catch (error) {

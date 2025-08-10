@@ -1,12 +1,12 @@
 /**
  * CompactChordBuilder - Enhanced Mouse Input for Chord Progressions
- * 
+ *
  * A space-efficient chord progression builder that allows users to:
  * - Build chords one at a time with clear visual feedback
  * - Navigate between chords with next/previous arrows
  * - Manage chord sequences for progression analysis
  * - Integrate seamlessly with existing input systems
- * 
+ *
  * Based on MOUSE_CHORD_INPUT_DESIGN.md but simplified for tight spaces.
  */
 
@@ -100,7 +100,7 @@ const CompactChordBuilder: React.FC<CompactChordBuilderProps> = ({
       const extData = CHORD_EXTENSIONS.find(e => e.id === ext);
       return extData?.symbol || ext;
     }).join('');
-    
+
     return `${root}${qualitySymbol}${extensionSymbols}`;
   }, []);
 
@@ -113,7 +113,7 @@ const CompactChordBuilder: React.FC<CompactChordBuilderProps> = ({
   const addChordToProgression = useCallback(() => {
     const chordSymbol = generateChordSymbol(buildingChord.root, buildingChord.quality, buildingChord.extensions);
     const newChords = [...currentChords];
-    
+
     if (activeChordIndex < newChords.length) {
       // Replace existing chord
       newChords[activeChordIndex] = chordSymbol;
@@ -121,9 +121,9 @@ const CompactChordBuilder: React.FC<CompactChordBuilderProps> = ({
       // Add new chord
       newChords.push(chordSymbol);
     }
-    
+
     onChange(newChords.join(' '));
-    
+
     // Move to next chord position
     if (activeChordIndex < Math.min(newChords.length, maxChords - 1)) {
       setActiveChordIndex(activeChordIndex + 1);
@@ -134,7 +134,7 @@ const CompactChordBuilder: React.FC<CompactChordBuilderProps> = ({
   const removeChord = useCallback((index: number) => {
     const newChords = currentChords.filter((_, i) => i !== index);
     onChange(newChords.join(' '));
-    
+
     // Adjust active index if needed
     if (activeChordIndex >= newChords.length && newChords.length > 0) {
       setActiveChordIndex(newChords.length - 1);
@@ -149,11 +149,11 @@ const CompactChordBuilder: React.FC<CompactChordBuilderProps> = ({
       const chordSymbol = currentChords[index];
       // Simple parsing - in a full implementation, you'd have sophisticated chord parsing
       const root = chordSymbol.charAt(0) + (chordSymbol.charAt(1) && ['#', 'b', '♯', '♭'].includes(chordSymbol.charAt(1)) ? chordSymbol.charAt(1) : '');
-      
+
       // Find matching quality (simplified)
       let quality = 'maj';
       let extensions: string[] = [];
-      
+
       if (chordSymbol.includes('m7')) quality = 'min7';
       else if (chordSymbol.includes('maj7')) quality = 'maj7';
       else if (chordSymbol.includes('7')) quality = 'dom7';
@@ -162,7 +162,7 @@ const CompactChordBuilder: React.FC<CompactChordBuilderProps> = ({
       else if (chordSymbol.includes('aug')) quality = 'aug';
       else if (chordSymbol.includes('sus2')) quality = 'sus2';
       else if (chordSymbol.includes('sus4')) quality = 'sus4';
-      
+
       setBuildingChord({ root, quality, extensions });
     }
     setActiveChordIndex(index);
@@ -222,7 +222,7 @@ const CompactChordBuilder: React.FC<CompactChordBuilderProps> = ({
             </Button>
           )}
         </div>
-        
+
         <Card className="border-2 border-dashed border-muted-foreground/30">
           <CardContent className="p-3">
             {currentChords.length === 0 ? (
@@ -261,7 +261,7 @@ const CompactChordBuilder: React.FC<CompactChordBuilderProps> = ({
                     )}
                   </div>
                 ))}
-                
+
                 {/* Add new chord indicator */}
                 {currentChords.length < maxChords && (
                   <>

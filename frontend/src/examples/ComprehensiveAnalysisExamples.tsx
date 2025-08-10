@@ -1,7 +1,7 @@
 /**
  * Comprehensive Analysis Examples
  * Demonstrates the new Functional-First → Modal Enhancement → Chromatic Analysis hierarchy
- * 
+ *
  * Examples showcase different types of progressions and when each analytical approach is most valuable
  */
 
@@ -30,7 +30,7 @@ export const COMPREHENSIVE_ANALYSIS_EXAMPLES = [
       chromaticElements: []
     }
   },
-  
+
   {
     id: 'modal_mixolydian',
     title: 'Mixolydian Modal Progression',
@@ -55,7 +55,7 @@ export const COMPREHENSIVE_ANALYSIS_EXAMPLES = [
       chromaticElements: []
     }
   },
-  
+
   {
     id: 'chromatic_secondary',
     title: 'Secondary Dominant Progression',
@@ -82,7 +82,7 @@ export const COMPREHENSIVE_ANALYSIS_EXAMPLES = [
       ]
     }
   },
-  
+
   {
     id: 'borrowed_chords',
     title: 'Modal Interchange (Borrowed Chords)',
@@ -114,7 +114,7 @@ export const COMPREHENSIVE_ANALYSIS_EXAMPLES = [
       ]
     }
   },
-  
+
   {
     id: 'jazz_ii_v_i',
     title: 'Jazz ii-V-I with Extensions',
@@ -134,7 +134,7 @@ export const COMPREHENSIVE_ANALYSIS_EXAMPLES = [
       chromaticElements: []
     }
   },
-  
+
   {
     id: 'complex_modal',
     title: 'Complex Modal Progression',
@@ -174,7 +174,7 @@ export const ComprehensiveAnalysisShowcase: React.FC = () => {
           Each example shows when and why to use different theoretical perspectives.
         </p>
       </div>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {COMPREHENSIVE_ANALYSIS_EXAMPLES.map((example) => (
           <Card key={example.id} className="border-2">
@@ -198,13 +198,13 @@ export const ComprehensiveAnalysisShowcase: React.FC = () => {
             <CardContent className="space-y-4">
               {/* Description */}
               <p className="text-sm text-gray-700">{example.description}</p>
-              
+
               {/* Why This Approach */}
               <div className="p-3 rounded-lg border bg-gray-50">
                 <strong className="text-sm font-semibold text-gray-700">Why {example.expectedAnalysis.primary} analysis?</strong>
                 <p className="text-sm text-gray-600 mt-1">{example.expectedAnalysis.reason}</p>
               </div>
-              
+
               {/* Primary Analysis Preview */}
               <div className="space-y-2">
                 <strong className="text-sm font-semibold">Key Analysis Points:</strong>
@@ -222,7 +222,7 @@ export const ComprehensiveAnalysisShowcase: React.FC = () => {
                   )}
                 </div>
               </div>
-              
+
               {/* Try Button */}
               <Button variant="outline" size="sm" className="w-full">
                 Try This Progression →
@@ -231,7 +231,7 @@ export const ComprehensiveAnalysisShowcase: React.FC = () => {
           </Card>
         ))}
       </div>
-      
+
       {/* Educational Summary */}
       <Card className="border-2 border-green-200 bg-green-50/30">
         <CardHeader>

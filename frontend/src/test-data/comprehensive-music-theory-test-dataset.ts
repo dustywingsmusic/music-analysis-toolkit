@@ -1,12 +1,12 @@
 /**
  * Comprehensive Test Dataset for Music Theory Analysis Framework
- * 
+ *
  * This dataset provides exhaustive test cases for validating:
  * - Functional harmony analysis (Roman numerals, chord functions, cadences)
  * - Modal analysis (parent key + local tonic approach)
  * - Chromatic harmony (secondary dominants, borrowed chords)
  * - Multiple interpretations with confidence scoring
- * 
+ *
  * Each test case includes expected outputs for all analytical approaches
  * to ensure the framework handles complex musical scenarios accurately.
  */
@@ -626,7 +626,7 @@ export const comprehensiveMusicTheoryTestDataset: MusicTheoryTestCase[] = [
  * Helper function to get test cases by category
  */
 export function getTestCasesByCategory(category: string): MusicTheoryTestCase[] {
-  return comprehensiveMusicTheoryTestDataset.filter(testCase => 
+  return comprehensiveMusicTheoryTestDataset.filter(testCase =>
     testCase.category === category
   );
 }
@@ -635,7 +635,7 @@ export function getTestCasesByCategory(category: string): MusicTheoryTestCase[] 
  * Helper function to get test cases by expected primary analysis approach
  */
 export function getTestCasesByPrimaryApproach(approach: 'functional' | 'modal' | 'chromatic'): MusicTheoryTestCase[] {
-  return comprehensiveMusicTheoryTestDataset.filter(testCase => 
+  return comprehensiveMusicTheoryTestDataset.filter(testCase =>
     testCase.expectedPrimary === approach
   );
 }
@@ -644,9 +644,9 @@ export function getTestCasesByPrimaryApproach(approach: 'functional' | 'modal' |
  * Helper function to get test cases with chromatic elements
  */
 export function getTestCasesWithChromaticElements(): MusicTheoryTestCase[] {
-  return comprehensiveMusicTheoryTestDataset.filter(testCase => 
-    testCase.expectedChromaticElements && 
-    (testCase.expectedChromaticElements.secondaryDominants?.length || 
+  return comprehensiveMusicTheoryTestDataset.filter(testCase =>
+    testCase.expectedChromaticElements &&
+    (testCase.expectedChromaticElements.secondaryDominants?.length ||
      testCase.expectedChromaticElements.borrowedChords?.length ||
      testCase.expectedChromaticElements.chromaticMediants?.length)
   );
@@ -656,7 +656,7 @@ export function getTestCasesWithChromaticElements(): MusicTheoryTestCase[] {
  * Helper function to get ambiguous test cases (those with alternative interpretations)
  */
 export function getAmbiguousTestCases(): MusicTheoryTestCase[] {
-  return comprehensiveMusicTheoryTestDataset.filter(testCase => 
+  return comprehensiveMusicTheoryTestDataset.filter(testCase =>
     testCase.alternativeInterpretations && testCase.alternativeInterpretations.length > 0
   );
 }
@@ -666,7 +666,7 @@ export function getAmbiguousTestCases(): MusicTheoryTestCase[] {
  */
 export const TEST_CATEGORIES = [
   'Basic Functional',
-  'Cadences', 
+  'Cadences',
   'Modal - No Parent Key',
   'Modal - With Parent Key',
   'Secondary Dominants',

@@ -44,8 +44,8 @@ export const useUnifiedResults = (activeTab: TabType) => {
 
       if (savedPreferences) {
         const preferences = JSON.parse(savedPreferences);
-        setUnifiedResults(prev => ({ 
-          ...prev, 
+        setUnifiedResults(prev => ({
+          ...prev,
           autoShowResults: preferences.autoShowResults ?? true,
           isAnalysisDismissed: preferences.isAnalysisDismissed ?? false
         }));
@@ -82,8 +82,8 @@ export const useUnifiedResults = (activeTab: TabType) => {
   // Helper function to determine if analysis panel should be visible
   const shouldShowAnalysisPanel = (state: UnifiedResultsState): boolean => {
     return !!(
-      state.currentResults && 
-      !state.isAnalysisDismissed && 
+      state.currentResults &&
+      !state.isAnalysisDismissed &&
       state.autoShowResults
     );
   };
