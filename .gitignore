@@ -195,6 +195,7 @@ local.json
 package-lock.json.backup
 yarn.lock.backup
 frontend/tests/generated/
+frontend/modal-test-detailed-results.json
 
 # Local documents and notes
 /.local_docs/
