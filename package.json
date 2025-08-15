@@ -12,6 +12,9 @@
     "start": "cd backend && uvicorn app.main:app --host 0.0.0.0 --port 8000",
     "build": "cd frontend && npm run build",
     "preview": "cd frontend && npm run preview",
+    "frontend:stop": "pkill -f vite",
+    "backend:stop": "pkill -f uvicorn",
+    "stop": "npm run frontend:stop && npm run backend:stop",
 
     "// --- Testing ---": "----------------------------------------------",
     "test": "cd frontend && npm run test",

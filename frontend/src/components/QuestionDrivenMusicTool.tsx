@@ -30,7 +30,7 @@ import UnifiedResultsPanel from "@/components/UnifiedResultsPanel";
 import MidiSettingsPanel from './MidiSettingsPanel';
 import InputSettingsPanel from './InputSettingsPanel';
 import { InputMethodProvider, useInputMethod } from '../contexts/InputMethodContext';
-import {useMidi} from '@/hooks/useMidi';
+// Removed useMidi import - now using MIDI data passed from parent component
 import {logger} from '@/utils/logger';
 import { trackInteraction } from '../utils/tracking';
 import { useAnalysis, useAnalysisActions } from '../contexts/AnalysisContext';
@@ -39,10 +39,29 @@ import NavigationDebugger from './NavigationDebugger';
 
 interface QuestionDrivenMusicToolProps {
   showDebugInfo: boolean;
+  midiData?: {
+    status: string;
+    devices: any[];
+    selectedDevice: string | null;
+    setSelectedDevice: (deviceId: string | null) => void;
+    playedNotes: any[];
+    playedPitchClasses: Set<number>;
+    detectionEnabled: boolean;
+    setDetectionEnabled: (enabled: boolean) => void;
+    analysisFocus: 'automatic' | 'complete' | 'pentatonic' | 'chord';
+    setAnalysisFocus: (focus: 'automatic' | 'complete' | 'pentatonic' | 'chord') => void;
+    clearPlayedNotes: () => void;
+    error: string | null;
+    enabled: boolean;
+    enableMidi: () => void;
+    disableMidi: () => void;
+    forceCleanup: () => void;
+    resetMidiConnection: () => void;
+  };
 }
 
 
-const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showDebugInfo }) => {
+const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showDebugInfo, midiData }) => {
   const [highlightIdForReference, setHighlightIdForReference] = useState<string | null>(null);
 
   // Use enhanced analysis context
@@ -86,6 +105,7 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
     // This is just a placeholder for potential future global melody analysis
   }, []);
 
+  // Use MIDI data from parent component instead of creating duplicate hook
   const {
     status: midiStatus,
     devices: midiDevices,
@@ -104,7 +124,26 @@ const QuestionDrivenMusicTool: React.FC<QuestionDrivenMusicToolProps> = ({ showD
     disableMidi,
     forceCleanup,
     resetMidiConnection,
-  } = useMidi(handleChordDetected, handleMelodyUpdate);
+  } = midiData || {
+    // Fallback values if no midiData provided
+    status: 'No MIDI data',
+    devices: [],
+    selectedDevice: null,
+    setSelectedDevice: () => {},
+    playedNotes: [],
+    playedPitchClasses: new Set(),
+    detectionEnabled: false,
+    setDetectionEnabled: () => {},
+    analysisFocus: 'automatic' as const,
+    setAnalysisFocus: () => {},
+    clearPlayedNotes: () => {},
+    error: null,
+    enabled: false,
+    enableMidi: () => {},
+    disableMidi: () => {},
+    forceCleanup: () => {},
+    resetMidiConnection: () => {},
+  };
 
   // Input method context integration
   const {
