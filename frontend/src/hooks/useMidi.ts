@@ -110,21 +110,18 @@ export const useMidi = (
       setPlayedPitchClasses(prev => {
         const newSet = new Set(prev);
         newSet.add(pitchClass);
-
-        // If detection enabled and not in chord mode, call the onMelodyUpdate callback
-        if (detectionEnabled && analysisFocus !== 'chord' && onMelodyUpdate) {
-          // We need to create a new set with the updated pitch class
-          const updatedSet = new Set(newSet);
-          console.log('Calling onMelodyUpdate with pitch classes:', Array.from(updatedSet));
-          onMelodyUpdate(updatedSet);
-        } else if (detectionEnabled && analysisFocus !== 'chord') {
-          console.log('Melody analysis enabled but no onMelodyUpdate callback provided');
-        }
-
         return newSet;
       });
     }
   }, [detectionEnabled, analysisFocus, chordDetectionTimeout, onChordDetected, onMelodyUpdate]);
+
+  // Separate effect to handle melody updates without causing infinite loops
+  useEffect(() => {
+    if (detectionEnabled && analysisFocus !== 'chord' && onMelodyUpdate && playedPitchClasses.size > 0) {
+      console.log('Calling onMelodyUpdate with pitch classes:', Array.from(playedPitchClasses));
+      onMelodyUpdate(playedPitchClasses);
+    }
+  }, [playedPitchClasses, detectionEnabled, analysisFocus, onMelodyUpdate]);
 
   const clearPlayedNotes = useCallback(() => {
     setPlayedNotes([]);
