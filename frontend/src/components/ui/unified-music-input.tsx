@@ -171,12 +171,12 @@ const UnifiedMusicInput: React.FC<UnifiedMusicInputProps> = ({
       }
     }
 
-    // Trigger notes changed callback
+    // Trigger notes changed callback (onNotesChanged removed from deps to prevent infinite loops)
     if (onNotesChanged) {
       const pitchClasses = notesToPitchClasses(newNotes);
       onNotesChanged(newNotes, pitchClasses);
     }
-  }, [value, onChange, enableChordRecognition, inputType, notesToPitchClasses, onChordDetected, onNotesChanged]);
+  }, [value, onChange, enableChordRecognition, inputType, notesToPitchClasses, onChordDetected]);
 
   // Enhanced MIDI input integration with chord recognition
   useEffect(() => {
